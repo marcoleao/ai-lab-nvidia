@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+.logs
+.state
+.cache
+.venv
+workspace
+**/__pycache__
+docs

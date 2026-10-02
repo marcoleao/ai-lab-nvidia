@@ -1,0 +1,10 @@
+.env
+.logs/
+.state/
+.cache/
+__pycache__/
+.venv/
+*.pyc
+*.vhdx
+*.tar.gz
+*.backup

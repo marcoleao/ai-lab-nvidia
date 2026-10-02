@@ -1,0 +1,20 @@
+name: Validate IaC
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PowerShell syntax and destructive path guards
+        shell: powershell
+        run: ./tests/validate.ps1
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell, Compose, lock, Python and Docker build gates
+        run: bash scripts/linux/quality-gates.sh
+      # GPU smoke tests are executed by bootstrap/ai test on the workstation.

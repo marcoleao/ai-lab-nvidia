@@ -1,0 +1,6 @@
+ollama:
+  models:
+    - qwen3:14b
+    - gpt-oss:20b
+    - qwen3-coder:30b
+    - gemma3:27b
