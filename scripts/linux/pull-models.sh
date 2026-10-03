@@ -11,6 +11,7 @@ while IFS= read -r model || [[ -n $model ]]; do
     echo "[OK] Model already installed: $model"
   else
     echo "[INFO] Pull model: $model"
-    dc exec -T ollama ollama pull "$model"
+    # docker exec can consume stdin, which belongs to the model-list loop.
+    dc exec -T ollama ollama pull "$model" </dev/null
   fi
 done <.models

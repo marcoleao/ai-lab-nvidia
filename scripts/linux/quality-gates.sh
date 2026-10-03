@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 cd "$(dirname "$0")/../.."
 for file in scripts/linux/*.sh tests/*.sh; do bash -n "$file"; done
+bash tests/test_pull_models.sh
 if command -v shellcheck >/dev/null; then
   shellcheck -x -e SC1091,SC2034 scripts/linux/*.sh tests/*.sh
 else

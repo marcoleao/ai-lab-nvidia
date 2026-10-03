@@ -7,7 +7,20 @@ if ! command -v rsync >/dev/null || ! command -v curl >/dev/null; then
   apt-get update
   apt-get install -y --no-install-recommends ca-certificates curl gnupg rsync systemd systemd-sysv sudo
 fi
-id lab >/dev/null 2>&1 || useradd -m -u 1000 -s /bin/bash lab
+if ! id lab >/dev/null 2>&1; then
+  uid_owner=$(getent passwd 1000 | cut -d: -f1) || true
+  if [[ $uid_owner == ubuntu ]]; then
+    # Canonical WSL rootfs already supplies ubuntu at the workspace/container UID.
+    groupadd -f lab
+    usermod -l lab -g lab -d /home/lab -m -s /bin/bash ubuntu
+  elif [[ -z $uid_owner ]]; then
+    useradd -m -U -u 1000 -s /bin/bash lab
+  else
+    echo "[ERROR] UID 1000 belongs to unexpected user: $uid_owner; refusing to modify it." >&2
+    exit 1
+  fi
+fi
+[[ $(id -u lab) == 1000 ]] || { echo '[ERROR] lab must use UID 1000 for workspace access'; exit 1; }
 install -d -o lab -g lab /opt/ai-local-lab /opt/ai-local-lab/workspace
 cat >/tmp/ai-lab-wsl.conf <<'EOF'
 [boot]

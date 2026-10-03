@@ -9,6 +9,11 @@ Get-ChildItem -LiteralPath $repo -Recurse -Filter '*.ps1' | Where-Object FullNam
 if ($failures.Count) { $failures | Format-List; throw 'PowerShell syntax invalid' }
 . "$repo/scripts/windows/helpers.ps1"
 $config = Read-LabConfig
+$nativeFailure = Invoke-NativeCapture powershell.exe @('-NoProfile', '-Command', '[Console]::Error.WriteLine(''WSL unavailable''); exit 7')
+if ($nativeFailure.ExitCode -ne 7 -or ($nativeFailure.Output -join ' ') -notmatch 'WSL unavailable') { throw 'Native stderr probe failed to preserve output/exit code' }
+$nativeSuccess = Invoke-NativeCapture powershell.exe @('-NoProfile', '-Command', 'Write-Output ''probe ready''; exit 0')
+if ($nativeSuccess.ExitCode -ne 0 -or ($nativeSuccess.Output -join ' ') -notmatch 'probe ready') { throw 'Native success probe failed' }
+Write-Host '[OK] Native prerequisite probes handle stderr under ErrorActionPreference Stop'
 Assert-LabPath $config.distro_directory $config.distro_name
 foreach ($unsafe in @('C:\', $env:USERPROFILE, $script:Repo, (Join-Path $script:Repo 'ai-local-lab'))) {
     $rejected = $false

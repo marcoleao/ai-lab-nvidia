@@ -70,17 +70,30 @@ function Invoke-Native([string]$File, [string[]]$Arguments) {
     & $File @Arguments
     if ($LASTEXITCODE -ne 0) { throw "Native command failed ($LASTEXITCODE): $File" }
 }
+function Invoke-NativeCapture([string]$File, [string[]]$Arguments) {
+    # Windows PowerShell turns native stderr into ErrorRecords. A failed probe
+    # must return its exit code so the caller can handle missing prerequisites.
+    $ErrorActionPreference = 'Continue'
+    $PSNativeCommandUseErrorActionPreference = $false
+    $output = @(& $File @Arguments 2>&1)
+    $code = $LASTEXITCODE
+    return [pscustomobject]@{
+        ExitCode = $code
+        Output = @($output | ForEach-Object { $_.ToString() -replace "`0", '' })
+    }
+}
 function Get-Distros {
-    $output = & wsl.exe --list --quiet 2>$null
-    if ($LASTEXITCODE -ne 0) { return @() }
-    return @($output | ForEach-Object { ($_ -replace "`0", '').Trim() } | Where-Object { $_ })
+    $result = Invoke-NativeCapture wsl.exe @('--list', '--quiet')
+    if ($result.ExitCode -ne 0) { return @() }
+    return @($result.Output | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 }
 function Invoke-Linux([string[]]$Arguments, [switch]$Root) {
     $user = 'lab'; if ($Root) { $user = 'root' }
     Invoke-Native wsl.exe (@('--distribution', $script:Config.distro_name, '--user', $user, '--exec') + $Arguments)
 }
 function Convert-ToLinuxPath([string]$Path) {
-    $converted = & wsl.exe -d $script:Config.distro_name -u root -- wslpath -a -u $Path
+    # Execute directly: the default WSL shell treats Windows backslashes as escapes.
+    $converted = & wsl.exe -d $script:Config.distro_name -u root --exec wslpath -a -u $Path
     if ($LASTEXITCODE -ne 0) { throw 'Cannot translate Windows path.' }
     return ($converted -join '').Trim()
 }
