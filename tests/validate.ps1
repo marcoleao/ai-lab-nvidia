@@ -60,3 +60,6 @@ try {
     Assert-NoReparseTree $fixture
     Remove-Item -LiteralPath $fixture -Recurse -Force
 }
+# Negative native-command tests intentionally set LASTEXITCODE; do not leak it
+# to CI wrappers after all assertions pass.
+exit 0

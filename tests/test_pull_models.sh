@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
+# Define the mock before builtin source for compatibility with older ShellCheck.
+source() { :; }
 builtin source "$repo/scripts/linux/resilience.sh"
 MODEL_PULL_ATTEMPTS=2
 MODEL_PULL_RETRY_DELAY_SECONDS=0
@@ -9,7 +11,6 @@ trap 'rm -rf "$fixture"' EXIT
 cd "$fixture"
 printf '%s\n' qwen3:14b gpt-oss:20b qwen3-coder:30b gemma3:27b >.models
 # Avoid the deployed runtime; emulate docker exec reading all available stdin.
-source() { :; }
 has_profile() { return 0; }
 dc() {
   if [[ $5 == list ]]; then
