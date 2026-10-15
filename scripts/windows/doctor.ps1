@@ -14,6 +14,12 @@ function Test-LabHost([switch]$Provision) {
     $gpu = & $smi.Source --query-gpu=name,memory.total,driver_version --format=csv,noheader,nounits
     if ($LASTEXITCODE -ne 0) { throw 'nvidia-smi failed. Repair the Windows NVIDIA driver manually.' }
     Write-Lab OK "NVIDIA: $($gpu -join '; ')"
+    foreach ($device in $gpu) {
+        $fields = $device.Split(',')
+        if ($fields.Count -ge 2 -and $fields[1].Trim() -match '^\d+$' -and [int]$fields[1].Trim() -lt 24576) {
+            Write-Lab WARN 'GPU has less than 24 GB VRAM. Large declared models may offload to CPU or exhaust memory; start with qwen3:14b and a small context.'
+        }
+    }
     if (($gpu -join '') -notmatch 'RTX 5000 Ada') { Write-Lab WARN 'GPU differs from RTX 5000 Ada; runtime CUDA tests remain mandatory.' }
     $driveRoot = [IO.Path]::GetPathRoot($script:Config.distro_directory)
     $drive = New-Object IO.DriveInfo $driveRoot

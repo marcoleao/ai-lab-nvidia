@@ -1,5 +1,11 @@
 # Diagnóstico
 
+`pull model manifest: 412` / `requires a newer version of Ollama` é incompatibilidade permanente entre o manifesto remoto e o servidor instalado. O pull interrompe com código 65 sem retentativas. Atualize a tag fixada `OLLAMA_IMAGE` em `config/versions.env` e aplique com `bootstrap up`; preserve o volume de modelos. A versão 0.40.4 foi escolhida da release estável oficial em 2026-10-14 para substituir 0.12.3.
+
+Downloads Ollama com saída 255 passam por retentativas limitadas. O código de saída sozinho não distingue rede, reinício ou sessão interrompida; consulte `/opt/ai-local-lab/.runtime-logs` e `ai logs ollama`. Retome com `up`; reset/nuke descartam dados desnecessariamente.
+
+O aviso Windows sobre WSL1 indisponível é informativo quando WSL2 funciona; não habilite WSL1 para este projeto. `starting` no healthcheck é aguardado pelo doctor até o timeout, enquanto `unhealthy` e containers ausentes continuam sendo erros.
+
 | Sintoma | Ação |
 | --- | --- |
 | ExecutionPolicy | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\bootstrap.ps1` |

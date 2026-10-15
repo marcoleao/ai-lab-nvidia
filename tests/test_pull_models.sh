@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
+builtin source "$repo/scripts/linux/resilience.sh"
+MODEL_PULL_ATTEMPTS=2
+MODEL_PULL_RETRY_DELAY_SECONDS=0
 fixture=$(mktemp -d)
 trap 'rm -rf "$fixture"' EXIT
 cd "$fixture"

@@ -1,4 +1,5 @@
 import json
+import os
 import urllib.request
 
 
@@ -13,7 +14,8 @@ def request(path, payload=None):
 def main():
     models = request("/api/tags")["models"]
     assert models, "No installed models"
-    model = models[0]["name"]
+    model = os.environ.get("SMOKE_MODEL") or models[0]["name"]
+    assert any(m["name"] == model for m in models), "Declared smoke model missing: " + model
     result = request("/api/generate", {"model": model, "prompt": "Reply with a short greeting.",
                                       "stream": False, "options": {"num_predict": 32}, "keep_alive": "2m"})
     assert result["done"] and (result.get("response") or result.get("thinking"))

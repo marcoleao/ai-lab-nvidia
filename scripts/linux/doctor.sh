@@ -20,20 +20,19 @@ check 'Compose' docker compose version
 check 'NVIDIA runtime registered' bash -c 'docker info --format "{{json .Runtimes}}" | grep -q nvidia'
 check 'GPU inside CUDA container' docker run --rm --gpus all --label ai-local-lab.test=true "$CUDA_IMAGE" nvidia-smi
 check 'Compose schema' dc config --quiet
+deadline=$((SECONDS + HEALTH_TIMEOUT_SECONDS))
 for service in $(active_services); do
-  cid=$(dc ps -q "$service")
-  if [[ -z $cid ]]; then
-    echo "[ERROR] $service missing"; errors=$((errors+1)); continue
-  fi
-  state=$(docker inspect --format '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' "$cid")
-  check "$service: $state" test "$state" = 'running healthy'
+  check "Service $service" wait_healthy "$service" "$deadline"
 done
 if has_profile core; then
-  installed=$(dc exec -T ollama ollama list) || errors=$((errors+1))
+  installed=$(dc exec -T ollama ollama list | awk 'NR>1 {print $1}') || errors=$((errors+1))
+  missing_models=0
   while IFS= read -r model || [[ -n $model ]]; do
     [[ ${model##*/} == *:* ]] || model="$model:latest"
-    check "Model $model" grep -qF "$model " <<<"$installed"
+    if ! grep -Fxq "$model" <<<"$installed"; then missing_models=$((missing_models+1)); fi
+    check "Model $model" grep -Fxq "$model" <<<"$installed"
   done <.models
+  if ((missing_models > 0)); then echo "[INFO] $missing_models models missing after incomplete bootstrap. Run bootstrap up or ai models; preserve volumes."; fi
 fi
 if has_profile dev; then
   check 'Dev image' docker image inspect ai-local-lab/dev:local --format '{{.Id}}'

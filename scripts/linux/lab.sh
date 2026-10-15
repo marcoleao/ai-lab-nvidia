@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 source /opt/ai-local-lab/scripts/linux/common.sh
-trap 'echo "[ERROR] FAILED STEP: ${action:-initialization} at line $LINENO. CURRENT STATE: retained. HOW TO RETRY: bootstrap up / doctor." >&2' ERR
 action=${1:-up}; shift || true
+if [[ $action == up || $action == update || $action == rebuild || $action == models || $action == doctor || $action == test || $action == reset ]]; then
+  mkdir -p .runtime-logs
+  chmod 700 .runtime-logs
+  log_file="$LAB_ROOT/.runtime-logs/$(date +%Y%m%d-%H%M%S)-$action-$$.log"
+  touch "$log_file"; chmod 600 "$log_file"
+  exec > >(tee -a "$log_file") 2>&1
+  echo "[INFO] Linux execution log: $log_file"
+fi
+report_failure() {
+  local code=$1 line=$2
+  echo "[ERROR] FAILED STEP: ${action:-initialization} at line $line; exit=$code. CURRENT STATE: retained. HOW TO RETRY: bootstrap up / doctor." >&2
+  exit "$code"
+}
+trap 'report_failure "$?" "$LINENO"' ERR
 configure_override() {
   # Compose !override requires Compose >=2.24.4; enforce via config validation.
   {

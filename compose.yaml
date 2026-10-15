@@ -10,12 +10,6 @@ x-gpu: &gpu
 x-dev: &dev
   <<: *gpu
   image: ai-local-lab/dev:local
-  build:
-    context: .
-    dockerfile: docker/dev/Dockerfile
-    args:
-      PYTORCH_IMAGE: ${PYTORCH_IMAGE:?}
-      UV_IMAGE: ${UV_IMAGE:?}
   profiles: [dev]
   init: true
   restart: unless-stopped
@@ -85,6 +79,12 @@ services:
       retries: 60
   ai-dev:
     <<: *dev
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+      args:
+        PYTORCH_IMAGE: ${PYTORCH_IMAGE:?}
+        UV_IMAGE: ${UV_IMAGE:?}
     command: [sleep, infinity]
     healthcheck:
       test: [CMD, python, -c, "import torch, transformers, langgraph, langchain, qdrant_client, openai; assert torch.cuda.is_available()"]
@@ -94,6 +94,9 @@ services:
       start_period: 60s
   jupyter:
     <<: *dev
+    pull_policy: never
+    depends_on:
+      ai-dev: {condition: service_healthy}
     command: [python, /opt/lab/jupyter-launch.py]
     ports: ["${BIND_ADDRESS:-127.0.0.1}:${JUPYTER_PORT:-8888}:8888"]
     environment:

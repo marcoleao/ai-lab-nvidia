@@ -14,6 +14,12 @@ if ($nativeFailure.ExitCode -ne 7 -or ($nativeFailure.Output -join ' ') -notmatc
 $nativeSuccess = Invoke-NativeCapture powershell.exe @('-NoProfile', '-Command', 'Write-Output ''probe ready''; exit 0')
 if ($nativeSuccess.ExitCode -ne 0 -or ($nativeSuccess.Output -join ' ') -notmatch 'probe ready') { throw 'Native success probe failed' }
 Write-Host '[OK] Native prerequisite probes handle stderr under ErrorActionPreference Stop'
+$nativeRejected = $false
+try { Invoke-Native powershell.exe @('-NoProfile', '-Command', '[Console]::Error.WriteLine(''simulated transport failure''); exit 255') } catch {
+    $nativeRejected = $_.Exception.Message -match 'Native command failed \(255\)'
+}
+if (-not $nativeRejected) { throw 'Native command did not preserve transport failure exit code' }
+Write-Host '[OK] Native execution preserves failing exit code despite stderr'
 Assert-LabPath $config.distro_directory $config.distro_name
 foreach ($unsafe in @('C:\', $env:USERPROFILE, $script:Repo, (Join-Path $script:Repo 'ai-local-lab'))) {
     $rejected = $false

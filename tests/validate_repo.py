@@ -19,6 +19,15 @@ def load_test(name):
 
 
 class Contracts(unittest.TestCase):
+    def test_ollama_uses_declared_smoke_model(self):
+        module = load_test("test_ollama")
+        responses = [{"models": [{"name": "large:27b"}, {"name": "first:14b"}]},
+                     {"done": True, "response": "hello"},
+                     {"models": [{"name": "first:14b", "size_vram": 1000}]}]
+        with patch.dict("os.environ", {"SMOKE_MODEL": "first:14b"}), patch.object(module, "request", side_effect=responses) as request:
+            module.main()
+            self.assertEqual(request.call_args_list[1].args[1]["model"], "first:14b")
+
     def test_ollama_rejects_cpu_fallback(self):
         module = load_test("test_ollama")
         responses = [{"models": [{"name": "test:1"}]}, {"done": True, "response": "hello"},
@@ -44,6 +53,9 @@ class Contracts(unittest.TestCase):
     def test_local_binding_and_gpu(self):
         compose = yaml.safe_load((ROOT / "compose.yaml").read_text())
         services = compose["services"]
+        self.assertIn("build", services["ai-dev"])
+        self.assertNotIn("build", services["jupyter"])
+        self.assertEqual(services["jupyter"]["pull_policy"], "never")
         self.assertNotIn("ports", services["ollama"])
         for service in ("open-webui", "qdrant", "jupyter"):
             self.assertTrue(all("127.0.0.1" in port for port in services[service]["ports"]))

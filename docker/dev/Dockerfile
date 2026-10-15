@@ -1,5 +1,5 @@
-ARG UV_IMAGE
-ARG PYTORCH_IMAGE
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.8.22
+ARG PYTORCH_IMAGE=pytorch/pytorch:2.7.1-cuda12.6-cudnn9-runtime
 FROM ${UV_IMAGE} AS uv
 FROM ${PYTORCH_IMAGE}
 USER root

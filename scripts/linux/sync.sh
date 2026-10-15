@@ -6,7 +6,7 @@ source_dir=${1:?Windows source path required}
 target=/opt/ai-local-lab
 # App edits in /workspace survive normal sync; Windows source wins on same-path conflict.
 # Runtime files are excluded from the workspace, including source Git credentials/history.
-rsync -a --delete --exclude=.git --exclude=.env --exclude=.logs --exclude=.state --exclude=.cache \
+rsync -a --delete --exclude=.git --exclude=.env --exclude=.logs --exclude=.state --exclude=.cache --exclude=.runtime-logs \
   --exclude=.venv --exclude=__pycache__ --exclude=workspace "$source_dir/" "$target/"
 rsync -a --exclude=.git --exclude=.env --exclude=.logs --exclude=.state --exclude=.cache \
   --exclude=.venv --exclude=__pycache__ --exclude=workspace "$source_dir/" "$target/workspace/"

@@ -26,6 +26,9 @@ function Read-LabConfig {
         $result[$key] = $value
     }
     $required = 'distro_name','distro_directory','rootfs_url','rootfs_checksum_url','rootfs_sha256','profiles','bind_address','allow_lan_access','webui_port','qdrant_port','jupyter_port','expose_ollama','ollama_port','expose_grpc','grpc_port','preserve_models','ephemeral_models','gpu_validation','minimum_free_disk_gb','health_timeout_seconds'
+    $retryDefaults = @{ model_pull_attempts=3; model_pull_retry_delay_seconds=5 }
+    foreach ($key in $retryDefaults.Keys) { if (-not $result.ContainsKey($key)) { $result[$key] = $retryDefaults[$key] } }
+    $required += 'model_pull_attempts','model_pull_retry_delay_seconds'
     foreach ($key in $required) { if (-not $result.ContainsKey($key)) { throw "Missing setting: $key" } }
     foreach ($key in $result.Keys) { if ($key -notin $required) { throw "Unknown setting: $key" } }
     foreach ($key in 'allow_lan_access','expose_ollama','expose_grpc','preserve_models','ephemeral_models','gpu_validation') {
@@ -38,6 +41,7 @@ function Read-LabConfig {
         if ($result[$key] -isnot [int] -or $result[$key] -lt 1024 -or $result[$key] -gt 65535) { throw "Invalid port: $key" }
     }
     if ($result.health_timeout_seconds -lt 30 -or $result.minimum_free_disk_gb -lt 1) { throw 'Invalid timeout/disk threshold.' }
+    if ($result.model_pull_attempts -isnot [int] -or $result.model_pull_attempts -lt 1 -or $result.model_pull_attempts -gt 10 -or $result.model_pull_retry_delay_seconds -isnot [int] -or $result.model_pull_retry_delay_seconds -lt 0 -or $result.model_pull_retry_delay_seconds -gt 300) { throw 'Invalid model pull retry settings.' }
     foreach ($key in 'rootfs_url','rootfs_checksum_url') {
         $uri = [Uri]$result[$key]
         if ($uri.Scheme -ne 'https' -or $uri.Host -ne 'cloud-images.ubuntu.com') { throw 'Rootfs must use official Canonical HTTPS URLs.' }
@@ -67,6 +71,9 @@ function Assert-LabPath([string]$Path, [string]$Name) {
     }
 }
 function Invoke-Native([string]$File, [string[]]$Arguments) {
+    $null = Get-Command $File -ErrorAction Stop
+    $ErrorActionPreference = 'Continue'
+    $PSNativeCommandUseErrorActionPreference = $false
     & $File @Arguments
     if ($LASTEXITCODE -ne 0) { throw "Native command failed ($LASTEXITCODE): $File" }
 }
@@ -186,7 +193,7 @@ function Sync-Lab([string[]]$Profiles, [bool]$Ephemeral) {
     $bind = $script:Config.bind_address
     if ($script:Config.allow_lan_access) { $bind = '0.0.0.0'; Write-Lab WARN 'LAN exposure enabled; secure the network and firewall explicitly.' }
     $envLines += "BIND_ADDRESS=$bind"
-    foreach ($key in 'webui_port','qdrant_port','jupyter_port','ollama_port','grpc_port','health_timeout_seconds') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key])" }
+    foreach ($key in 'webui_port','qdrant_port','jupyter_port','ollama_port','grpc_port','health_timeout_seconds','model_pull_attempts','model_pull_retry_delay_seconds') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key])" }
     $envLines += "LAB_PROFILES=$($Profiles -join ',')", "EPHEMERAL=$($Ephemeral.ToString().ToLowerInvariant())"
     foreach ($key in 'expose_ollama','expose_grpc','preserve_models','ephemeral_models','gpu_validation') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key].ToString().ToLowerInvariant())" }
     if (-not $script:Config.gpu_validation) { Write-Lab WARN 'Optional GPU telemetry disabled; mandatory passthrough and computation checks remain enabled.' }

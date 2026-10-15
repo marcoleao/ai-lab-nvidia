@@ -1,5 +1,7 @@
 # AI Local Lab — NVIDIA / WSL2
 
+Versão **1.0.0**. Veja o [changelog](CHANGELOG.md) e as [notas da versão](docs/releases/1.0.0.md).
+
 Laboratório descartável para Windows 11, Dell Precision e RTX 5000 Ada 32 GB. O Windows fornece apenas WSL2 e o driver NVIDIA; Docker Engine e a stack de IA ficam na distro exclusiva `ai-local-lab`.
 
 ```powershell
@@ -83,6 +85,12 @@ Edite [config/lab.yaml](config/lab.yaml), [config/models.yaml](config/models.yam
 Modelos iniciais: `qwen3:14b`, `gpt-oss:20b`, `qwen3-coder:30b`, `gemma3:27b`. `up` ignora modelos presentes; `update` repuxa as tags declaradas. Tags de modelos podem mudar no registry; para replay exato arquive/exporte o volume e registre os digests retornados pela API. O smoke usa um modelo instalado e contexto pequeno; contexto grande ou outros workloads concorrentes podem ultrapassar 32 GB. Ollama limita paralelismo e modelos carregados a um.
 
 As imagens têm tags fixas, centralizadas em `versions.env`. PyTorch **2.7.1 / CUDA 12.6 / cuDNN 9** vem da imagem oficial; uv **0.8.22** instala o lock Python 3.11 em venv com acesso ao PyTorch da base. A substituição de dependência `torch; sys_platform == 'never'` impede duplicar/reinstalar torch por dependências transitivas; build e doctor verificam a base. O lock é específico para Linux/Python 3.11. Não use esse override se migrar para uma imagem sem torch. Veja [GPU](docs/gpu.md) e [bootstrap](docs/bootstrap.md).
+
+Downloads interrompidos recebem até `model_pull_attempts` tentativas (padrão 3), com espera inicial `model_pull_retry_delay_seconds` (padrão 5 s), dobrada a cada nova tentativa. Cancelamento e comandos ausentes não são repetidos. Se a sessão inteira do WSL for interrompida, execute `up` novamente: não há retentativa Windows que recrie a distro ou apague o cache. Uma interrupção não exige reset/nuke.
+
+O `doctor` aguarda serviços em `starting`/`restarting` até o prazo compartilhado de `health_timeout_seconds`; serviços ausentes, parados ou unhealthy continuam sendo erros. Modelos não concluídos são reportados com orientação de retomada. O smoke usa o primeiro modelo declarado, evitando selecionar incidentalmente o último/grande modelo instalado. Em GPUs de 16 GB, comece com `qwen3:14b` e contexto pequeno; modelos maiores podem usar CPU ou exceder memória.
+
+Execuções `up`, `update`, `rebuild`, `reset`, `models`, `doctor` e `test` gravam a saída Linux em `/opt/ai-local-lab/.runtime-logs/`, com arquivos privados preservados no próximo sync. Não gravam `.env` nem o conteúdo de `compose config`; logs arbitrários dos serviços via `ai logs` não são capturados nesse mecanismo. `nuke` elimina esses logs junto com a distro.
 
 ## Código, desenvolvimento e RAG
 

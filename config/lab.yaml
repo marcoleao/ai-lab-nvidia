@@ -20,3 +20,5 @@ ephemeral_models: false
 gpu_validation: true
 minimum_free_disk_gb: 100
 health_timeout_seconds: 600
+model_pull_attempts: 3
+model_pull_retry_delay_seconds: 5

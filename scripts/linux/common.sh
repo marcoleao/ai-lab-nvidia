@@ -14,6 +14,10 @@ load_env() {
 }
 load_env .runtime.env
 load_env .env
+source "$LAB_ROOT/scripts/linux/resilience.sh"
+# Defaults also support runtime.env produced by earlier bootstrap versions.
+MODEL_PULL_ATTEMPTS=${MODEL_PULL_ATTEMPTS:-3}
+MODEL_PULL_RETRY_DELAY_SECONDS=${MODEL_PULL_RETRY_DELAY_SECONDS:-5}
 IFS=',' read -r -a selected_profiles <<<"$LAB_PROFILES"
 compose_files=(-f compose.yaml)
 [[ -f .override.yaml ]] && compose_files+=(-f .override.yaml)
@@ -27,5 +31,11 @@ active_services() {
   if has_profile core; then printf '%s\n' ollama open-webui; fi
   if has_profile rag; then printf '%s\n' qdrant; fi
   if has_profile dev; then printf '%s\n' ai-dev jupyter; fi
+}
+service_state() {
+  local cid
+  cid=$(dc ps -aq "$1") || return 1
+  [[ -n $cid ]] || { echo 'missing'; return 0; }
+  docker inspect --format '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' "$cid"
 }
 all_dc() { docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" --profile core --profile rag --profile dev "$@"; }
