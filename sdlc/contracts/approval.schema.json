@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agentic-sdlc:approval:v1",
+  "title": "Human approval record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "project_id", "actor_id", "actor_kind", "decision", "object_id", "object_version", "object_hash", "target", "policy_hash", "occurred_at", "reason", "revoked"],
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "project_id": {"type": "string", "format": "uuid"},
+    "actor_id": {"type": "string", "format": "uuid"},
+    "actor_kind": {"const": "human"},
+    "decision": {"enum": ["approved", "rejected"]},
+    "object_id": {"type": "string", "minLength": 1},
+    "object_version": {"type": "integer", "minimum": 1},
+    "object_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "target": {"type": "string", "minLength": 1},
+    "policy_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "reason": {"type": "string", "minLength": 1},
+    "revoked": {"type": "boolean"}
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "distro_name": "agentic-sdlc",
+  "distro_directory": "%LOCALAPPDATA%/agentic-sdlc",
+  "rootfs_url": "https://cloud-images.ubuntu.com/wsl/releases/24.04/20240423/ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz",
+  "rootfs_sha256": "8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea",
+  "portal_port": 3100,
+  "acceptance_http_loopback": true
+}

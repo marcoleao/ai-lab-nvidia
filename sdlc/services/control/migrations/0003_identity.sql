@@ -1,0 +1,4 @@
+CREATE TABLE identities (id VARCHAR PRIMARY KEY, kind VARCHAR NOT NULL CHECK (kind IN ('human', 'agent')), active INTEGER NOT NULL CHECK (active IN (0, 1)), admin INTEGER NOT NULL CHECK (admin IN (0, 1)), CHECK (kind = 'human' OR admin = 0));
+CREATE TABLE credentials (id VARCHAR PRIMARY KEY, identity_id VARCHAR NOT NULL REFERENCES identities(id), token_hash VARCHAR NOT NULL UNIQUE, revoked INTEGER NOT NULL CHECK (revoked IN (0, 1)));
+CREATE TABLE memberships (project_id VARCHAR NOT NULL REFERENCES projects(id), identity_id VARCHAR NOT NULL REFERENCES identities(id), role VARCHAR NOT NULL CHECK (role IN ('reader', 'contributor', 'approver', 'manager')), PRIMARY KEY(project_id, identity_id));
+CREATE TABLE security_events (id VARCHAR PRIMARY KEY, actor_id VARCHAR NOT NULL, kind VARCHAR NOT NULL, subject_id VARCHAR NOT NULL, occurred_at VARCHAR NOT NULL);

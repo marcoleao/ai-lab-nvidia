@@ -1,0 +1,135 @@
+name: agentic-sdlc
+x-control: &control
+  image: ${SDLC_APP_IMAGE:?Run prepare first}
+  user: "10001:10001"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs: ["/tmp:size=64m,mode=1777"]
+  networks: [core]
+  environment:
+    SDLC_PORTAL_ORIGIN: http://127.0.0.1:${SDLC_PORT:-3100}
+    SDLC_ACCEPTANCE_HTTP: "true"
+services:
+  db:
+    image: ${SDLC_POSTGRES_IMAGE:?Run prepare first}
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    networks: [core]
+    environment:
+      POSTGRES_USER: sdlc_owner
+      POSTGRES_DB: sdlc
+      POSTGRES_PASSWORD_FILE: /run/secrets/owner_password
+    secrets: [owner_password]
+    volumes: [db_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U sdlc_owner -d sdlc]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  initialize:
+    <<: *control
+    restart: "no"
+    command: [python, runtime.py, initialize]
+    mem_limit: 384m
+    secrets: [owner_password, api_password, consumer_password]
+    volumes: [./state:/state]
+    depends_on:
+      db: {condition: service_healthy}
+  portal:
+    <<: *control
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    secrets: [api_password, forgejo_token]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+      forgejo: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/health/ready', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  entry:
+    image: ${SDLC_NGINX_IMAGE:?Run prepare first}
+    restart: unless-stopped
+    user: "101:101"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 64m
+    cpus: 0.5
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    entrypoint: [nginx, -c, /etc/nginx/acceptance.conf, -g, "daemon off;"]
+    volumes: [./source/config/nginx.conf:/etc/nginx/acceptance.conf:ro]
+    networks: [front, core]
+    ports: ["127.0.0.1:${SDLC_PORT:-3100}:8080", "127.0.0.1:${SDLC_FORGEJO_PORT:-3101}:8081"]
+    depends_on:
+      portal: {condition: service_healthy}
+  forgejo:
+    image: ${SDLC_FORGEJO_IMAGE:?Run prepare first}
+    user: "1000:1000"
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 1.0
+    tmpfs: ["/tmp:size=64m,mode=1777"]
+    networks: [core]
+    entrypoint: [/usr/local/bin/forgejo]
+    command: [web, --config, /etc/gitea/app.ini]
+    environment:
+      HOME: /var/lib/gitea
+      GITEA_WORK_DIR: /var/lib/gitea
+    volumes: [./forgejo/data:/var/lib/gitea, ./forgejo/app.ini:/etc/gitea/app.ini:ro]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:3000/api/healthz]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  consumer:
+    <<: *control
+    restart: unless-stopped
+    command: [python, runtime.py, consume]
+    mem_limit: 256m
+    cpus: 0.5
+    secrets: [consumer_password]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import pathlib,time; assert time.time()-float(pathlib.Path('/tmp/consumer-heartbeat').read_text()) < 20"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+  acceptance:
+    <<: *control
+    profiles: [tools]
+    command: [python, acceptance.py]
+    secrets: [forgejo_token]
+    volumes: [./state:/state]
+    depends_on:
+      portal: {condition: service_healthy}
+  maintenance:
+    <<: *control
+    profiles: [tools]
+    command: [python, maintenance.py]
+    secrets: [backup_key]
+    volumes: [./backups:/backups]
+networks:
+  front:
+    ipam:
+      config: [{subnet: "${SDLC_FRONT_SUBNET:?Run prepare first}"}]
+  core:
+    internal: true
+    ipam:
+      config: [{subnet: "${SDLC_CORE_SUBNET:?Run prepare first}"}]
+volumes:
+  db_data:
+secrets:
+  owner_password: {file: ./.secrets/owner_password}
+  api_password: {file: ./.secrets/api_password}
+  consumer_password: {file: ./.secrets/consumer_password}
+  backup_key: {file: ./.secrets/backup_key}
+  forgejo_token: {file: ./.secrets/forgejo_token}

@@ -1,0 +1,5 @@
+{
+  "GITLAB_IMAGE": "gitlab/gitlab-ce@sha256:6cde3a3fc33c8261310422c570da962a987bc1e8a08489a03cb7017d3cf452fc",
+  "RUNNER_BASE": "gitlab/gitlab-runner@sha256:b7dead3b57cd9e5e5d6aedc6c0736c43972af9a24aa19875c2802bc8afcd3978",
+  "ENTRY_IMAGE": "nginx@sha256:ed84151ed2d47ef93c0939eb9b9754c6990db6092cd2081e11988a47a83d47ea"
+}

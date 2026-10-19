@@ -1,0 +1,153 @@
+name: ai-local-lab
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+x-dev: &dev
+  <<: *gpu
+  image: ai-local-lab/dev:local
+  profiles: [dev]
+  init: true
+  restart: unless-stopped
+  networks: [lab]
+  environment:
+    OLLAMA_HOST: http://ollama:11434
+    QDRANT_URL: http://qdrant:6333
+    QDRANT_API_KEY: ${QDRANT_API_KEY:?}
+    HF_HOME: /cache/huggingface
+    HF_HUB_OFFLINE: "1"
+    TRANSFORMERS_OFFLINE: "1"
+    HF_DATASETS_OFFLINE: "1"
+    UV_OFFLINE: "1"
+    PIP_NO_INDEX: "1"
+  volumes:
+    - ./workspace:/workspace
+    - huggingface_cache:/cache/huggingface
+  working_dir: /workspace
+  shm_size: 2gb
+services:
+  ollama:
+    <<: *gpu
+    image: ${OLLAMA_IMAGE:?}
+    profiles: [core]
+    restart: unless-stopped
+    networks: [lab]
+    volumes: [ollama_models:/root/.ollama]
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_NO_CLOUD: "1"
+    healthcheck:
+      test: [CMD, ollama, list]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 30s
+  open-webui:
+    image: ${OPEN_WEBUI_IMAGE:?}
+    profiles: [core]
+    restart: unless-stopped
+    networks: [lab]
+    ports: ["${BIND_ADDRESS:-127.0.0.1}:${WEBUI_PORT:-3000}:8080"]
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?}
+      WEBUI_AUTH: "true"
+      ENABLE_OPENAI_API: "false"
+      OFFLINE_MODE: "true"
+      HF_HUB_OFFLINE: "1"
+      TIKTOKEN_CACHE_DIR: /app/backend/data/cache/tiktoken
+      ENABLE_VERSION_UPDATE_CHECK: "false"
+      ENABLE_WEB_SEARCH: "false"
+      ENABLE_PERSISTENT_CONFIG: "false"
+      RAG_EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      RAG_EMBEDDING_MODEL_AUTO_UPDATE: "false"
+      RAG_RERANKING_MODEL_AUTO_UPDATE: "false"
+      WHISPER_MODEL_AUTO_UPDATE: "false"
+      DO_NOT_TRACK: "true"
+      SCARF_NO_ANALYTICS: "true"
+      ANONYMIZED_TELEMETRY: "false"
+    volumes: [open_webui_data:/app/backend/data]
+    depends_on:
+      ollama: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 60s
+  qdrant:
+    image: ${QDRANT_IMAGE:?}
+    profiles: [rag]
+    restart: unless-stopped
+    networks: [lab]
+    ports: ["${BIND_ADDRESS:-127.0.0.1}:${QDRANT_PORT:-6333}:6333"]
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY:?}
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes: [qdrant_data:/qdrant/storage]
+    # Official image lacks curl; bash opens the socket and checks HTTP status.
+    healthcheck:
+      test: [CMD-SHELL, "bash -ec 'exec 3<>/dev/tcp/127.0.0.1/6333; printf \"GET /healthz HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; read -r line <&3; [[ $$line == *\" 200 \"* ]]'"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+  ai-dev:
+    <<: *dev
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+      args:
+        PYTORCH_IMAGE: ${PYTORCH_IMAGE:?}
+        UV_IMAGE: ${UV_IMAGE:?}
+    command: [sleep, infinity]
+    healthcheck:
+      test: [CMD, python, -c, "import torch, transformers, langgraph, langchain, qdrant_client, openai; assert torch.cuda.is_available()"]
+      interval: 30s
+      timeout: 30s
+      retries: 10
+      start_period: 60s
+  jupyter:
+    <<: *dev
+    pull_policy: never
+    depends_on:
+      ai-dev: {condition: service_healthy}
+    command: [python, /opt/lab/jupyter-launch.py]
+    ports: ["${BIND_ADDRESS:-127.0.0.1}:${JUPYTER_PORT:-8888}:8888"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?}
+      HF_HOME: /cache/huggingface
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_DATASETS_OFFLINE: "1"
+      UV_OFFLINE: "1"
+      PIP_NO_INDEX: "1"
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:?}
+    volumes:
+      - ./workspace:/workspace
+      - huggingface_cache:/cache/huggingface
+      - jupyter_data:/notebooks
+    healthcheck:
+      test: [CMD, python, /opt/lab/jupyter-health.py]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 30s
+networks:
+  lab:
+    driver: bridge
+volumes:
+  ollama_models:
+    external: true
+    name: ai-local-lab_ollama_models
+  open_webui_data: {}
+  qdrant_data: {}
+  huggingface_cache: {}
+  jupyter_data: {}

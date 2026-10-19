@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "distro_name": "agentic-sdlc",
+  "lab_distro_name": "ai-local-lab",
+  "workspaces_directory": "/opt/agentic-sdlc/workspaces",
+  "bind_address": "127.0.0.1",
+  "ports": { "portal": 3100, "forgejo": 3101, "gitlab": 3180, "demo": 3181, "staging": 3200, "release": 3201 },
+  "inference": { "model": "qwen3:14b", "endpoint": null, "context_tokens": 4096 },
+  "execution": { "offline_required": true, "worker_isolation": "vm", "arbitrary_shell": false },
+  "capacity": { "host_ram_gib": 32, "gpu_vram_gib": 16, "disk_budget_gib": 270 }
+}

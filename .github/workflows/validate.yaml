@@ -3,18 +3,77 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  vscode-extension:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Extension contracts
+        run: node --test vscode/test/client.test.js vscode/test/host.test.js
+  sdlc-portal-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Human portal browser acceptance
+        run: >-
+          docker run --rm --init --shm-size=512m
+          -v "$PWD/sdlc/services/control:/src:ro"
+          -v "$PWD/vscode:/extension:ro"
+          mcr.microsoft.com/playwright/python:v1.55.0-noble
+          bash /src/test-browser.sh
+  sdlc-control:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_USER: control_test
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: control_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U control_test -d control_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install control test dependencies
+        run: python -m pip install -r sdlc/services/control/requirements.txt
+      - name: GitLab local delivery contracts
+        run: python -m unittest discover -s sdlc/gitlab -p 'test_*.py' -v
+      - name: PostgreSQL control integration and migration tests
+        working-directory: sdlc/services/control
+        env:
+          CONTROL_TEST_DATABASE_URL: postgresql+psycopg://control_test:disposable-ci-only@localhost/control_test
+        run: python -m pytest -p no:cacheprovider -q
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Cleanup destructive path guards
+        shell: powershell
+        run: ./tests/cleanup-environment.tests.ps1
+      - name: Host elevation and NVIDIA provisioning contracts
+        shell: powershell
+        run: ./tests/host-prerequisites.tests.ps1
       - name: PowerShell syntax and destructive path guards
         shell: powershell
-        run: ./tests/validate.ps1
+        run: ./lab/tests/validate.ps1
+      - name: SDLC configuration and governance contracts
+        shell: powershell
+        run: ./sdlc/bootstrap.ps1 validate
   linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Shell, Compose, lock, Python and Docker build gates
-        run: bash scripts/linux/quality-gates.sh
+        run: bash lab/scripts/linux/quality-gates.sh
       # GPU smoke tests are executed by bootstrap/ai test on the workstation.

@@ -1,0 +1,27 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+stages: [test, build, deploy]
+default:
+  tags: [offline-demo]
+test:
+  stage: test
+  script: [python3 -m unittest -v]
+build:
+  stage: build
+  script: [python3 app.py]
+  artifacts:
+    paths: [public/]
+    expire_in: 1 day
+deploy:
+  stage: deploy
+  resource_group: local-demo
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+  environment:
+    name: local-demo
+    url: http://127.0.0.1:3181
+  script:
+    - cp public/index.html /release/index.html

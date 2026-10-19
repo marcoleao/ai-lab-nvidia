@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SDLC Local · Controle de entregas</title>
+  <link rel="stylesheet" href="/assets/portal.css"><script src="/assets/portal.js" defer></script><script src="/assets/backlog.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="/">SDLC<span>LOCAL</span></a><span class="environment">● Ambiente local</span><button id="logout" hidden>Sair</button></header>
+  <p id="notice" role="status" aria-live="polite"></p>
+  <main>
+    <section id="login" class="login" hidden>
+      <p class="eyebrow">CONTROLE HUMANO</p><h1>Suas entregas.<br>Suas decisões.</h1>
+      <p>Acompanhe execuções, revise propostas e registre decisões em um único lugar.</p>
+      <form id="login-form"><label for="access-key">Chave de acesso pessoal</label><input id="access-key" type="password" autocomplete="off" required maxlength="256"><button type="submit" class="primary">Entrar no ambiente</button></form>
+      <small>A chave é usada apenas para iniciar uma sessão de 30 minutos.</small>
+    </section>
+    <section id="workspace" hidden>
+      <div class="heading"><div><p class="eyebrow">VISÃO DE CONTROLE</p><h1>Execuções e decisões</h1><p>Acompanhe o trabalho e intervenha quando necessário.</p></div><button id="refresh">Atualizar</button></div>
+      <div class="project-bar"><label for="project">Projeto</label><select id="project"><option value="">Selecione um projeto</option></select><span id="role" class="badge"></span></div>
+      <details id="create-project" hidden><summary>Criar projeto de planejamento</summary><form id="project-form" class="editor"><label for="project-name">Nome do projeto</label><input id="project-name" required maxlength="120"><button type="submit">Criar projeto</button></form><p>Cria apenas o planejamento. A aplicação e seus arquivos serão produzidos em uma etapa posterior.</p></details>
+      <div id="empty-project" class="empty">Nenhum projeto disponível. A associação de acesso deve ser feita pelo responsável do ambiente.</div>
+      <div id="project-content" hidden>
+        <nav aria-label="Seções do projeto"><a href="#backlog">Planejamento</a><a href="#runs">Execuções</a><a href="#objects">Revisar propostas</a><a href="#approvals">Decisões</a><a href="#processing">Pendências</a><a href="#audit">Histórico</a></nav>
+        <section id="backlog"><div class="section-heading"><h2>Outcomes, épicos e histórias</h2><button id="reconcile-backlog">Conferir fonte do backlog</button></div><p>Defina resultados mensuráveis, decomponha o trabalho e registre critérios de aceitação. Cada alteração cria uma versão e exige nova revisão do escopo.</p><p id="backlog-status" role="status"></p><div id="backlog-list" class="grid"></div>
+          <form id="item-form" class="editor" hidden><h3 id="item-editor-title">Propor item de planejamento</h3><label for="item-kind">Tipo</label><select id="item-kind"><option value="outcome">Outcome — resultado esperado</option><option value="epic">Épico — conjunto de capacidades</option><option value="story">História — comportamento verificável</option></select><label for="item-parent">Vínculo ao item pai</label><select id="item-parent"></select><label for="item-title">Título do item</label><input id="item-title" required maxlength="160"><label for="item-description">Descrição do comportamento ou resultado</label><textarea id="item-description" required maxlength="4000"></textarea><label for="item-measure">Como medir o resultado (obrigatório para outcome)</label><textarea id="item-measure" maxlength="1000"></textarea><label for="item-criteria">Critérios de aceitação (um por linha; obrigatórios para história)</label><textarea id="item-criteria" maxlength="10020"></textarea><div class="actions"><button id="save-item" type="submit" class="primary">Publicar proposta</button><button id="cancel-item-edit" type="button" hidden>Cancelar edição</button></div></form>
+        </section>
+        <section id="runs"><div class="section-heading"><h2>Execuções</h2><button id="new-run">Registrar execução</button></div><div id="run-list" class="grid"></div></section>
+        <section id="objects"><h2>Propostas para revisão</h2><p>Confira conteúdo, versão e destino antes de decidir.</p><div id="object-list" class="grid"></div></section>
+        <section id="approvals"><h2>Decisões registradas</h2><div id="approval-list" class="grid"></div></section>
+        <section id="processing"><h2>Pendências de processamento</h2><div id="processing-list" class="grid"></div></section>
+        <section id="audit"><h2>Histórico do projeto</h2><ol id="event-list" class="timeline"></ol><button id="more-events" hidden>Carregar próximos eventos</button></section>
+      </div>
+    </section>
+  </main><footer>SDLC Local · Participação humana e decisões rastreáveis</footer>
+</body>
+</html>

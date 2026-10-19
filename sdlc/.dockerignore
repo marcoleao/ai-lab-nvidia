@@ -1,0 +1,9 @@
+.git
+.cache
+.state
+.secrets
+.logs
+backups
+docs
+**/__pycache__
+**/.pytest_cache

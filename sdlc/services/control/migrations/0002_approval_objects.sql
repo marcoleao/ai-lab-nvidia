@@ -1,0 +1,1 @@
+CREATE TABLE approval_objects (id VARCHAR PRIMARY KEY, project_id VARCHAR NOT NULL REFERENCES projects(id), version INTEGER NOT NULL CHECK (version > 0), payload TEXT NOT NULL, hash VARCHAR NOT NULL, target VARCHAR NOT NULL, policy_hash VARCHAR NOT NULL);

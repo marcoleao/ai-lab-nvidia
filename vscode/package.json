@@ -1,0 +1,22 @@
+{
+  "name": "sdlc-chat",
+  "displayName": "SDLC Local — Agentes",
+  "description": "Entrevista de descoberta com modelos locais e histórico governado no SDLC.",
+  "version": "0.3.0",
+  "publisher": "ai-local",
+  "engines": { "vscode": "^1.100.0" },
+  "categories": ["Other"],
+  "extensionKind": ["ui"],
+  "capabilities": { "untrustedWorkspaces": { "supported": false }, "virtualWorkspaces": { "supported": false } },
+  "main": "./extension.js",
+  "activationEvents": ["onView:sdlc.chat", "onCommand:sdlc.chat.open"],
+  "contributes": {
+    "commands": [
+      { "command": "sdlc.chat.open", "title": "SDLC: Conversar com os agentes" },
+      { "command": "sdlc.chat.configure", "title": "SDLC: Configurar chave de acesso" },
+      { "command": "sdlc.chat.forget", "title": "SDLC: Remover chave deste VS Code" }
+    ],
+    "viewsContainers": { "activitybar": [{ "id": "sdlc", "title": "SDLC Local", "icon": "media/icon.svg" }] },
+    "views": { "sdlc": [{ "id": "sdlc.chat", "name": "Conversar com os agentes", "type": "webview" }] }
+  }
+}

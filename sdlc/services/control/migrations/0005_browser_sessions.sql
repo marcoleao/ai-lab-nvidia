@@ -1,0 +1,1 @@
+CREATE TABLE browser_sessions (id VARCHAR PRIMARY KEY, credential_id VARCHAR NOT NULL REFERENCES credentials(id), csrf_hash VARCHAR NOT NULL, expires_at INTEGER NOT NULL, revoked INTEGER NOT NULL CHECK (revoked IN (0, 1)));

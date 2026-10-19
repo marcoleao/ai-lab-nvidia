@@ -3,9 +3,12 @@
 .runtime-logs/
 .state/
 .cache/
+.secrets/
+backups/
 __pycache__/
 .venv/
 *.pyc
 *.vhdx
 *.tar.gz
 *.backup
+projects/
