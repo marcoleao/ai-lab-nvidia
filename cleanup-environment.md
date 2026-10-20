@@ -77,6 +77,8 @@ Prepare e valide o SDLC completo:
 .\sdlc\bootstrap.ps1 report
 ```
 
+O prepare reserva redes distintas para núcleo e GitLab, mesmo antes de criar containers. Up/restart também verifica reservas antigas e corrige sobreposição realocando somente as redes GitLab, preservando imagens e volumes, sem downloads. O primeiro início do GitLab pode levar vários minutos; aguarde a conclusão do comando.
+
 O teste SDLC cria dados sintéticos e demonstra MR, pipeline, merge e deploy. Instale a extensão e configure uma chave nova:
 
 ```powershell

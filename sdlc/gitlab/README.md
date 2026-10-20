@@ -1,5 +1,7 @@
 # GitLab local para demonstrações
 
+O bootstrap reserva sub-redes distintas para núcleo e GitLab antes de iniciar containers. Up/restart corrige reservas antigas sobrepostas usando somente imagens locais e preservando volumes; não é necessário repetir prepare para essa correção. A inicialização inicial do GitLab pode levar vários minutos.
+
 O código do SDLC continua no GitHub. Repositórios das demos, Issues, Merge Requests,
 pipelines, artefatos e aplicação publicada ficam somente no WSL `agentic-sdlc`.
 O Forgejo continua atendendo o backlog existente do portal; não há migração automática

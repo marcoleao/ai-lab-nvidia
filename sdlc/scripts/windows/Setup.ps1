@@ -129,6 +129,11 @@ function Prepare-Sdlc($Config) {
 }
 function Invoke-SdlcRuntime($Config, [string]$Command, [string]$BackupId='') {
     $null = Assert-SdlcOwner $Config
+    if ($Command -in 'up','restart') {
+        # Repair older overlapping reservations without changing prepared source/images.
+        $repair = Get-SdlcLinuxPath $Config (Join-Path $script:SdlcRoot 'scripts/linux/repair-networks.py')
+        Invoke-SdlcNative wsl.exe @('-d',$Config.distro_name,'-u','root','--exec','python3',$repair,'/opt/agentic-sdlc')
+    }
     # systemd services alone do not keep a WSL distro alive after wsl.exe exits.
     if ($Command -in 'up','restart') {
         $existing = Invoke-SdlcCapture wsl.exe @('-d',$Config.distro_name,'-u','root','--exec','pgrep','-f','^agentic-sdlc-keepalive infinity$')
