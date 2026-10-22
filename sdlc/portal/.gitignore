@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env
+.env.*.local
+packages/db/generated/
+playwright-report/
+test-results/
+.prepared/

@@ -211,7 +211,13 @@ PY
   status) verify; compose ps -a; gitlab status ;;
   doctor) verify; health; compose ps -a; gitlab doctor ;;
   logs) verify; compose logs --tail 80 portal consumer initialize entry forgejo; gitlab logs ;;
-  test) verify; health; compose run --rm --no-deps acceptance; gitlab doctor; gitlab test ;;
+  test)
+    [[ $root =~ ^/tmp/sdlc-package-[a-f0-9-]{36}$ && $project == "${root##*/}" && -f $root/state/disposable-test.json ]] || {
+      echo 'Synthetic acceptance requires a disposable installation. Use doctor for the human environment.' >&2; exit 1;
+    }
+    export SDLC_ACCEPTANCE_ROOT="$root" SDLC_ACCEPTANCE_PROJECT="$project"
+    verify; health; compose run --rm --no-deps acceptance; gitlab doctor; gitlab test
+    ;;
   revoke-access|rotate-access)
     verify; identity=${1:?Identity required}; [[ $identity == human || $identity == reader ]] || exit 1
     compose run --rm --no-deps initialize python runtime.py "$command" "$identity"

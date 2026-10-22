@@ -8,6 +8,8 @@
 
 Os setups têm configuração, estado e ciclos de vida próprios dentro deste repositório.
 
+Consulte [Acessos e URLs](<Acessos e URLs.md>) para abrir os serviços locais e obter as credenciais de acesso.
+
 Execute os bootstraps em **PowerShell como administrador, na mesma conta Windows da instalação**. Sem elevação, eles interrompem com orientação ao usuário. O `lab prepare` instala driver NVIDIA ausente via Windows Update; preserva drivers existentes. Veja [privilégios e driver](lab/docs/windows-prerequisites.md).
 
 Para remover a instalação e executar um teste do zero, consulte o [roteiro de limpeza e recriação](cleanup-environment.md). `.\cleanup-environment.ps1` mostra somente o plano; a remoção exige `.\cleanup-environment.ps1 -Action Clean` e confirmação.

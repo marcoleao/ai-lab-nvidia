@@ -7,9 +7,11 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 import httpx
+from acceptance_scope import require_disposable_acceptance
 
 
 def main():
+    require_disposable_acceptance()
     keys = json.loads(Path('/state/access.json').read_text())
     demo_path = Path('/state/demo.json')
     project = json.loads(demo_path.read_text())['project_id'] if demo_path.exists() else None
@@ -81,6 +83,7 @@ def main():
 
 if __name__ == '__main__':
     import sys
+    require_disposable_acceptance()
     if len(sys.argv) == 3 and sys.argv[1] == 'reader-check' and sys.argv[2] in {'revoked', 'active'}:
         keys = json.loads(Path('/state/access.json').read_text())
         project_path = Path('/state/demo.json')

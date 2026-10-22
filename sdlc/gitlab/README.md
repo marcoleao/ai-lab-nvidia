@@ -6,7 +6,7 @@ O código do SDLC continua no GitHub. Repositórios das demos, Issues, Merge Req
 pipelines, artefatos e aplicação publicada ficam somente no WSL `agentic-sdlc`.
 O Forgejo continua atendendo o backlog existente do portal; não há migração automática
 entre ele e as Issues de execução no GitLab. Os agentes de geração de aplicações ainda
-não estão conectados a este fluxo: o comando `demo` entrega um exemplo executável.
+não estão conectados a este fluxo. Aplicações prontas são fixtures exclusivas de testes descartáveis; o comando `demo` foi removido.
 
 ## Preparar e iniciar
 
@@ -34,13 +34,13 @@ Os commits e MRs são criados por `sdlc-demo-bot`; use `root` para revisar na in
 ## Demonstrar o ciclo completo
 
 ```powershell
-.\sdlc\gitlab.ps1 demo
+.\sdlc\gitlab.ps1 publish -Directory /opt/agentic-sdlc/workspaces/meu-projeto
 .\sdlc\gitlab.ps1 verify
 # Após revisar o diff, os testes e registrar comentários no GitLab:
 .\sdlc\gitlab.ps1 merge -Project demo-NOME-EXIBIDO
 ```
 
-`demo` cria um projeto privado, uma Issue, branch, commit com código/teste/pipeline e
+`publish` exige um workspace criado por iniciativa do usuário e cria um projeto privado, uma Issue, branch, commit com código/teste/pipeline e
 um MR que fecha a Issue. O Runner executa testes e build no pipeline do MR.
 `verify` falha enquanto o pipeline não passar. Revise e comente pela interface web;
 novos commits na branch atualizam o MR e disparam novamente o pipeline.
@@ -67,7 +67,7 @@ de outro revisor: a revisão humana neste roteiro é uma etapa operacional.
 O comando `merge` exige o nome da última demo e envia o SHA ao GitLab para impedir
 merge se a branch mudar entre consulta e integração. Ele exige pipeline bem-sucedido.
 Não há push para GitHub nem rotina de backup. `down` para os serviços e preserva
-os volumes para a próxima apresentação; execute `demo` para criar outro projeto.
+os volumes para a próxima apresentação. Nenhum projeto é criado automaticamente ao iniciar os serviços.
 
 ## Isolamento e limites
 
@@ -101,14 +101,14 @@ removendo somente `.secrets/bot_token` e executando `up`.
 
 ## Aceite técnico
 
-```powershell
-.\sdlc\bootstrap.ps1 test
-```
+O ambiente permanente usa `.\sdlc\bootstrap.ps1 doctor`. `test` é recusado nesse alvo.
+O ensaio sintético é executado exclusivamente por `sdlc/scripts/linux/test-install-package.sh`,
+que cria uma instalação temporária completa. Veja [execução e limites](../docs/construcao-fase-0-2026-10-20.md).
 
 Além do aceite do núcleo, cria uma demo descartável e verifica pipeline do MR, merge, fechamento da Issue,
 pipeline de main, acionamento do deploy manual e conteúdo HTTP publicado. Também
 testa que o Runner não consegue abrir conexão externa por IP. O resultado fica
-em `/opt/agentic-sdlc/gitlab-demo/acceptance.json`. Esse teste integra e publica
+em `<runtime-temporário>/gitlab-demo/acceptance.json`. Esse teste integra e publica
 seu próprio exemplo automaticamente; não registra aprovação humana.
 
 Referências oficiais: [GitLab Docker](https://docs.gitlab.com/install/docker/installation/),

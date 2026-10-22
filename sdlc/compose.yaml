@@ -105,6 +105,10 @@ services:
       retries: 6
   acceptance:
     <<: *control
+    environment:
+      SDLC_PORTAL_ORIGIN: http://127.0.0.1:${SDLC_PORT:-3100}
+      SDLC_ACCEPTANCE_ROOT: ${SDLC_ACCEPTANCE_ROOT:-}
+      SDLC_ACCEPTANCE_PROJECT: ${SDLC_ACCEPTANCE_PROJECT:-}
     profiles: [tools]
     command: [python, acceptance.py]
     secrets: [forgejo_token]

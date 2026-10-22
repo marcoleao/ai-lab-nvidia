@@ -29,6 +29,7 @@ if ($Command -eq 'plan') {
     } | Format-List
     return
 }
+if ($Command -eq 'test') { throw 'A aceitacao sintetica exige instalacao descartavel. Use doctor no ambiente humano; para o ensaio isolado, execute sdlc/scripts/linux/test-install-package.sh na distro SDLC.' }
 if ($Service -ne 'portal' -and $Command -ne 'access') { throw 'Service applies only to access.' }
 if ($Service -eq 'gitlab' -and $Identity -ne 'human') { throw 'Identity applies only to portal access.' }
 if ($BackupId -and $Command -notin 'restore-check','export-backup') { throw 'BackupId applies only to restore-check or export-backup.' }
@@ -64,12 +65,12 @@ try {
     } elseif ($Command -eq 'report') {
         $null = Assert-SdlcOwner $configuration
         $report = Invoke-SdlcCapture wsl.exe @('-d',$configuration.distro_name,'-u','root','--exec','cat','/opt/agentic-sdlc/state/last-automated-acceptance.json')
-        if ($report.Code -ne 0) { throw 'No report available; run test first.' }
+        if ($report.Code -ne 0) { throw 'No report available. Synthetic acceptance runs only in a disposable installation; use doctor for installed health.' }
         $content = ($report.Output -join "`n")
         $null = $content | ConvertFrom-Json
         Write-SdlcUtf8 (Join-Path $state 'acceptance-report.json') $content
         $gitlabReport = Invoke-SdlcCapture wsl.exe @('-d',$configuration.distro_name,'-u','root','--exec','cat','/opt/agentic-sdlc/gitlab-demo/acceptance.json')
-        if ($gitlabReport.Code -ne 0) { throw 'GitLab report unavailable; run test first.' }
+        if ($gitlabReport.Code -ne 0) { throw 'GitLab report unavailable. Synthetic acceptance runs only in a disposable installation.' }
         $gitlabContent = ($gitlabReport.Output -join "`n")
         $null = $gitlabContent | ConvertFrom-Json
         Write-SdlcUtf8 (Join-Path $state 'gitlab-acceptance-report.json') $gitlabContent

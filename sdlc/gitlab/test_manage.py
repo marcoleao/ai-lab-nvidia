@@ -29,6 +29,20 @@ class MergeTests(unittest.TestCase):
                 manage.verify_or_merge('merge', 'demo-a')
             self.assertEqual(api.call_count, 1)
 
+    def test_acceptance_refuses_permanent_target_before_any_side_effect(self):
+        with patch.object(manage, 'ROOT', Path('/opt/agentic-sdlc/gitlab-demo')), \
+                patch.object(manage, 'publish') as publish, patch.object(manage, 'api') as api:
+            with self.assertRaisesRegex(RuntimeError, 'disposable'):
+                manage.acceptance()
+            publish.assert_not_called()
+            api.assert_not_called()
+
+    def test_publish_requires_a_user_workspace(self):
+        with patch.object(manage, 'api') as api:
+            with self.assertRaises(TypeError):
+                manage.publish()
+            api.assert_not_called()
+
     def test_explicit_project_required(self):
         with patch.object(manage, 'api', return_value={'head_pipeline': {'status': 'success'}}) as api:
             with self.assertRaisesRegex(ValueError, 'revisar'):
@@ -107,6 +121,7 @@ class MergeTests(unittest.TestCase):
                 patch.object(manage,'compose'), patch.dict('sys.modules',{'network_allocation':allocator}):
             manage.prepare(source)
             self.assertIn('GITLAB_CORE_SUBNET=10.240.2.0/24', (root / 'images.env').read_text())
+            self.assertFalse((root / 'template').exists())
             manage.verify_prepared()
 
 

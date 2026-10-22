@@ -1,0 +1,65 @@
+name: sdlc-portal-foundation
+services:
+  db:
+    image: postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+    environment:
+      POSTGRES_USER: sdlc
+      POSTGRES_PASSWORD: local-preview-only
+      POSTGRES_DB: portal
+    volumes: [portal_data:/var/lib/postgresql/data]
+    networks: [data]
+    mem_limit: 256m
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U sdlc -d portal]
+      interval: 3s
+      retries: 20
+  migrate:
+    image: sdlc-portal:prepared
+    command: [node, node_modules/prisma/build/index.js, migrate, deploy]
+    environment:
+      DATABASE_URL: postgresql://sdlc:local-preview-only@db:5432/portal
+    networks: [data]
+    depends_on:
+      db: {condition: service_healthy}
+  api:
+    image: sdlc-portal:prepared
+    command: [node, --import, tsx, apps/api/src/server.ts]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://sdlc:local-preview-only@db:5432/portal
+      DEMO_MODE: 'true'
+      PORTAL_ORIGIN: ${PORTAL_ORIGIN:-http://localhost:3310}
+    networks: [data, front]
+    mem_limit: 384m
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://localhost:4100/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      retries: 20
+  web:
+    image: sdlc-portal:prepared
+    command: [node, apps/web/node_modules/next/dist/bin/next, start, apps/web, --hostname, 0.0.0.0, --port, '3000']
+    environment:
+      API_BASE_URL: http://api:4100
+    networks: [front]
+    ports: ['127.0.0.1:${PORTAL_PORT:-3310}:3000']
+    mem_limit: 512m
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      api: {condition: service_healthy}
+networks:
+  data:
+    internal: true
+  front: {}
+volumes:
+  portal_data: {}

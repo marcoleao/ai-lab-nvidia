@@ -5,6 +5,7 @@ import fcntl
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import secrets
 import shutil
@@ -18,6 +19,16 @@ ROOT = Path(os.environ.get('SDLC_RUNTIME_ROOT', '/opt/agentic-sdlc')) / 'gitlab-
 PROJECT = os.environ.get('SDLC_GITLAB_PROJECT', 'sdlc-demo')
 URL = 'http://127.0.0.1:' + os.environ.get('GITLAB_PORT', '3180')
 DEMO_URL = 'http://127.0.0.1:' + os.environ.get('DEMO_PORT', '3181')
+
+
+def require_disposable_acceptance():
+    root = ROOT.parent
+    if not re.fullmatch(r'/tmp/sdlc-package-[a-f0-9-]{36}', str(root)) or root.resolve() != root:
+        raise RuntimeError('Synthetic acceptance requires a disposable installation; use doctor instead')
+    if PROJECT != root.name + '-demo' or (root / '.project').read_text() != root.name:
+        raise RuntimeError('Disposable GitLab project does not match installation')
+    if not re.fullmatch(r'[a-f0-9]{32}', (root / '.owner').read_text().strip()):
+        raise RuntimeError('Disposable installation owner missing')
 
 
 def run(*args, capture=False):
@@ -55,9 +66,12 @@ def prepare(source):
     for name in ('compose.yaml', 'Runner.Dockerfile', 'nginx.conf'):
         shutil.copyfile(source / name, ROOT / name)
     (ROOT / 'nginx.conf').chmod(0o644)
-    shutil.copytree(source / 'template', ROOT / 'template', dirs_exist_ok=True)
-    pipeline = ROOT / 'template/.gitlab-ci.yml'
-    pipeline.write_text(pipeline.read_text().replace('http://127.0.0.1:3181', DEMO_URL))
+    # Ready-made applications belong only to disposable acceptance installations.
+    if re.fullmatch(r'/tmp/sdlc-package-[a-f0-9-]{36}', str(ROOT.parent)):
+        require_disposable_acceptance()
+        shutil.copytree(source.parent / 'tests/fixtures/gitlab', ROOT / 'template', dirs_exist_ok=True)
+        pipeline = ROOT / 'template/.gitlab-ci.yml'
+        pipeline.write_text(pipeline.read_text().replace('http://127.0.0.1:3181', DEMO_URL))
     secret = ROOT / '.secrets/root_password'
     if not secret.exists():
         secret.write_text(secrets.token_urlsafe(32))
@@ -221,8 +235,8 @@ def workspace_directory(directory):
     return resolved
 
 
-def demo(directory=None):
-    actions = project_actions(directory or ROOT / 'template')
+def publish(directory):
+    actions = project_actions(directory)
     name = 'demo-' + time.strftime('%Y%m%d-%H%M%S') + '-' + secrets.token_hex(2)
     project = api('POST', 'projects', {'name': name, 'visibility': 'private',
         'initialize_with_readme': True, 'default_branch': 'main',
@@ -275,7 +289,8 @@ def verify_or_merge(command, selected):
 
 def acceptance():
     """Integra uma demo descartável para verificar infraestrutura; não simula aceite humano."""
-    demo()
+    require_disposable_acceptance()
+    publish(ROOT / 'template')
     record = json.loads((ROOT / 'last-demo.json').read_text())
     pid, iid = record['project_id'], record['mr']
 
@@ -332,11 +347,13 @@ def acceptance():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['prepare','up','down','restart','status','doctor','logs','access','demo','publish','verify','merge','test'])
+    parser.add_argument('command', choices=['prepare','up','down','restart','status','doctor','logs','access','publish','verify','merge','test'])
     parser.add_argument('--source', type=Path, default=Path(__file__).parent)
     parser.add_argument('--project', default='')
     parser.add_argument('--directory', type=Path)
     args = parser.parse_args()
+    if args.command == 'test':
+        require_disposable_acceptance()
     os.umask(0o077)
     ROOT.mkdir(parents=True, exist_ok=True)
     (ROOT / '.secrets/runner').mkdir(parents=True, exist_ok=True)
@@ -357,12 +374,11 @@ def main():
         elif args.command == 'logs': compose('logs', '--tail', '100')
         elif args.command == 'access':
             print((ROOT / '.secrets/root_password').read_text())
-        elif args.command == 'demo': demo()
         elif args.command == 'test': acceptance()
         elif args.command == 'publish':
             if not args.directory:
                 raise ValueError('Informe -Directory com o workspace Linux do ambiente SDLC.')
-            demo(workspace_directory(args.directory))
+            publish(workspace_directory(args.directory))
         else: verify_or_merge(args.command, args.project)
 
 

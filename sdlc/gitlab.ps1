@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('access','demo','publish','verify','merge')]
+    [ValidateSet('access','publish','verify','merge')]
     [string]$Command = 'verify',
     [string]$Project = '',
     [string]$Directory = ''

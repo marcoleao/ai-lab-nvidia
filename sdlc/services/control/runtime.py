@@ -51,71 +51,50 @@ def initialize():
                 # No permission is granted to change kind/admin/active/token_hash.
                 connection.execute('GRANT UPDATE (id) ON identities, credentials TO control_api')
         connection.execute('REVOKE CREATE ON SCHEMA public FROM PUBLIC')
-    seed_demo(owner_url)
+    initialize_access(owner_url)
 
 
-def seed_demo(owner_url):
-    from fastapi.testclient import TestClient
-    from control import create_app, outbox, events
+def initialize_access(owner_url):
+    """Provision configuration only; preserve existing keys and all human work."""
     from security import provision_identity
     state = Path(os.environ.get('SDLC_STATE', '/state'))
     state.mkdir(parents=True, exist_ok=True)
-    complete, key_file = state / 'demo.json', state / 'access.json'
-    app = create_app(owner_url)
+    key_file = state / 'access.json'
+    engine = create_engine(owner_url, hide_parameters=True)
     try:
-        clean_start = state / 'clean-start.json'
-        if clean_start.exists():
-            from security import authenticate
-            marker = json.loads(clean_start.read_text())
-            if marker.get('mode') != 'empty' or marker.get('version') != 1:
-                raise RuntimeError('Invalid empty-start marker; refusing to seed demonstration data')
-            keys = json.loads(key_file.read_text())
-            with app.state.engine.connect() as connection:
-                authenticate(connection, keys['human']['token'])
-            return
-        if complete.exists():
-            from security import authenticate
-            from control import projects
-            demo = json.loads(complete.read_text())
-            keys = json.loads(key_file.read_text())
-            with app.state.engine.connect() as connection:
-                authenticate(connection, keys['human']['token'])
-                if connection.execute(select(projects).where(projects.c.id == demo['project_id'])).first() is None:
-                    raise RuntimeError('Demo state differs from database; restore a consistent backup')
-            return
         if key_file.exists():
+            # A revoked key must remain revoked. Restart must not rotate it or
+            # provision a replacement identity behind the operator's back.
             keys = json.loads(key_file.read_text())
-        else:
-            keys = {
-                'human': provision_identity(app.state.engine, kind='human', admin=True, operator_id='acceptance-bootstrap'),
-                'reader': provision_identity(app.state.engine, kind='human', operator_id='acceptance-bootstrap'),
-                'agent': provision_identity(app.state.engine, kind='agent', operator_id='acceptance-bootstrap'),
-            }
-            key_file.write_text(json.dumps(keys))
-            key_file.chmod(0o600)
-        with TestClient(app) as client:
-            def post(path, value, key):
-                response = client.post(path, json=value, headers={'Authorization': 'Bearer ' + keys['human']['token'], 'Idempotency-Key': key})
-                response.raise_for_status()
-                return response.json()
-            project = post('/v1/projects', {'name': 'Aceitação do ambiente — demonstração'}, 'demo-project')['id']
-            for actor, role in [('reader', 'reader'), ('agent', 'contributor')]:
-                response = client.put(f'/v1/projects/{project}/members/{keys[actor]["id"]}', json={'role': role}, headers={'Authorization': 'Bearer ' + keys['human']['token'], 'Idempotency-Key': 'demo-member-' + actor})
-                response.raise_for_status()
-            proposals = []
-            for number, title in enumerate(['Plano de aceitação do ambiente', 'Revisão de uma decisão', 'Confirmação da persistência']):
-                proposals.append(post('/v1/approval-objects', {'project_id': project, 'payload': {'proposta': title, 'resultado_esperado': 'Decisão humana registrada e vinculada à versão apresentada.', 'dados': 'Sintéticos; nenhuma aplicação de produto foi criada.'}, 'target': 'Ambiente local de aceitação', 'policy_hash': 'b' * 64}, f'demo-object-{number}')['id'])
-            run = post('/v1/runs', {'project_id': project}, 'demo-run')
-            for version, run_state in [(1, 'ready'), (2, 'running')]:
-                post(f'/v1/runs/{run["id"]}/transitions', {'expected_version': version, 'state': run_state}, f'demo-transition-{version}')
-            with app.state.engine.begin() as connection:
-                message_id = connection.execute(select(outbox.c.id).join(events, events.c.id == outbox.c.event_id).where(events.c.project_id == project).order_by(events.c.sequence.desc()).limit(1)).scalar_one()
-                connection.execute(update(outbox).where(outbox.c.id == message_id).values(state='failed', attempts=3))
-            complete.write_text(json.dumps({'project_id': project, 'run_id': run['id'], 'object_ids': proposals, 'simulated_failure': message_id}))
-            complete.chmod(0o600)
+            if not isinstance(keys, dict) or not {'human', 'reader', 'agent'} <= keys.keys():
+                raise RuntimeError('Incomplete access state; restore credentials before initialization')
+            from security import credentials, identities
+            with engine.connect() as connection:
+                for entry in keys.values():
+                    identity = connection.execute(select(identities.c.id).where(
+                        identities.c.id == entry['id'])).first()
+                    credential = connection.execute(select(credentials.c.id).where(
+                        credentials.c.id == entry['credential_id'],
+                        credentials.c.identity_id == entry['id'],
+                        credentials.c.token_hash == hashlib.sha256(entry['token'].encode()).hexdigest())).first()
+                    if identity is None or credential is None:
+                        raise RuntimeError('Access state differs from database; restore consistent credentials')
+            return
+        from security import identities
+        with engine.connect() as connection:
+            if connection.execute(select(identities.c.id).limit(1)).first():
+                raise RuntimeError('Existing identities without access state; restore credentials before initialization')
+        keys = {
+            'human': provision_identity(engine, kind='human', admin=True, operator_id='configuration-bootstrap'),
+            'reader': provision_identity(engine, kind='human', operator_id='configuration-bootstrap'),
+            'agent': provision_identity(engine, kind='agent', operator_id='configuration-bootstrap'),
+        }
+        # Restrict permissions before writing credential material.
+        descriptor = os.open(key_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, 'w') as output:
+            json.dump(keys, output)
     finally:
-        app.state.engine.dispose()
-
+        engine.dispose()
 
 def consume():
     from dispatcher import process_one
@@ -169,7 +148,7 @@ if __name__ == '__main__':
     import sys
     if sys.argv[1:] == ['initialize']:
         initialize()
-        print('Schema, restricted roles and demonstration data ready. Credentials remain in the private state directory.')
+        print('Schema, restricted roles and access configuration ready; no demonstration data created. Credentials remain in the private state directory.')
     elif sys.argv[1:] == ['consume']:
         consume()
     elif len(sys.argv) == 3 and sys.argv[1] in {'revoke-access', 'rotate-access'}:

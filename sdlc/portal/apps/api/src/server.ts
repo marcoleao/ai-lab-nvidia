@@ -1,0 +1,16 @@
+import {database} from '../../../packages/db/client.ts';
+import {createApp} from './app.ts';
+import {GitLabProvider} from './gitlab.ts';
+import {gitlabToken,llmToken} from './credentials.ts';
+import {LocalLLMProvider} from './llm.ts';
+const db=database(process.env.DATABASE_URL??'postgresql://sdlc:local-preview-only@db:5432/portal');
+const token=gitlabToken();
+const modelToken=llmToken();
+const llm=process.env.LLM_BASE_URL&&process.env.LLM_MODEL&&modelToken?new LocalLLMProvider(process.env.LLM_BASE_URL,process.env.LLM_MODEL,modelToken):undefined;
+const git=process.env.GITLAB_BASE_URL&&token?new GitLabProvider(process.env.GITLAB_BASE_URL,token,process.env.GITLAB_ROOT_GROUP):undefined;
+const {app,processJobs,processChatJobs,processExecutionJobs}=createApp({db,demoMode:process.env.DEMO_MODE==='true',git,llm,gitlabRoot:process.env.GITLAB_ROOT_GROUP,origin:process.env.PORTAL_ORIGIN,logger:true,registryUrl:process.env.ARTIFACT_REPO_URL,workerUrl:process.env.EXECUTOR_URL});
+let timer:NodeJS.Timeout;
+app.addHook('onClose',async()=>{clearInterval(timer);await db.$disconnect();});
+await app.listen({port:Number(process.env.PORT??4100),host:'0.0.0.0'});
+timer=setInterval(()=>{void processJobs().catch(()=>app.log.error('Provisioning queue unavailable'));void processChatJobs().catch(()=>app.log.error('Assistant queue unavailable'));void processExecutionJobs().catch(()=>app.log.error('Execution queue unavailable'));},5000);
+for(const signal of ['SIGTERM','SIGINT'] as const)process.on(signal,()=>void app.close());

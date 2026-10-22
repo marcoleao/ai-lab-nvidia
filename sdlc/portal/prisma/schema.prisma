@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client"
+  output = "../packages/db/generated"
+}
+datasource db {
+  provider = "postgresql"
+}
+enum ItemKind {
+  system
+  project
+  epic
+  story
+  task
+}
+model Item {
+  id String @id @default(cuid())
+  kind ItemKind
+  key String @unique
+  name String
+  description String @default("")
+  status String
+  projectLifecycle String?
+  version Int @default(1)
+  archived Boolean @default(false)
+  parentId String?
+  parentKind ItemKind?
+  parent Item? @relation("Hierarchy", fields: [parentId, parentKind], references: [id, kind], onDelete: Restrict)
+  children Item[] @relation("Hierarchy")
+  data Json @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  repositories Repository[]
+  repositoryLinks ItemRepository[]
+  chatSession ChatSession?
+  proposals PlanProposal[]
+  provisioning ProvisioningJob?
+  @@unique([id, kind])
+  @@index([parentId, archived])
+  @@index([kind, archived])
+}
+model Environment {
+  id String @id @default(cuid())
+  repositoryId String
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
+  code String
+  liveStatus String @default("not_deployed")
+  currentVersion String?
+  currentPackageDigest String?
+  url String?
+  @@unique([repositoryId, code])
+}
+model Repository {
+  id String @id @default(cuid())
+  systemId String
+  system Item @relation(fields: [systemId], references: [id], onDelete: Restrict)
+  key String
+  name String
+  runtime String
+  mode String @default("create")
+  gitlabProjectId Int? @unique
+  gitlabPath String?
+  gitlabUrl String?
+  state String @default("pending")
+  message String @default("")
+  attempts Int @default(0)
+  version Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  links ItemRepository[]
+  environments Environment[]
+  @@unique([systemId, key])
+}
+model ItemRepository {
+  itemId String
+  repositoryId String
+  item Item @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
+  @@id([itemId, repositoryId])
+}
+model HistoryEvent {
+  id String @id @default(cuid())
+  itemId String
+  ancestorIds String[]
+  actorId String
+  actorName String
+  actorType String @default("human")
+  action String
+  message String
+  payload Json
+  timestamp DateTime @default(now())
+  @@index([itemId, timestamp])
+  @@index([ancestorIds], type: Gin)
+}
+model RequestKey {
+  id String @id
+  requestHash String
+  result Json
+  createdAt DateTime @default(now())
+}
+model Counter {
+  scope String @id
+  value Int
+}
+model ProvisioningJob {
+  itemId String @id
+  item Item @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  state String @default("pending")
+  attempts Int @default(0)
+  message String @default("")
+  updatedAt DateTime @updatedAt
+}
+model ChatSession {
+  id String @id @default(cuid())
+  contextId String @unique
+  context Item @relation(fields:[contextId],references:[id],onDelete:Restrict)
+  version Int @default(0)
+  nextTurn Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  turns ChatTurn[]
+}
+model ChatTurn {
+  id String @id @default(cuid())
+  sessionId String
+  session ChatSession @relation(fields:[sessionId],references:[id],onDelete:Restrict)
+  sequence Int
+  kind String @default("chat")
+  input String
+  output String?
+  status String @default("queued")
+  model String?
+  error String?
+  actorId String
+  actorName String
+  contextSnapshot Json
+  leaseId String?
+  leaseUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  proposal PlanProposal?
+  @@unique([sessionId,sequence])
+  @@index([status,createdAt])
+}
+model PlanProposal {
+  id String @id @default(cuid())
+  turnId String @unique
+  turn ChatTurn @relation(fields:[turnId],references:[id],onDelete:Restrict)
+  projectId String
+  project Item @relation(fields:[projectId],references:[id],onDelete:Restrict)
+  status String @default("draft")
+  version Int @default(1)
+  projectVersion Int
+  sessionVersion Int
+  contextFingerprint String
+  content Json
+  appliedItemIds Json @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  revisions PlanRevision[]
+}
+model PlanRevision {
+  proposalId String
+  proposal PlanProposal @relation(fields:[proposalId],references:[id],onDelete:Restrict)
+  version Int
+  content Json
+  actorId String
+  actorName String
+  source String
+  createdAt DateTime @default(now())
+  @@id([proposalId,version])
+}
+
+model StoryExecution {
+  id String @id @default(cuid())
+  storyId String
+  repositoryId String
+  storyVersion Int
+  state String @default("queued")
+  stage String @default("specification")
+  snapshot Json
+  specification Json?
+  patch Json?
+  branch String?
+  commitSha String?
+  mergeRequestUrl String?
+  error String?
+  actorId String
+  actorName String
+  leaseId String?
+  leaseUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  discussionVersion Int @default(0)
+  discussionProposal Json?
+  allowDependencies Boolean @default(false)
+  messages ExecutionMessage[]
+  @@index([storyId,createdAt])
+  @@index([state,createdAt])
+}
+model ExecutionMessage {
+  id String @id @default(cuid())
+  executionId String
+  execution StoryExecution @relation(fields:[executionId],references:[id],onDelete:Restrict)
+  sequence Int
+  role String
+  content String
+  state String @default("succeeded")
+  intent String @default("discuss")
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  @@unique([executionId,sequence])
+}

@@ -28,6 +28,13 @@ runtime="$source_dir/scripts/linux/runtime.sh"
 bash "$runtime" "$root" prepare "$source_dir" 3198
 runtime="$root/source/scripts/linux/runtime.sh"
 bash "$runtime" "$root" up
+python3 - "$root" "$project" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+(root/'state/disposable-test.json').write_text(json.dumps({'version': 1, 'root': str(root), 'project': sys.argv[2]}))
+PY
+chown 10001:10001 "$root/state/disposable-test.json"
+export SDLC_ACCEPTANCE_ROOT="$root" SDLC_ACCEPTANCE_PROJECT="$project"
 docker compose --project-name "$project" --project-directory "$root" --env-file "$root/runtime.env" -f "$root/compose.yaml" run --rm --no-deps acceptance python -c "import httpx; from pathlib import Path; c=httpx.Client(base_url='http://forgejo:3000/api/v1',headers={'Authorization':'token '+Path('/run/secrets/forgejo_token').read_text().strip()}); r=c.get('/user'); print('Integration account HTTP',r.status_code,'admin=',r.json().get('is_admin'),'active=',r.json().get('active')); r=c.post('/user/repos',json={'name':'synthetic-probe','private':True,'auto_init':False}); print('Repository creation HTTP',r.status_code, r.json().get('message','created'))"
 [[ $(docker network inspect "${project}_core" --format '{{.Internal}}') == true ]] || exit 1
 bash "$runtime" "$root" test

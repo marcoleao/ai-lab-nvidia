@@ -1,0 +1,1 @@
+{"name":"@sdlc/api","private":true,"type":"module","scripts":{"dev":"tsx watch src/server.ts","start":"tsx src/server.ts","build":"tsc --noEmit -p tsconfig.json"},"dependencies":{"@sdlc/shared":"workspace:*","@sdlc/templates":"workspace:*","fastify":"5.12.7","zod":"4.6.7","tsx":"4.23.15"}}

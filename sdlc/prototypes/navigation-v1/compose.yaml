@@ -1,0 +1,22 @@
+name: sdlc-navigation-prototype
+services:
+  prototype:
+    image: sdlc-portal:prepared
+    pull_policy: never
+    command: ["node", "/prototype/scripts/static-server.mjs"]
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    ports: ["127.0.0.1:3311:8080"]
+    volumes: ["./public:/prototype/public:ro", "./scripts:/prototype/scripts:ro"]
+    networks: [prototype]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+networks:
+  prototype:
+    driver: bridge

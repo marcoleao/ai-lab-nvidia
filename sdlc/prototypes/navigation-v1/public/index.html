@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#012169" />
+    <meta name="description" content="Protótipo navegável para revisão da experiência SDLC. Todos os dados e operações são simulados." />
+    <title>SDLC · Protótipo de navegação</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegação principal">
+        <a class="brand" href="#/systems" aria-label="Portal SDLC, ir para Sistemas">
+          <span class="brand-name">Dell Technologies<span>Portal SDLC</span></span>
+        </a>
+        <div class="nav-section-label">ESPAÇO DE TRABALHO</div>
+        <nav class="global-nav" aria-label="Espaço de trabalho">
+          <a href="#/overview" data-global-nav="overview"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Visão geral</a>
+          <a href="#/systems" data-global-nav="systems"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M6.5 10v7.5H14M10 6.5h7.5V14"/></svg></span>Sistemas</a>
+        </nav>
+        <nav id="local-nav" class="local-nav" aria-label="Navegação do contexto atual"></nav>
+        <div class="sidebar-bottom">
+          <div class="prototype-note"><span class="prototype-dot" aria-hidden="true"></span><div>Ambiente de exploração<small>Nenhuma alteração no SDLC real.</small></div></div>
+          <div class="profile"><span class="avatar" aria-hidden="true">A</span><span>Admin<small>Persona simulada · sem autenticação</small></span></div>
+        </div>
+      </aside>
+      <div class="workspace">
+        <header class="topbar">
+          <span class="prototype-badge"><span aria-hidden="true">◌</span> Protótipo · dados simulados</span>
+          <div class="topbar-actions"><a href="#/coverage" class="guide-link">Cobertura funcional</a><a href="#/guide" class="guide-link">Roteiro da revisão <span aria-hidden="true">↗</span></a><button type="button" id="reset-demo" class="button quiet small">Reiniciar simulação</button></div>
+        </header>
+        <div class="content-wrap">
+          <nav id="breadcrumbs" class="breadcrumbs" aria-label="Você está em"></nav>
+          <section id="scenario-toolbar" class="scenario-toolbar" aria-label="Cenários para revisão" hidden>
+            <div><span class="scenario-mark" aria-hidden="true">◇</span><label for="scenario-select">Explorar situação</label><span class="scenario-hint">Veja como a interface responde em cada momento.</span></div>
+            <select id="scenario-select" aria-label="Cenário simulado da História"></select>
+          </section>
+          <main id="main-content" tabindex="-1"></main>
+          <footer class="workspace-footer"><span>Portal SDLC · Da ideia à entrega.</span><span>Protótipo independente · sem conexão com serviços reais</span></footer>
+        </div>
+      </div>
+    </div>
+    <div id="live-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>

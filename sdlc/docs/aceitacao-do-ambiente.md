@@ -56,7 +56,7 @@ O fluxo de importação de uma distro nova é validado por checks estáticos e g
 
 O ensaio do pacote em 2026-10-15 passou por construção Python 3.12 com hashes, inicialização, login/logout pelo proxy, acesso loopback pelo host Linux e pelo Windows, papéis restritos no PostgreSQL, revogação/rotação, reinício, backup cifrado e restore-check. Backup adulterado foi rejeitado e a área temporária foi removida. A rede interna foi inspecionada. Desconexão física da internet e instalação da distro definitiva continuam como verificações de aceitação humana.
 
-## 2. Entrar e revisar a demonstração
+## 2. Entrar e criar seu projeto
 
 ```powershell
 .\sdlc\bootstrap.ps1 access
@@ -64,24 +64,24 @@ O ensaio do pacote em 2026-10-15 passou por construção Python 3.12 com hashes,
 
 Isso copia a chave pessoal do responsável para a área de transferência, sem imprimi-la. Abra `http://127.0.0.1:3100` e cole no campo de acesso. A chave não fica no Git. A sessão dura 30 minutos. Para limpar o clipboard depois de colar: `Set-Clipboard -Value ''`.
 
-O projeto **Aceitação do ambiente — demonstração** contém três propostas, uma execução demonstrativa e uma falha de processamento intencional. Esses registros são sintéticos; não representam agentes reais em execução. Reiniciar ou repetir `up` preserva decisões e não reseta o roteiro.
+Instalações novas iniciam vazias. Crie a ideia/projeto pelo fluxo humano existente; o novo portal completo está em construção. Não há propostas, execução demonstrativa ou falha intencional pré-carregadas. Reiniciar ou repetir `up` preserva o trabalho criado pelo usuário. Instalações antigas não têm seus dados apagados por essa alteração.
 
 ## 3. Roteiro humano
 
 | ID | Ação | Esperado | Resultado |
 | --- | --- | --- | --- |
-| AC-01 | Entrar com chave do responsável | Projeto e seções visíveis | Pendente |
+| AC-01 | Entrar com chave do responsável | Instalação nova sem projetos; criar a própria ideia pelo fluxo humano | Pendente |
 | AC-02 | Revisar conteúdo, destino e versão de uma proposta; informar justificativa e aprovar | Decisão registrada e válida para aquela versão | Pendente |
 | AC-03 | Solicitar revisão da mesma proposta | Decisão anterior substituída; não mantém autorização válida | Pendente |
 | AC-04 | Aprovar outra proposta e revogar a decisão | Estado revogado e validade negativa | Pendente |
-| AC-05 | Pausar a execução demonstrativa e preparar retomada | Estados e versões alterados no histórico | Pendente |
+| AC-05 | Consultar a execução criada pelo usuário, se houver | Estados e versões preservados no histórico | Pendente |
 | AC-06 | Registrar uma nova execução e cancelá-la | Cancelamento persistido; nenhum agente é disparado | Pendente |
-| AC-07 | Solicitar nova tentativa da falha demonstrativa e atualizar | Consumidor processa a mensagem; pendência desaparece | Pendente |
+| AC-07 | Conferir processamento dos eventos criados pelo usuário | Nenhuma falha artificial semeada | Pendente |
 | AC-08 | Sair e tentar atualizar uma aba autenticada antiga | Sessão encerrada não acessa dados | Pendente |
 | AC-09 | Entrar como leitor e tentar ações de escrita | Ações não oferecidas; API também bloqueia | Pendente |
 | AC-10 | Revogar chave do leitor enquanto está conectado | Próxima atualização exige nova autenticação | Pendente |
 | AC-11 | Reiniciar serviços e conferir decisões/execuções | Dados e histórico preservados | Pendente |
-| AC-12 | Sem internet, repetir login, consultas e teste automático | Núcleo continua funcional | Pendente |
+| AC-12 | Sem internet, repetir login, consultas e doctor | Núcleo continua funcional sem criar dados sintéticos | Pendente |
 | AC-13 | Gerar backup e executar restore-check | Contagens e cadeia de auditoria conferidas em banco separado | Pendente |
 
 Para AC-09, saia do responsável e obtenha a chave do leitor:
@@ -112,18 +112,17 @@ Para AC-11:
 .\sdlc\bootstrap.ps1 doctor
 ```
 
-Para AC-12, desconecte internet depois da preparação; não desative o WSL nem o adaptador virtual necessário ao acesso local. Rode `up`/`test` sem executar `prepare`. A aceitação offline aqui cobre o núcleo, não a construção futura de projetos.
+Para AC-12, desconecte internet depois da preparação; não desative o WSL nem o adaptador virtual necessário ao acesso local. Rode `up`/`doctor` sem executar `prepare`. A aceitação offline aqui cobre o núcleo, não a construção futura de projetos.
 
-## 4. Teste automático do ambiente instalado
+## 4. Verificação instalada e aceitação isolada
 
 ```powershell
-.\sdlc\bootstrap.ps1 test
-.\sdlc\bootstrap.ps1 report
+.\sdlc\bootstrap.ps1 doctor
 ```
 
-Valida saúde, autenticação, restrições de leitor/agente, idempotência, aprovação vinculada à versão e consumidor. Cria registros sintéticos próprios e mantém os existentes. A chave do leitor precisa estar ativa para essa verificação de papel; se foi revogada no roteiro, rode `rotate-access -Identity reader` antes.
+`doctor` verifica a saúde sem criar projetos. `test` recusa o ambiente permanente. Testes de autenticação, papéis, idempotência, aprovações e entrega sintética ficam exclusivamente no ensaio descartável `sdlc/scripts/linux/test-install-package.sh`; veja [execução e limites](construcao-fase-0-2026-10-20.md). Não execute esse ensaio durante a apresentação: ele prepara uma instalação adicional e pode consumir recursos e internet.
 
-O relatório é exportado para `sdlc/.state/acceptance-report.json`, com identificação do pacote e estado **humano pendente**. Não contém tokens. Passar no teste automatizado não aprova a experiência humana ou o SDLC completo.
+Relatórios antigos podem ser exportados por `report`; a data e o fingerprint identificam o pacote avaliado, não validam automaticamente uma atualização. O ensaio descartável elimina seus relatórios ao limpar os recursos. Passar no teste automatizado não aprova a experiência humana ou o SDLC completo.
 
 ## 5. Backup e restauração de teste
 

@@ -8,7 +8,7 @@ import sys
 def fingerprint(root):
     root = Path(root)
     paths = [root / 'compose.yaml', root / 'bootstrap.ps1', root / '.dockerignore', root / 'gitlab.ps1']
-    for directory in ('services/control', 'docker', 'locks', 'config', 'policies', 'scripts', 'gitlab'):
+    for directory in ('services/control', 'docker', 'locks', 'config', 'policies', 'scripts', 'gitlab', 'tests/fixtures'):
         paths.extend(p for p in (root / directory).rglob('*') if p.is_file() and not {'__pycache__', '.pytest_cache'}.intersection(p.parts))
     records = []
     for path in sorted(set(paths)):
