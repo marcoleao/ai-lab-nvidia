@@ -1,10 +1,11 @@
 import {z} from 'zod';
+import {requirementsSchema} from './requirements.ts';
 const title=z.string().trim().min(1).max(120);
-const description=z.string().trim().max(1000);
+const description=z.string().trim().max(2000);
 // Omitted assignment means no component selected, never an inferred repository.
 const repositories=z.array(z.string().min(1)).max(20).default([]);
 const task=z.object({title,description,repositoryIds:repositories}).strict();
-const story=z.object({title,description,acceptanceCriteria:z.array(z.string().trim().min(1).max(200)).min(1).max(6),repositoryIds:repositories,tasks:z.array(task).min(1).max(4)}).strict();
+const story=z.object({title,description,acceptanceCriteria:z.array(z.string().trim().min(1).max(600)).min(1).max(12),requirements:requirementsSchema.optional(),repositoryIds:repositories,tasks:z.array(task).min(1).max(4)}).strict();
 const epic=z.object({title,description,stories:z.array(story).min(1).max(3)}).strict();
 export const planSchema=z.object({summary:z.string().trim().min(1).max(2000),epics:z.array(epic).min(1).max(3)}).strict().superRefine((plan,ctx)=>{
   const count=plan.epics.reduce((sum,e)=>sum+1+e.stories.reduce((n,s)=>n+1+s.tasks.length,0),0);

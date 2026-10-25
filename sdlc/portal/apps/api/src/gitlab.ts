@@ -4,10 +4,14 @@ import { DomainError } from './errors.ts';
 import {validatePatch,type CodePatch} from './code-schema.ts';
 export type CodeContext={sha:string;targetBranch:string;files:{path:string;content:string}[]};
 export type PublishedCode={sha:string;url:string};
+export type QualityContext={sha:string;baseSha:string;files:{path:string;content:string}[];changes:{path:string;diff:string;content:string}[]};
 
 type Group = {id:number;full_path:string;description?:string;web_url?:string};
 type Project = {id:number;name?:string;path_with_namespace:string;web_url:string;topics?:string[];empty_repo?:boolean;archived?:boolean};
 export interface GitProvider {
+  qualityStatus?(ref:{projectId:number;iid:number;sha:string;sourceBranch:string},kind:'code_review'|'security_scan',state:'pending'|'running'|'success'|'failed'):Promise<void>;
+  qualityContext?(id:number,iid:number,sha:string,baseSha:string):Promise<QualityContext>;
+  publishCorrection?(id:number,runId:string,checkId:string,expectedSha:string,context:CodeContext,patch:CodePatch,title:string,permissions:{dependencies:boolean}):Promise<PublishedCode>;
   codeContext?(id:number):Promise<CodeContext>;
   publishCode?(id:number,runId:string,context:CodeContext,patch:CodePatch,title:string,permissions?:{dependencies:boolean}):Promise<PublishedCode>;
   health():Promise<boolean>;
@@ -16,6 +20,77 @@ export interface GitProvider {
   inspectProject(id:number):Promise<Project>;
 }
 export class GitLabProvider implements GitProvider {
+  async qualityStatus(ref:{projectId:number;iid:number;sha:string;sourceBranch:string},kind:'code_review'|'security_scan',state:'pending'|'running'|'success'|'failed'){
+    const mr=await this.call<{sha:string;source_branch:string;state:string;head_pipeline?:{id:number;sha:string}}>('GET',`projects/${ref.projectId}/merge_requests/${ref.iid}`);
+    if(!mr||mr.sha!==ref.sha||mr.source_branch!==ref.sourceBranch||mr.state!=='opened')throw new DomainError('QUALITY_STALE','O MR mudou antes de registrar o resultado no GitLab.',409);
+    const name=`sdlc-${kind.replace('_','-')}`,pipelineId=mr.head_pipeline?.sha===ref.sha?mr.head_pipeline.id:undefined;
+    type Status={id:number;sha:string;name:string;ref:string;status:string;pipeline_id?:number};
+    const latest=async()=>{
+      const query=new URLSearchParams({name,ref:ref.sourceBranch,all:'true',order_by:'id',sort:'desc',per_page:'100',...(pipelineId?{pipeline_id:String(pipelineId)}:{})});
+      const statuses=await this.call<Status[]>('GET',`projects/${ref.projectId}/repository/commits/${ref.sha}/statuses?${query}`);
+      return statuses?.filter(s=>s.sha===ref.sha&&s.name===name&&s.ref===ref.sourceBranch&&(pipelineId===undefined||s.pipeline_id===pipelineId)).sort((a,b)=>b.id-a.id)[0];
+    };
+    let confirmed=await latest();
+    // GitLab rejects some self-transitions (notably pending -> pending).
+    // Only evidence for this commit, branch, job and pipeline can reconcile a retry.
+    if(confirmed?.status===state)return;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        await this.call('POST',`projects/${ref.projectId}/statuses/${ref.sha}`,{state,name,ref:ref.sourceBranch,description:`SDLC ${kind.replace('_',' ')} · ${state}`,...(pipelineId?{pipeline_id:pipelineId}:{})});
+        return;
+      }catch(error){
+        const status=error instanceof DomainError?(error.details as {status?:number}|undefined)?.status:undefined;
+        if(![400,409,422].includes(status??0))throw error;
+        confirmed=await latest();
+        if(confirmed?.status===state)return;
+        if(status===409&&attempt<2){await new Promise(resolve=>setTimeout(resolve,200));continue;}
+        throw new DomainError('QUALITY_STATUS_REJECTED',`GitLab recusou registrar ${name} como ${state.toUpperCase()} (HTTP ${status}). Estado confirmado: ${confirmed?.status.toUpperCase()??'ausente'}${pipelineId?`; pipeline #${pipelineId}`:''}. Retome a verificação; nenhuma aprovação foi registrada pelo SDLC.`,502,{status,name,pipelineId,confirmed:confirmed?.status});
+      }
+    }
+  }
+  async qualityContext(id:number,iid:number,sha:string,baseSha:string):Promise<QualityContext>{
+    const mr=await this.call<{sha:string;source_project_id:number;target_project_id:number;target_branch:string;state:string}>('GET',`projects/${id}/merge_requests/${iid}`);
+    if(!mr||mr.sha!==sha||mr.source_project_id!==id||mr.target_project_id!==id||mr.state!=='opened')throw new DomainError('QUALITY_STALE','O Merge Request mudou ou foi encerrado. Revise a entrega antes de verificar.',409);
+    const branch=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(mr.target_branch)}`);
+    if(branch?.commit.id!==baseSha)throw new DomainError('QUALITY_BASE_CHANGED','A branch de destino mudou desde a codificação. Reconcilie a base antes de verificar.',409);
+    const comparison=await this.call<{compare_timeout?:boolean;diffs:{new_path:string;deleted_file:boolean;diff:string;too_large?:boolean;collapsed?:boolean}[]}>('GET',`projects/${id}/repository/compare?from=${baseSha}&to=${sha}&straight=true`);
+    if(!comparison||comparison.compare_timeout||comparison.diffs.length>16||comparison.diffs.some(d=>d.too_large||d.collapsed))throw new DomainError('QUALITY_CONTEXT_LIMIT','Diff incompleto ou extenso demais. A verificação não pode aprovar cobertura parcial.',409);
+    const tree=await this.call<{path:string;type:string;mode:string}[]>('GET',`projects/${id}/repository/tree?ref=${sha}&recursive=true&per_page=100`);
+    const more=await this.call<unknown[]>('GET',`projects/${id}/repository/tree?ref=${sha}&recursive=true&per_page=100&page=2`);
+    if(more?.length)throw new DomainError('QUALITY_CONTEXT_LIMIT','Verificação inicial aceita até 100 entradas no repositório; cobertura parcial bloqueada.',409);
+    const files:QualityContext['files']=[];let bytes=0;
+    for(const entry of tree??[]){
+      if(entry.type!=='blob')continue;
+      if(entry.mode!=='100644')throw new DomainError('QUALITY_UNSUPPORTED','Links ou arquivos especiais exigem verificação adicional.',409);
+      if(!/\.(ts|tsx|js|jsx|mjs|cjs|py|html|css|json|md|yaml|yml|toml|txt|lock)$/.test(entry.path)&&!/(^|\/)(Dockerfile|\.gitignore)$/.test(entry.path))throw new DomainError('QUALITY_UNSUPPORTED',`Arquivo fora da cobertura inicial: ${entry.path}. Nenhuma aprovação parcial foi registrada.`,409);
+      const file=await this.call<{content:string;encoding:string;size:number}>('GET',`projects/${id}/repository/files/${encodeURIComponent(entry.path)}?ref=${sha}`);
+      if(!file||file.encoding!=='base64'||file.size>64000)throw new DomainError('QUALITY_CONTEXT_LIMIT','Arquivo excede limite de análise ou não é texto.',409);
+      const content=Buffer.from(file.content,'base64').toString('utf8');bytes+=Buffer.byteLength(content);
+      if(bytes>256000||content.includes('\0'))throw new DomainError('QUALITY_CONTEXT_LIMIT','Código excede limite de análise ou inclui arquivo binário.',409);
+      files.push({path:entry.path,content});
+    }
+    const changes=comparison.diffs.filter(d=>!d.deleted_file).map(d=>{const file=files.find(f=>f.path===d.new_path);if(!file)throw new DomainError('QUALITY_CONTEXT_LIMIT','Arquivo alterado ausente do contexto.',409);return {path:file.path,diff:d.diff,content:file.content};});
+    if(!changes.length||comparison.diffs.some(d=>!d.diff))throw new DomainError('QUALITY_CONTEXT_LIMIT','Não há diff completo para revisão.',409);
+    return {sha,baseSha,files,changes};
+  }
+  async publishCorrection(id:number,runId:string,checkId:string,expectedSha:string,context:CodeContext,input:CodePatch,_title:string,permissions:{dependencies:boolean}):Promise<PublishedCode>{
+    const patch=validatePatch(input,permissions),branch=`sdlc/story-${runId}`,marker=`SDLC correction ${checkId} ${createHash('sha256').update(JSON.stringify(patch)).digest('hex')}`;
+    const head=await this.call<{commit:{id:string;message:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(branch)}`);
+    if(!head)throw new DomainError('BRANCH_CHANGED','Branch da correção indisponível.',409);
+    let sha=head.commit.id;
+    if(!head.commit.message.includes(marker)){
+      if(sha!==expectedSha)throw new DomainError('BRANCH_CHANGED','A branch mudou antes da correção. Nenhum arquivo foi sobrescrito.',409);
+      const actions=await Promise.all(patch.files.map(async f=>{const existing=context.files.some(old=>old.path===f.path);const metadata=existing?await this.call<{last_commit_id:string}>('GET',`projects/${id}/repository/files/${encodeURIComponent(f.path)}?ref=${expectedSha}`):null;return {action:existing?'update':'create',file_path:f.path,content:f.content,...(metadata?{last_commit_id:metadata.last_commit_id}:{})};}));
+      const commit=await this.call<{id:string}>('POST',`projects/${id}/repository/commits`,{branch,commit_message:marker,actions});
+      if(!commit)throw new Error('Commit de correção ausente');sha=commit.id;
+    }
+    for(let attempt=0;attempt<6;attempt++){
+      const existing=await this.call<{web_url:string;state:string;sha:string}[]>('GET',`projects/${id}/merge_requests?source_branch=${encodeURIComponent(branch)}&state=opened`);
+      if(existing?.length===1&&existing[0].sha===sha)return {sha,url:existing[0].web_url};
+      if(attempt<5)await new Promise(resolve=>setTimeout(resolve,1000));
+    }
+    throw new DomainError('MR_CHANGED','Commit de correção publicado; o GitLab ainda não reconciliou o MR. Retome a publicação para consultar o mesmo commit.',409);
+  }
   async codeContext(id:number):Promise<CodeContext>{
     const project=await this.call<Project&{default_branch:string}>('GET',`projects/${id}`);
     if(!project||project.archived||!project.default_branch)throw new DomainError('REPOSITORY_NOT_READY','Repositório sem branch padrão disponível.',409);
@@ -67,7 +142,8 @@ export class GitLabProvider implements GitProvider {
     if(missing&&response.status===404) return null;
     if(!response.ok){
       const validation=await response.json().catch(()=>null);
-      throw new DomainError('GITLAB_REQUEST_FAILED',`GitLab recusou a operação (HTTP ${response.status}). Verifique o acesso da integração.`,502,{method,path,status:response.status,validation});
+      const reason=response.status===401||response.status===403?'Verifique a credencial e as permissões da integração.':response.status===400||response.status===422?'Os dados ou a mudança de estado foram recusados.':response.status===404?'O recurso solicitado não foi encontrado.':response.status===409?'O estado do recurso mudou ou existe uma operação concorrente.':'Consulte a disponibilidade e as verificações exigidas pelo GitLab.';
+      throw new DomainError('GITLAB_REQUEST_FAILED',`GitLab recusou a operação (HTTP ${response.status}). ${reason}`,502,{method,path,status:response.status,validation});
     }
     return response.status===204 ? null : await response.json() as T;
   }

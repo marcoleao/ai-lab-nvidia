@@ -32,10 +32,13 @@ test('empty installation has no seeded business data and health never creates it
   expect(await db.item.count()).toBe(0);expect(await db.historyEvent.count()).toBe(0);
 });
 test('hierarchy creation has exact statuses, unique keys, history and three empty environments',async()=>{
-  root=await create('system',undefined,{key:'LIVE'});
+  root=await create('system',undefined,{key:'liveSt'});
+  expect(root.key).toBe('LIVEST'); expect(root.data.code).toBe('LIVEST');
+  expect((await db.item.findUniqueOrThrow({where:{id:root.id}})).key).toBe('LIVEST');
   project=await create('project',root.id,{key:'APP'});
   epic=await create('epic',project.id);story=await create('story',epic.id);task=await create('task',story.id);
   expect([root.status,project.status,epic.status,story.status,task.status]).toEqual(['active','awaiting_approval','todo','specification','todo']);
+  expect((await db.item.findUniqueOrThrow({where:{id:project.id}})).projectLifecycle).toBe('active');
   const detail=(await app.inject(`/api/items/${task.id}`)).json();
   expect(detail.ancestors.map((i:WorkItem)=>i.kind)).toEqual(['system','project','epic','story']);
   expect(await db.environment.count()).toBe(0);
@@ -47,7 +50,7 @@ test('hierarchy errors, whitespace, unknown fields and duplicate keys are reject
   expect((await post('/items',{kind:'story',parentId:root.id,name:'Wrong parent'})).statusCode).toBe(400);
   expect((await post('/items',{kind:'system',name:'   ',key:'BLANK'})).statusCode).toBe(422);
   expect((await post('/items',{kind:'task',parentId:story.id,name:'Task',status:'done'})).statusCode).toBe(422);
-  expect((await post('/items',{kind:'system',name:'Duplicate',key:'LIVE'})).statusCode).toBe(409);
+  expect((await post('/items',{kind:'system',name:'Duplicate',key:'LIVEST'})).statusCode).toBe(409);
   expect(await db.item.count()).toBe(5);
 });
 test('idempotency survives retries, rejects different payload and serializes concurrent submissions',async()=>{
@@ -57,9 +60,9 @@ test('idempotency survives retries, rejects different payload and serializes con
   expect((await post('/items',{...payload,name:'Different'},'admin',key)).statusCode).toBe(409);
 });
 test('persona and origin controls deny mutation but allow read-only inspection',async()=>{
-  expect((await post('/items',{kind:'system',key:'NOPE',name:'Denied'},'carla')).statusCode).toBe(403);
-  expect((await app.inject({method:'POST',url:'/api/items',headers:{'idempotency-key':randomUUID()},payload:{kind:'system',name:'Denied',key:'NONE'}})).statusCode).toBe(403);
-  expect((await app.inject({method:'POST',url:'/api/items',headers:{...headers,'idempotency-key':randomUUID(),origin:'https://elsewhere.invalid'},payload:{kind:'system',name:'Denied',key:'NONE'}})).statusCode).toBe(403);
+  expect((await post('/items',{kind:'system',key:'DENIED',name:'Denied'},'carla')).statusCode).toBe(403);
+  expect((await app.inject({method:'POST',url:'/api/items',headers:{'idempotency-key':randomUUID()},payload:{kind:'system',name:'Denied',key:'NOAUTH'}})).statusCode).toBe(403);
+  expect((await app.inject({method:'POST',url:'/api/items',headers:{...headers,'idempotency-key':randomUUID(),origin:'https://elsewhere.invalid'},payload:{kind:'system',name:'Denied',key:'NOAUTH'}})).statusCode).toBe(403);
   expect((await app.inject(`/api/items/${root.id}`)).statusCode).toBe(200);
 });
 test('planning approvals are authorized, independent, and cannot approve stories',async()=>{
@@ -67,7 +70,7 @@ test('planning approvals are authorized, independent, and cannot approve stories
   expect((await post(`/items/${project.id}/approve`,{expectedVersion:project.version},'bruno')).statusCode).toBe(403);
   const response=await post(`/items/${project.id}/approve`,{expectedVersion:project.version},'ana');
   expect(response.statusCode,response.body).toBe(200);project=response.json().item;
-  expect((await post(`/items/${epic.id}/approve`,{expectedVersion:epic.version},'ana')).statusCode).toBe(200);
+  expect((await post(`/items/${epic.id}/approve`,{expectedVersion:epic.version},'ana')).statusCode).toBe(409);
   expect((await post(`/items/${story.id}/approve`,{expectedVersion:story.version})).statusCode).toBe(409);
   expect((await db.item.findUniqueOrThrow({where:{id:story.id}})).status).toBe('specification');
 });
@@ -124,7 +127,7 @@ test('repositories belong to the system, can serve multiple projects, and scopes
   expect((await assign(project.id,[])).statusCode).toBe(409);
   expect((await app.inject(`/api/items/${root.id}`)).json().environments).toHaveLength(3);
   expect((await app.inject(`/api/items/${project.id}`)).json().environments).toHaveLength(0);
-  const foreign=await create('system',undefined,{key:'FOREIGN'});
+  const foreign=await create('system',undefined,{key:'FOREIG'});
   const forbidden=await post('/items',{kind:'project',parentId:foreign.id,key:'NO',name:'Wrong scope',repositoryIds:[repo.id]});
   expect(forbidden.statusCode).toBe(409);
   await app.inject({method:'DELETE',url:`/api/items/${foreign.id}`,headers:{...headers,'idempotency-key':randomUUID()},payload:{expectedVersion:foreign.version}});
@@ -139,12 +142,12 @@ test('linking an existing repository is read-only remotely and project closure p
   let initiative=await create('project',root.id,{key:'CYCLE',repositoryIds:[repo.id]});
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version})).statusCode).toBe(409);
   initiative=(await post(`/items/${initiative.id}/approve`,{expectedVersion:initiative.version})).json().item;
-  initiative=(await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version})).json().item;
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'completed',expectedVersion:initiative.version})).statusCode).toBe(409);
   initiative=(await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'cancelled',expectedVersion:initiative.version})).json().item;
   expect((await post('/items',{kind:'epic',parentId:initiative.id,name:'Closed work'})).statusCode).toBe(409);
-  expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'planned',expectedVersion:initiative.version})).statusCode).toBe(400);
-  expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'planned',expectedVersion:initiative.version,comment:'Nova iniciativa autorizada pelo usuário'})).statusCode).toBe(200);
+  expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'planned',expectedVersion:initiative.version,comment:'Nova iniciativa autorizada pelo usuário'})).statusCode).toBe(422);
+  expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version})).statusCode).toBe(400);
+  expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version,comment:'Nova iniciativa autorizada pelo usuário'})).statusCode).toBe(200);
   expect(await db.repository.findUnique({where:{id:repo.id}})).not.toBeNull();expect(await db.environment.count({where:{repositoryId:repo.id}})).toBe(3);
   await connected.app.close();
 });
@@ -156,6 +159,21 @@ test('archive cascades locally, blocks descendants and preserves audit history',
   expect((await app.inject(`/api/items/${task.id}`)).statusCode).toBe(404);
   expect((await post('/items',{kind:'task',parentId:story.id,name:'Late task'})).statusCode).toBe(404);
   expect(await db.historyEvent.count()).toBeGreaterThan(history);
+  const beforeRead=await db.historyEvent.count();
+  const archivedSystems=(await app.inject('/api/items?kind=system&includeArchived=true')).json().items;
+  expect(archivedSystems.some((item:WorkItem)=>item.id===root.id&&item.archived)).toBe(true);
+  expect((await app.inject('/api/items?kind=system&includeArchived=false')).json().items).toEqual([]);
+  const archivedTask=await app.inject(`/api/items/${task.id}?includeArchived=true`);
+  expect(archivedTask.statusCode,archivedTask.body).toBe(200);
+  expect(archivedTask.json().ancestors.map((item:WorkItem)=>item.id)).toEqual([root.id,project.id,epic.id,story.id]);
+  expect(archivedTask.json().ancestors.every((item:WorkItem)=>item.archived)).toBe(true);
+  expect((await app.inject(`/api/items/${root.id}?includeArchived=true`)).json().environments).toHaveLength(6);
+  expect(await db.historyEvent.count()).toBe(beforeRead);
+  expect((await post(`/items/${root.id}/status?includeArchived=true`,{status:'inactive',expectedVersion:current.version+1})).statusCode).toBe(404);
+  const afterRejected=await db.historyEvent.count();expect(afterRejected).toBe(beforeRead+1);
+  expect((await app.inject('/api/items?includeArchived=invalid')).statusCode).toBe(422);
+  expect((await app.inject(`/api/items/${root.id}?includeArchived=invalid`)).statusCode).toBe(422);
+  expect(await db.historyEvent.count()).toBe(afterRejected);
 });
 
 test('technical model probe requires an operator, serializes inference and never creates business data',async()=>{
@@ -172,18 +190,19 @@ test('technical model probe requires an operator, serializes inference and never
   await active;
   expect((await connected.app.inject({method:'POST',url:'/api/integrations/llm/probe',headers:{'x-persona':'admin'},payload:{}})).statusCode).toBe(409);
   finish({model:'local-test',content:'Fixture only'});expect((await first).statusCode).toBe(200);
-  expect(await db.item.count()).toBe(count);expect(await db.historyEvent.count()).toBe(history);
+  expect(await db.item.count()).toBe(count);expect(await db.historyEvent.count()).toBe(history+4);
+  expect(await db.historyEvent.count({where:{action:'INTEGRATION_PROBE_COMPLETED',outcome:'SUCCEEDED'}})).toBe(1);
   await connected.app.close();
 });
 
-test('assistant persists context, rejects duplicate concurrent messages and never applies the proposed plan',async()=>{
-  const system=await create('system',undefined,{key:'CHAT'});
+test('assistant persists Story delivery context, rejects duplicate concurrent messages and never creates planning items',async()=>{
+  const system=await create('system',undefined,{key:'CHATST'});
   const initiative=await create('project',system.id,{key:'PLAN'});
   const grouping=await create('epic',initiative.id);const work=await create('story',grouping.id);
   let calls=0,fail=false;
-  const connected=createApp({db,demoMode:true,llm:{model:'isolated-test',models:async()=>['isolated-test'],complete:async messages=>{calls++;expect(messages[0].content).toContain('analista');if(fail)throw Error('private error');return {model:'isolated-test',content:'Resposta exclusiva da fixture isolada'};}}});
+  const connected=createApp({db,demoMode:true,llm:{model:'isolated-test',models:async()=>['isolated-test'],complete:async messages=>{calls++;expect(messages[0].content).toContain('assistente de entrega');if(fail)throw Error('private error');return {model:'isolated-test',content:'Resposta exclusiva da fixture isolada'};}}});
   const read=async()=> (await connected.app.inject(`/api/assistant?contextId=${work.id}`)).json();
-  expect((await read()).context.id).toBe(initiative.id);expect((await read()).session).toBeNull();expect(await db.chatSession.count()).toBe(0);
+  expect((await read()).context.id).toBe(work.id);expect((await read()).assistantMode).toBe('delivery');expect((await read()).session).toBeNull();expect(await db.chatSession.count()).toBe(0);
   const send=(message:string,expectedVersion:number,key=randomUUID(),persona='admin')=>connected.app.inject({method:'POST',url:'/api/assistant/turns',headers:{'x-persona':persona,'idempotency-key':key},payload:{contextId:work.id,message,expectedVersion}});
   const count=await db.item.count(),key=randomUUID();
   expect((await send('Não autorizado',0,randomUUID(),'carla')).statusCode).toBe(403);
@@ -196,12 +215,13 @@ test('assistant persists context, rejects duplicate concurrent messages and neve
   await connected.processChatJobs();state=await read();expect(state.turns[1].status).toBe('failed');expect(state.turns[1].output).toBeNull();expect(state.turns[1].error).not.toContain('private error');
   expect(await db.item.count()).toBe(count);expect(await db.chatTurn.count()).toBe(2);
   const restarted=createApp({db,demoMode:true});await restarted.processChatJobs();
-  expect((await restarted.app.inject(`/api/assistant?contextId=${initiative.id}`)).json().turns).toHaveLength(2);
+  expect((await restarted.app.inject(`/api/assistant?contextId=${work.id}`)).json().turns).toHaveLength(2);
+  expect((await restarted.app.inject(`/api/assistant?contextId=${initiative.id}`)).json().turns).toHaveLength(0);
   await restarted.app.close();await connected.app.close();
 });
 
 test('cancelling a running assistant turn discards late output and expired leases fail without regeneration',async()=>{
-  const system=await db.item.findFirstOrThrow({where:{key:'CHAT'}});
+  const system=await db.item.findFirstOrThrow({where:{key:'CHATST'}});
   let start!:()=>void,finish!:(value:{model:string;content:string})=>void;
   const started=new Promise<void>(resolve=>{start=resolve;});
   const result=new Promise<{model:string;content:string}>(resolve=>{finish=resolve;});
@@ -218,7 +238,7 @@ test('cancelling a running assistant turn discards late output and expired lease
 });
 
 test('reviewed plans apply atomically, preserve initial statuses, require confirmation and cannot duplicate',async()=>{
-  const system=await create('system',undefined,{key:'PROPOSALS'}),initiative=await create('project',system.id,{key:'INIT'});
+  const system=await create('system',undefined,{key:'PROPOS'}),initiative=await create('project',system.id,{key:'INIT'});
   const plan={summary:'Escopo exclusivo do teste',epics:[{title:'Épico do teste',description:'Proposta isolada',stories:[{title:'História do teste',description:'Definida no ensaio',acceptanceCriteria:['Critério verificável informado no teste'],repositoryIds:[],tasks:[{title:'Tarefa do teste',description:'Trabalho isolado',repositoryIds:[]}]}]}]};
   let answer:unknown=plan;
   const runtime=createApp({db,demoMode:true,llm:{model:'plan-fixture',models:async()=>['plan-fixture'],complete:async(_messages,options)=>({model:'plan-fixture',content:options?.json?JSON.stringify(answer):'Pergunta da fixture para esclarecer o objetivo.'})}});
@@ -264,7 +284,8 @@ test('reviewed plans apply atomically, preserve initial statuses, require confir
   const rollbackBody={expectedVersion:proposal.version,expectedProjectVersion:proposal.projectVersion,expectedSessionVersion:proposal.sessionVersion,confirmed:true},rollbackKey=randomUUID();
   try{
     expect((await action(`/assistant/plans/${proposal.id}/apply`,rollbackBody,'POST',rollbackKey)).statusCode).toBe(500);
-    expect(await db.item.count()).toBe(beforeRollback.items);expect(await db.historyEvent.count()).toBe(beforeRollback.events);expect(await db.counter.findMany({orderBy:{scope:'asc'}})).toEqual(beforeRollback.counters);
+    expect(await db.item.count()).toBe(beforeRollback.items);expect(await db.historyEvent.count()).toBe(beforeRollback.events+1);expect(await db.counter.findMany({orderBy:{scope:'asc'}})).toEqual(beforeRollback.counters);
+    expect(await db.historyEvent.findFirst({where:{action:'COMMAND_FAILED',outcome:'FAILED'},orderBy:{timestamp:'desc'}})).toBeTruthy();
     expect((await db.planProposal.findUniqueOrThrow({where:{id:proposal.id}})).status).toBe('draft');
   }finally{await db.$executeRawUnsafe('DROP TRIGGER reject_test_plan_task ON "Item"');await db.$executeRawUnsafe('DROP FUNCTION reject_test_plan_task()');}
   expect((await action(`/assistant/plans/${proposal.id}/apply`,rollbackBody,'POST',rollbackKey)).statusCode).toBe(200);
@@ -273,8 +294,8 @@ test('reviewed plans apply atomically, preserve initial statuses, require confir
 });
 
 test('assistant completes a System interview in the selected Project exactly once and rejects unsafe creation',async()=>{
-  const system=await create('system',undefined,{key:'COMPLETE'}),target=await create('project',system.id,{key:'TARGET'});
-  const other=await create('system',undefined,{key:'OTHER'}),foreign=await create('project',other.id,{key:'FOREIGN'});
+  const system=await create('system',undefined,{key:'COMPLE'}),target=await create('project',system.id,{key:'TARGET'});
+  const other=await create('system',undefined,{key:'OTHERS'}),foreign=await create('project',other.id,{key:'FOREIG'});
   let invalid=false;
   const plan={summary:'Plano da entrevista isolada',epics:[{title:'Épico informado',description:'Escopo da conversa',stories:[{title:'História informada',description:'Objetivo definido',acceptanceCriteria:['Resultado definido na entrevista'],repositoryIds:[],tasks:[{title:'Tarefa informada',description:'Trabalho definido',repositoryIds:[]}]}]}]};
   const runtime=createApp({db,demoMode:true,llm:{model:'completion-fixture',models:async()=>[],complete:async(messages,options)=>{
@@ -307,9 +328,9 @@ test('assistant completes a System interview in the selected Project exactly onc
 
 
 test('story execution requires G1, pins context and reconciles publication without regenerating code',async()=>{
-  const system=await create('system',undefined,{key:'EXEC'}),initiative=await create('project',system.id,{key:'CODE'});
+  const system=await create('system',undefined,{key:'EXECST'}),initiative=await create('project',system.id,{key:'CODE'});
   await post(`/items/${initiative.id}/approve`,{expectedVersion:initiative.version});
-  const group=await create('epic',initiative.id);await post(`/items/${group.id}/approve`,{expectedVersion:group.version});
+  const group=await create('epic',initiative.id);
   const repository=await db.repository.create({data:{systemId:system.id,key:'CODE',name:'Fixture',runtime:'python',state:'ready',gitlabProjectId:987}});
   await db.itemRepository.create({data:{itemId:initiative.id,repositoryId:repository.id}});
   const work=await create('story',group.id,{repositoryIds:[repository.id]});
@@ -356,7 +377,7 @@ test('story execution requires G1, pins context and reconciles publication witho
 test('execution impediment becomes a persistent discussion and confirmed capability requires a new G1',async()=>{
   const system=await create('system',undefined,{key:'DIALOG'}),project=await create('project',system.id,{key:'DECIDE'});
   await post(`/items/${project.id}/approve`,{expectedVersion:project.version});
-  const epic=await create('epic',project.id);await post(`/items/${epic.id}/approve`,{expectedVersion:epic.version});
+  const epic=await create('epic',project.id);
   const repository=await db.repository.create({data:{systemId:system.id,key:'DIALOG',name:'Fixture',runtime:'node',state:'ready',gitlabProjectId:988}});
   await db.itemRepository.create({data:{itemId:project.id,repositoryId:repository.id}});
   const story=await create('story',epic.id,{repositoryIds:[repository.id]});await db.item.update({where:{id:story.id},data:{data:{acceptanceCriteria:['Resultado definido pelo usuário.']}}});
@@ -395,8 +416,8 @@ test('execution impediment becomes a persistent discussion and confirmed capabil
 });
 
 test('dashboard combines user, system and project scopes without leaking other work or narrowing options',async()=>{
-  const a=await create('system',undefined,{key:'FILTERA'});
-  const bResponse=await post('/items',{kind:'system',key:'FILTERB',name:'Sistema de outra pessoa'},'ana');
+  const a=await create('system',undefined,{key:'FILTRA'});
+  const bResponse=await post('/items',{kind:'system',key:'FILTRB',name:'Sistema de outra pessoa'},'ana');
   expect(bResponse.statusCode).toBe(200);const b=bResponse.json().item;
   const p=await create('project',a.id,{key:'SCOPEA'});
   const qResponse=await post('/items',{kind:'project',parentId:b.id,key:'SCOPEB',name:'Outro projeto'},'ana');
@@ -417,4 +438,67 @@ test('dashboard combines user, system and project scopes without leaking other w
   expect((await app.inject(`/api/metrics/dashboard?systemId=${a.id}&projectId=${q.id}`)).statusCode).toBe(400);
   expect((await app.inject('/api/metrics/dashboard?userId=does-not-exist')).statusCode).toBe(400);
   expect((await app.inject('/api/metrics/dashboard?systemId=')).statusCode).toBe(422);
+});
+
+test('system activation is reversible, audited, authorized and preserves linked work and resources',async()=>{
+  let system=await create('system',undefined,{key:'SITUAT'});
+  const initiative=await create('project',system.id,{key:'KEEP'});
+  const repositoryResponse=await post(`/systems/${system.id}/repositories`,{name:'Preserved component',key:'keep',runtime:'node',mode:'create'});
+  expect(repositoryResponse.statusCode,repositoryResponse.body).toBe(200);
+  const repository=repositoryResponse.json().repository;
+  const environments=await db.environment.findMany({where:{repositoryId:repository.id},orderBy:{id:'asc'}});
+  const projectBefore=await db.item.findUniqueOrThrow({where:{id:initiative.id}});
+  const repositoryBefore=await db.repository.findUniqueOrThrow({where:{id:repository.id}});
+  const statuses=(await app.inject('/api/statuses')).json();
+  expect(statuses.system).toEqual(['active','inactive']);
+  expect((await post(`/items/${system.id}/status`,{status:'inactive',expectedVersion:system.version},'carla')).statusCode).toBe(403);
+  expect((await post(`/items/${system.id}/status`,{status:'done',expectedVersion:system.version})).statusCode).toBe(409);
+  await expect(db.item.update({where:{id:system.id},data:{status:'done'}})).rejects.toThrow();
+  const key=randomUUID(),body={status:'inactive',expectedVersion:system.version};
+  const first=await post(`/items/${system.id}/status`,body,'admin',key);
+  expect(first.statusCode,first.body).toBe(200);
+  expect((await post(`/items/${system.id}/status`,body,'admin',key)).json()).toEqual(first.json());
+  system=first.json().item;
+  expect(system).toMatchObject({status:'inactive',archived:false,version:body.expectedVersion+1});
+  expect((await post(`/items/${system.id}/status`,{status:'active',expectedVersion:body.expectedVersion})).statusCode).toBe(409);
+  const detail=(await app.inject(`/api/items/${system.id}`)).json();
+  expect(detail.children.map((item:WorkItem)=>item.id)).toEqual([initiative.id]);
+  expect(detail.history.filter((event:{action:string})=>event.action==='STATUS_CHANGED')).toHaveLength(1);
+  const inventory=(await app.inject(`/api/metrics/dashboard?systemId=${system.id}`)).json().inventory.find((item:{kind:string})=>item.kind==='system');
+  expect(inventory).toMatchObject({total:1,statuses:[{status:'active',count:0},{status:'inactive',count:1}]});
+  const restored=await post(`/items/${system.id}/status`,{status:'active',expectedVersion:system.version},'bruno');
+  expect(restored.statusCode,restored.body).toBe(200);
+  expect(restored.json().item).toMatchObject({status:'active',archived:false,version:system.version+1});
+  expect(await db.item.findUniqueOrThrow({where:{id:initiative.id}})).toEqual(projectBefore);
+  expect(await db.repository.findUniqueOrThrow({where:{id:repository.id}})).toEqual(repositoryBefore);
+  expect(await db.environment.findMany({where:{repositoryId:repository.id},orderBy:{id:'asc'}})).toEqual(environments);
+  expect(await db.historyEvent.findMany({where:{itemId:system.id,action:'STATUS_CHANGED'},orderBy:{timestamp:'asc'}})).toMatchObject([
+    {payload:{from:'active',to:'inactive'}},{payload:{from:'inactive',to:'active'}}
+  ]);
+});
+
+test('archived projects can be read under an active system without restoring or allowing mutations',async()=>{
+  const system=await create('system',undefined,{key:'ARCHIV'});
+  const activeProject=await create('project',system.id,{key:'OPEN'});
+  const archivedProject=await create('project',system.id,{key:'CLOSED'});
+  const result=await app.inject({method:'DELETE',url:`/api/items/${archivedProject.id}`,headers:{...headers,'idempotency-key':randomUUID()},payload:{expectedVersion:archivedProject.version}});
+  expect(result.statusCode,result.body).toBe(200);
+  const itemsBefore=await db.item.findMany({where:{OR:[{id:system.id},{parentId:system.id}]},orderBy:{id:'asc'}});
+  const eventsBefore=await db.historyEvent.count();
+  expect((await app.inject(`/api/items/${system.id}`)).json().children.map((item:WorkItem)=>item.id)).toEqual([activeProject.id]);
+  expect((await app.inject(`/api/items/${system.id}?includeArchived=false`)).json().children.map((item:WorkItem)=>item.id)).toEqual([activeProject.id]);
+  expect((await app.inject(`/api/items/${system.id}?includeArchived=true`)).json().children.map((item:WorkItem)=>item.id)).toEqual([activeProject.id,archivedProject.id]);
+  const scoped=(await app.inject(`/api/items?kind=project&parentId=${system.id}&includeArchived=true`)).json().items;
+  expect(scoped.map((item:WorkItem)=>item.id)).toEqual([activeProject.id,archivedProject.id]);
+  const archived=await app.inject(`/api/items/${archivedProject.id}?includeArchived=true`);
+  expect(archived.statusCode,archived.body).toBe(200);
+  expect(archived.json().item).toMatchObject({status:'awaiting_approval',projectLifecycle:'active',archived:true});
+  expect(archived.json().ancestors).toMatchObject([{id:system.id,archived:false}]);
+  expect(archived.json().history.some((event:{action:string})=>event.action==='ITEM_ARCHIVED')).toBe(true);
+  expect(await db.historyEvent.count()).toBe(eventsBefore);
+  expect((await post(`/items/${archivedProject.id}/lifecycle`,{lifecycle:'active',expectedVersion:archivedProject.version+1})).statusCode).toBe(404);
+  expect((await post(`/items/${archivedProject.id}/approve`,{expectedVersion:archivedProject.version+1})).statusCode).toBe(404);
+  expect((await post('/items',{kind:'epic',parentId:archivedProject.id,name:'Forbidden child'})).statusCode).toBe(404);
+  expect(await db.item.findMany({where:{OR:[{id:system.id},{parentId:system.id}]},orderBy:{id:'asc'}})).toEqual(itemsBefore);
+  expect(await db.historyEvent.count()).toBe(eventsBefore+3);
 });

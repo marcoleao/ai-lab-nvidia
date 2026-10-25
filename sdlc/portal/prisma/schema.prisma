@@ -34,6 +34,10 @@ model Item {
   chatSession ChatSession?
   proposals PlanProposal[]
   provisioning ProvisioningJob?
+  releases Release[] @relation("SystemReleases")
+  releasePlanning ReleaseStory? @relation("StoryReleasePlanning")
+  conversationProjectLinks ConversationLink[] @relation("ConversationLinkProject")
+  conversationStoryLinks ConversationLink[] @relation("ConversationLinkStory")
   @@unique([id, kind])
   @@index([parentId, archived])
   @@index([kind, archived])
@@ -77,6 +81,11 @@ model ItemRepository {
   repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
   @@id([itemId, repositoryId])
 }
+model AuditInstallation {
+  id Int @id
+  epochId String
+  createdAt DateTime @default(now())
+}
 model HistoryEvent {
   id String @id @default(cuid())
   itemId String
@@ -88,8 +97,25 @@ model HistoryEvent {
   message String
   payload Json
   timestamp DateTime @default(now())
+  schemaVersion Int @default(1)
+  auditEpochId String?
+  outcome String?
+  phase String?
+  decision String?
+  operationId String?
+  requestId String?
+  attemptId String?
+  causationEventId String?
+  subjectType String?
+  subjectId String?
+  occurredAt DateTime?
+  audit Json?
+  deduplicationKey String? @unique
+  eventDigest String?
   @@index([itemId, timestamp])
   @@index([ancestorIds], type: Gin)
+  @@index([operationId, timestamp])
+  @@index([schemaVersion, outcome, timestamp])
 }
 model RequestKey {
   id String @id
@@ -140,6 +166,28 @@ model ChatTurn {
   proposal PlanProposal?
   @@unique([sessionId,sequence])
   @@index([status,createdAt])
+}
+
+// References preserve a single conversation source. Linking is not approval or
+// a requirements change; the observed Story revision is retained explicitly.
+model ConversationLink {
+  id String @id @default(cuid())
+  projectId String
+  projectKind ItemKind @default(project)
+  project Item @relation("ConversationLinkProject", fields:[projectId,projectKind], references:[id,kind], onDelete:Restrict)
+  storyId String
+  storyKind ItemKind @default(story)
+  story Item @relation("ConversationLinkStory", fields:[storyId,storyKind], references:[id,kind], onDelete:Restrict)
+  sourceType String
+  sourceId String
+  sourceVersion Int @default(0)
+  storyVersion Int
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  @@unique([sourceType,sourceId,sourceVersion,storyId,storyVersion], map:"ConversationLink_source_target_revision_key")
+  @@index([storyId,createdAt,id])
+  @@index([projectId,createdAt,id])
 }
 model PlanProposal {
   id String @id @default(cuid())
@@ -210,4 +258,186 @@ model ExecutionMessage {
   actorName String
   createdAt DateTime @default(now())
   @@unique([executionId,sequence])
+}
+
+enum ReleaseStage {
+  DRAFT
+  QA
+  HML
+  PRODUCTION
+  REJECTED
+}
+
+model MergeOperation {
+  id String @id @default(cuid())
+  executionId String @unique
+  storyId String
+  projectId Int
+  iid Int
+  sourceBranch String
+  targetBranch String
+  sha String
+  state String @default("tracking")
+  actorId String?
+  actorName String?
+  requestedAt DateTime?
+  finishedAt DateTime?
+  origin String?
+  mergedBy String?
+  message String?
+  blocks Json @default("[]")
+  leaseId String?
+  leaseUntil DateTime?
+  checkedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  discussionVersion Int @default(0)
+  turns MergeDiscussionTurn[]
+  @@index([state, checkedAt])
+}
+
+model MergeDiscussionTurn {
+  id String @id @default(cuid())
+  operationId String
+  operation MergeOperation @relation(fields:[operationId],references:[id],onDelete:Restrict)
+  sequence Int
+  input String
+  output String?
+  state String @default("queued")
+  error String?
+  actorId String
+  actorName String
+  leaseId String?
+  leaseUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([operationId,sequence])
+  @@index([state,createdAt])
+}
+
+// Planning is independent from immutable candidate manifests and deployments.
+// Only DRAFT creation/composition is exposed until the real execution exists.
+model QualityCheck {
+  id String @id @default(cuid())
+  executionId String
+  storyId String
+  kind String
+  sha String
+  baseSha String
+  policyVersion String
+  state String @default("queued")
+  actorId String
+  actorName String
+  summary String?
+  findings Json @default("[]")
+  evidence Json?
+  error String?
+  leaseId String?
+  leaseUntil DateTime?
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  updatedAt DateTime @updatedAt
+  @@index([executionId,kind,createdAt])
+  @@index([state,createdAt])
+}
+
+// Operational work is separate from the approved planning revision.
+model WorkActivity {
+  id String @id @default(cuid())
+  storyId String
+  repositoryId String
+  kind String
+  scopeKey String @unique
+  taskId String
+  currentAttemptId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  attempts WorkAttempt[]
+  taskLinks WorkTaskLink[]
+  @@index([storyId,kind])
+}
+model WorkAttempt {
+  id String @id @default(cuid())
+  activityId String
+  activity WorkActivity @relation(fields:[activityId],references:[id],onDelete:Restrict)
+  sourceType String
+  sourceId String
+  sourceKey String @unique
+  revision String?
+  state String @default("queued")
+  stage String @default("queued")
+  provider String?
+  actorId String
+  actorName String
+  queuedAt DateTime @default(now())
+  startedAt DateTime?
+  finishedAt DateTime?
+  waitingSince DateTime?
+  heartbeatAt DateTime?
+  heartbeatIntervalMs Int @default(15000)
+  heartbeatStaleAfterMs Int @default(45000)
+  leaseId String?
+  errorCategory String?
+  summary String?
+  events WorkEvent[]
+  @@index([activityId,queuedAt])
+  @@index([state,queuedAt])
+}
+model WorkTaskLink {
+  activityId String
+  activity WorkActivity @relation(fields:[activityId],references:[id],onDelete:Restrict)
+  taskId String
+  scope String
+  completion String @default("manual_evidence")
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  @@id([activityId,taskId])
+  @@index([taskId])
+}
+model WorkEvent {
+  id String @id @default(cuid())
+  attemptId String
+  attempt WorkAttempt @relation(fields:[attemptId],references:[id],onDelete:Restrict)
+  key String
+  kind String
+  stage String
+  message String
+  provider String?
+  category String?
+  payload Json @default("{}")
+  timestamp DateTime @default(now())
+  @@unique([attemptId,key])
+  @@index([timestamp,kind])
+}
+
+model Release {
+  id String @id @default(cuid())
+  key String @unique
+  name String
+  systemId String
+  systemKind ItemKind @default(system)
+  system Item @relation("SystemReleases", fields: [systemId, systemKind], references: [id, kind], onDelete: Restrict)
+  stage ReleaseStage @default(DRAFT)
+  version Int @default(1)
+  createdById String
+  createdByName String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  stories ReleaseStory[]
+  @@index([systemId, createdAt, id])
+  @@index([stage, createdAt, id])
+}
+
+model ReleaseStory {
+  storyId String @id
+  storyKind ItemKind @default(story)
+  story Item @relation("StoryReleasePlanning", fields: [storyId, storyKind], references: [id, kind], onDelete: Restrict)
+  releaseId String
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Restrict)
+  plannedStoryVersion Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([storyId, storyKind])
+  @@index([releaseId])
 }

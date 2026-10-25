@@ -36,6 +36,8 @@ jobs:
         run: pnpm db:generate && pnpm db:setup && pnpm build
       - name: Domain and PostgreSQL contracts
         run: pnpm test
+      - name: Administrative audit contracts
+        run: python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
       - name: Local inference relay contracts
         run: python3 tests/relay_tests.py
       - name: Browser dependencies

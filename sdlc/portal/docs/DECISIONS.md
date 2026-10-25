@@ -43,3 +43,15 @@ Testes automatizados exigem banco `portal_test`, e o navegador confirma também 
 Executor de builds/deploy será serviço separado e restrito; a API atual não monta socket Docker. A compatibilização com a política de worker em VM permanece pendente e não foi flexibilizada. Registry OCI, scanners, Traefik e inferência autônoma não estão instalados por este incremento. `integrations/health` indica dependências ausentes; verde de conectividade não equivale a aceite de pipeline completo.
 
 Limites conhecidos: os componentes novos ainda não integram backup/exportação do legado; manter esta prévia separada até implementar recuperação própria e migração. A rede de entrada permite conectividade configurada; o bloqueio completo de saída do novo stack ainda não tem o aceite offline do núcleo antigo. Readiness é um diagnóstico limitado, sem conexão autenticada de registry ou descoberta/roteamento de modelos por agente nesta fase.
+
+## ADR-007 — Padrão transversal de experiência e consulta — 24/10/2026
+
+Adotar os [padrões de experiência e navegação](PADROES_DE_EXPERIENCIA.md) como referência central para novas funcionalidades e evolução das existentes. Filtros, ordenação, paginação e histórico deixam de ser decisões independentes de cada tela; os campos e exceções continuam definidos pelo domínio da coleção.
+
+Coleções crescentes têm consulta paginada no servidor, ordem determinística, escopo e metadados explícitos. Coleções naturalmente limitadas preservam sua representação adequada. O histórico precisa permitir consultar ocorrências antigas e correlacionadas sem determinar o estado atual dos gates. Adoção gradual e evidências ficam no inventário e backlog do padrão; nesta decisão não há migração de tela ou alteração de dados.
+
+## ADR-008 — Conversas por escopo e origem compartilhada — 24/10/2026
+
+Planejamento é vinculado ao Projeto; detalhamento e esclarecimentos de execução específicos são vinculados à História, com a Tarefa usando esse contexto ancestral identificado. As conversas dos agentes operacionais mantêm suas fontes e autorizações. A especificação persistida e as decisões explícitas conduzem a execução; texto de conversa não concede aprovação ou ferramenta de escrita.
+
+Decisões compartilhadas preservam a origem e referências às Histórias afetadas, com revisões identificadas. O conteúdo permanece nas fontes próprias; a auditoria registra ocorrências, efeitos e referências pelo recorder transacional. A consulta agregada identifica origem e alvos, sem copiar chats ou contar a mesma ocorrência várias vezes. A migração é aditiva e não reconstrói vínculos antigos sem evidência. Indicadores existentes permanecem, sem novas metas, conforme escolha do usuário. Contrato e evidência em [conversas por escopo](../../docs/conversas-por-escopo-2026-10-24.md).

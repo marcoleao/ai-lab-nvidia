@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import {uiJourney,uiAction,openWorkPanel,mockTaskCollection} from './journey-fixtures';
+test.beforeEach(async({page})=>mockTaskCollection(page,()=>[]));
 
 if (!process.env.TEST_DATABASE_URL?.endsWith('/portal_test')) throw Error('Validation retry fixtures require the isolated test environment');
 
@@ -11,8 +13,9 @@ test('legacy validation failure resumes technical correction without repeating u
   let run: any = { id: 'validation-run-ui', state: 'waiting_input', stage: 'generation', error: 'Patch contém caminho não permitido ou duplicado.', technicalRetryAvailable: true, validationIssues: [{ path: 'src/application.config.ts', code: 'PATCH_CONTAINS_PATH', message: 'Caminho rejeitado pela validação anterior.' }], discussionVersion: 4, specification, branch: null, commitSha: null, mergeRequestUrl: null, createdAt: now, updatedAt: now };
   const writes: string[] = [];
   let key = '';
-  await page.route('**/api/items/validation-retry-ui', route => route.fulfill({ json: { item, ancestors: [], children: [], repositories: [], availableRepositories: [], environments: [], history: [] } }));
+  await page.route(url => url.pathname === '/api/items/validation-retry-ui', route => route.fulfill({ json: { item, ancestors: [], children: [], repositories: [], availableRepositories: [],environments: [], history: [] } }));
   await page.route('**/api/items/validation-retry-ui/execution', route => route.fulfill({ json: { run, configured: true } }));
+  await page.route('**/api/items/validation-retry-ui/journey',route=>route.fulfill({json:uiJourney(item,run,{current:{kind:'coding',state:run.state,title:run.state==='queued'?'Solicitação recebida; aguardando processamento':'Correção técnica necessária',message:run.error},nextAction:run.state==='waiting_input'?uiAction('retry','Retomar correção técnica','/api/executions/validation-run-ui/retry'):null,chat:{mode:'execution',executionId:run.id,enabled:run.state==='waiting_input',guidance:'O diagnóstico da validação foi preservado; retome a correção técnica sem repetir suas decisões.'},events:run.validationIssues.map((issue:any,index:number)=>({id:'validation-'+index,timestamp:now,message:`${issue.path}: ${issue.message}`}))})}));
   await page.route('**/api/executions/validation-run-ui/*', async route => {
     const req = route.request(), path = new URL(req.url()).pathname;
     if (req.method() === 'GET' && path.endsWith('/discussion')) return route.fulfill({ json: discussion });
@@ -30,19 +33,21 @@ test('legacy validation failure resumes technical correction without repeating u
     return route.fulfill({ json: { run } });
   });
   await page.goto('/stories/validation-retry-ui');
-  const panel = page.getByRole('region', { name: 'Execução assistida da história' });
+  const panel=await openWorkPanel(page);
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('carla');
   await expect(panel.getByRole('button', { name: 'Retomar correção técnica' })).toBeDisabled();
-  await expect(panel.getByRole('heading', { name: 'Diagnóstico da validação' })).toBeVisible();
-  await expect(panel.getByText('src/application.config.ts', { exact: true })).toBeVisible();
+  await panel.getByRole('button',{name:'Processamento',exact:true}).click();
+  await expect(panel.locator('.sw-events').getByText(/src.application.config.ts: Caminho rejeitado/)).toBeVisible();
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
+  await panel.getByRole('button',{name:'Próxima ação',exact:true}).click();
   await panel.getByRole('button', { name: 'Retomar correção técnica' }).click();
-  await expect(panel.getByText('QUEUED', { exact: true })).toBeVisible({ timeout: 10000 });
-  await panel.getByRole('button', { name: 'Confirmar solicitação de correção técnica' }).click();
+  await expect(page.getByTestId('story-journey-header')).toContainText('Na fila',{timeout:10000});
+  await panel.getByRole('button', { name: 'Verificar a mesma solicitação' }).click();
   expect(writes).toEqual(['/api/executions/validation-run-ui/retry', '/api/executions/validation-run-ui/retry']);
-  await expect(panel.getByText('Manter a escolha confirmada pelo usuário.', { exact: true })).toBeVisible();
+  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Especificação',exact:true}).click();
+  await expect(page.getByText('Manter a escolha confirmada pelo usuário.', { exact: true })).toBeVisible();
   await expect(panel.getByRole('button', { name: 'Aprovar G1 e gerar código' })).toHaveCount(0);
-  await expect(panel.getByRole('button', { name: 'Confirmar solicitação de correção técnica' })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Verificar a mesma solicitação' })).toHaveCount(0);
   expect(item.version).toBe(7);
   expect(discussion.allowDependencies).toBe(true);
   expect(discussion.version).toBe(4);

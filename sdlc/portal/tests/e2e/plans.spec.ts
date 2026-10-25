@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
+import {assistantContext} from './assistant-fixtures';
 if(!process.env.TEST_DATABASE_URL?.endsWith('/portal_test'))throw Error('Plan browser fixtures require isolated test environment');
 
 test('human edits and confirms a plan; uncertain acknowledgement never duplicates the operation',async({page,request})=>{
@@ -7,7 +8,8 @@ test('human edits and confirms a plan; uncertain acknowledgement never duplicate
   const context={id:'plan-ui-only',kind:'project',key:'UI',name:'Projeto exclusivo do ensaio',description:'Fixture somente no navegador',status:'awaiting_approval',projectLifecycle:'planned',version:1,archived:false,parentId:'ui-system',data:{},createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
   let proposal={id:'ui-proposal',turnId:'ui-turn',projectId:context.id,status:'draft',version:1,projectVersion:1,sessionVersion:3,stale:false,content:{summary:'Plano do teste de interface',epics:[{title:'Épico da fixture',description:'Escopo isolado',stories:[{title:'História da fixture',description:'Objetivo informado no teste',acceptanceCriteria:['Resultado verificável'],repositoryIds:[] as string[],tasks:[{title:'Tarefa da fixture',description:'Trabalho do teste',repositoryIds:[] as string[]}]}]}]},appliedItemIds:[] as string[],createdAt:new Date().toISOString()};
   let appliedCalls=0,interrupt=true;const receipts=new Map<string,unknown>();
-  await page.route('**/api/items/plan-ui-only',r=>r.fulfill({json:{item:context,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]}}));
+  await assistantContext(page,{id:'ui-system',name:'Sistema do ensaio'},[context]);
+  await page.route(url=>url.pathname==='/api/items/plan-ui-only',r=>r.fulfill({json:{item:context,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]}}));
   await page.route('**/api/assistant**',async route=>{
     const req=route.request();
     if(req.method()==='GET')return route.fulfill({json:{context,session:{id:'ui-session',version:3},turns:[{id:'ui-chat',kind:'chat',input:'Meu objetivo foi informado.',output:'Entrevista concluída na fixture.',status:'succeeded',error:null,model:'ui-only',actorName:'Admin',createdAt:context.createdAt}],proposals:[proposal],availableRepositories:[],configured:true,model:'ui-only'}});
@@ -19,9 +21,10 @@ test('human edits and confirms a plan; uncertain acknowledgement never duplicate
     const result={proposal,itemIds:proposal.appliedItemIds};receipts.set(key,result);
     if(interrupt){interrupt=false;return route.abort();}return route.fulfill({json:result});
   });
-  await page.goto('/projects/plan-ui-only');await page.getByRole('combobox',{name:/Persona/}).selectOption('admin');
-  await page.getByRole('button',{name:/Assistente IA IA LOCAL/}).click();
-  const panel=page.getByRole('dialog',{name:'Assistente IA'}),review=panel.getByRole('region',{name:'Revisão do plano'});
+  await page.goto('/assistant?system=ui-system&project=plan-ui-only');await page.getByRole('combobox',{name:/Persona/}).selectOption('admin');
+  const panel=page.getByRole('region',{name:'Entrevista e planejamento'});
+  await panel.getByRole('button',{name:/2 · Propostas e confirmação/}).click();
+  const review=panel.getByRole('region',{name:'Revisão do plano'});
   await review.getByRole('textbox',{name:'Título do épico',exact:true}).fill('Título revisado pelo humano');
   await expect(review.getByRole('button',{name:'Preparar aplicação do plano'})).toBeDisabled();
   await review.getByText('História 1:',{exact:false}).click();
@@ -40,6 +43,6 @@ test('human edits and confirms a plan; uncertain acknowledgement never duplicate
   await review.getByRole('button',{name:'Confirmar criação',exact:true}).click();
   await review.getByRole('button',{name:'Confirmar operação pendente'}).click();
   await expect(review.getByRole('heading',{name:'Plano aplicado',exact:true})).toBeVisible();expect(appliedCalls).toBe(1);
-  await page.keyboard.press('Escape');await page.reload();await page.getByRole('button',{name:/Assistente IA IA LOCAL/}).click();
+  await page.reload();
   await expect(review.getByRole('heading',{name:'Plano aplicado',exact:true})).toBeVisible();
 });

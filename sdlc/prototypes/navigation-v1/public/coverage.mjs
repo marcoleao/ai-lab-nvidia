@@ -5,13 +5,13 @@
 export const coverageLabels={simulated:'Jornada simulada',partial:'Representação parcial',missing:'Ainda não representada',retained:'Manter original',contract:'Contrato a preservar',future:'Backlog não implementado'};
 export const coverage=[
  ['FUNC01','Navegação','Hierarquia, listas, breadcrumb e retorno','portal.tsx','Listas e navegação de contexto','simulated'],
- ['FUNC02','Planejamento manual','Criar Sistema, Projeto, Épico, História e Tarefa','portal.tsx','Ação Criar no nível correspondente','missing'],
- ['FUNC03','Planejamento manual','Editar nome e descrição dos itens','portal.tsx','Menu do item → Editar','missing'],
- ['FUNC04','Planejamento manual','Arquivar item e descendentes, preservando repositórios','portal.tsx','Menu do item → Arquivamento e confirmação','missing'],
- ['FUNC05','Planejamento manual','Aprovar Projeto e Épico','portal.tsx','Situação atual → Aprovação de planejamento','missing'],
- ['FUNC06','Planejamento manual','Iniciar, concluir, cancelar e reabrir Projeto com justificativa','project-lifecycle.tsx','Projeto → Ciclo do Projeto','partial'],
+ ['FUNC02','Planejamento manual','Criar Sistema, Projeto, Épico, História e Tarefa','portal.tsx','Ação Criar no nível correspondente','partial'],
+ ['FUNC03','Planejamento manual','Editar nome e descrição dos itens','portal.tsx','Menu do item → Editar','simulated'],
+ ['FUNC04','Planejamento manual','Arquivar item e descendentes, preservando repositórios','portal.tsx','Menu do item → Arquivamento e confirmação','simulated'],
+ ['FUNC05','Planejamento manual','Aprovar Projeto e Épico','portal.tsx','Situação atual → Aprovação de planejamento','simulated'],
+ ['FUNC06','Planejamento manual','Iniciar, concluir, cancelar e reabrir Projeto com justificativa','project-lifecycle.tsx','Projeto → Ciclo do Projeto','simulated'],
  ['FUNC07','Planejamento manual','Status do Épico; UI atual aprova, API admite outras transições','portal.tsx; packages/shared/src/index.ts; apps/api/src/app.ts','Épico → Situação; manter contrato da API','partial'],
- ['FUNC08','Planejamento manual','Atualizar Tarefa e reabrir DONE com justificativa','portal.tsx','Tarefa → Situação e ações válidas','partial'],
+ ['FUNC08','Planejamento manual','Atualizar Tarefa e reabrir DONE com justificativa','portal.tsx','Tarefa → Situação e ações válidas','simulated'],
  ['FUNC09','Execução','Consultar os nove status da História sem saltar gates','portal.tsx','História → Ciclo e acompanhamento','simulated'],
  ['FUNC10','Repositórios e ambientes','Criar repositório no Sistema com runtime e chave','repos.tsx','Sistema → Componentes → Criar repositório','missing'],
  ['FUNC11','Repositórios e ambientes','Vincular repositório GitLab existente por ID','repos.tsx','Sistema → Componentes → Vincular existente','missing'],
@@ -43,5 +43,5 @@ export const coverage=[
  ['FUNC37','Garantias transversais','Histórico de item com autoria, evento, mensagem e data','portal.tsx','Item → Atividade e histórico completo','partial'],
  ['FUNC38','Visão Geral','Dashboard: totais, status, semanas, retrabalho, idade e DORA','dashboard.tsx','Manter dashboard existente; fora do redesenho de Sistemas','retained'],
  ['FUNC39','Visão Geral','Filtros combinados e persistência na URL; Projeto depende de Sistema','dashboard.tsx','Manter filtros existentes do dashboard','retained'],
- ['FUNC40','Backlog futuro','Code Review automático, scanners, testes executados, G2/G3 e deploy','story-execution.tsx; docs/ARCHITECTURE.md','Etapas ainda indisponíveis, não funcionalidades já prontas','future'],
+ ['FUNC40','Backlog futuro','Executor de testes, candidatas imutáveis, G2/G3 e promoção/deploy','story-execution.tsx; quality-control.tsx; merge-control.tsx; docs/ARCHITECTURE.md; docs/releases-promocao-2026-10-22.md','O portal real já possui Code Review, Security Scan, merge externo/assistido e planejamento DRAFT de releases; essas funções devem ser preservadas. Executor de testes, fechamento de candidata, G2/G3 e promoção entre ambientes permanecem no backlog. O novo espaço História → Tarefa simula a apresentação desses controles; associação de tarefas e sinais de heartbeat ainda são proposta. A gestão de releases continua centralizada no menu Releases.','future'],
 ].map(([id,group,feature,source,destination,status])=>({id,group,feature,source,destination,status}));

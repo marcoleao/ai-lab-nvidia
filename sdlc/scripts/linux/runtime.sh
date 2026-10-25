@@ -13,6 +13,30 @@ done
 project=agentic-sdlc
 if [[ -f $root/.project ]]; then project=$(cat "$root/.project"); fi
 [[ $project =~ ^[a-z][a-z0-9-]{2,63}$ ]] || exit 1
+audit_module=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../audit_admin.py")
+audit_operation=''
+audit_action="RUNTIME_${command^^}"
+audit_action=${audit_action//-/_}
+audit_exit() {
+  local audit_status=$1 audit_outcome=UNKNOWN
+  trap - EXIT
+  if [[ $audit_status == 0 ]]; then audit_outcome=SUCCEEDED; fi
+  if [[ -n $audit_operation ]]; then
+    python3 "$audit_module" end --root "$root" --action "$audit_action" --source runtime \
+      --operation-id "$audit_operation" --outcome "$audit_outcome" --metadata "{\"exitCode\":$audit_status}" || {
+      echo 'Administrative audit finalization failed; inspect the pending operation.' >&2
+      if [[ $audit_status == 0 ]]; then audit_status=1; fi
+    }
+  fi
+  exit "$audit_status"
+}
+case "$command" in
+  prepare|up|down|restart|test|revoke-access|rotate-access|backup|restore-check)
+    audit_operation=$(python3 "$audit_module" begin --root "$root" --action "$audit_action" --source runtime --metadata "{\"command\":\"$command\"}")
+    export SDLC_ADMIN_OPERATION_ID="$audit_operation"
+    trap 'audit_exit $?' EXIT
+    ;;
+esac
 compose() { docker compose --project-name "$project" --project-directory "$root" --env-file "$root/runtime.env" -f "$root/compose.yaml" "$@"; }
 gitlab() {
   local portal_port gitlab_project
@@ -104,7 +128,7 @@ backup() {
   stage="$root/backups/.backup-$id"
   install -d -m 700 -o 10001 -g 10001 "$stage"
   # Restore services on either success or failure; never delete an existing backup.
-  trap 'compose up -d --no-build --pull never forgejo portal consumer >/dev/null || true; cleanup_path "$stage"; cleanup_path "$root/backups/.plain-$id.tar"' EXIT
+  trap 'audit_failure_status=$?; compose up -d --no-build --pull never forgejo portal consumer >/dev/null || true; cleanup_path "$stage"; cleanup_path "$root/backups/.plain-$id.tar"; audit_exit "$audit_failure_status"' EXIT
   compose stop -t 20 portal consumer forgejo
   compose exec -T db pg_dump -U sdlc_owner -d sdlc -Fc --no-owner --no-privileges >"$stage/db.dump"
   compose run --rm --no-deps initialize python maintenance.py inventory >"$stage/inventory.json"
@@ -121,7 +145,7 @@ backup() {
   cleanup_path "$root/backups/.plain-$id.tar"
   cleanup_path "$stage"
   compose up -d --no-build --pull never forgejo portal consumer >/dev/null
-  trap - EXIT
+  trap 'audit_exit $?' EXIT
   echo "[OK] Encrypted backup: $id"
 }
 restore_check() {
@@ -131,7 +155,7 @@ restore_check() {
   [[ -f $root/backups/$id.fernet ]] || exit 1
   stage="$root/backups/.restore-$id-$(openssl rand -hex 4)"
   database=''
-  trap 'if [[ -n $database ]]; then compose exec -T db dropdb -U sdlc_owner "$database" >/dev/null || true; fi; cleanup_path "$stage"' EXIT
+  trap 'audit_failure_status=$?; if [[ -n $database ]]; then compose exec -T db dropdb -U sdlc_owner "$database" >/dev/null || true; fi; cleanup_path "$stage"; audit_exit "$audit_failure_status"' EXIT
   tool extract "/backups/$id.fernet" "/backups/$(basename "$stage")"
   database="sdlc_restore_$(openssl rand -hex 8)"
   [[ $database =~ ^sdlc_restore_[a-f0-9]{16}$ ]] || exit 1
@@ -145,7 +169,7 @@ restore_check() {
   fi
   printf '{"backup_id":"%s","restore_check":"passed","checked_at":"%s"}\n' "$id" "$(date -u +%FT%TZ)" >"$root/backups/$id.restore-check.json"
   compose exec -T db dropdb -U sdlc_owner "$database"
-  trap - EXIT
+  trap 'audit_exit $?' EXIT
   cleanup_path "$stage"
 }
 case "$command" in

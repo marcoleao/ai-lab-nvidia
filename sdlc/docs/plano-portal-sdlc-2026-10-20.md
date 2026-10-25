@@ -4,6 +4,8 @@
 
 Primeiro recorte da revisão: [Visão Geral, indicadores e instrumentação](dashboard-metricas-2026-10-22.md), solicitado explicitamente pelo usuário. A existência dos cinco cartões DORA não conclui os processos de deploy/incidentes necessários à sua medição. O backlog funcional permanece pausado.
 
+**Decisão de domínio de 22/10/2026:** [Releases do Sistema e promoção imutável](releases-promocao-2026-10-22.md). Releases agrupam revisões de Histórias; implantações promovem sua composição entre ambientes. Alterar conteúdo ou retirar uma História em HML exige nova candidata, QA com todos os testes e controles, novos gates e nova homologação antes de PRD. O pacote homologado segue para produção sem rebuild ou alteração. Esse contrato complementa SDLC-05/10/18/19/22/23/24/26/27 e prevalece sobre formulações antigas de deploy por Projeto ou validação parcial de uma composição modificada. Incorporar os critérios à retomada, sem marcar essas entregas como implementadas ou retomar o backlog agora.
+
 Planejamento assistido: [propostas versionadas, revisão humana e aplicação transacional](planos-revisaveis-2026-10-20.md) implementados. Isso complementa a entrevista, mas não conclui agentes de especificação/G1, execução de código, scanners ou deploy.
 
 Continuação: [assistente local com fila e conversa persistida](assistente-real-2026-10-20.md) implementada. Entrevista real disponível; proposta estruturada/aplicação de backlog e gates seguem pendentes. A fila de conversa não conclui a máquina de execução de pipeline de SDLC-12.
@@ -227,6 +229,10 @@ A ordem acompanha a seção 17 da especificação, com uma etapa prévia para re
 **Saída:** critérios da seção 18 rastreados e aceitos; pipeline pequeno medido contra meta de ~30 minutos e leituras contra 300 ms. Meta não atingida gera achado explícito, não resultado ajustado. Ensaio humano começa vazio e o usuário cria o projeto e as histórias.
 
 ## Backlog versionado
+
+A evolução aprovada em 24/10/2026 para [conversas por Projeto/História e referências compartilhadas](conversas-por-escopo-2026-10-24.md) complementa SDLC-10/14 e UX-C06: preserva fontes de conversa e comandos/gates, acrescenta contexto consultivo da História e rastreabilidade das origens. Mantém indicadores existentes, sem novas metas. O documento específico registra a validação e os limites; não conclui os executores de testes, candidatas, QA/HML/PRD ou o restante do backlog funcional.
+
+Evolução transversal de UX registrada em 24/10/2026: [padrões de experiência, inventário e plano UX-C00–C07](../portal/docs/PADROES_DE_EXPERIENCIA.md). Esse plano cobre filtros, ordenação, paginação, consultas e histórico de todos os módulos, preservando o backlog funcional abaixo. Apenas a definição documental UX-C00 está concluída; a migração das telas será acompanhada por fluxo.
 
 Fonte de controle inicial: esta tabela. SDLC-01/02 estão **concluídos no código, com testes e aceite em instalação descartável**. SDLC-04/06 estão implementados e testados na nova fundação; SDLC-07 recebeu aceite humano da hierarquia e clareza da navegação, sujeito a evolução com novas funcionalidades; SDLC-03/05/09/10 têm atendimento parcial descrito na evidência da fundação. SDLC-08 tem código e aceite real do adapter concluídos em GitLab descartável (Node/Python, idempotência, main protegida e zero pipelines); conexão da prévia humana configurada e validada conforme [evidências das integrações](integracoes-2026-10-20.md). Os demais itens estão **planejados**. Não há Issue remota criada. Cada linha é uma unidade de entrega que deve trazer na PR: escopo, evidência de aceite, requisitos atendidos e limitações. Dependências devem estar aceitas antes do avanço funcional.
 

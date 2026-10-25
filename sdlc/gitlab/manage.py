@@ -14,6 +14,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+from audit_admin import administrative_operation
 
 ROOT = Path(os.environ.get('SDLC_RUNTIME_ROOT', '/opt/agentic-sdlc')) / 'gitlab-demo'
 PROJECT = os.environ.get('SDLC_GITLAB_PROJECT', 'sdlc-demo')
@@ -49,9 +51,17 @@ def api(method, path, data=None, admin=False):
     request = urllib.request.Request(URL + '/api/v4/' + path, method=method,
         headers={'PRIVATE-TOKEN': token, 'Content-Type': 'application/json'},
         data=json.dumps(data).encode() if data is not None else None)
-    with urllib.request.urlopen(request, timeout=60) as response:
-        raw = response.read()
-        return json.loads(raw) if raw else None
+    if method in {'GET', 'HEAD', 'OPTIONS'}:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            raw = response.read()
+            return json.loads(raw) if raw else None
+    # Never pass data, token, request headers or response bodies to the ledger.
+    with administrative_operation('GITLAB_API_MUTATION', source='gitlab/manage', root=ROOT.parent,
+                                  details={'method': method, 'path': path.split('?', 1)[0]}) as operation:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            raw = response.read()
+            operation.result('ACCEPTED' if response.status == 202 else 'SUCCEEDED', httpStatus=response.status)
+            return json.loads(raw) if raw else None
 
 
 def prepare(source):
@@ -122,6 +132,59 @@ def verify_prepared():
         run('docker', 'image', 'inspect', refs[key], capture=True)
 
 
+def ensure_merge_user():
+    """Dedicated non-admin account; Maintainer breadth was approved explicitly."""
+    from datetime import date, timedelta
+    users = api('GET', 'users?username=sdlc-agent-for-merge', admin=True)
+    if users:
+        user = users[0]
+        if user['username'] != 'sdlc-agent-for-merge' or user.get('is_admin') or user.get('state') != 'active' or user.get('email') != 'sdlc-agent-for-merge@sdlc.invalid':
+            raise RuntimeError('Merge identity collision; review the existing account explicitly.')
+    else:
+        attributes = {'username': 'sdlc-agent-for-merge', 'name': 'Assistente de merge SDLC',
+            'email': 'sdlc-agent-for-merge@sdlc.invalid', 'password': secrets.token_urlsafe(48),
+            'skip_confirmation': True, 'admin': False, 'can_create_group': False, 'projects_limit': 0}
+        try:
+            user = api('POST', 'users', attributes, admin=True)
+        except urllib.error.HTTPError as error:
+            detail = json.loads(error.read()).get('message', 'User creation rejected')
+            raise RuntimeError('GitLab rejected the merge account: '+str(detail).replace(attributes['password'], '[redacted]')) from None
+    try:
+        group = api('GET', 'groups/sdlc', admin=True)
+    except urllib.error.HTTPError as error:
+        if error.code != 404:
+            raise
+        group = api('POST', 'groups', {'name': 'sdlc', 'path': 'sdlc', 'visibility': 'private', 'description': 'Gerenciado pelo Portal SDLC [sdlc-managed]'}, admin=True)
+        bots = api('GET', 'users?username=sdlc-demo-bot', admin=True)
+        if bots:
+            api('POST', f'groups/{group["id"]}/members', {'user_id': bots[0]['id'], 'access_level': 50}, admin=True)
+    if '[sdlc-managed]' not in group.get('description', ''):
+        raise RuntimeError('The root group is not managed by SDLC; membership unchanged.')
+    try:
+        member = api('GET', f'groups/{group["id"]}/members/{user["id"]}', admin=True)
+        if member['access_level'] != 40:
+            raise RuntimeError('Unexpected merge membership; review rather than changing privileges silently.')
+    except urllib.error.HTTPError as error:
+        if error.code != 404:
+            raise
+        api('POST', f'groups/{group["id"]}/members', {'user_id': user['id'], 'access_level': 40}, admin=True)
+    token_path = ROOT / '.secrets/merge_token'
+    if token_path.is_symlink():
+        raise RuntimeError('Merge credential must not be a symlink.')
+    if not token_path.exists():
+        credential = api('POST', f'users/{user["id"]}/personal_access_tokens', {'name': 'sdlc-merge-only-integration',
+            'scopes': ['api'], 'expires_at': (date.today() + timedelta(days=300)).isoformat()}, admin=True)
+        descriptor = os.open(token_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, 'w') as stream:
+            stream.write(credential['token'])
+    # Validate reused credentials as the account itself, without printing secrets.
+    request = urllib.request.Request(URL + '/api/v4/user', headers={'PRIVATE-TOKEN': token_path.read_text().strip()})
+    with urllib.request.urlopen(request, timeout=15) as response:
+        identity = json.load(response)
+    if identity.get('id') != user['id'] or identity.get('is_admin'):
+        raise RuntimeError('Merge credential does not match the expected non-admin account.')
+
+
 def up():
     compose('up', '-d', '--pull', 'never', 'gitlab', 'demo', 'entry')
     compose('exec', '-T', 'entry', 'nginx', '-c', '/etc/nginx/demo.conf', '-s', 'reload')
@@ -177,6 +240,7 @@ def up():
             'name': 'sdlc-demo', 'scopes': ['api'],
             'expires_at': (date.today() + timedelta(days=300)).isoformat()}, admin=True)
         bot_token.write_text(credential['token'])
+    ensure_merge_user()
     compose('up', '-d', '--pull', 'never', 'runner', 'demo')
     # Reutiliza a proteção contra interferência de outros daemons Docker no WSL.
     guard = ROOT.parent / 'source/scripts/linux/network-guard.py'
@@ -345,9 +409,9 @@ def acceptance():
     print('OK: ciclo completo e bloqueio de saída validados. Relatório: ' + str(ROOT / 'acceptance.json'))
 
 
-def main():
+def run_command():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['prepare','up','down','restart','status','doctor','logs','access','publish','verify','merge','test'])
+    parser.add_argument('command', choices=['prepare','up','down','restart','status','doctor','logs','access','publish','verify','merge','configure-merge','test'])
     parser.add_argument('--source', type=Path, default=Path(__file__).parent)
     parser.add_argument('--project', default='')
     parser.add_argument('--directory', type=Path)
@@ -362,6 +426,9 @@ def main():
         if args.command != 'prepare': verify_prepared()
         if args.command == 'prepare': prepare(args.source)
         elif args.command == 'up': up()
+        elif args.command == 'configure-merge':
+            ensure_merge_user()
+            print('Conta de merge configurada e validada; nenhuma integração de código iniciada.')
         elif args.command == 'down':
             compose('down')
             guard = ROOT.parent / 'source/scripts/linux/network-guard.py'
@@ -380,6 +447,15 @@ def main():
                 raise ValueError('Informe -Directory com o workspace Linux do ambiente SDLC.')
             publish(workspace_directory(args.directory))
         else: verify_or_merge(args.command, args.project)
+
+
+def main():
+    command = sys.argv[1] if len(sys.argv) > 1 else ''
+    if command in {'prepare', 'up', 'down', 'restart', 'access', 'publish', 'merge', 'configure-merge', 'test'}:
+        with administrative_operation('GITLAB_ADMIN_COMMAND', source='gitlab/manage', root=ROOT.parent, details={'command': command}):
+            run_command()
+    else:
+        run_command()
 
 
 if __name__ == '__main__':

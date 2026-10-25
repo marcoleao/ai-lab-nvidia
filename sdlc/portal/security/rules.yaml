@@ -1,0 +1,48 @@
+rules:
+  - id: dynamic-code-javascript
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Execução dinâmica de código exige remoção ou uma implementação segura.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: shell-command-javascript
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Execução de shell identificada; utilize uma API sem shell e valide a entrada.
+    pattern-either:
+      - pattern: exec(...)
+      - pattern: execSync(...)
+      - pattern: $CP.exec(...)
+      - pattern: $CP.execSync(...)
+  - id: dynamic-code-python
+    languages: [python]
+    severity: ERROR
+    message: Execução dinâmica ou desserialização insegura identificada.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+      - pattern: pickle.loads(...)
+      - pattern: yaml.load(...)
+      - pattern: os.system(...)
+      - pattern: subprocess.$FN(..., shell=True, ...)
+  - id: tls-verification-disabled-python
+    languages: [python]
+    severity: WARNING
+    message: A verificação TLS não pode ser desabilitada.
+    pattern: requests.$FN(..., verify=False, ...)
+  - id: unsafe-html-javascript
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Inserção direta de HTML pode permitir XSS; use saída escapada.
+    pattern: $ELEMENT.innerHTML = $VALUE
+  - id: embedded-private-key
+    languages: [generic]
+    severity: ERROR
+    message: Chave privada embutida no repositório. Remova e revogue o segredo.
+    pattern-regex: '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----'
+  - id: embedded-access-token
+    languages: [generic]
+    severity: ERROR
+    message: Possível token de acesso embutido. Remova e revogue o segredo.
+    pattern-regex: '(glpat-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{36}|AKIA[A-Z0-9]{16})'

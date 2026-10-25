@@ -9,12 +9,15 @@ import shutil
 import subprocess
 import urllib.parse
 import urllib.request
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
+from audit_admin import administrative_operation
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = Path('/opt/agentic-sdlc/portal/llm-relay')
 
 
-def main():
+def configure():
     parser = argparse.ArgumentParser()
     parser.add_argument('--upstream', required=True)
     parser.add_argument('--model', default='qwen3:14b')
@@ -67,6 +70,13 @@ WantedBy=multi-user.target
     (ROOT / '.prepared').mkdir(exist_ok=True)
     (ROOT / '.prepared/compose.llm.json').write_text(json.dumps(override, indent=2) + '\n')
     print('Relay installed on the portal bridge only. Apply portal bootstrap up. No inference or download executed.')
+    return args.model
+
+
+def main():
+    with administrative_operation('INTEGRATION_LLM_CONFIGURED', source='portal/connect-llm', details={'integration': 'local-llm'}) as operation:
+        model = configure()
+        operation.result(model=model)
 
 
 if __name__ == '__main__':

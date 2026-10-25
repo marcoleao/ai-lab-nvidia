@@ -55,7 +55,7 @@ test.skipIf(!process.env.TEST_GITLAB_ISOLATED)('real local model prepares G1 and
   try{
     const system=(await post('/items',{kind:'system',key:'REALCODE',name:'Ensaio isolado de codificação'})).item;
     const project=(await post('/items',{kind:'project',parentId:system.id,key:'INIT',name:'Iniciativa técnica descartável'})).item;await post(`/items/${project.id}/approve`,{expectedVersion:project.version});
-    const epic=(await post('/items',{kind:'epic',parentId:project.id,name:'Verificação técnica'})).item;await post(`/items/${epic.id}/approve`,{expectedVersion:epic.version});
+    const epic=(await post('/items',{kind:'epic',parentId:project.id,name:'Verificação técnica'})).item;
     const repository=await db.repository.create({data:{systemId:system.id,key:'PROBE',name:'Repositório técnico descartável',runtime:'python',state:'ready',gitlabProjectId:remote.id}});
     await db.itemRepository.create({data:{itemId:project.id,repositoryId:repository.id}});
     const story=(await post('/items',{kind:'story',parentId:epic.id,name:'Adicionar uma função de soma pura',description:'No arquivo arithmetic.py, adicionar sum_numbers(a,b), que retorna a soma dos argumentos. Incluir teste unittest para 2+3=5. Usar somente biblioteca padrão Python e preservar servidor existente.',repositoryIds:[repository.id]})).item;

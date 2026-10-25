@@ -25,8 +25,20 @@ if ($Command -eq 'prepare') {
     if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.llm.json')) {
         $composeArguments += @('-f',"$portalPath/.prepared/compose.llm.json")
     }
+    if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.audit.json')) {
+        $composeArguments += @('-f',"$portalPath/.prepared/compose.audit.json")
+    }
     switch ($Command) {
-        'up' { Invoke-SdlcNative wsl.exe ($composeArguments + @('up','-d','--pull','never','--no-build')); Write-Host 'Portal de planejamento: http://localhost:3310 (vazio em instalacao nova; banco separado do legado).' }
+        'up' {
+            Invoke-SdlcNative wsl.exe ($composeArguments + @('up','-d','--wait','--pull','never','--no-build','db'))
+            Invoke-SdlcNative wsl.exe ($composeArguments + @('run','--rm','--no-deps','migrate'))
+            Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/runtime-role.py"))
+            if (-not ($composeArguments -contains "$portalPath/.prepared/compose.audit.json")) {
+                $composeArguments += @('-f',"$portalPath/.prepared/compose.audit.json")
+            }
+            Invoke-SdlcNative wsl.exe ($composeArguments + @('up','-d','--pull','never','--no-build'))
+            Write-Host 'Portal de planejamento: http://localhost:3310 (vazio em instalacao nova; banco separado do legado).'
+        }
         'down' { Invoke-SdlcNative wsl.exe ($composeArguments + @('down')) }
         'status' { Invoke-SdlcNative wsl.exe ($composeArguments + @('ps','-a')) }
         'logs' { Invoke-SdlcNative wsl.exe ($composeArguments + @('logs','--tail','80','api','web','migrate')) }

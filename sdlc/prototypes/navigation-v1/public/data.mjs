@@ -27,6 +27,7 @@ const technical = (operation, attempt = 1) => ({ model: 'Modelo de demonstraçã
 const event = (time, title, description) => ({ time, title, description });
 
 export const scenarios = {
+  notStarted:{label:'História criada manualmente',businessStatus:'SPECIFICATION',executionStatus:'NOT STARTED',title:'História criada; execução não preparada',description:'Defina os critérios, associe um repositório e confira as aprovações antes de preparar a execução. Criar um item não inicia código.',who:'Pessoa que organiza o planejamento',events:[{time:'Agora · simulação',title:'História criada',description:'Nenhuma execução foi iniciada.'}],technical:{operation:'Não iniciada',attempt:0}},
   approval: {
     label: 'Aprovação da especificação', businessStatus: 'SPECIFICATION', executionStatus: 'WAITING APPROVAL',
     title: 'Especificação pronta para sua revisão',
@@ -116,6 +117,28 @@ export const scenarios = {
     technical: technical('Execução · continuidade cancelada'),
   },
 };
+
+// Etapas futuras ilustradas no mesmo catálogo. Os eventos continuam hardcoded.
+Object.assign(scenarios, {
+  releaseReady: {
+    label: 'Revisão pronta para compor uma release · simulação', businessStatus: 'TESTING', executionStatus: 'READY',
+    title: 'Revisão atual com verificações individuais aprovadas',
+    description: 'Neste cenário fictício, revisão, segurança e testes individuais foram aprovados. Planeje a entrega na aba Releases. O pacote combinado ainda precisa dos próprios controles, gates e homologação.',
+    who: 'Pessoa que organiza a entrega', events: [{time:'Cenário simulado',title:'Verificações individuais aprovadas',description:'Resultado hardcoded; nenhum teste ou scanner foi executado.'}], technical:{operation:'Verificações de uma etapa futura · simulação',attempt:1},
+  },
+  releaseSecurity: {
+    label: 'Correção de segurança pendente · simulação', businessStatus: 'SECURITY SCAN', executionStatus: 'WAITING INPUT',
+    title: 'Segurança precisa de correção nesta revisão',
+    description: 'A História pode ser planejada para uma release em rascunho. Sua revisão atual não pode fechar um pacote enquanto a pendência não estiver resolvida e verificada no processo.',
+    who: 'Agente e pessoa responsável pela segurança', events: [{time:'Cenário simulado',title:'Achado de segurança pendente',description:'Impedimento fictício; nenhuma varredura real foi executada.'}], technical:{operation:'Pendência de segurança · simulação',attempt:1},
+  },
+  releaseTesting: {
+    label: 'Teste com falha pendente · simulação', businessStatus: 'TESTING', executionStatus: 'FAILED',
+    title: 'Um teste encontrou um comportamento incorreto',
+    description: 'Esta revisão aguarda correção e nova validação. Planejar uma release não aprova a História nem remove o impedimento para fechar o pacote.',
+    who: 'Agente e pessoa responsável pelos testes', events: [{time:'Cenário simulado',title:'Teste funcional reprovado',description:'Falha hardcoded; nenhum teste real foi executado.'}], technical:{operation:'Pendência de testes · simulação',attempt:1},
+  },
+});
 
 export const specification = {
   objective: 'Permitir que o cliente acompanhe uma solicitação e entenda, em linguagem simples, sua situação atual e a próxima ação esperada.',

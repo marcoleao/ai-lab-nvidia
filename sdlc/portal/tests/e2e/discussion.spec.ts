@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import {uiJourney,uiAction,openWorkPanel,mockTaskCollection} from './journey-fixtures';
+test.beforeEach(async({page})=>mockTaskCollection(page,()=>[]));
 if (!process.env.TEST_DATABASE_URL?.endsWith('/portal_test')) throw Error('Discussion fixtures require the isolated test environment');
 
 test('impediment conversation preserves history and confirms an explicit decision with safe retries and a new G1', async ({ page, request }) => {
@@ -9,8 +11,9 @@ test('impediment conversation preserves history and confirms an explicit decisio
   let run: any = { id: 'discussion-run-ui', state: 'waiting_input', stage: 'discussion', error: 'A estratégia precisa de orientação do usuário.', branch: null, mergeRequestUrl: null, commitSha: null, specification: null, createdAt: now, updatedAt: now };
   let data: any = { version: 1, messages: [{ id: 'previous-failure', role: 'assistant', content: 'Qual alternativa você prefere?', state: 'failed', createdAt: now }], proposal: null, allowDependencies: false };
   let messageKey = '', preparationKey = '', decisionKey = '', messageCount = 0, preparationCount = 0, decisionCount = 0;
-  await page.route('**/api/items/discussion-ui-only', route => route.fulfill({ json: { item, ancestors: [], children: [], repositories: [], availableRepositories: [], environments: [], history: [] } }));
+  await page.route(url => url.pathname === '/api/items/discussion-ui-only', route => route.fulfill({ json: { item, ancestors: [], children: [], repositories: [], availableRepositories: [], environments: [], history: [] } }));
   await page.route('**/api/items/discussion-ui-only/execution', route => route.fulfill({ json: { run, configured: true } }));
+  await page.route('**/api/items/discussion-ui-only/journey',route=>route.fulfill({json:uiJourney(item,run,{current:run.state==='waiting_approval'?{kind:'specification',state:'waiting_approval',title:'Especificação pronta; G1 aguarda sua decisão'}:{kind:'coding',state:run.state,title:'A atividade precisa da sua orientação',message:run.error},nextAction:run.state==='waiting_approval'?uiAction('approve','Aprovar G1 e gerar código','/api/executions/discussion-run-ui/approve',{expectedVersion:item.version},{title:'Aprovar especificação G1',description:'Revise a nova especificação antes de aprovar.',checkboxLabel:'Revisei a especificação e autorizo gerar o código.'}):null,chat:{mode:'execution',executionId:run.id,enabled:run.state!=='waiting_approval',guidance:'Esclareça a decisão; mudanças exigem confirmação e novo G1.'}})}));
   await page.route('**/api/executions/discussion-run-ui/*', async route => {
     const req = route.request(), path = new URL(req.url()).pathname;
     if (path.endsWith('/discussion')) return route.fulfill({ json: data });
@@ -51,13 +54,18 @@ test('impediment conversation preserves history and confirms an explicit decisio
   });
   await page.goto('/stories/discussion-ui-only');
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('carla');
-  const execution = page.getByRole('region', { name: 'Execução assistida da história' });
+  const panel=await openWorkPanel(page);
+  await panel.getByRole('button',{name:'Conversa',exact:true}).click();
   const conversation = page.getByRole('region', { name: 'Conversa sobre impedimento' });
   await expect(conversation.getByRole('button', { name: 'Enviar para a assistente' })).toBeDisabled();
   await expect(conversation.getByRole('button', { name: 'Preparar decisão para revisão' })).toBeDisabled();
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
   await expect(conversation.getByText(/a rodada falhou/)).toBeVisible();
   await conversation.getByRole('textbox', { name: 'Sua mensagem sobre o impedimento' }).fill('Prefiro a alternativa com uma nova dependência.');
+  await panel.getByRole('button',{name:'Próxima ação',exact:true}).click();
+  await expect(conversation).toBeHidden();
+  await panel.getByRole('button',{name:'Conversa',exact:true}).click();
+  await expect(conversation.getByRole('textbox', { name: 'Sua mensagem sobre o impedimento' })).toHaveValue('Prefiro a alternativa com uma nova dependência.');
   await conversation.getByRole('button', { name: 'Enviar para a assistente' }).click();
   await conversation.getByRole('button', { name: 'Verificar envio da mensagem' }).click();
   expect(messageCount).toBe(2);
@@ -75,10 +83,14 @@ test('impediment conversation preserves history and confirms an explicit decisio
     await page.screenshot({ path: `${process.env.SCREENSHOT_DIR || '/output'}/execution-discussion-${width}.png`, fullPage: true });
   }
   await conversation.getByRole('button', { name: 'Confirmar decisão e revisar especificação' }).click();
-  await expect(execution.getByRole('button', { name: 'Aprovar G1 e gerar código' })).toBeDisabled({ timeout: 10000 });
+  await expect(page.getByTestId('story-journey-header')).toContainText('G1 aguarda sua decisão',{timeout:10000});
   await conversation.getByRole('button', { name: 'Verificar confirmação da decisão' }).click();
   expect(decisionCount).toBe(2);
-  await expect(execution.getByRole('button', { name: 'Aprovar G1 e gerar código' })).toBeDisabled();
-  await expect(execution.getByText('Requisitos revisados após a conversa.')).toBeVisible();
+  await panel.getByRole('button',{name:'Próxima ação',exact:true}).click();
+  await panel.getByRole('button',{name:'Aprovar G1 e gerar código',exact:true}).click();
+  await expect(panel.getByRole('button',{name:'Confirmar: Aprovar G1 e gerar código',exact:true})).toBeDisabled();
+  await page.setViewportSize({width:1440,height:1000});
+  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Especificação',exact:true}).click();
+  await expect(page.getByText('Requisitos revisados após a conversa.',{exact:true})).toBeVisible();
   expect(data.messages.filter((message: any) => message.role === 'user')).toHaveLength(1);
 });

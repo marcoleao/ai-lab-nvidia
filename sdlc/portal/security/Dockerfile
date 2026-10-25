@@ -1,0 +1,6 @@
+FROM semgrep/semgrep@sha256:81474464c1f07483ba0682a44787fd93c91397419762a04abe2bafaae396304b
+WORKDIR /scanner
+COPY service.py rules.yaml ./
+ENV HOME=/tmp SEMGREP_SEND_METRICS=off SEMGREP_ENABLE_VERSION_CHECK=0
+USER 65534:65534
+ENTRYPOINT ["python3", "/scanner/service.py"]

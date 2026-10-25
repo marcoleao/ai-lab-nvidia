@@ -171,7 +171,7 @@ test('cobertura deixa explícitas omissões e preservação do dashboard existen
   await expect(main.getByRole('heading',{name:'Cobertura funcional',exact:true})).toBeVisible();
   await expect(main).toContainText('não é uma especificação para substituir o portal');
   await expect(main.locator('[data-feature-id]')).toHaveCount(40);
-  await expect(main.locator('[data-feature-id="FUNC02"]')).toContainText('Ainda não representada');
+  await expect(main.locator('[data-feature-id="FUNC10"]')).toContainText('Ainda não representada');
   await expect(main.locator('[data-feature-id="FUNC35"]')).toContainText('Contrato a preservar');
   await expect(main.locator('[data-feature-id="FUNC40"]')).toContainText('Backlog não implementado');
   await page.goto('/#/overview');
@@ -180,4 +180,112 @@ test('cobertura deixa explícitas omissões e preservação do dashboard existen
   await page.setViewportSize({width:390,height:844});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
   await capture(page,'identity-mobile');
+});
+
+test('criar, editar e arquivar hierarquia afeta apenas os registros simulados',async({page})=>{
+  await page.goto('/#/systems');
+  await page.getByRole('link',{name:'Criar sistema',exact:true}).click();
+  await page.getByLabel('Nome ou título').fill('Sistema da revisão');
+  await page.getByLabel('Chave',{exact:true}).fill('REVISAO');
+  await page.getByRole('button',{name:'Criar · simulação',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Sistema da revisão',exact:true})).toBeVisible();
+  await page.getByRole('link',{name:'Criar projeto',exact:true}).click();
+  await page.getByLabel('Nome ou título').fill('Projeto da revisão');
+  await page.getByLabel('Chave',{exact:true}).fill('PROJREV');
+  await page.getByRole('button',{name:'Criar · simulação',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Projeto da revisão',exact:true})).toBeVisible();
+  await page.locator('.manage-menu summary').click();
+  await page.getByRole('link',{name:'Editar dados',exact:true}).click();
+  await page.getByLabel('Nome ou título').fill('Projeto revisado');
+  await page.getByRole('button',{name:'Salvar alterações · simulação',exact:true}).click();
+  await page.reload();
+  await expect(page.getByRole('heading',{name:'Projeto revisado',exact:true})).toBeVisible();
+  await page.locator('#breadcrumbs').getByRole('link',{name:'Sistema da revisão',exact:true}).click();
+  await page.locator('.manage-menu summary').click();
+  await page.getByRole('link',{name:'Arquivar',exact:true}).click();
+  await expect(page.locator('.archive-preview')).toContainText('Projeto revisado');
+  await expect(page.locator('.archive-preview')).toContainText('repositórios e ambientes serão preservados');
+  await page.locator('#management-form input[type=checkbox]').check();
+  await page.getByRole('button',{name:'Confirmar arquivamento · simulação',exact:true}).click();
+  await expect(page).toHaveURL(/#\/systems$/);
+  await expect(page.locator('.entity-list')).not.toContainText('Sistema da revisão');
+});
+
+test('aprovação de Projeto e ciclo preservam decisões separadas e reabertura justificada',async({page})=>{
+  await page.goto('/#/project/project-triagem');
+  await page.getByRole('link',{name:'Revisar aprovação',exact:true}).click();
+  await expect(page.locator('.approval-summary')).toContainText('não inicia a execução');
+  await page.locator('#management-form input[type=checkbox]').check();
+  await page.getByRole('button',{name:'Confirmar aprovação · simulação',exact:true}).click();
+  await page.goto('/#/manage/state/project-triagem');
+  await page.getByLabel('Próxima situação').selectOption('active');
+  await page.getByRole('button',{name:'Confirmar situação · simulação',exact:true}).click();
+  await expect(page.locator('.project-context')).toContainText('ACTIVE');
+  await page.goto('/#/manage/state/project-triagem');
+  await page.getByLabel('Próxima situação').selectOption('completed');
+  await page.getByRole('button',{name:'Confirmar situação · simulação',exact:true}).click();
+  await expect(page.locator('#management-error')).toContainText('pelo menos um Épico');
+  await page.getByLabel('Próxima situação').selectOption('cancelled');
+  await page.getByRole('button',{name:'Confirmar situação · simulação',exact:true}).click();
+  await page.goto('/#/manage/state/project-triagem');
+  await page.getByLabel('Justificativa para reabrir').fill('Retomar a avaliação do planejamento.');
+  await page.getByRole('button',{name:'Confirmar situação · simulação',exact:true}).click();
+  await expect(page.locator('.project-context')).toContainText('PLANNED');
+});
+
+test('tarefa concluída pode ser reaberta com justificativa na simulação',async({page})=>{
+  await page.goto('/#/manage/state/task-criterios');
+  await page.getByLabel('Justificativa para reabrir').fill('Revisar critérios depois da avaliação.');
+  await page.getByRole('button',{name:'Confirmar situação · simulação',exact:true}).click();
+  await expect(page.locator('.page-header')).toContainText('DOING');
+  await page.reload();
+  await expect(page.locator('.page-header')).toContainText('DOING');
+  await page.locator('#reset-demo').click();
+  await expect(page.locator('.page-header')).toContainText('DONE');
+});
+
+test('novo Épico exige Projeto aprovado e nova História não inicia execução',async({page})=>{
+  await page.goto('/#/manage/create/project-triagem');
+  await page.getByLabel('Nome ou título').fill('Épico manual de revisão');
+  await page.getByRole('button',{name:'Criar · simulação',exact:true}).click();
+  const epicURL=page.url();
+  await page.getByRole('link',{name:'Revisar aprovação',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Confirmar aprovação · simulação',exact:true})).toBeDisabled();
+  await page.goto('/#/manage/approve/project-triagem');
+  await page.locator('#management-form input[type=checkbox]').check();
+  await page.getByRole('button',{name:'Confirmar aprovação · simulação',exact:true}).click();
+  await page.goto(epicURL);
+  await page.getByRole('link',{name:'Revisar aprovação',exact:true}).click();
+  await page.locator('#management-form input[type=checkbox]').check();
+  await page.getByRole('button',{name:'Confirmar aprovação · simulação',exact:true}).click();
+  await page.getByRole('link',{name:'Criar história',exact:true}).click();
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await capture(page,'manual-form-mobile');
+  await page.getByLabel('Nome ou título').fill('História de revisão manual');
+  await page.getByRole('button',{name:'Criar · simulação',exact:true}).click();
+  await expect(current(page)).toContainText('NOT STARTED');
+  await expect(current(page)).toContainText('Criar um item não inicia código.');
+  await page.locator('.tab-nav').getByRole('link',{name:'Especificação',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Especificação ainda não preparada'})).toBeVisible();
+});
+
+test('G1 permanece junto ao breadcrumb durante leitura em desktop e celular',async({page})=>{
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:844});
+    await page.goto('/#/story/story-consulta/specification');
+    await page.reload();
+    const bar=page.getByRole('region',{name:'Ações da etapa'});
+    const approve=bar.locator('[data-action="approve-spec"]');
+    await expect(approve).toHaveCount(1);
+    await expect(approve).toBeDisabled();
+    await expect(page.locator('#main-content [data-action="approve-spec"]')).toHaveCount(0);
+    await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
+    await expect(approve).toBeInViewport();
+    const position=await approve.boundingBox();expect(position.y).toBeGreaterThanOrEqual(0);expect(position.y+position.height).toBeLessThanOrEqual(844);
+    await bar.locator('#approve-check').check();
+    await expect(approve).toBeEnabled();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+    await capture(page,`g1-top-actions-${width}`);
+  }
 });

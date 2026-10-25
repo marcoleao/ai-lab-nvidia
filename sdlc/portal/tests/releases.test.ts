@@ -1,0 +1,255 @@
+import {randomUUID} from 'node:crypto';
+import {afterAll,beforeAll,describe,expect,test} from 'vitest';
+import type {WorkItem} from '@sdlc/shared';
+import {database} from '../packages/db/client.ts';
+import {createApp} from '../apps/api/src/app.ts';
+
+// This suite owns a fresh disposable database. Do not share it with foundation:
+// foundation deliberately asserts global emptiness and never deletes history.
+const url=process.env.TEST_RELEASES_DATABASE_URL;
+if(url&&!new URL(url).pathname.endsWith('/portal_test'))throw new Error('Release tests require an explicit disposable portal_test database');
+describe.skipIf(!url)('persisted Release planning',()=>{
+  const db=database(url!);
+  const {app}=createApp({db,demoMode:true});
+  type Draft={id:string;key:string;name:string;systemId:string;version:number;stage:string;storyCount:number};
+  beforeAll(async()=>{await app.ready();});
+  afterAll(async()=>{await app.close();await db.$disconnect();});
+  async function write(path:string,payload:unknown,persona='admin',method:'POST'|'PUT'|'PATCH'|'DELETE'='POST',key=randomUUID()){
+    return app.inject({method,url:`/api${path}`,headers:{'x-persona':persona,'idempotency-key':key},payload});
+  }
+  async function create(kind:string,parentId?:string){
+    const suffix=randomUUID().replaceAll('-','').slice(0,6).split('').map(c=>String.fromCharCode(65+parseInt(c,16))).join('');
+    const response=await write('/items',{kind,parentId,name:`Release test ${kind}`,description:'Disposable integration fixture',...(['system','project'].includes(kind)?{key:suffix}:{})});
+    expect(response.statusCode,response.body).toBe(200);return response.json().item as WorkItem;
+  }
+  async function scope(){const system=await create('system');const project=await create('project',system.id);const epic=await create('epic',project.id);return {system,project,epic,story:await create('story',epic.id)};}
+  async function draft(systemId:string,name='Release de integração',persona='elisa'){
+    const response=await write('/releases',{systemId,name},persona);
+    expect(response.statusCode,response.body).toBe(200);return response.json().release as Draft;
+  }
+  async function selected(id:string){
+    const response=await app.inject(`/api/items/${id}/release`);expect(response.statusCode,response.body).toBe(200);
+    const row=response.json().story;
+    return {id:row.id,expectedVersion:row.version,expectedReleaseId:row.assignment?.releaseId??null,expectedReleaseVersion:row.assignment?.releaseVersion??null};
+  }
+  async function compose(value:Draft,ids:string[],persona='elisa'){
+    return write(`/releases/${value.id}/stories`,{expectedVersion:value.version,stories:await Promise.all(ids.map(selected))},persona,'PUT');
+  }
+  async function attach(storyId:string,target:Draft|null,persona='ana'){
+    const row=(await app.inject(`/api/items/${storyId}/release`)).json().story;
+    return write(`/items/${storyId}/release`,{expectedVersion:row.version,releaseId:target?.id??null,expectedCurrentReleaseId:row.assignment?.releaseId??null,expectedCurrentReleaseVersion:row.assignment?.releaseVersion??null,...(target?{expectedReleaseVersion:target.version}:{})},persona);
+  }
+
+  test('empty reads do not seed Systems, Releases, candidate checks or history',async()=>{
+    expect(await db.item.count()).toBe(0);expect(await db.release.count()).toBe(0);
+    const response=await app.inject('/api/releases');expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({releases:[],systems:[],counts:{DRAFT:0,QA:0,HML:0,PRODUCTION:0,REJECTED:0,total:0},pagination:{page:1,pageSize:20,total:0,totalPages:1},capabilities:{canBuild:false,canPromote:false,qualityChecksAvailable:false}});
+    expect(await db.item.count()).toBe(0);expect(await db.historyEvent.count()).toBe(0);
+  });
+  test('creation permits an empty DRAFT and separates release managers from Story planners',async()=>{
+    const own=await scope();
+    for(const person of ['ana','bruno','carla','diego'])expect((await write('/releases',{systemId:own.system.id,name:'Unauthorized'},person)).statusCode).toBe(403);
+    expect((await app.inject({method:'POST',url:'/api/releases',headers:{'idempotency-key':randomUUID()},payload:{systemId:own.system.id,name:'No persona'}})).statusCode).toBe(403);
+    const value=await draft(own.system.id);
+    expect(value).toMatchObject({stage:'DRAFT',version:1,storyCount:0,createdByName:'Elisa'});
+    const detail=(await app.inject(`/api/releases/${value.id}`)).json();
+    expect(detail.stories).toEqual([]);expect(detail.history[0].action).toBe('RELEASE_CREATED');
+    expect((await compose(value,[own.story.id],'ana')).statusCode).toBe(403);
+    const response=await attach(own.story.id,value,'ana');expect(response.statusCode,response.body).toBe(200);
+    expect(response.json().assignment).toMatchObject({releaseId:value.id,storyVersion:own.story.version});
+    expect((await db.item.findUniqueOrThrow({where:{id:own.story.id}})).status).toBe('specification');
+    expect(await db.storyExecution.count()).toBe(0);expect(await db.environment.count()).toBe(0);
+  });
+  test('strict inputs reject stage changes, invalid scope, blank names and cross-origin writes',async()=>{
+    const own=await scope();
+    for(const payload of [{systemId:own.system.id,name:'   '},{systemId:own.system.id,name:'Valid name',stage:'QA'},{systemId:own.project.id,name:'Wrong kind'}])expect([400,422]).toContain((await write('/releases',payload)).statusCode);
+    const response=await app.inject({method:'POST',url:'/api/releases',headers:{'x-persona':'admin','idempotency-key':randomUUID(),origin:'https://untrusted.invalid'},payload:{systemId:own.system.id,name:'Cross origin'}});
+    expect(response.statusCode).toBe(403);expect(await db.release.count({where:{systemId:own.system.id}})).toBe(0);
+  });
+  test('list uses stable newest-first pages of 20 and stage counts before filtering stage',async()=>{
+    const own=await scope();const values:Draft[]=[];
+    for(let n=0;n<23;n++)values.push(await draft(own.system.id,`Página ${String(n).padStart(2,'0')}`));
+    const sameDate=new Date('2026-10-22T15:00:00Z');
+    await db.release.updateMany({where:{systemId:own.system.id},data:{createdAt:sameDate}});
+    const ordered=values.map(v=>v.id).sort().reverse();
+    const first=(await app.inject(`/api/releases?systemId=${own.system.id}`)).json();
+    const second=(await app.inject(`/api/releases?systemId=${own.system.id}&page=2`)).json();
+    expect(first.releases.map((v:Draft)=>v.id)).toEqual(ordered.slice(0,20));expect(second.releases.map((v:Draft)=>v.id)).toEqual(ordered.slice(20));
+    expect(first.pagination).toEqual({page:1,pageSize:20,total:23,totalPages:2});
+    const qa=(await app.inject(`/api/releases?systemId=${own.system.id}&stage=QA`)).json();
+    expect(qa.releases).toEqual([]);expect(qa.counts).toMatchObject({DRAFT:23,QA:0,total:23});
+    const searched=(await app.inject(`/api/releases?systemId=${own.system.id}&search=Página%2001`)).json();expect(searched.pagination.total).toBe(1);
+    expect((await app.inject('/api/releases?page=0')).statusCode).toBe(422);
+    expect((await app.inject(`/api/releases?systemId=${own.system.id}&stage=PRODUCTION`)).json().releases).toEqual([]);
+  });
+  test('creation idempotency survives simultaneous retries and distinguishes actors',async()=>{
+    const own=await scope(),key=randomUUID();const payload={systemId:own.system.id,name:'Idempotente'};
+    const [a,b]=await Promise.all([write('/releases',payload,'elisa','POST',key),write('/releases',payload,'elisa','POST',key)]);
+    expect(a.statusCode).toBe(200);expect(a.json()).toEqual(b.json());
+    expect((await write('/releases',{...payload,name:'Changed'},'elisa','POST',key)).statusCode).toBe(409);
+    expect((await write('/releases',payload,'admin','POST',key)).statusCode).toBe(200);
+    expect(await db.release.count({where:{systemId:own.system.id}})).toBe(2);
+    expect(await db.historyEvent.count({where:{itemId:own.system.id,action:'RELEASE_CREATED'}})).toBe(2);
+  });
+  test('composition records exact current versions and preserves History, status and code',async()=>{
+    const own=await scope();let value=await draft(own.system.id);
+    const before=await db.item.findUniqueOrThrow({where:{id:own.story.id}});
+    const response=await compose(value,[own.story.id]);expect(response.statusCode,response.body).toBe(200);value=response.json().release;
+    expect(value.version).toBe(2);expect(value.storyCount).toBe(1);
+    expect(response.json().stories[0]).toMatchObject({id:own.story.id,plannedVersion:before.version,currentVersion:before.version,ready:false,currentRevisionUnassigned:false});
+    expect(await db.item.findUniqueOrThrow({where:{id:own.story.id}})).toEqual(before);
+    expect(await db.storyExecution.count()).toBe(0);
+    const history=response.json().history;expect(history[0].payload.after).toEqual([{storyId:own.story.id,plannedStoryVersion:before.version}]);
+    const removed=await compose(value,[]);expect(removed.statusCode,removed.body).toBe(200);expect(removed.json().stories).toEqual([]);
+    expect(removed.json().history.map((row:{action:string})=>row.action)).toEqual(['RELEASE_COMPOSITION_CHANGED','RELEASE_COMPOSITION_CHANGED','RELEASE_CREATED']);
+  });
+  test('two users cannot overwrite a draft using the same version',async()=>{
+    const own=await scope(),other=await create('story',own.epic.id);const value=await draft(own.system.id);
+    const [a,b]=await Promise.all([compose(value,[own.story.id],'elisa'),compose(value,[other.id],'admin')]);
+    expect([a.statusCode,b.statusCode].sort()).toEqual([200,409]);
+    const detail=(await app.inject(`/api/releases/${value.id}`)).json();expect(detail.release.version).toBe(2);expect(detail.stories).toHaveLength(1);
+    expect(await db.historyEvent.count({where:{itemId:own.system.id,action:'RELEASE_COMPOSITION_CHANGED'}})).toBe(1);
+  });
+  test('transfer requires explicit source identity and version and rolls back the whole selection',async()=>{
+    const own=await scope();let source=await draft(own.system.id,'Origem'),target=await draft(own.system.id,'Destino');
+    source=(await compose(source,[own.story.id])).json().release;
+    const wanted=await selected(own.story.id);
+    let response=await write(`/releases/${target.id}/stories`,{expectedVersion:target.version,stories:[{...wanted,expectedReleaseId:null,expectedReleaseVersion:null}]},'elisa','PUT');
+    expect(response.statusCode).toBe(409);
+    response=await write(`/releases/${target.id}/stories`,{expectedVersion:target.version,stories:[{...wanted,expectedReleaseVersion:1}]},'elisa','PUT');expect(response.statusCode).toBe(409);
+    const foreign=await scope();
+    response=await write(`/releases/${target.id}/stories`,{expectedVersion:target.version,stories:[wanted,await selected(foreign.story.id)]},'elisa','PUT');expect(response.statusCode).toBe(409);
+    expect((await db.releaseStory.findUniqueOrThrow({where:{storyId:own.story.id}})).releaseId).toBe(source.id);
+    expect((await db.release.findUniqueOrThrow({where:{id:target.id}})).version).toBe(1);
+    response=await compose(target,[own.story.id]);expect(response.statusCode,response.body).toBe(200);target=response.json().release;
+    expect((await db.release.findUniqueOrThrow({where:{id:source.id}})).version).toBe(source.version+1);
+    expect((await db.releaseStory.findUniqueOrThrow({where:{storyId:own.story.id}})).releaseId).toBe(target.id);
+    expect((await app.inject(`/api/releases/${source.id}`)).json().history[0].payload.toReleaseId).toBe(target.id);
+  });
+  test('Story associations choose existing same-System drafts and can be removed by a planner',async()=>{
+    const own=await scope(),foreign=await scope();const local=await draft(own.system.id),outside=await draft(foreign.system.id);
+    const choices=(await app.inject(`/api/items/${own.story.id}/release`)).json();expect(choices.releases.map((row:Draft)=>row.id)).toEqual([local.id]);
+    expect((await attach(own.story.id,outside)).statusCode).toBe(409);
+    expect((await attach(own.story.id,{...local,id:'__new__'})).statusCode).toBe(404);
+    expect((await attach(own.story.id,local,'carla')).statusCode).toBe(403);
+    const associated=await attach(own.story.id,local,'bruno');expect(associated.statusCode,associated.body).toBe(200);
+    const removed=await attach(own.story.id,null,'ana');expect(removed.statusCode,removed.body).toBe(200);expect(removed.json().assignment).toBeNull();
+    expect((await app.inject(`/api/items/${own.epic.id}/release`)).statusCode).toBe(400);
+    expect((await db.release.findUniqueOrThrow({where:{id:local.id}})).version).toBe(3);
+  });
+  test('current revision is distinct from older planning and status never fabricates readiness',async()=>{
+    const own=await scope();let value=await draft(own.system.id);value=(await compose(value,[own.story.id])).json().release;
+    const edit=await write(`/items/${own.story.id}`,{expectedVersion:own.story.version,name:'Revisão atual',description:'Alteração solicitada'},'admin','PATCH');expect(edit.statusCode).toBe(200);
+    let view=(await app.inject(`/api/items/${own.story.id}/release`)).json();
+    expect(view.story).toMatchObject({currentVersion:2,plannedVersion:1,currentRevisionUnassigned:true,ready:false});
+    expect(view.story.pendingReasons.some((reason:string)=>reason.includes('difere'))).toBe(true);
+    const catalog=(await app.inject(`/api/releases/${value.id}/stories?association=unassigned`)).json();expect(catalog.stories.map((row:{id:string})=>row.id)).toContain(own.story.id);
+    expect((await app.inject(`/api/releases/${value.id}/stories?readiness=ready`)).json().stories).toEqual([]);
+    const refreshed=await attach(own.story.id,value);expect(refreshed.statusCode,refreshed.body).toBe(200);view=refreshed.json();
+    expect(view.story).toMatchObject({currentVersion:2,plannedVersion:2,currentRevisionUnassigned:false,ready:false});
+    expect((await db.item.findUniqueOrThrow({where:{id:own.story.id}})).status).toBe('specification');
+  });
+  test('large catalog exposes every Story through exact server pages without a 5000-record cutoff',async()=>{
+    const own=await scope(),value=await draft(own.system.id);
+    await db.item.createMany({data:Array.from({length:5000},(_,index)=>({kind:'story' as const,key:`BIG-${randomUUID()}`,name:`História ${index}`,status:'specification',parentId:own.epic.id,parentKind:'epic' as const}))});
+    const first=await app.inject(`/api/releases/${value.id}/stories`);
+    expect(first.statusCode,first.body).toBe(200);expect(first.json()).toMatchObject({total:5001,truncated:false,pagination:{page:1,pageSize:20,total:5001,totalPages:251}});expect(first.json().stories).toHaveLength(20);
+    const last=await app.inject(`/api/releases/${value.id}/stories?page=251`);
+    expect(last.statusCode,last.body).toBe(200);expect(last.json().stories).toHaveLength(1);
+    const broad=await app.inject(`/api/releases/${value.id}/stories?refine=true`);
+    expect(broad.statusCode).toBe(200);expect(broad.json()).toMatchObject({truncated:false,total:5001});expect(broad.json().stories).toHaveLength(20);
+    expect(broad.json().projects.map((row:{id:string})=>row.id)).toContain(own.project.id);
+    const project=await create('project',own.system.id),epic=await create('epic',project.id),story=await create('story',epic.id);
+    const refined=await app.inject(`/api/releases/${value.id}/stories?refine=true&projectId=${project.id}`);
+    expect(refined.json().truncated).toBe(false);expect(refined.json().stories.map((row:{id:string})=>row.id)).toEqual([story.id]);
+  });
+
+  test('catalog filters and sorts the whole scope while retaining complete composition and source versions',async()=>{
+    const own=await scope();let value=await draft(own.system.id);
+    const prefix='PAGE-'+randomUUID();
+    const rows=Array.from({length:45},(_,index)=>({id:`${prefix}-${String(index).padStart(2,'0')}`,kind:'story' as const,key:`${prefix}-K${index}`,name:`Paged Story ${String(index).padStart(2,'0')}`,status:index<25?'specification':'testing',parentId:own.epic.id,parentKind:'epic' as const,createdAt:new Date('2026-01-01T12:00:00Z')}));
+    await db.item.createMany({data:rows});
+    value=(await compose(value,[own.story.id,rows[44].id])).json().release;
+    const first=(await app.inject(`/api/releases/${value.id}/stories?q=Paged&sort=name&direction=asc`)).json();
+    const second=(await app.inject(`/api/releases/${value.id}/stories?q=Paged&sort=name&direction=asc&page=2`)).json();
+    expect(first.stories.map((row:{id:string})=>row.id)).toEqual(rows.slice(0,20).map(row=>row.id));
+    expect(second.stories.map((row:{id:string})=>row.id)).toEqual(rows.slice(20,40).map(row=>row.id));
+    expect(first.pagination).toEqual({page:1,pageSize:20,total:45,totalPages:3});
+    expect(new Set(first.selectedIds)).toEqual(new Set([own.story.id,rows[44].id]));
+    expect(first.selectedItems).toHaveLength(2);expect(first.selectedItems.every((row:{assignment:{releaseId:string;releaseVersion:number};version:number})=>row.assignment.releaseId===value.id&&row.assignment.releaseVersion===value.version&&row.version===1)).toBe(true);
+    const filtered=(await app.inject(`/api/releases/${value.id}/stories?q=Paged&status=testing&assignment=unassigned&ready=false&page=999`)).json();
+    expect(filtered).toMatchObject({total:19,pagination:{page:1,total:19}});expect(filtered.selectedItems).toHaveLength(2);
+    const kept=await write(`/releases/${value.id}/stories`,{expectedVersion:value.version,stories:first.selectedItems.map((row:{id:string;version:number;assignment:{releaseId:string;releaseVersion:number}})=>({id:row.id,expectedVersion:row.version,expectedReleaseId:row.assignment.releaseId,expectedReleaseVersion:row.assignment.releaseVersion}))},'elisa','PUT');
+    expect(kept.statusCode,kept.body).toBe(200);expect(kept.json().release.version).toBe(value.version);expect(kept.json().stories).toHaveLength(2);
+    expect((await app.inject(`/api/releases/${value.id}/stories?sort=payload`)).statusCode).toBe(422);
+    expect((await app.inject(`/api/releases/${value.id}/stories?status=todo`)).statusCode).toBe(422);
+  });
+
+  test('Release list sorting is global and validates the requested column and direction',async()=>{
+    const own=await scope();
+    const releases=[];
+    for(let index=0;index<23;index++)releases.push(await draft(own.system.id,`Order ${String(22-index).padStart(2,'0')}`));
+    const response=await app.inject(`/api/releases?systemId=${own.system.id}&sort=name&direction=asc&page=2`);
+    expect(response.statusCode,response.body).toBe(200);expect(response.json().releases.map((row:Draft)=>row.name)).toEqual(['Order 20','Order 21','Order 22']);
+    expect((await app.inject(`/api/releases?systemId=${own.system.id}&sort=payload`)).statusCode).toBe(422);
+    expect((await app.inject(`/api/releases?systemId=${own.system.id}&direction=sideways`)).statusCode).toBe(422);
+  });
+
+  test('Release audit history reaches older than 100 and retains canonical release scope and correlations',async()=>{
+    const own=await scope(),value=await draft(own.system.id),outside=await draft(own.system.id,'Other draft');
+    const prefix=randomUUID(),timestamp=new Date('2026-01-01T12:00:00Z');
+    await db.historyEvent.createMany({data:Array.from({length:125},(_,index)=>({id:`${prefix}-${String(index).padStart(3,'0')}`,itemId:own.system.id,ancestorIds:[],actorId:'admin',actorName:'Admin',actorType:'human',action:'RELEASE_COMPOSITION_CHANGED',message:index===0?'Old original Release audit':'Composition recorded',payload:{releaseId:value.id,runId:index===0?'old-release-correlation':'later-correlation',privatePrompt:'NEVER_EXPOSE_RAW'},timestamp}))});
+    const first=await app.inject(`/api/releases/${value.id}/history`);
+    expect(first.statusCode,first.body).toBe(200);expect(first.json().total).toBe(126);expect(first.json().events).toHaveLength(20);expect(JSON.stringify(first.json())).not.toContain('NEVER_EXPOSE_RAW');
+    const oldest=await app.inject(`/api/releases/${value.id}/history?page=7&asOf=${encodeURIComponent(first.json().asOf)}`);
+    expect(oldest.json().events.at(-1).id).toBe(`${prefix}-000`);
+    const searched=await app.inject(`/api/releases/${value.id}/history?q=old-release-correlation`);
+    expect(searched.json().total).toBe(1);expect(searched.json().events[0].message).toBe('Old original Release audit');
+    expect((await app.inject(`/api/releases/${outside.id}/history?q=old-release-correlation`)).json().total).toBe(0);
+  });
+
+  test('catalog filters Project, Epic, status and association inside its own System',async()=>{
+    const own=await scope(),other=await scope();const secondProject=await create('project',own.system.id),secondEpic=await create('epic',secondProject.id),secondStory=await create('story',secondEpic.id);
+    let value=await draft(own.system.id);value=(await compose(value,[own.story.id])).json().release;
+    const catalog=(await app.inject(`/api/releases/${value.id}/stories`)).json();expect(catalog.stories).toHaveLength(2);expect(catalog.projects).toHaveLength(2);
+    expect((await app.inject(`/api/releases/${value.id}/stories?projectId=${secondProject.id}`)).json().stories[0].id).toBe(secondStory.id);
+    expect((await app.inject(`/api/releases/${value.id}/stories?association=this`)).json().stories[0].id).toBe(own.story.id);
+    expect((await app.inject(`/api/releases/${value.id}/stories?status=testing`)).json().stories).toEqual([]);
+    expect((await app.inject(`/api/releases/${value.id}/stories?search=${encodeURIComponent(secondStory.key)}`)).json().stories).toHaveLength(1);
+    expect((await app.inject(`/api/releases/${value.id}/stories?projectId=${other.project.id}`)).statusCode).toBe(400);
+    expect((await app.inject(`/api/releases/${value.id}/stories?projectId=${own.project.id}&epicId=${secondEpic.id}`)).statusCode).toBe(400);
+  });
+  test('archive blocks adding descendants while removing archived draft members remains possible',async()=>{
+    const own=await scope();let value=await draft(own.system.id);value=(await compose(value,[own.story.id])).json().release;
+    const response=await write(`/items/${own.project.id}`,{expectedVersion:own.project.version},'admin','DELETE');expect(response.statusCode,response.body).toBe(200);
+    expect((await compose(value,[])).statusCode).toBe(200);expect(await db.releaseStory.count({where:{releaseId:value.id}})).toBe(0);
+    const fresh=await draft(own.system.id,'Outra composição');
+    expect((await write(`/releases/${fresh.id}/stories`,{expectedVersion:fresh.version,stories:[{id:own.story.id,expectedVersion:own.story.version,expectedReleaseId:null,expectedReleaseVersion:null}]},'elisa','PUT')).statusCode).toBe(404);
+    const current=await db.item.findUniqueOrThrow({where:{id:own.system.id}});await write(`/items/${own.system.id}`,{expectedVersion:current.version},'admin','DELETE');
+    expect((await app.inject(`/api/releases/${value.id}`)).statusCode).toBe(404);expect((await draftDenied(own.system.id)).statusCode).toBe(404);
+    async function draftDenied(systemId:string){return write('/releases',{systemId,name:'Archived System'});}
+  });
+  test('PostgreSQL enforces kinds, same-System planning and closed-composition protection',async()=>{
+    const own=await scope(),foreign=await scope();let value=await draft(own.system.id);value=(await compose(value,[own.story.id])).json().release;
+    await expect(db.releaseStory.create({data:{storyId:foreign.story.id,releaseId:value.id,plannedStoryVersion:1}})).rejects.toThrow();
+    await expect(db.releaseStory.create({data:{storyId:own.epic.id,releaseId:value.id,plannedStoryVersion:1}})).rejects.toThrow();
+    // A direct database fixture represents a future closed state; no public API
+    // may manufacture it or claim real checks/deployment from this test setup.
+    await db.release.update({where:{id:value.id},data:{stage:'QA'}});
+    expect((await compose(value,[])).statusCode).toBe(409);
+    await expect(db.releaseStory.delete({where:{storyId:own.story.id}})).rejects.toThrow();
+    await expect(db.release.update({where:{id:value.id},data:{stage:'DRAFT'}})).rejects.toThrow();
+    await expect(db.release.update({where:{id:value.id},data:{systemId:foreign.system.id}})).rejects.toThrow();
+    await expect(db.release.delete({where:{id:value.id}})).rejects.toThrow();
+    expect((await write(`/releases/${value.id}/stage`,{stage:'PRODUCTION'})).statusCode).toBe(404);
+    expect((await app.inject(`/api/releases/${value.id}`)).json().capabilities.canPromote).toBe(false);
+  });
+  test('restart keeps planning, and audited release decisions remain append-only',async()=>{
+    const own=await scope();const value=await draft(own.system.id);await compose(value,[own.story.id]);
+    const restarted=createApp({db,demoMode:true});await restarted.app.ready();
+    const response=await restarted.app.inject(`/api/releases/${value.id}`);expect(response.statusCode).toBe(200);expect(response.json().stories[0].id).toBe(own.story.id);await restarted.app.close();
+    const event=await db.historyEvent.findFirstOrThrow({where:{itemId:own.system.id,action:'RELEASE_CREATED'}});
+    await expect(db.historyEvent.update({where:{id:event.id},data:{message:'Overwrite'}})).rejects.toThrow();
+    await expect(db.historyEvent.delete({where:{id:event.id}})).rejects.toThrow();
+  });
+});

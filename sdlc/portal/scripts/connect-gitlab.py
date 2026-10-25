@@ -9,6 +9,9 @@ from pathlib import Path
 import subprocess
 import tempfile
 import urllib.request
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
+from audit_admin import administrative_operation
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = Path('/opt/agentic-sdlc/gitlab-demo')
@@ -27,7 +30,7 @@ def atomic_file(path, content, mode):
             os.unlink(temporary)
 
 
-def main():
+def configure():
     if os.geteuid() != 0:
         raise RuntimeError('Execute dentro da distro SDLC como root.')
     for directory in (ROOT / '.prepared', SECRET_DIR):
@@ -57,11 +60,35 @@ def main():
         'secrets': {'portal_gitlab_token': {'file': str(SECRET_DIR / 'gitlab_token')}},
         'networks': {'gitlab_existing': {'external': True, 'name': 'sdlc-demo_core'}}}
     destination = ROOT / '.prepared/compose.integrations.json'
-    if destination.exists() and json.loads(destination.read_text()) != config:
+    previous_config = json.loads(json.dumps(config))
+    merge_source = RUNTIME / '.secrets/merge_token'
+    merge_token = None
+    if merge_source.exists():
+        if merge_source.is_symlink():
+            raise RuntimeError('Merge credential source cannot be a symlink.')
+        merge_token = merge_source.read_text().strip()
+        if not merge_token or '\n' in merge_token or '\r' in merge_token:
+            raise RuntimeError('Invalid merge credential.')
+        merge_request = urllib.request.Request('http://127.0.0.1:3180/api/v4/user', headers={'PRIVATE-TOKEN': merge_token})
+        with urllib.request.urlopen(merge_request, timeout=8) as response:
+            merge_identity = json.load(response)
+        if merge_identity.get('username') != 'sdlc-agent-for-merge' or merge_identity.get('is_admin'):
+            raise RuntimeError('Expected dedicated non-admin merge identity.')
+        config['services']['api']['environment']['GITLAB_MERGE_TOKEN_FILE'] = '/run/secrets/portal_merge_token'
+        config['services']['api']['secrets'].append('portal_merge_token')
+        config['secrets']['portal_merge_token'] = {'file': str(SECRET_DIR / 'merge_token')}
+    if destination.exists() and json.loads(destination.read_text()) not in [config, previous_config]:
         raise RuntimeError('Já existe configuração diferente de integrações; preserve-a e revise antes de conectar.')
     atomic_file(SECRET_DIR / 'gitlab_token', token + '\n', 0o444)
+    if merge_token:
+        atomic_file(SECRET_DIR / 'merge_token', merge_token + '\n', 0o444)
     atomic_file(destination, json.dumps(config, indent=2) + '\n', 0o600)
     print('GitLab conectado na configuração. Aplique bootstrap.ps1 up; retome os jobs pela interface.')
+
+
+def main():
+    with administrative_operation('INTEGRATION_GITLAB_CONFIGURED', source='portal/connect-gitlab', details={'integration': 'gitlab'}):
+        configure()
 
 
 if __name__ == '__main__':

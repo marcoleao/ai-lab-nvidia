@@ -8,6 +8,21 @@ root=/opt/agentic-sdlc
 for directory in state backups forgejo forgejo/data .secrets; do
   [[ -d $root/$directory && ! -L $root/$directory ]] || exit 1
 done
+audit_module=$(realpath "$(dirname "${BASH_SOURCE[0]}")/../audit_admin.py")
+audit_operation=$(python3 "$audit_module" begin --root "$root" --action ACCEPTANCE_DATA_RESET --source reset-business-data --metadata '{"scope":"legacy-database-and-forgejo","reasonCode":"OPERATOR_REQUESTED_ERASURE"}')
+export SDLC_ADMIN_OPERATION_ID="$audit_operation"
+audit_reset_exit() {
+  local audit_status=$? audit_outcome=UNKNOWN
+  trap - EXIT
+  if [[ $audit_status == 0 ]]; then audit_outcome=SUCCEEDED; fi
+  python3 "$audit_module" end --root "$root" --action ACCEPTANCE_DATA_RESET --source reset-business-data \
+    --operation-id "$audit_operation" --outcome "$audit_outcome" --metadata "{\"exitCode\":$audit_status}" || {
+    echo 'Reset audit finalization failed; inspect the pending operation.' >&2
+    if [[ $audit_status == 0 ]]; then audit_status=1; fi
+  }
+  exit "$audit_status"
+}
+trap audit_reset_exit EXIT
 compose() { docker compose --project-name agentic-sdlc --project-directory "$root" --env-file "$root/runtime.env" -f "$root/compose.yaml" "$@"; }
 # Stop every writer and user entry before resetting either store.
 compose stop -t 20 entry portal consumer forgejo
@@ -69,4 +84,21 @@ bash "$root/source/scripts/linux/runtime.sh" "$root" down
 bash "$root/source/scripts/linux/runtime.sh" "$root" up
 # Explicit initialization proves that the next up/backup will not recreate examples.
 compose run --rm --no-deps initialize
+compose run --rm --no-deps initialize python - <<'PY'
+import psycopg
+from psycopg import sql
+from runtime import database_url
+with psycopg.connect(database_url('owner').render_as_string(hide_password=False).replace('postgresql+psycopg:', 'postgresql:')) as connection:
+    with connection.transaction():
+        connection.execute('SET TRANSACTION READ ONLY')
+        names = [row[0] for row in connection.execute("SELECT tablename FROM pg_tables WHERE schemaname='public'")]
+        for name in names:
+            if name in {'identities', 'credentials', 'schema_migrations', 'chat_inference_slot'}:
+                continue
+            if connection.execute(sql.SQL('SELECT count(*) FROM {}').format(sql.Identifier(name))).fetchone()[0] != 0:
+                raise RuntimeError('Reset verification found retained operational records')
+print('[OK] Read-only post-restart verification confirms an empty operational database.')
+PY
+python3 "$audit_module" epoch --root "$root" --operation-id "$audit_operation" --source reset-business-data >/dev/null
+python3 "$audit_module" validate --root "$root" >/dev/null
 echo '[OK] Empty SDLC restarted. Do not run the synthetic acceptance command before the human test.'

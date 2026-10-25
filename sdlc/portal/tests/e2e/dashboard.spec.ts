@@ -3,13 +3,17 @@ import {mkdirSync} from 'node:fs';
 import {join} from 'node:path';
 import type {DashboardData} from '../../apps/web/app/dashboard';
 
+async function openDashboardFilters(page:import('@playwright/test').Page){
+ const details=page.locator('.dashboard-filters > details');
+ await expect(async()=>{if(!await details.evaluate(element=>(element as HTMLDetailsElement).open))await details.locator(':scope > summary').click();await expect(details).toHaveAttribute('open','');}).toPass({timeout:5000});
+}
 const fixture:DashboardData={
  generatedAt:'2026-10-22T15:00:00Z',timezone:'America/Sao_Paulo',
  filters:{},filterOptions:{users:[{id:'admin',name:'Administrador'},{id:'qa',name:'Qualidade'}],systems:[{id:'system-a',name:'Sistema A'},{id:'system-b',name:'Sistema B'}],projects:[{id:'project-a',name:'Projeto A',systemId:'system-a'},{id:'project-b',name:'Projeto B',systemId:'system-b'}]},
  inventory:[
   {kind:'system',total:2,archivedTotal:1,statuses:[{status:'active',count:2}]},
-  {kind:'project',total:4,archivedTotal:0,statuses:[{status:'awaiting_approval',count:1},{status:'approved',count:3}],lifecycle:[{status:'planned',count:1},{status:'active',count:2},{status:'completed',count:1}]},
-  {kind:'epic',total:6,archivedTotal:0,statuses:[{status:'todo',count:1},{status:'approved',count:1},{status:'doing',count:2},{status:'done',count:2}]},
+  {kind:'project',total:4,archivedTotal:0,statuses:[{status:'awaiting_approval',count:1},{status:'approved',count:3}],lifecycle:[{status:'active',count:3},{status:'completed',count:1}]},
+  {kind:'epic',total:6,archivedTotal:0,statuses:[{status:'todo',count:2},{status:'doing',count:2},{status:'done',count:2}]},
   {kind:'story',total:12,archivedTotal:0,statuses:[{status:'specification',count:4},{status:'coding',count:3},{status:'code_review',count:2},{status:'completed',count:3}]},
   {kind:'task',total:18,archivedTotal:0,statuses:[{status:'todo',count:6},{status:'doing',count:5},{status:'done',count:7}]}
  ],
@@ -30,27 +34,42 @@ test('overview shows distinct dashboard, explicit unavailable measurements and a
  let inventoryRequests=0;
  await page.route('**/api/personas',route=>route.fulfill({json:{personas:[]}}));
  await page.route('**/api/integrations/health',route=>route.fulfill({json:{checks:[]}}));
- await page.route('**/api/items?kind=system',route=>{inventoryRequests++;return route.fulfill({json:{items:[]}});});
+ await page.route(url=>url.pathname==='/api/items'&&url.searchParams.get('kind')==='system',route=>{inventoryRequests++;return route.fulfill({json:{items:[]}});});
  await page.route('**/api/metrics/dashboard',route=>route.fulfill({json:fixture}));
  await page.goto('/');
  await expect(page.getByRole('heading',{name:'Visão geral',exact:true})).toBeVisible();
  await expect(page.getByRole('navigation',{name:'Principal'}).getByRole('link',{name:'Visão geral'})).toHaveAttribute('aria-current','page');
+ await expect(page.locator('.dashboard-filters > details')).not.toHaveAttribute('open','');
+ await expect(page.locator('.dashboard-filter-scope')).toBeVisible();
  const inventory=page.getByRole('article',{name:'Indicadores de Projetos'});
  await expect(inventory.locator('.inventory-total')).toHaveText('4Total');
  await expect(inventory).toContainText('AWAITING APPROVAL');
  await expect(page.getByTestId('create-item')).toHaveCount(0);
  expect(inventoryRequests).toBe(0);
- await expect(page.getByRole('table').first().getByText('PARCIAL')).toHaveCount(1);
+ const navigation=page.getByRole('navigation',{name:'Seções dos indicadores'});
+ await expect(navigation.getByRole('link',{name:'Inventário',exact:true})).toHaveAttribute('aria-current','page');
+ await expect(page.locator('.dashboard-inventory article')).toHaveCount(5);
+ await page.screenshot({path:join(screenshotDir,'dashboard-desktop.png'),fullPage:true});
+ await navigation.getByRole('link',{name:'Fluxo semanal',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Tabela do fluxo semanal'}).getByText('PARCIAL')).toHaveCount(1);
+ await navigation.getByRole('link',{name:'Retrabalho',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Retrabalho e ciclos de correção',exact:true})).toBeVisible();
  await expect(page.getByRole('row',{name:/Correções técnicas de patch/})).toContainText('6');
  await expect(page.getByRole('row',{name:/Correções após testes/})).toContainText('Sem medição');
  await expect(page.getByText(/Esclarecimentos adicionais indicam mais interação/)).toBeVisible();
  await expect(page.getByText('SLOPs',{exact:true})).toHaveCount(0);
+ await navigation.getByRole('link',{name:'DORA',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Performance de entrega · DORA'})).toBeVisible();
  await expect(page.locator('.dora-value')).toHaveText('Sem medição');
  await expect(page.getByRole('definition').filter({hasText:'—'})).toHaveCount(4);
- await expect(page.getByRole('table').nth(2).getByRole('row',{name:/Projetos/})).toContainText('6');
- await page.screenshot({path:join(screenshotDir,'dashboard-desktop.png'),fullPage:true});
+ await navigation.getByRole('link',{name:'Tempo em aberto',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Tabela por faixa de idade',exact:true}).getByRole('row',{name:/Projetos/})).toContainText('6');
+ const interpretation=page.locator('details').filter({has:page.locator('summary').filter({hasText:'Como interpretar estes indicadores'})});
+ await expect(interpretation).not.toHaveAttribute('open','');
+ await expect(page.getByText(fixture.notes![0],{exact:true})).not.toBeVisible();
+ await interpretation.locator('summary').click();
+ await expect(page.getByText(fixture.notes![0],{exact:true})).toBeVisible();
+ await interpretation.locator('summary').click();
  for(const width of [768,390]){
   await page.setViewportSize({width,height:1000});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
@@ -67,6 +86,60 @@ test('overview shows distinct dashboard, explicit unavailable measurements and a
  await expect(page.getByRole('heading',{name:'Seu SDLC começa com um Sistema'})).toBeVisible();
  await expect(page.getByTestId('create-item')).toBeVisible();
  expect(inventoryRequests).toBeGreaterThan(0);
+});
+
+test('dashboard shows one subject at a time and keeps filters through keyboard, hash, history and reload navigation',async({page})=>{
+ let requests=0;
+ await page.route('**/api/personas',route=>route.fulfill({json:{personas:[]}}));
+ await page.route('**/api/integrations/health',route=>route.fulfill({json:{checks:[]}}));
+ await page.route('**/api/metrics/dashboard*',route=>{requests++;return route.fulfill({json:fixture});});
+ await page.goto('/?userId=admin&systemId=system-a&projectId=project-a');
+ await openDashboardFilters(page);
+ const navigation=page.getByRole('navigation',{name:'Seções dos indicadores'}),form=page.getByRole('form',{name:'Filtros dos indicadores'});
+ const panels=page.locator('.dashboard section[id^="dashboard-"]');
+ await expect(navigation.getByRole('link')).toHaveText(['Inventário','Fluxo semanal','Retrabalho','Tempo em aberto','DORA','Releases','Merge Requests','Atividades','Assistente']);
+ await expect(panels).toHaveCount(1);
+ await expect(panels).toHaveAttribute('id','dashboard-inventory');
+ const initialHeight=await page.locator('.dashboard').evaluate(element=>element.getBoundingClientRect().height);
+ const subjectHeights:number[]=[await panels.evaluate(element=>element.getBoundingClientRect().height)];
+ for(const [label,id] of [['Fluxo semanal','dashboard-flow'],['Retrabalho','dashboard-rework'],['Tempo em aberto','dashboard-aging'],['DORA','dashboard-dora'],['Releases','dashboard-releases']]){
+  const link=navigation.getByRole('link',{name:label,exact:true});
+  await link.focus();await expect(link).toBeFocused();await page.keyboard.press('Enter');
+  await expect(link).toHaveAttribute('aria-current','page');
+  await expect(navigation.locator('[aria-current="page"]')).toHaveCount(1);
+  await expect(panels).toHaveCount(1);await expect(panels).toHaveAttribute('id',id);
+  subjectHeights.push(await panels.evaluate(element=>element.getBoundingClientRect().height));
+  await expect(form.getByRole('combobox',{name:'Usuário',exact:true})).toHaveValue('admin');
+  await expect(form.getByRole('combobox',{name:'Sistema',exact:true})).toHaveValue('system-a');
+  await expect(form.getByRole('combobox',{name:'Projeto',exact:true})).toHaveValue('project-a');
+ }
+ expect(initialHeight).toBeLessThan(subjectHeights.reduce((total,height)=>total+height,0));
+ expect(requests).toBe(1);
+ await page.goBack();await expect(panels).toHaveAttribute('id','dashboard-dora');
+ await page.goForward();await expect(panels).toHaveAttribute('id','dashboard-releases');
+ await page.evaluate(()=>{window.location.hash='dashboard-flow';});
+ await expect(panels).toHaveAttribute('id','dashboard-flow');expect(requests).toBe(1);
+ await page.reload();await expect(panels).toHaveAttribute('id','dashboard-flow');expect(requests).toBe(2);
+ await openDashboardFilters(page);
+ await expect(form.getByRole('combobox',{name:'Projeto',exact:true})).toHaveValue('project-a');
+ await page.setViewportSize({width:390,height:900});
+ for(const label of ['Inventário','Fluxo semanal','Retrabalho','Tempo em aberto','DORA','Releases']){
+  await navigation.getByRole('link',{name:label,exact:true}).click();
+  await expect(panels).toHaveCount(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ expect(requests).toBe(2);
+});
+
+test('assistant indicators show four weeks, samples and the same dashboard scope',async({page})=>{
+ const row={started:2,completed:1,timeToConfirmation:{value:1.5,samples:1},revisions:1,items:{epic:1,story:2,task:3},failures:1,resumptions:1};
+ await page.route('**/api/personas',route=>route.fulfill({json:{personas:[]}}));
+ await page.route('**/api/metrics/dashboard*',route=>route.fulfill({json:{...fixture,assistant:{total:row,weeks:fixture.weeks.map(w=>({...w,...row,timeToConfirmation:{value:null,samples:0}})),notes:['Duração somente com início e confirmação observados.']}}}));
+ await page.goto('/?systemId=system-a&projectId=project-a#dashboard-assistant');
+ const section=page.locator('#dashboard-assistant');await expect(section.getByRole('heading',{name:'Assistente de requisitos'})).toBeVisible();
+ await expect(section.getByRole('row',{name:/Tempo mediano/})).toContainText('1.5 h (1 amostras)');await expect(section.getByText('Sem medição',{exact:true})).toHaveCount(4);
+ await expect(page.locator('.dashboard-filter-scope')).toContainText('Projeto:');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
 test('dashboard failure is actionable and never replaced with invented zero values',async({page})=>{
@@ -94,6 +167,7 @@ test('dashboard filters combine scopes, preserve URL and recover from empty resu
  });
  await page.goto('/');
  const form=page.getByRole('form',{name:'Filtros dos indicadores'});
+ await openDashboardFilters(page);
  await expect(form.getByRole('combobox',{name:'Usuário',exact:true}).getByRole('option')).toHaveCount(3);
  await expect(form.getByRole('combobox',{name:'Projeto',exact:true})).toBeDisabled();
  await expect(form.getByRole('combobox',{name:'Projeto',exact:true}).getByRole('option')).toHaveCount(1);
@@ -111,6 +185,7 @@ test('dashboard filters combine scopes, preserve URL and recover from empty resu
  await expect(page.getByRole('article',{name:'Indicadores de Projetos'})).toBeVisible();
  expect(requests.at(-1)).toBe('?userId=admin&systemId=system-a&projectId=project-a');
  await page.reload();
+ await openDashboardFilters(page);
  await expect(form.getByRole('combobox',{name:'Projeto',exact:true})).toHaveValue('project-a');
  await expect(form.getByRole('combobox',{name:'Usuário',exact:true})).toHaveValue('admin');
  await form.getByRole('combobox',{name:'Sistema',exact:true}).selectOption('system-b');
@@ -155,6 +230,7 @@ test('changing filter aborts stale requests and hides the prior scope while load
  });
  await page.goto('/');
  const form=page.getByRole('form',{name:'Filtros dos indicadores'});
+ await openDashboardFilters(page);
  await expect(page.getByRole('article',{name:'Indicadores de Sistemas'})).toBeVisible();
  await form.getByRole('combobox',{name:'Sistema',exact:true}).selectOption('system-a');
  await form.getByRole('button',{name:'Aplicar',exact:true}).click();
