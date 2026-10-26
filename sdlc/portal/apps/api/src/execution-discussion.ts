@@ -7,6 +7,7 @@ import {DomainError} from './errors.ts';
 import {discussionSchema,patchPolicy} from './code-schema.ts';
 import {randomUUID} from 'node:crypto';
 import {enqueueAttempt,currentAttempt,finishAttempt,progress} from './work-activities.ts';
+import {checkExecutionScope,executionStoryVersionCurrent} from './execution.ts';
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value));
 const decisionDraftSchema=z.object({summary:z.string().trim().min(1).max(2000),requestedCapabilities:z.array(z.enum(['dependencies'])).max(1),openQuestions:z.array(z.string().min(1).max(300)).max(6)}).strict();
 export function registerDiscussion(app:FastifyInstance,h:AssistantHelpers,scope:(tx:Transaction,id:string,snapshot?:unknown)=>Promise<{story:Item;fingerprint:string}>){
@@ -26,7 +27,7 @@ export function registerDiscussion(app:FastifyInstance,h:AssistantHelpers,scope:
       const run=await tx.storyExecution.findUniqueOrThrow({where:{id:request.params.id}});const s=await scope(tx,run.storyId,run.snapshot);
       if(run.discussionVersion!==body.expectedVersion)throw new DomainError('DISCUSSION_CHANGED','A conversa mudou. Atualize e revise antes de enviar.',409);
       if(!((run.state==='failed'&&['specification','generation','discussion'].includes(run.stage))||run.state==='waiting_input'))throw new DomainError('DISCUSSION_UNAVAILABLE','Aguarde a etapa atual ou abra um impedimento antes de conversar.',409);
-      if(run.storyVersion!==s.story.version||(run.snapshot as Record<string,unknown>).fingerprint!==s.fingerprint)throw new DomainError('EXECUTION_STALE','Contexto da História mudou; prepare uma nova execução.',409);
+      if(!executionStoryVersionCurrent(run,s.story)||(run.snapshot as Record<string,unknown>).fingerprint!==s.fingerprint)throw new DomainError('EXECUTION_STALE','Contexto da História mudou; prepare uma nova execução.',409);
       if(body.intent==='prepare_decision'&&!await tx.executionMessage.count({where:{executionId:run.id,role:'user',state:'succeeded'}}))throw new DomainError('DISCUSSION_REQUIRED','Envie suas orientações antes de preparar uma decisão.',409);
       let sequence=await tx.executionMessage.count({where:{executionId:run.id}});
       if(!sequence&&run.error){await tx.executionMessage.create({data:{executionId:run.id,sequence:++sequence,role:'assistant',content:`Impedimento registrado: ${run.error}\nO motivo detalhado anterior pode não estar disponível. Vamos analisar isso nesta conversa antes de retomar.`,actorId:'agent:execution',actorName:'Agente de execução'}});}
@@ -43,7 +44,7 @@ export function registerDiscussion(app:FastifyInstance,h:AssistantHelpers,scope:
       const proposal=discussionSchema.safeParse(run.discussionProposal);
       if(run.state!=='waiting_input'||run.discussionVersion!==body.expectedVersion||!proposal.success||!proposal.data.ready||!proposal.data.summary.trim())throw new DomainError('DECISION_NOT_READY','Converse com o agente até haver uma decisão para confirmar.',409);
       if(proposal.data.requestedCapabilities.includes('dependencies')&&!body.allowDependencies)throw new DomainError('CAPABILITY_NOT_APPROVED','Esta alternativa requer autorização para dependências. Continue a conversa para escolher outra alternativa.',409);
-      if(s.story.version!==run.storyVersion||(run.snapshot as Record<string,unknown>).fingerprint!==s.fingerprint)throw new DomainError('EXECUTION_STALE','Contexto alterado; prepare uma nova execução.',409);
+      if(!executionStoryVersionCurrent(run,s.story)||(run.snapshot as Record<string,unknown>).fingerprint!==s.fingerprint)throw new DomainError('EXECUTION_STALE','Contexto alterado; prepare uma nova execução.',409);
       const decision={summary:proposal.data.summary,allowDependencies:body.allowDependencies,actorId:person.id,actorName:person.name,discussionVersion:run.discussionVersion};
       const snapshot=run.snapshot as Record<string,unknown>,decisions=Array.isArray(snapshot.decisions)?snapshot.decisions:[];
       const changed=await tx.item.update({where:{id:s.story.id},data:{status:'specification',version:{increment:1}}});
@@ -86,7 +87,8 @@ export async function discussExecution(h:AssistantHelpers,run:StoryExecution){
     const current=await tx.storyExecution.findUniqueOrThrow({where:{id:run.id}});if(current.state!=='running'||current.leaseId!==run.leaseId)return;
     if(!current.leaseUntil||current.leaseUntil.getTime()<=Date.now())throw new DomainError('EXECUTION_LEASE_EXPIRED','Prazo de análise expirado. Sua mensagem foi preservada.',409);
     const story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);
-    if(story.version!==run.storyVersion)throw new DomainError('EXECUTION_STALE','A História mudou durante a conversa.',409);
+    const currentScope=await checkExecutionScope(h,tx,run);
+    if(!currentScope.current)throw new DomainError('EXECUTION_STALE',currentScope.reason||'A História mudou durante a conversa.',409);
     await tx.executionMessage.update({where:{id:pending.id},data:{state:'succeeded'}});
     await tx.executionMessage.create({data:{executionId:run.id,sequence:1+await tx.executionMessage.count({where:{executionId:run.id}}),role:'assistant',content:answer.reply,actorId:'agent:execution',actorName:h.llm!.model}});
     await tx.storyExecution.update({where:{id:run.id},data:{state:'waiting_input',discussionProposal:json(answer),discussionVersion:{increment:1},leaseId:null,leaseUntil:null}});

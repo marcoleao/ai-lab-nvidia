@@ -9,7 +9,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
  const db=database(process.env.TEST_DATABASE_URL!),runtime=createApp({db,demoMode:true,git:{health:async()=>true,codeContext:async()=>({sha:'b'.repeat(40),targetBranch:'main',files:[]}),publishCode:async()=>({sha:'a'.repeat(40),url:'http://gitlab/mr/1'}),qualityContext:async()=>({sha:'a'.repeat(40),baseSha:'b'.repeat(40),files:[],changes:[]}),publishCorrection:async()=>({sha:'c'.repeat(40),url:'http://gitlab/mr/1'}),ensureGroup:async()=>{throw Error('unused');},ensureProject:async()=>{throw Error('unused');},inspectProject:async()=>{throw Error('unused');}},llm:{model:'test-only',models:async()=>['test-only'],complete:async()=>{throw Error('No inference expected');}},scannerUrl:'http://isolated-scanner:8080'});
  afterAll(async()=>{await runtime.app.close();await db.$disconnect();});
  async function fixture(){
-  const create=(kind:'system'|'project'|'epic'|'story'|'task',parentId?:string,parentKind?:'system'|'project'|'epic'|'story')=>db.item.create({data:{kind,key:'J-'+randomUUID(),name:'Journey isolated',description:'Planned scope',status:kind==='system'?'active':kind==='story'?'coding':kind==='task'?'todo':'approved',parentId,parentKind,...(kind==='project'?{projectLifecycle:'active'}:{}),data:kind==='story'?{acceptanceCriteria:['Return a result.']}:{} }});
+  const create=(kind:'system'|'project'|'epic'|'story'|'task',parentId?:string,parentKind?:'system'|'project'|'epic'|'story')=>db.item.create({data:{kind,key:'J-'+randomUUID(),name:'Journey isolated',description:'Planned scope',status:kind==='story'?'coding':kind==='task'?'todo':'active',parentId,parentKind,...(kind==='project'?{projectLifecycle:'active'}:{}),data:kind==='story'?{acceptanceCriteria:['Return a result.']}:{} }});
   const system=await create('system'),project=await create('project',system.id,'system'),epic=await create('epic',project.id,'project'),story=await create('story',epic.id,'epic'),task=await create('task',story.id,'story');
   const repo=await db.repository.create({data:{systemId:system.id,key:'J-'+randomUUID(),name:'Journey repo',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
   const fingerprint=createHash('sha256').update(JSON.stringify({name:story.name,description:story.description,data:story.data,ancestors:[system,project,epic].map(i=>[i.id,i.version,i.status,i.projectLifecycle]),tasks:[{id:task.id,name:task.name,description:task.description,data:task.data,repositoryLinks:[]}],repository:[repo.id,repo.version]})).digest('hex');
@@ -30,10 +30,10 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
   const f=await fixture();await db.qualityCheck.create({data:{storyId:f.story.id,executionId:f.run.id,kind:'code_review',sha:'d'.repeat(40),baseSha:f.baseSha,policyVersion:qualityPolicy,state:'blocked',actorId:'admin',actorName:'Admin',summary:'Old finding',findings:[{path:'app.js',line:1,message:'Old credential finding',severity:'HIGH'}]}});
   const response=(await f.get(f.story.id,'admin')).json();expect(response.current).toMatchObject({kind:'code_review',state:'stale'});expect(response.nextAction.id).toBe('code_review');expect(response.readiness.ready).toBe(false);expect(response.activities.some((a:any)=>a.legacy&&a.attempts.some((attempt:any)=>attempt.summary==='Old finding'))).toBe(true);
  });
- test('explicit links create a process task once, preserve planned task state, and replay without duplication',async()=>{
+ test('explicit links prepare the six pipeline Tasks once, preserve additional planned work, and replay without duplication',async()=>{
   const f=await fixture(),key=randomUUID(),links=[{taskId:f.task.id,scope:'Implementation of the planned lookup.',completion:'publish_code'}];
   const token=workLinksVersion([]),first=await f.bind(links,key,1,token);expect(first.statusCode,first.body).toBe(200);expect((await f.bind(links,key,1,token)).json()).toEqual(first.json());
-  expect(await db.workActivity.count({where:{storyId:f.story.id,kind:'coding'}})).toBe(1);expect(await db.item.count({where:{parentId:f.story.id}})).toBe(2);expect((await db.item.findUniqueOrThrow({where:{id:f.task.id}})).status).toBe('todo');
+  expect(await db.workActivity.count({where:{storyId:f.story.id,kind:'coding'}})).toBe(1);expect(await db.item.count({where:{parentId:f.story.id}})).toBe(7);expect((await db.item.findUniqueOrThrow({where:{id:f.task.id}})).status).toBe('todo');
   const response=(await f.get(f.task.id,'admin')).json();expect(response.selectedItem.id).toBe(f.task.id);expect(response.binding.tasks[0]).toMatchObject({id:f.task.id,linked:true,completion:'publish_code'});expect(response.nextAction.body.expectedVersion).toBe(f.story.version);
  });
  test('links can be removed and process task state cannot be manually used as approval',async()=>{
@@ -84,7 +84,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
  });
  test('stale G1 requires cancellation before another cycle and does not enable old approval',async()=>{
   const f=await fixture();await db.storyExecution.update({where:{id:f.run.id},data:{state:'waiting_approval',stage:'gate'}});await db.item.update({where:{id:f.story.id},data:{version:{increment:1}}});
-  const view=(await f.get(f.story.id,'admin')).json();expect(view.current.state).toBe('stale');expect(view.nextAction).toBeNull();expect(view.secondaryActions.map((action:any)=>action.id)).toEqual(['cancel']);
+  const view=(await f.get(f.story.id,'admin')).json();expect(view.current.state).toBe('stale');expect(view.nextAction).toBeNull();expect(view.secondaryActions.map((action:any)=>action.id)).toEqual(['cancel','cancel_story']);
  });
  test('checks for another base cannot approve the current delivery',async()=>{
   const f=await fixture();for(const kind of ['code_review','security_scan'])await db.qualityCheck.create({data:{storyId:f.story.id,executionId:f.run.id,kind,sha:f.sha,baseSha:'d'.repeat(40),policyVersion:qualityPolicy,state:'passed',actorId:'admin',actorName:'Admin',evidence:{digest:'e'.repeat(64)}}});

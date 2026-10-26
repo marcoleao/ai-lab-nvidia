@@ -36,6 +36,35 @@ test('queue includes all confirmed stage waits once and excludes occupied proces
  expect(complete.total.queue).toMatchObject({value:20,samples:1});expect(complete.total.processing).toMatchObject({value:150,samples:1});
 });
 
+test('confirmed inactive time is excluded from queue without changing processing or source boundaries',()=>{
+ const startedAt=date('2026-10-19T10:10:20Z'),paused=event('paused','2026-10-19T10:00:10Z'),resumed=event('resumed','2026-10-19T10:10:10Z');
+ const stage=event('stage_started','2026-10-19T10:10:20Z',{queueMs:620000});
+ const active=computeWorkDashboard(source({attempts:[{...attempt,startedAt,finishedAt:null,state:'running'}],events:[paused,resumed,stage]}),now,windows);
+ expect(active.total.queue).toMatchObject({value:20,samples:1});
+ const complete=computeWorkDashboard(source({attempts:[{...attempt,startedAt,finishedAt:date('2026-10-19T10:10:30Z'),state:'succeeded'}],events:[paused,resumed,stage,event('succeeded','2026-10-19T10:10:30Z',{queueMs:620000,processingMs:10000})]}),now,windows);
+ expect(complete.total.queue).toMatchObject({value:20,samples:1});expect(complete.total.processing).toMatchObject({value:10,samples:1});
+ expect(stage.payload).toEqual({queueMs:620000});expect(attempt.queuedAt.toISOString()).toBe('2026-10-19T10:00:00.000Z');
+});
+
+test('pause intervals outside observed queue windows cannot subtract processing time from queue',()=>{
+ const events=[event('stage_started','2026-10-19T10:00:05Z',{queueMs:5000}),event('paused','2026-10-19T10:00:10Z'),event('resumed','2026-10-19T10:00:20Z'),event('stage_started','2026-10-19T10:02:00Z',{queueMs:15000}),event('succeeded','2026-10-19T10:03:00Z',{queueMs:20000,processingMs:150000})];
+ const result=computeWorkDashboard(source({events}),now,windows);
+ expect(result.total.queue).toMatchObject({value:20,samples:1});expect(result.total.processing).toMatchObject({value:150,samples:1});
+});
+
+test('an open pause never changes an earlier partial queue sample or manufactures an end timestamp',()=>{
+ const events=[event('stage_started','2026-10-19T10:00:05Z',{queueMs:5000}),event('paused','2026-10-19T10:00:10Z')];
+ const result=computeWorkDashboard(source({attempts:[{...attempt,state:'paused',finishedAt:null}],events}),now,windows);
+ expect(result.total.queue).toMatchObject({value:5,samples:1});expect(result.total.processing).toMatchObject({value:null,samples:0});
+});
+
+test('repeated pause cycles and duplicated projections subtract each observed pause once',()=>{
+ const pause=event('paused','2026-10-19T10:00:02Z'),resume=event('resumed','2026-10-19T10:00:12Z');
+ const events=[pause,{...pause,id:'pause-projection'},resume,{...resume,id:'resume-projection'},event('paused','2026-10-19T10:00:14Z'),event('resumed','2026-10-19T10:00:24Z'),event('stage_started','2026-10-19T10:00:30Z',{queueMs:30000}),event('succeeded','2026-10-19T10:00:40Z',{queueMs:30000,processingMs:10000})];
+ const result=computeWorkDashboard(source({attempts:[{...attempt,startedAt:date('2026-10-19T10:00:30Z')}],events}),now,windows);
+ expect(result.total.queue).toMatchObject({value:10,samples:1});expect(result.total.processing.value).toBe(10);
+});
+
 test('completed waits crossing weeks enter only the resolution week; open waits are not samples',()=>{
  const result=computeWorkDashboard(source({events:[event('blocked','2026-10-18T02:00:00Z'),event('wait_resolved','2026-10-19T03:00:00Z',{durationMs:90000000,waitKind:'blocked',category:'quality'}),event('waiting_input','2026-10-22T03:00:00Z')]}),now,windows);
  expect(result.weeks[2].impedimentResolution.samples).toBe(0);

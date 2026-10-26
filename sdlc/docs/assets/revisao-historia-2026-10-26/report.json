@@ -1,0 +1,725 @@
+{
+  "passed": 18,
+  "scenarioCount": 27,
+  "results": [
+    "Cinco abas; Tarefas é entrada e Componentes pertence ao Sistema",
+    "Consulta percorre as 24 fixtures; detalhe e retorno conservam filtros e página",
+    "Filtro zero, coleção vazia, carregamento e erro são estados distintos",
+    "G1 exige confirmação explícita e já coloca a codificação na fila",
+    "Identificação e rascunho sobrevivem à troca de abas; salvar não aprova G1",
+    "Link antigo Componentes mantém o contexto e o retorno do Sistema",
+    "Correção invalida verificações e merge não conclui a História",
+    "Decisão operacional exige novo G1 e conserva a revisão aprovada na fila",
+    "Cancelar rascunho preserva a ausência de publicação e não fabrica G1",
+    "Alvo e mensagem digitada são preservados; criar tarefa atualiza a contagem",
+    "Solicitação sem confirmação preserva a intenção e não oferece nova aprovação",
+    "Reabrir exige justificativa; resultados permanecem e agentes não reiniciam",
+    "Acervo, inatividade, persona de consulta e tentativa histórica não liberam comandos",
+    "Todos os cenários podem ser consultados sem erros; conclusão legada não fabrica testes",
+    "Teclado, diálogo e redução de movimento preservam a interação",
+    "Menu móvel explicita cinco destinos e as cinco abas da História permanecem visíveis",
+    "Desktop, celular e altura reduzida sem estouro horizontal; capturas da navegação",
+    "Zero chamadas à API, GitLab ou modelos; somente GET dos arquivos da prévia"
+  ],
+  "metrics": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "actionWidth": 113,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "actionWidth": 325,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 500,
+      "actionWidth": 325,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 780,
+      "height": 844,
+      "actionWidth": 113,
+      "horizontalOverflow": false
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=tasks&tasks.sort=name&tasks.direction=asc&tasks.page=2"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=components&tasks.q=Teste&attempt=1&returnTo=origem"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=correction"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=merge"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=blocked"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=draft&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=specification"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=uncertain"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=cancelled"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=archived&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=inactive&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=permission&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=completed&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=planning&attempt=1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=draft&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=generating&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=dependency&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=queued&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=running&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=staleSignal&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=blocked&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=failed&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=cancelPending&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=interrupted&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=published&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=reviewing&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=security&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=scanning&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=correction&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=merge&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=merged&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=stale&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=reopened&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=cancelled&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=archived&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=inactive&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=permission&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=conflict&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=uncertain&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=completed&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=completed&tab=tasks"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=running&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=tasks"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=tasks"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=tasks"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&tab=tasks"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=blocked&tab=planning"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/?scenario=g1&view=system"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.css"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8080/assets/historia-2026-10-26/prototipo.js"
+    }
+  ]
+}

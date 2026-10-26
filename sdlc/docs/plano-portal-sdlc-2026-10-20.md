@@ -1,5 +1,7 @@
 # Plano de implementação do Portal SDLC
 
+**Atualização de 25/10/2026:** a [estabilização até a codificação](estabilizacao-ate-codificacao-2026-10-25.md) substitui neste recorte as regras históricas abaixo: Projeto/Épico são agrupadores sem aprovação própria; inatividade bloqueia a árvore; História admite especificação editável, G1 e seis Tarefas obrigatórias. O código foi validado em isolamento e publicado localmente mediante autorização em 25/10/2026, com backup e preservação dos registros existentes. O backlog posterior à codificação permanece reservado à próxima revisão; os registros cronológicos abaixo não afirmam a adoção do novo contrato.
+
 **22/10/2026 — implementação do backlog funcional pausada por solicitação do usuário.** A prioridade passa a ser a redefinição da interface e dos padrões de navegação. O backlog abaixo permanece preservado; suas pendências não estão canceladas ou concluídas. O ponto de retomada, o estado atual e os critérios da revisão estão em [Redefinição da interface e retomada do backlog](redefinicao-interface-2026-10-22.md). Este registro prevalece sobre os relatos cronológicos de progresso abaixo.
 
 Primeiro recorte da revisão: [Visão Geral, indicadores e instrumentação](dashboard-metricas-2026-10-22.md), solicitado explicitamente pelo usuário. A existência dos cinco cartões DORA não conclui os processos de deploy/incidentes necessários à sua medição. O backlog funcional permanece pausado.

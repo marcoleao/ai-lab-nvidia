@@ -47,8 +47,8 @@ describe.skipIf(!url)('complete server collections and canonical history',()=>{
   async function fixture(){
     const id='collection-'+randomUUID();
     const system=await db.item.create({data:{id,key:id,name:id,kind:'system',status:'active'}});
-    const project=await db.item.create({data:{key:id+'-P',name:'Project',kind:'project',parentId:system.id,parentKind:'system',status:'awaiting_approval',projectLifecycle:'active'}});
-    const epic=await db.item.create({data:{key:id+'-E',name:'Epic',kind:'epic',parentId:project.id,parentKind:'project',status:'todo'}});
+    const project=await db.item.create({data:{key:id+'-P',name:'Project',kind:'project',parentId:system.id,parentKind:'system',status:'active',projectLifecycle:'active'}});
+    const epic=await db.item.create({data:{key:id+'-E',name:'Epic',kind:'epic',parentId:project.id,parentKind:'project',status:'active'}});
     const story=await db.item.create({data:{key:id+'-S',name:'Story',kind:'story',parentId:epic.id,parentKind:'epic',status:'specification'}});
     return {id,system,project,epic,story};
   }
@@ -61,7 +61,7 @@ describe.skipIf(!url)('complete server collections and canonical history',()=>{
     expect(response.statusCode,response.body).toBe(200);return response.json();
   }
 
-  test('a newly created Story returns an empty Task collection without an optional status filter',async()=>{
+  test('an observed legacy Story without Tasks remains empty on GET without fabricating pipeline data',async()=>{
     const f=await fixture(),before=await db.historyEvent.count();
     const params={kind:'task',parentId:f.story.id,q:'',sort:'createdAt',direction:'desc',page:1};
     expect(await collection(params)).toMatchObject({items:[],total:0,page:1,pageSize:20,totalPages:1});
@@ -71,6 +71,17 @@ describe.skipIf(!url)('complete server collections and canonical history',()=>{
     expect(invalid.json().error.details).toEqual(expect.arrayContaining([expect.objectContaining({path:['status']})]));
     expect(await db.historyEvent.count()).toBe(before);
     expect(await db.item.count({where:{parentId:f.story.id}})).toBe(0);
+  });
+
+  test('an API-created Story exposes its six pipeline Tasks without requiring a status filter',async()=>{
+    const f=await fixture();
+    const created=await app.inject({method:'POST',url:'/api/items',headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{kind:'story',parentId:f.epic.id,name:'Nova História via API'}});
+    expect(created.statusCode,created.body).toBe(200);const story=created.json().item;
+    const before=await db.historyEvent.count(),values=await collection({kind:'task',parentId:story.id,sort:'createdAt',direction:'asc'});
+    expect(values).toMatchObject({total:6,page:1,pageSize:20,totalPages:1});
+    expect(new Set(values.items.map((task:Item)=>(task.data as any).pipelineStage))).toEqual(new Set(['coding','test','code_review','security_scan','final_test','merge']));
+    expect((await collection({kind:'task',parentId:story.id,status:'doing'})).total).toBe(0);
+    expect(await db.historyEvent.count()).toBe(before);
   });
 
   test('all 525 children are reachable with global ordering, exact totals, stable ties and normalized pages',async()=>{
@@ -108,38 +119,40 @@ describe.skipIf(!url)('complete server collections and canonical history',()=>{
     expect(expanded.items.find((item:Item)=>item.archived)).toMatchObject({status:'active',archived:true});
   });
 
-  test('project lifecycle defaults are independent of approval and extras precede search/status filters',async()=>{
+  test('active groupers are the default and inactive or terminal states remain reachable with global filters',async()=>{
     const f=await fixture();
     await db.item.createMany({data:[
-      {key:f.id+'-active',name:'Active approved',kind:'project',parentId:f.system.id,parentKind:'system',status:'approved',projectLifecycle:'active'},
-      {key:f.id+'-completed',name:'Completed',kind:'project',parentId:f.system.id,parentKind:'system',status:'approved',projectLifecycle:'completed'},
-      {key:f.id+'-cancelled',name:'Cancelled',kind:'project',parentId:f.system.id,parentKind:'system',status:'awaiting_approval',projectLifecycle:'cancelled'},
+      {key:f.id+'-active',name:'Active grouping',kind:'project',parentId:f.system.id,parentKind:'system',status:'active',projectLifecycle:'active'},
+      {key:f.id+'-inactive',name:'Paused grouping',kind:'project',parentId:f.system.id,parentKind:'system',status:'inactive',projectLifecycle:'inactive'},
+      {key:f.id+'-completed',name:'Completed',kind:'project',parentId:f.system.id,parentKind:'system',status:'completed',projectLifecycle:'completed'},
+      {key:f.id+'-cancelled',name:'Cancelled',kind:'project',parentId:f.system.id,parentKind:'system',status:'cancelled',projectLifecycle:'cancelled'},
       {key:f.id+'-archived',name:'Archive legacy planned',kind:'project',parentId:f.system.id,parentKind:'system',status:'awaiting_approval',projectLifecycle:'planned',archived:true},
     ]});
     const initial=await collection({kind:'project',parentId:f.system.id});
-    expect(initial).toMatchObject({total:2,extraCount:3});expect(new Set(initial.items.map((item:Item)=>item.status))).toEqual(new Set(['approved','awaiting_approval']));
-    const refined=await collection({kind:'project',parentId:f.system.id,q:'Completed',includeInactive:true,status:'approved',projectLifecycle:'completed'});
-    expect(refined).toMatchObject({total:1,extraCount:3});expect(refined.items[0].projectLifecycle).toBe('completed');
+    expect(initial).toMatchObject({total:2,extraCount:4});expect(new Set(initial.items.map((item:Item)=>item.status))).toEqual(new Set(['active']));
+    const refined=await collection({kind:'project',parentId:f.system.id,q:'Completed',includeInactive:true,status:'completed',projectLifecycle:'completed'});
+    expect(refined).toMatchObject({total:1,extraCount:4});expect(refined.items[0].projectLifecycle).toBe('completed');
+    expect((await collection({kind:'project',parentId:f.system.id,includeInactive:true,status:'inactive'})).total).toBe(1);
   });
 
   test('status sorting uses process order before paging rather than alphabetical status labels',async()=>{
     const f=await fixture();
-    await db.item.createMany({data:['done','doing','todo'].map((status,index)=>({id:f.id+'-epic-'+index,key:f.id+'-epic-'+index,name:'Same title',kind:'epic',parentId:f.project.id,parentKind:'project',status}))});
-    const sorted=await collection({kind:'epic',parentId:f.project.id,sort:'status',direction:'asc'});
-    expect(sorted.items.map((item:Item)=>item.status)).toEqual(['todo','todo','doing','done']);
-    expect((await collection({kind:'epic',parentId:f.project.id,sort:'status',direction:'desc'})).items.map((item:Item)=>item.status)).toEqual(['done','doing','todo','todo']);
+    await db.item.createMany({data:['cancelled','completed','inactive','active'].map((status,index)=>({id:f.id+'-epic-'+index,key:f.id+'-epic-'+index,name:'Same title',kind:'epic',parentId:f.project.id,parentKind:'project',status}))});
+    const sorted=await collection({kind:'epic',parentId:f.project.id,sort:'status',direction:'asc',includeInactive:true});
+    expect(sorted.items.map((item:Item)=>item.status)).toEqual(['active','active','inactive','completed','cancelled']);
+    expect((await collection({kind:'epic',parentId:f.project.id,sort:'status',direction:'desc',includeInactive:true})).items.map((item:Item)=>item.status)).toEqual(['cancelled','completed','inactive','active','active']);
     const literal=await collection({kind:'epic',parentId:f.project.id,q:'%'});expect(literal.total).toBe(0);
   });
 
   test('archived ancestor traversal is explicit and read only, retaining closed project children',async()=>{
     const f=await fixture();
     await db.item.update({where:{id:f.system.id},data:{archived:true}});
-    await db.item.update({where:{id:f.project.id},data:{projectLifecycle:'completed'}});
+    await db.item.update({where:{id:f.project.id},data:{status:'completed',projectLifecycle:'completed'}});
     const before=await db.item.findMany({where:{id:{in:[f.system.id,f.project.id]}}});
     const historyBefore=await db.historyEvent.count();
     expect((await app.inject(`/api/collections/items?kind=project&parentId=${f.system.id}`)).statusCode).toBe(404);
     const archive=await collection({kind:'project',parentId:f.system.id,includeArchived:true});
-    expect(archive.total).toBe(1);expect(archive.items[0]).toMatchObject({id:f.project.id,status:'awaiting_approval',projectLifecycle:'completed'});
+    expect(archive.total).toBe(1);expect(archive.items[0]).toMatchObject({id:f.project.id,status:'completed',projectLifecycle:'completed'});
     expect((await collection({kind:'epic',parentId:f.project.id,includeArchived:true})).items[0].id).toBe(f.epic.id);
     expect(await db.item.findMany({where:{id:{in:[f.system.id,f.project.id]}}})).toEqual(before);
     expect(await db.historyEvent.count()).toBe(historyBefore);

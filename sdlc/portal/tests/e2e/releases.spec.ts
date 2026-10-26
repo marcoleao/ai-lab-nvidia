@@ -7,7 +7,7 @@ if(!process.env.TEST_DATABASE_URL?.endsWith('/portal_test'))throw Error('Release
 const systems:string[]=[];
 const headers=(persona='admin')=>({'X-Persona':persona,'Idempotency-Key':crypto.randomUUID()});
 async function createItem(request:APIRequestContext,kind:string,parentId?:string,name=`${kind} do ensaio de releases`){
-  const response=await request.post('/api/items',{headers:headers(),data:{kind,name,description:'Criado somente no banco isolado para verificar a navegação real.',...(parentId?{parentId}:{}),...(kind==='system'?{key:systemKey()}:kind==='project'?{key:`R${crypto.randomUUID().replaceAll('-','').slice(0,8).toUpperCase()}`}:{})}});
+  const response=await request.post('/api/items',{headers:headers(),data:{kind,name,description:'Criado somente no banco isolado para verificar a navegação real.',...(parentId?{parentId}:{}),...(kind==='system'?{key:systemKey()}:kind==='project'?{key:systemKey()}:{})}});
   expect(response.ok(),await response.text()).toBe(true);
   const {item}=await response.json();if(kind==='system')systems.push(item.id);return item;
 }

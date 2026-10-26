@@ -1,26 +1,29 @@
 import {randomUUID,createHash} from 'node:crypto';
-import type {Persona} from '@sdlc/shared';
 import type {Database,Transaction} from '../../../packages/db/client.ts';
 import type {Prisma} from '../../../packages/db/generated/client.ts';
 import type {AssistantHelpers} from './assistant.ts';
 import {DomainError} from './errors.ts';
 import {recordAudit} from './audit.ts';
+import {ensurePipelineTasks,pipelineStageOf} from './pipeline-tasks.ts';
+import {ensureHierarchyWritable} from './lifecycle-policy.ts';
 
 type Person={id:string;name:string};
 type Kind='specification'|'coding'|'code_review'|'security_scan'|'merge';
-const names:Record<Kind,string>={specification:'Preparar especificação e aprovação G1',coding:'Codificar e publicar a revisão',code_review:'Realizar Code Review',security_scan:'Executar Security Scan',merge:'Integrar código no GitLab'};
-const conditions:Record<Kind,string>={specification:'Especificação revisada e Gate G1 aprovado explicitamente.',coding:'Código publicado com commit e Merge Request registrados. Não comprova testes, homologação nem conclusão das Tarefas planejadas sem vínculo explícito.',code_review:'Revisão aprovada para o mesmo commit, base e política vigentes.',security_scan:'Análise completa da revisão vigente, sem nenhum achado.',merge:'Merge confirmado por consulta real ao GitLab. Não conclui a História nem promove uma release.'};
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value));
 const humanWait=new Set(['waiting_input','waiting_approval','blocked','failed']);
 const auxiliary=(attempt:{sourceType:string})=>attempt.sourceType==='merge_discussion';
 
 export async function ensureActivity(tx:Transaction,h:AssistantHelpers,args:{storyId:string;repositoryId:string;kind:Kind;person:Person}){
- const scopeKey=`${args.storyId}:${args.repositoryId}:${args.kind}`;
- const prior=await tx.workActivity.findUnique({where:{scopeKey}});if(prior)return prior;
- const task=await h.createItem(tx,args.person as unknown as Persona,{kind:'task',parentId:args.storyId,name:names[args.kind],description:conditions[args.kind],repositoryIds:[args.repositoryId]},{workProcess:'true',workKind:args.kind,workScopeKey:scopeKey},{executor:{id:'agent:work',name:'Executor de trabalho',type:'agent'},initiator:{id:args.person.id,name:args.person.name,type:'human'}});
- // Boolean marker is explicit; the creation provenance remains in its original event.
- await tx.item.update({where:{id:task.id},data:{data:json({...task.data as object,workProcess:true,completionCondition:conditions[args.kind]})}});
- return tx.workActivity.create({data:{storyId:args.storyId,repositoryId:args.repositoryId,kind:args.kind,scopeKey,taskId:task.id}});
+ const story=await h.live(tx,args.storyId);await h.ensureNotArchived(tx,story);
+ let scopeKey=`${args.storyId}:${args.repositoryId}:${args.kind}`;
+ let prior=await tx.workActivity.findUnique({where:{scopeKey}});
+ if(args.kind==='specification'&&prior?.taskId){scopeKey+=':story';prior=await tx.workActivity.findUnique({where:{scopeKey}});}
+ // Requirements and G1 belong to the Story. They never manufacture a seventh
+ // process Task. Every executable pipeline phase uses its planned Task.
+ const task=args.kind==='specification'?null:(await ensurePipelineTasks(tx,story,args.person,h.createItem)).find(task=>pipelineStageOf(task)===args.kind);
+ if(args.kind!=='specification'&&!task)throw new DomainError('PIPELINE_TASK_REQUIRED','Planeje a Tarefa desta etapa antes de iniciar a execução.',409);
+ if(prior){if(prior.taskId!==(task?.id??null))throw new DomainError('PIPELINE_TASK_MIGRATION_REVIEW','A Tarefa desta atividade precisa de revisão; os apontadores históricos foram preservados.',409);return prior;}
+ return tx.workActivity.create({data:{storyId:args.storyId,repositoryId:args.repositoryId,kind:args.kind,scopeKey,taskId:task?.id??null}});
 }
 async function event(tx:Transaction,attemptId:string,key:string,kind:string,stage:string,message:string,extra:{provider?:string;category?:string;payload?:unknown}={}){
  return tx.workEvent.upsert({where:{attemptId_key:{attemptId,key}},create:{attemptId,key,kind,stage,message,provider:extra.provider,category:extra.category,payload:json(extra.payload??{})},update:{}});
@@ -41,15 +44,16 @@ export async function enqueueAttempt(tx:Transaction,h:AssistantHelpers,args:{sto
  return attempt;
 }
 export async function currentAttempt(tx:Transaction,sourceType:string,sourceId:string,kind?:string){
- const attempts=await tx.workAttempt.findMany({where:{sourceType,sourceId,...(kind?{activity:{kind}}:{})},include:{activity:true},orderBy:[{queuedAt:'desc'},{id:'desc'}],take:10});
+ const attempts=await tx.workAttempt.findMany({where:{sourceType,sourceId,...(kind?{activity:{kind}}:{})},include:{activity:true},orderBy:[{queuedAt:'desc'},{id:'desc'}]});
  return attempts.find(a=>a.activity.currentAttemptId===a.id||auxiliary(a))??null;
 }
 export async function startAttempt(tx:Transaction,sourceKey:string,leaseId:string,stage:string){
  const attempt=await tx.workAttempt.findUnique({where:{sourceKey},include:{activity:{include:{taskLinks:true}}}});if(!attempt||(!auxiliary(attempt)&&attempt.activity.currentAttemptId!==attempt.id)||!['queued','running'].includes(attempt.state))return;
+ const story=await tx.item.findUniqueOrThrow({where:{id:attempt.activity.storyId}});await ensureHierarchyWritable(tx,story);
  const now=new Date();await tx.workAttempt.update({where:{id:attempt.id},data:{state:'running',stage,leaseId,heartbeatAt:now,...(!attempt.startedAt?{startedAt:now}:{})}});
- const taskIds=auxiliary(attempt)?[]:[attempt.activity.taskId,...attempt.activity.taskLinks.map(link=>link.taskId)];
- const tasks=await tx.item.findMany({where:{id:{in:taskIds},archived:false,status:{in:['todo','done']}}});
- const reopened=tasks.filter(task=>task.status==='done');
+ const taskIds=auxiliary(attempt)?[]:[attempt.activity.taskId,...attempt.activity.taskLinks.map(link=>link.taskId)].filter((id):id is string=>!!id);
+ const tasks=await tx.item.findMany({where:{id:{in:taskIds},kind:'task',archived:false,status:{in:['todo','done','cancelled']}}});
+ const reopened=tasks.filter(task=>['done','cancelled'].includes(task.status));
  for(const task of tasks){
   const changed=await tx.item.update({where:{id:task.id},data:{status:'doing',version:{increment:1}}});
   await recordAudit(tx,changed,{id:'agent:work',name:'Executor SDLC'},'WORK_TASK_STATUS_CHANGED','Executor confirmou o início do trabalho da Tarefa.',{attemptId:attempt.id,activityId:attempt.activityId,stage},'agent',{before:{status:task.status,version:task.version},after:{status:changed.status,version:changed.version},initiator:{id:attempt.actorId,name:attempt.actorName,type:'human'},operationId:attempt.sourceId,attemptId:attempt.id});
@@ -106,14 +110,14 @@ export async function finishAttempt(tx:Transaction,h:AssistantHelpers,sourceKey:
  await tx.workAttempt.update({where:{id:attempt.id},data:{state:args.state,summary:args.summary,errorCategory:args.category??null,revision:args.revision??attempt.revision,finishedAt:now,waitingSince:humanWait.has(args.state)?now:null,leaseId:null}});
  await event(tx,attempt.id,`finish:${args.state}`,args.state,attempt.stage,args.summary??'Tentativa encerrada.',{category:args.category,payload:{processingMs:attempt.startedAt?processingMs:null,queueMs,revision:args.revision??attempt.revision}});
  if(args.completeTask&&args.state==='succeeded'&&!auxiliary(attempt)){
-  const taskIds=[attempt.activity.taskId,...(attempt.activity.kind==='coding'?attempt.activity.taskLinks.filter(link=>link.completion==='publish_code').map(link=>link.taskId):[])];
-  const tasks=await tx.item.findMany({where:{id:{in:taskIds},archived:false,status:{not:'done'}}});
+  const story=await h.live(tx,attempt.activity.storyId);await h.ensureNotArchived(tx,story);
+  const taskIds=[attempt.activity.taskId,...(attempt.activity.kind==='coding'?attempt.activity.taskLinks.filter(link=>link.completion==='publish_code').map(link=>link.taskId):[])].filter((id):id is string=>!!id);
+  const tasks=await tx.item.findMany({where:{id:{in:taskIds},kind:'task',archived:false,status:{not:'done'}}});
   for(const task of tasks){
-   const changed=await tx.item.update({where:{id:task.id},data:{status:'done',version:{increment:1}}});
+   const changed=await tx.item.update({where:{id:task.id},data:{status:'done',version:{increment:1},data:json({...task.data as object,result:{summary:args.summary??'Execução concluída com evidência registrada.',attemptId:attempt.id,activityId:attempt.activityId,sourceType:attempt.sourceType,sourceId:attempt.sourceId,revision:args.revision??attempt.revision,recordedAt:now.toISOString()}})}});
    await recordAudit(tx,changed,{id:'agent:work',name:'Executor SDLC'},'WORK_TASK_STATUS_CHANGED','Tarefa concluída mediante a evidência desta tentativa.',{attemptId:attempt.id,activityId:attempt.activityId,revision:args.revision??attempt.revision},'agent',{before:{status:task.status,version:task.version},after:{status:changed.status,version:changed.version},initiator:{id:attempt.actorId,name:attempt.actorName,type:'human'},operationId:attempt.sourceId,attemptId:attempt.id});
   }
-  const story=await h.live(tx,attempt.activity.storyId);
-  await h.event(tx,story,{id:'agent:work',name:'Executor SDLC'},'WORK_TASKS_COMPLETED','Conclusão das Tarefas vinculadas registrada com evidência desta tentativa.',{attemptId:attempt.id,activityId:attempt.activityId,taskIds,revision:args.revision??attempt.revision},'agent',{initiator:{id:attempt.actorId,name:attempt.actorName,type:'human'},operationId:attempt.sourceId,attemptId:attempt.id});
+  if(taskIds.length)await h.event(tx,story,{id:'agent:work',name:'Executor SDLC'},'WORK_TASKS_COMPLETED','Conclusão das Tarefas vinculadas registrada com evidência desta tentativa.',{attemptId:attempt.id,activityId:attempt.activityId,taskIds,revision:args.revision??attempt.revision},'agent',{initiator:{id:attempt.actorId,name:attempt.actorName,type:'human'},operationId:attempt.sourceId,attemptId:attempt.id});
  }
 }
 export function workLinksVersion(links:ReadonlyArray<{taskId:string;scope:string;completion:string}>){
@@ -142,12 +146,12 @@ export async function bindActivityTasks(tx:Transaction,h:AssistantHelpers,args:{
  await h.event(tx,await h.live(tx,activity.storyId),args.person,'WORK_TASKS_BOUND','Tarefas associadas à codificação com escopo e condição de conclusão explícitos.',{activityId:activity.id,taskIds:args.taskIds.map(t=>t.taskId)},'human',{before:{links:currentLinks.map(link=>({taskId:link.taskId,scope:link.scope,completion:link.completion}))},after:{links:args.taskIds.map(link=>({taskId:link.taskId,scope:link.scope,completion:link.completion??'manual_evidence'}))},operationId:activity.id,subject:{type:'work_activity',id:activity.id}});
  return activity;
 }
-export async function invalidateActivities(tx:Transaction,args:{storyId:string;repositoryId:string;kinds:string[];reason:string;person?:Person}){
+export async function invalidateActivities(tx:Transaction,args:{storyId:string;repositoryId:string;kinds:string[];reason:string;person?:Person;reopenTasks?:boolean}){
  const activities=await tx.workActivity.findMany({where:{storyId:args.storyId,repositoryId:args.repositoryId,kind:{in:args.kinds}}});
  for(const activity of activities){
-  const task=await tx.item.findUniqueOrThrow({where:{id:activity.taskId}}),attempt=activity.currentAttemptId?await tx.workAttempt.findUnique({where:{id:activity.currentAttemptId}}):null;
+  const task=activity.taskId?await tx.item.findUniqueOrThrow({where:{id:activity.taskId}}):null,attempt=activity.currentAttemptId?await tx.workAttempt.findUnique({where:{id:activity.currentAttemptId}}):null;
   if(attempt?.waitingSince){await event(tx,attempt.id,`wait-resolved:${randomUUID()}`,'wait_resolved',attempt.stage,args.reason,{category:attempt.errorCategory??undefined,payload:{durationMs:Math.max(0,Date.now()-attempt.waitingSince.getTime()),waitKind:attempt.state,category:attempt.errorCategory,resolution:'correction_or_recheck_requested'}});await tx.workAttempt.update({where:{id:attempt.id},data:{waitingSince:null}});}
-  if(task.status==='done'){
+  if(args.reopenTasks!==false&&task?.status==='done'){
    const changed=await tx.item.update({where:{id:task.id},data:{status:'todo',version:{increment:1}}});
    await recordAudit(tx,changed,{id:'agent:work',name:'Executor SDLC'},'WORK_TASK_STATUS_CHANGED','Tarefa reaberta porque a evidência anterior não autoriza a revisão atual.',{activityId:activity.id,...(attempt?{attemptId:attempt.id}:{})},'agent',{before:{status:task.status,version:task.version},after:{status:changed.status,version:changed.version},...(args.person?{initiator:{...args.person,type:'human' as const}}:attempt?{initiator:{id:attempt.actorId,name:attempt.actorName,type:'human' as const}}:{}),operationId:activity.id,reasonCode:'EVIDENCE_INVALIDATED'});
    if(attempt)await event(tx,attempt.id,`reopened:${randomUUID()}`,'reopened',attempt.stage,args.reason,{payload:{taskIds:[task.id],reason:args.reason}});
@@ -156,6 +160,6 @@ export async function invalidateActivities(tx:Transaction,args:{storyId:string;r
 }
 export async function listStoryActivities(tx:Transaction,storyId:string){
  const activities=await tx.workActivity.findMany({where:{storyId},include:{taskLinks:true,attempts:{orderBy:[{queuedAt:'desc'},{id:'desc'}],include:{events:{orderBy:[{timestamp:'asc'},{id:'asc'}]}}}},orderBy:{createdAt:'asc'}});
- const ids=activities.flatMap(a=>[a.taskId,...a.taskLinks.map(l=>l.taskId)]),tasks=await tx.item.findMany({where:{id:{in:ids}}});
+ const ids=activities.flatMap(a=>[a.taskId,...a.taskLinks.map(l=>l.taskId)]).filter((id):id is string=>!!id),tasks=await tx.item.findMany({where:{id:{in:ids}}});
  return activities.map(a=>({...a,task:tasks.find(t=>t.id===a.taskId)??null,taskLinks:a.taskLinks.map(l=>({...l,task:tasks.find(t=>t.id===l.taskId)??null}))}));
 }

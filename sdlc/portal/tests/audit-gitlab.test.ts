@@ -39,7 +39,11 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('external provisioning evidence'
    const item=await create(runtime,'AUDLATE'.slice(0,6));
    const work=runtime.processJobs();await begun;
    const archived=await runtime.app.inject({method:'DELETE',url:`/api/items/${item.id}`,headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{expectedVersion:1}});
-   expect(archived.statusCode,archived.body).toBe(200);
+   expect(archived.statusCode,archived.body).toBe(409);
+   // A legacy/administrative archive can still be observed while HTTP is in
+   // flight. Simulate it only in portal_test to preserve this recovery check;
+   // the current human command above must refuse the invalid transition.
+   await db.item.update({where:{id:item.id},data:{archived:true,version:{increment:1}}});
    release({id:52,full_path:'sdlc/audlat'});await work;
    const current=await db.item.findUniqueOrThrow({where:{id:item.id}});expect(current.archived).toBe(true);
    expect((current.data as any).gitlabState).toBe('pending');

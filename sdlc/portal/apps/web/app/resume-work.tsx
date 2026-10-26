@@ -1,0 +1,6 @@
+'use client';
+import {useState} from 'react';
+export default function ResumeWork({enabled,onResume}:{enabled:boolean;onResume:()=>Promise<{resumed:number}>}){
+ const [confirmed,setConfirmed]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ return <details className="panel"><summary>Retomar trabalhos pausados</summary><p>A retomada recoloca na fila os trabalhos pausados deste agrupador e dos descendentes ativos. Reativar o agrupador, por si só, não inicia agentes.</p><label><input type="checkbox" checked={confirmed} onChange={event=>setConfirmed(event.target.checked)} disabled={!enabled||busy}/>Confirmo retomar os trabalhos pausados neste contexto.</label><button type="button" disabled={!enabled||busy||!confirmed} onClick={()=>{setBusy(true);setError('');void onResume().then(result=>{setNotice(result.resumed?'Retomada solicitada. Acompanhe as atividades e suas evidências.':'Nenhum trabalho pausado encontrado neste contexto ativo.');setConfirmed(false);}).catch(failure=>setError(failure instanceof Error?failure.message:'A retomada não foi confirmada.')).finally(()=>setBusy(false));}}>Retomar trabalhos pausados</button>{error&&<p className="alert" role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}</details>;
+}

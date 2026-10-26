@@ -18,10 +18,13 @@ import {registerQuality} from './quality.ts';
 import {registerJourney} from './journey.ts';
 import {registerCollections,safeHistoryEvent} from './collections.ts';
 import {recordAudit,withAuditContext,type AuditOptions} from './audit.ts';
+import {ensureHierarchyWritable,hierarchyState,itemLifecycle,isTerminalItem,descendantItems,assertNoRunningDescendants,pauseHierarchyWork,resumeHierarchyWork} from './lifecycle-policy.ts';
+import {registerStoryLifecycle} from './story-lifecycle.ts';
+import {registerStorySpecifications} from './story-specifications.ts';
+import {ensurePipelineTasks,isPipelineTask} from './pipeline-tasks.ts';
 
 type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;llm?:LLMProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
 const labels:Record<ItemKind,string>={system:'Sistema',project:'Projeto',epic:'Épico',story:'História',task:'Tarefa'};
-const approvers=new Set(['product_owner','admin']);
 const dataOf=(item:Item):Record<string,Prisma.JsonValue>=>item.data as Record<string,Prisma.JsonValue>;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
 const archiveQuery=z.object({includeArchived:z.enum(['true','false']).optional()});
@@ -93,11 +96,8 @@ export function createApp(options:Options){
     if(!saved||saved.digest!==digest)throw new DomainError('AUDIT_REVISION_CONFLICT','A revisão de auditoria diverge do conteúdo registrado.',409);
     return id;
   }
-  function protectProcessTask(item:Item){if(item.kind==='task'&&dataOf(item).workProcess)throw new DomainError('PROCESS_TASK_CONTROLLED','Esta Tarefa é controlada pelo executor. Use a atividade correspondente; edição manual não substitui suas evidências.',409);}
-  async function ensureNotArchived(tx:Transaction,item:Item){
-    const chain=[...await ancestors(tx,item),item];
-    if(chain.some(i=>i.kind==='project'&&['completed','cancelled'].includes(i.projectLifecycle??'')))throw new DomainError('PROJECT_CLOSED','Reabra o Projeto antes de alterar seu planejamento.',409);
-  }
+  function protectProcessTask(item:Item){if(item.kind==='task'&&(dataOf(item).workProcess||isPipelineTask(item)))throw new DomainError('PROCESS_TASK_CONTROLLED','Esta Tarefa é controlada pelo pipeline. Use a etapa correspondente; alteração manual não substitui suas evidências.',409);}
+  async function ensureNotArchived(tx:Transaction,item:Item){await ensureHierarchyWritable(tx,item);}
   async function repositoryScope(tx:Transaction,item:Item,includeArchived=false){
     const chain=[...await ancestors(tx,item,includeArchived),item];const system=chain.find(i=>i.kind==='system')!;
     const project=chain.find(i=>i.kind==='project');const story=chain.find(i=>i.kind==='story');
@@ -140,8 +140,21 @@ export function createApp(options:Options){
     const item=await live(tx,request.params.id,includeArchived);const parents=await ancestors(tx,item,includeArchived);
     const scope=await repositoryScope(tx,item,includeArchived);
     const history=await tx.historyEvent.findMany({where:{OR:[{itemId:item.id},{ancestorIds:{has:item.id}}]},orderBy:{timestamp:'desc'},take:100});
-    return {item,ancestors:parents,children:await tx.item.findMany({where:{parentId:item.id,...(includeArchived?{}:{archived:false})},orderBy:{createdAt:'asc'}}),repositories:scope.repositories,availableRepositories:scope.available,environments:item.kind==='system'?(await tx.environment.findMany({where:{repository:{systemId:item.id}},include:{repository:{select:{name:true}}}})).map(e=>({...e,repositoryName:e.repository.name})):[],history:history.map(safeHistoryEvent)};
+    const hierarchy=await hierarchyState(tx,item),parentState=await hierarchyState(tx,item,false);
+    return {item,ancestors:parents,hierarchy,readOnlyReason:hierarchy.reason??null,capabilities:{canMutate:!item.archived&&hierarchy.writable,canChangeLifecycle:!item.archived&&parentState.writable},children:await tx.item.findMany({where:{parentId:item.id,...(includeArchived?{}:{archived:false})},orderBy:{createdAt:'asc'}}),repositories:scope.repositories,availableRepositories:scope.available,environments:item.kind==='system'?(await tx.environment.findMany({where:{repository:{systemId:item.id}},include:{repository:{select:{name:true}}}})).map(e=>({...e,repositoryName:e.repository.name})):[],history:history.map(safeHistoryEvent)};
   }));
+  app.get<{Params:{id:string};Querystring:{page?:string;asOf?:string}}>('/api/items/:id/results',async request=>{
+    actor(request);
+    const query=z.object({page:z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).default(1),asOf:z.string().datetime({offset:true}).optional()}).strict().parse(request.query);
+    return db.$transaction(async tx=>{
+      const item=await live(tx,request.params.id,true);await ancestors(tx,item,true);
+      if(item.kind!=='task')throw new DomainError('TASK_REQUIRED','Resultados individuais pertencem à Tarefa.',409);
+      const asOf=query.asOf??(await tx.$queryRaw<{asOf:Date}[]>`SELECT CURRENT_TIMESTAMP(3) AS "asOf"`)[0].asOf.toISOString();
+      const where={taskId:item.id,createdAt:{lte:new Date(asOf)}};
+      const total=await tx.taskResultRevision.count({where}),totalPages=Math.max(1,Math.ceil(total/20)),page=Math.min(query.page,totalPages);
+      return {results:await tx.taskResultRevision.findMany({where,orderBy:[{version:'desc'},{id:'desc'}],skip:(page-1)*20,take:20}),pagination:{page,pageSize:20,total,totalPages},asOf,query:{page,asOf},readOnly:!(await hierarchyState(tx,item)).writable,coverage:{source:'TaskResultRevision',legacyResultAvailable:!!dataOf(item).taskResult&&!(dataOf(item).taskResult as Record<string,unknown>).resultId}};
+    },{isolationLevel:'RepeatableRead'});
+  });
   async function createItem(tx:Transaction,person:Persona,body:z.infer<typeof createItemSchema>,provenance:Record<string,string|number>={},creationAudit:AuditOptions={}){
       const expectedParent=parentKinds[body.kind];
       if(Boolean(body.parentId)!==Boolean(expectedParent))throw new DomainError('INVALID_PARENT','Escolha o nível correto para criar este item.');
@@ -159,12 +172,13 @@ export function createApp(options:Options){
         const prefix=body.kind==='story'?project!.key:parent!.key;
         key=`${prefix}-${body.kind==='epic'?'E':body.kind==='task'?'T':''}${number.value}`;
       }
-      const item=await tx.item.create({data:{kind:body.kind,parentId:parent?.id,parentKind:parent?.kind,key,name:body.name,description:body.description,status:statuses[body.kind][0],projectLifecycle:body.kind==='project'?'active':null,data:{...(body.kind==='project'?{code:body.key!}:body.kind==='system'?{code:body.key!,gitlabState:'pending'}:{}),...provenance}}});
+      const item=await tx.item.create({data:{kind:body.kind,parentId:parent?.id,parentKind:parent?.kind,key,name:body.name,description:body.description,status:statuses[body.kind][0],projectLifecycle:body.kind==='project'?'active':null,data:{...(body.kind==='project'?{code:body.key!}:body.kind==='system'?{code:body.key!,gitlabState:'pending'}:{}),...provenance,...(body.kind==='story'?{creationOrigin:provenance.planProposalId?'assistant':'manual'}:{})}}});
       if(body.kind==='system')await tx.provisioningJob.create({data:{itemId:item.id}});
       if(body.repositoryIds)await setRepositories(tx,item,body.repositoryIds);
       const revision=await descriptionRevision(tx,item);
       const executor=creationAudit.executor??person;
       await event(tx,item,executor,'ITEM_CREATED',`${labels[item.kind]} criado por ${executor.name}.`,{key:item.key,status:item.status,...provenance},creationAudit.executor?.type??'human',{...creationAudit,before:null,after:{key:item.key,name:item.name,status:item.status,version:item.version,archived:item.archived,parentId:item.parentId,projectLifecycle:item.projectLifecycle,repositoryIds:body.repositoryIds??[],descriptionRevision:revision}});
+      if(item.kind==='story')await ensurePipelineTasks(tx,item,person,createItem,creationAudit);
       return item;
   }
   app.post('/api/items',async request=>{
@@ -173,58 +187,84 @@ export function createApp(options:Options){
   });
   app.patch<{Params:{id:string}}>('/api/items/:id',async request=>{
     const body=editItemSchema.parse(request.body);
-    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);protectProcessTask(item);await ensureNotArchived(tx,item);const previousRevision=await descriptionRevision(tx,item);const changed=await tx.item.update({where:{id:item.id},data:{name:body.name,description:body.description,version:{increment:1}}});const nextRevision=await descriptionRevision(tx,changed);await event(tx,changed,person,'ITEM_UPDATED',`${labels[item.kind]} atualizado.`,{version:changed.version},'human',{before:{name:item.name,descriptionRevision:previousRevision,version:item.version},after:{name:changed.name,descriptionRevision:nextRevision,version:changed.version}});return {item:changed};});
+    return mutate(request,async(tx,person)=>{
+      const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);
+      if(dataOf(item).workProcess&&!isPipelineTask(item))protectProcessTask(item);
+      await ensureNotArchived(tx,item);
+      if(item.kind==='task'&&body.description!==item.description&&(dataOf(item).pipelineStage==='coding'||await tx.workTaskLink.count({where:{taskId:item.id}}))&&await tx.storyExecution.count({where:{storyId:item.parentId!,state:{in:['queued','running','paused','waiting_input','cancel_pending']}}}))throw new DomainError('TASK_SCOPE_BUSY','Encerre ou interrompa a tentativa antes de aplicar uma mudança no escopo da Tarefa. Um novo conteúdo exigirá novo G1.',409);
+      const previousRevision=await descriptionRevision(tx,item),changed=await tx.item.update({where:{id:item.id},data:{name:body.name,description:body.description,version:{increment:1}}}),nextRevision=await descriptionRevision(tx,changed);
+      await event(tx,changed,person,'ITEM_UPDATED',`${labels[item.kind]} atualizado.`,{version:changed.version},'human',{before:{name:item.name,descriptionRevision:previousRevision,version:item.version},after:{name:changed.name,descriptionRevision:nextRevision,version:changed.version}});return {item:changed};
+    });
   });
   app.post<{Params:{id:string}}>('/api/items/:id/approve',async request=>{
-    const body=versionSchema.parse(request.body);
-    return mutate(request,async(tx,person)=>{
-      if(!approvers.has(person.role))throw new DomainError('ROLE_DENIED','A aprovação exige Product Owner ou Admin.',403);
-      const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);await ensureNotArchived(tx,item);
-      if(!(item.kind==='project'&&item.status==='awaiting_approval'))throw new DomainError('INVALID_APPROVAL','Este item não está aguardando aprovação de planejamento.',409);
-      const changed=await tx.item.update({where:{id:item.id},data:{status:'approved',version:{increment:1}}});
-      await event(tx,changed,person,'PLANNING_APPROVED',`${labels[item.kind]} aprovado por ${person.name}. Isso não inicia o pipeline nem autoriza deploy.`,{},'human',{before:{status:item.status,version:item.version},after:{status:changed.status,version:changed.version},decision:'APPROVED'});return {item:changed};
-    });
+    versionSchema.parse(request.body);
+    return mutate(request,async()=>{throw new DomainError('PLANNING_APPROVAL_REMOVED','Projeto e Épico são agrupadores e não exigem aprovação própria. Use o G1 da História para autorizar a codificação.',409);});
   });
   app.patch<{Params:{id:string}}>('/api/items/:id/repositories',async request=>{
     const body=versionSchema.extend({repositoryIds:z.array(z.string().min(1)).max(100)}).strict().parse(request.body);
-    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);protectProcessTask(item);await ensureNotArchived(tx,item);const previous=await tx.itemRepository.findMany({where:{itemId:item.id},select:{repositoryId:true}});await setRepositories(tx,item,body.repositoryIds);const changed=await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});await event(tx,changed,person,'REPOSITORIES_SELECTED','Escopo de repositórios atualizado.',{repositoryIds:body.repositoryIds},'human',{before:{repositoryIds:previous.map(link=>link.repositoryId).sort(),version:item.version},after:{repositoryIds:[...new Set(body.repositoryIds)].sort(),version:changed.version}});return {item:changed};});
+    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);if(!isPipelineTask(item))protectProcessTask(item);await ensureNotArchived(tx,item);if((item.kind==='story'||item.kind==='task')&&await tx.storyExecution.count({where:{storyId:item.kind==='story'?item.id:item.parentId!,state:{in:['queued','running','paused','waiting_input','cancel_pending']}}}))throw new DomainError('EXECUTION_SCOPE_BUSY','Encerre ou interrompa a tentativa antes de alterar o componente da codificação.',409);const previous=await tx.itemRepository.findMany({where:{itemId:item.id},select:{repositoryId:true}});await setRepositories(tx,item,body.repositoryIds);const changed=await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});await event(tx,changed,person,'REPOSITORIES_SELECTED','Escopo de repositórios atualizado.',{repositoryIds:body.repositoryIds},'human',{before:{repositoryIds:previous.map(link=>link.repositoryId).sort(),version:item.version},after:{repositoryIds:[...new Set(body.repositoryIds)].sort(),version:changed.version}});return {item:changed};});
   });
+  async function changeGroupLifecycle(tx:Transaction,person:Persona,item:Item,to:string,comment?:string){
+    if(!['system','project','epic'].includes(item.kind))throw new DomainError('INVALID_ITEM','O ciclo de agrupador pertence ao Sistema, Projeto ou Épico.',409);
+    await ensureHierarchyWritable(tx,item,{includeSelf:false});
+    const from=itemLifecycle(item),transitions:Record<string,string[]>=item.kind==='system'?{active:['inactive'],inactive:['active']}:{active:['inactive','completed','cancelled'],inactive:['active'],completed:['active'],cancelled:['active']};
+    if(!transitions[from]?.includes(to))throw new DomainError('INVALID_TRANSITION','Transição de ciclo de vida inválida. Reative o agrupador antes de encerrar.',409);
+    if(['completed','cancelled'].includes(from)&&(!comment||comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.',422);
+    if(to!=='active')await assertNoRunningDescendants(tx,item);
+    if(['completed','cancelled'].includes(to)){
+      const children=(await descendantItems(tx,item)).filter(child=>child.id!==item.id);
+      if(children.some(child=>!isTerminalItem(child)))throw new DomainError('UNFINISHED_CHILDREN','Conclua ou cancele todos os descendentes antes de encerrar o agrupador. Arquivar não finaliza trabalho aberto.',409);
+      const directChildren=children.filter(child=>child.parentId===item.id);
+      if((to==='cancelled'||!directChildren.length||directChildren.every(child=>itemLifecycle(child)==='cancelled'))&&(!comment||comment.length<10))throw new DomainError('CLOSURE_REASON_REQUIRED','Justifique o encerramento com pelo menos 10 caracteres.',422);
+    }
+    if(to!=='active')await pauseHierarchyWork(tx,item,person);
+    const changed=await tx.item.update({where:{id:item.id},data:{status:to,...(item.kind==='project'?{projectLifecycle:to}:{}),version:{increment:1}}});
+    await event(tx,changed,person,item.kind==='project'?'PROJECT_LIFECYCLE_CHANGED':'STATUS_CHANGED','Ciclo do agrupador atualizado; estados dos descendentes e aprovações de conteúdo preservados.',{from,to},'human',{before:{status:item.status,projectLifecycle:item.projectLifecycle,version:item.version},after:{status:changed.status,projectLifecycle:changed.projectLifecycle,version:changed.version}});
+    return {item:changed};
+  }
   app.post<{Params:{id:string}}>('/api/items/:id/lifecycle',async request=>{
-    const body=versionSchema.extend({lifecycle:z.enum(['active','completed','cancelled']),comment:z.string().trim().max(2000).optional()}).strict().parse(request.body);
-    return mutate(request,async(tx,person)=>{
-      const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);if(item.kind!=='project')throw new DomainError('INVALID_ITEM','Ciclo de vida pertence ao Projeto.');
-      const from=item.projectLifecycle??'active';const transitions:Record<string,string[]>={active:['completed','cancelled'],completed:['active'],cancelled:['active']};
-      if(!transitions[from]?.includes(body.lifecycle))throw new DomainError('INVALID_TRANSITION','Transição de ciclo de vida inválida.',409);
-      if(['completed','cancelled'].includes(from)&&(!body.comment||body.comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.');
-      if(body.lifecycle==='completed'){const epics=await tx.item.findMany({where:{parentId:item.id,archived:false}});if(!epics.length||epics.some(e=>e.status!=='done'))throw new DomainError('UNFINISHED_EPICS','Conclua todos os Épicos antes de encerrar o Projeto.',409);}
-      const changed=await tx.item.update({where:{id:item.id},data:{projectLifecycle:body.lifecycle,version:{increment:1}}});await event(tx,changed,person,'PROJECT_LIFECYCLE_CHANGED','Ciclo de vida do Projeto atualizado; repositórios e ambientes preservados.',{from,to:body.lifecycle,comment:body.comment??null},'human',{before:{projectLifecycle:item.projectLifecycle,version:item.version},after:{projectLifecycle:changed.projectLifecycle,version:changed.version}});return {item:changed};
-    });
+    const body=versionSchema.extend({lifecycle:z.enum(['active','inactive','completed','cancelled']),comment:z.string().trim().max(2000).optional()}).strict().parse(request.body);
+    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);return changeGroupLifecycle(tx,person,item,body.lifecycle,body.comment);});
+  });
+  app.post<{Params:{id:string}}>('/api/items/:id/resume-work',async request=>{
+    const body=versionSchema.parse(request.body);
+    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);return {resumed:await resumeHierarchyWork(tx,item,person)};});
   });
   app.post<{Params:{id:string}}>('/api/items/:id/status',async request=>{
     const body=statusSchema.parse(request.body);
     return mutate(request,async(tx,person)=>{
-      const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);await ensureNotArchived(tx,item);
+      const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);
+      if(['system','project','epic'].includes(item.kind))return changeGroupLifecycle(tx,person,item,body.status,body.comment);
+      await ensureNotArchived(tx,item);
       protectProcessTask(item);
       if(item.kind==='task'&&await tx.workTaskLink.count({where:{taskId:item.id,completion:'publish_code'}}))throw new DomainError('PROCESS_TASK_CONTROLLED','Esta Tarefa está vinculada à publicação de código. Altere o vínculo da atividade para exigir evidência manual antes de mudar seu status.',409);
-      if(!['system','task','epic'].includes(item.kind))throw new DomainError('PIPELINE_STATUS_ONLY','O status da história é controlado pelo pipeline. Aprovações de planejamento têm ação própria.',409);
-      const transitions:Record<string,string[]>=item.kind==='system'?{active:['inactive'],inactive:['active']}:item.kind==='task'?{todo:['doing'],doing:['done','todo'],done:['doing']}:{todo:['doing'],doing:['done'],done:['doing']};
+      if(item.kind!=='task')throw new DomainError('PIPELINE_STATUS_ONLY','O status da História é controlado pelas ações de execução, cancelamento e reabertura.',409);
+      const transitions:Record<string,string[]>={todo:['doing','cancelled'],doing:['done','todo','cancelled'],done:['doing'],cancelled:['todo']};
       if(!transitions[item.status]?.includes(body.status))throw new DomainError('INVALID_TRANSITION','Transição de status não permitida.',409);
-      if(item.kind==='epic'&&body.status==='done'){
-        const children=await tx.item.findMany({where:{parentId:item.id,archived:false}});
-        if(!children.length||children.some(c=>c.status!=='completed'))throw new DomainError('UNFINISHED_STORIES','Conclua todas as histórias antes de encerrar o épico.',409);
-      }
-      if(item.status==='done'&&(!body.comment||body.comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.');
-      const changed=await tx.item.update({where:{id:item.id},data:{status:body.status,version:{increment:1}}});
+      if(['done','cancelled'].includes(item.status)&&(!body.comment||body.comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.');
+      if(body.status==='done'&&!body.result?.trim())throw new DomainError('TASK_RESULT_REQUIRED','Registre o que foi feito e o resultado obtido para concluir a Tarefa.',422);
+      const result=body.status==='done'?await tx.taskResultRevision.create({data:{taskId:item.id,version:item.version+1,summary:body.result!,evidence:body.evidence??[],actorId:person.id,actorName:person.name}}):null;
+      const changed=await tx.item.update({where:{id:item.id},data:{status:body.status,version:{increment:1},...(result?{data:json({...dataOf(item),taskResult:{resultId:result.id,summary:result.summary,evidence:result.evidence,revision:result.version,actorId:person.id,actorName:person.name,recordedAt:result.createdAt.toISOString()}})}:{})}});
+      if(result)await event(tx,changed,person,'TASK_RESULT_RECORDED','Resultado da Tarefa adicional registrado em sua fonte controlada.',{taskId:item.id,revision:changed.version},'human',{before:{revision:(dataOf(item).taskResult as Record<string,unknown>|undefined)?.revision??null},after:{revision:changed.version},evidence:[{type:'task_result_revision',id:result.id,revision:String(result.version),source:'TaskResultRevision'}]});
       await event(tx,changed,person,'STATUS_CHANGED',`Status alterado de ${statusLabels[item.status]} para ${statusLabels[body.status]}.`,{from:item.status,to:body.status,comment:body.comment??null},'human',{before:{status:item.status,version:item.version},after:{status:changed.status,version:changed.version}});return {item:changed};
     });
   });
   app.delete<{Params:{id:string}}>('/api/items/:id',async request=>{
-    const body=versionSchema.parse(request.body);
+    const body=versionSchema.extend({comment:z.string().trim().max(2000).optional()}).strict().parse(request.body);
     return mutate(request,async(tx,person)=>{
       const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);
       protectProcessTask(item);
-      const queue=[item];
-      for(let i=0;i<queue.length;i++)queue.push(...await tx.item.findMany({where:{parentId:queue[i].id,archived:false}}));
+      const tree=await descendantItems(tx,item);
+      if(item.kind==='system'){
+        if(item.status!=='inactive')throw new DomainError('SYSTEM_ARCHIVE_REQUIRES_INACTIVE','Inative o Sistema antes de arquivá-lo.',409);
+        if(!body.comment||body.comment.length<10)throw new DomainError('ARCHIVE_REASON_REQUIRED','Justifique o arquivamento do Sistema com pelo menos 10 caracteres.',422);
+      }else{
+        await ensureHierarchyWritable(tx,item,{includeSelf:false});
+        if(!isTerminalItem(item))throw new DomainError('ARCHIVE_REQUIRES_FINALIZED','Conclua ou cancele o item antes de arquivá-lo. Inatividade é uma pausa.',409);
+      }
+      if(tree.some(child=>child.id!==item.id&&!isTerminalItem(child)))throw new DomainError('UNFINISHED_CHILDREN','Há descendentes abertos. Finalize-os antes de arquivar.',409);
+      await assertNoRunningDescendants(tx,item);
+      const queue=tree.filter(child=>!child.archived);
       // Children first so ancestor lookups remain available for audit events.
       for(const child of queue.reverse()){
         const changed=await tx.item.update({where:{id:child.id},data:{archived:true,version:{increment:1}}});
@@ -242,6 +282,9 @@ export function createApp(options:Options){
     if(!job||job.item.archived||job.state==='succeeded'||job.state==='cancelled')return;
     if(!manual&&job.attempts>=3)return;
     const audit=await db.$transaction(async tx=>{
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(741852963)`;
+      const current=await tx.item.findUniqueOrThrow({where:{id:itemId}});
+      if(!(await hierarchyState(tx,current)).writable)return null;
       const claimed=await tx.provisioningJob.updateMany({where:{itemId,OR:[{state:{in:['pending','failed','not_configured']}},{state:'running',updatedAt:{lt:new Date(Date.now()-120000)}}]},data:{state:'running',attempts:{increment:1}}});
       if(!claimed.count)return null;
       const request=await tx.historyEvent.findFirst({where:{itemId,action:{in:['ITEM_CREATED','GITLAB_RETRY_REQUESTED']}},orderBy:[{timestamp:'desc'},{id:'desc'}]});
@@ -282,7 +325,7 @@ export function createApp(options:Options){
   }
   app.post<{Params:{id:string}}>('/api/items/:id/provision',async request=>{
     const body=versionSchema.parse(request.body);
-    const result=await mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);if(item.kind!=='system')throw new DomainError('INVALID_ITEM','Somente Sistemas provisionam grupos GitLab.');const job=await tx.provisioningJob.findUniqueOrThrow({where:{itemId:item.id}});if(job.state==='running'&&job.updatedAt>new Date(Date.now()-120000))throw new DomainError('PROVISIONING_RUNNING','O provisionamento já está em execução. Aguarde sua conclusão.',409);if(job.state==='succeeded')return {item};await tx.provisioningJob.update({where:{itemId:item.id},data:{state:'pending',attempts:0}});await event(tx,item,person,'GITLAB_RETRY_REQUESTED','Nova tentativa de provisionamento solicitada.',{});return {item};});
+    const result=await mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);await ensureNotArchived(tx,item);if(item.kind!=='system')throw new DomainError('INVALID_ITEM','Somente Sistemas provisionam grupos GitLab.');const job=await tx.provisioningJob.findUniqueOrThrow({where:{itemId:item.id}});if(job.state==='running'&&job.updatedAt>new Date(Date.now()-120000))throw new DomainError('PROVISIONING_RUNNING','O provisionamento já está em execução. Aguarde sua conclusão.',409);if(job.state==='succeeded')return {item};await tx.provisioningJob.update({where:{itemId:item.id},data:{state:'pending',attempts:0}});await event(tx,item,person,'GITLAB_RETRY_REQUESTED','Nova tentativa de provisionamento solicitada.',{});return {item};});
     await provision(request.params.id,true);return result;
   });
   const repositorySchema=z.object({name:z.string().trim().min(1).max(120),key:z.string().trim().toLowerCase().regex(/^[a-z][a-z0-9-]{1,39}$/),runtime:z.enum(['node','python']),mode:z.enum(['create','link']),gitlabProjectId:z.number().int().positive().optional()}).strict();
@@ -294,6 +337,7 @@ export function createApp(options:Options){
     const remote=body.mode==='link'?await git!.inspectProject(body.gitlabProjectId!):undefined;
     return mutate(request,async(tx,person)=>{
       const system=await live(tx,request.params.id);if(system.kind!=='system')throw new DomainError('INVALID_ITEM','Repositórios pertencem ao Sistema.');
+      await ensureNotArchived(tx,system);
       const repository=await tx.repository.create({data:{systemId:system.id,name:body.name,key:body.key,runtime:body.runtime,mode:body.mode,...(remote?{gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace,gitlabUrl:remote.web_url,state:'ready'}:{})}});
       await tx.environment.createMany({data:['QA','HML','PRD'].map(code=>({repositoryId:repository.id,code}))});
       await event(tx,system,person,remote?'REPOSITORY_LINKED':'REPOSITORY_REQUESTED',remote?'Repositório existente vinculado ao Sistema sem alterar seu conteúdo.':'Criação de repositório do Sistema solicitada.',{repositoryId:repository.id,gitlabProjectId:remote?.id??null},'human',{subject:{type:'repository',id:repository.id,key:repository.key,name:repository.name,version:repository.version},before:null,after:{key:repository.key,name:repository.name,state:repository.state,gitlabProjectId:repository.gitlabProjectId,gitlabPath:repository.gitlabPath,version:repository.version}});return {repository};
@@ -304,6 +348,7 @@ export function createApp(options:Options){
     return mutate(request,async(tx,person)=>{
       const repository=await tx.repository.findUnique({where:{id:request.params.id}});if(!repository)throw new DomainError('REPOSITORY_NOT_FOUND','Repositório não encontrado.',404);
       const system=await live(tx,repository.systemId);if(repository.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','Atualize os dados antes de tentar novamente.',409);
+      await ensureNotArchived(tx,system);
       if(repository.state==='ready')return {repository};
       if(repository.state==='running'&&repository.updatedAt>new Date(Date.now()-120000))throw new DomainError('PROVISIONING_RUNNING','Provisionamento em execução.',409);
       const changed=await tx.repository.update({where:{id:repository.id},data:{state:'pending',attempts:0,version:{increment:1}}});await event(tx,system,person,'REPOSITORY_RETRY_REQUESTED','Nova tentativa de criação do repositório solicitada.',{repositoryId:repository.id});return {repository:changed};
@@ -312,6 +357,9 @@ export function createApp(options:Options){
   async function provisionRepository(id:string){
     const repository=await db.repository.findUnique({where:{id},include:{system:true}});if(!repository||repository.system.archived||repository.mode!=='create'||repository.state==='ready')return;
     const audit=await db.$transaction(async tx=>{
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(741852963)`;
+      const current=await tx.item.findUniqueOrThrow({where:{id:repository.systemId}});
+      if(!(await hierarchyState(tx,current)).writable)return null;
       const claimed=await tx.repository.updateMany({where:{id,attempts:{lt:3},OR:[{state:{in:['pending','failed']}},{state:'running',updatedAt:{lt:new Date(Date.now()-120000)}}]},data:{state:'running',attempts:{increment:1}}});if(!claimed.count)return null;
       const requests=await tx.historyEvent.findMany({where:{itemId:repository.systemId,action:{in:['REPOSITORY_REQUESTED','REPOSITORY_RETRY_REQUESTED']}},orderBy:[{timestamp:'desc'},{id:'desc'}]});
       const request=requests.find(row=>(row.payload as Record<string,unknown>).repositoryId===id);
@@ -376,6 +424,8 @@ export function createApp(options:Options){
   let processing=false;
   async function processJobs(){if(processing)return;processing=true;try{const jobs=await db.provisioningJob.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3}},orderBy:{updatedAt:'asc'},take:10});for(const job of jobs)await provision(job.itemId);const repositories=await db.repository.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3},system:{archived:false}},orderBy:{updatedAt:'asc'},take:10});for(const repository of repositories)await provisionRepository(repository.id);}finally{processing=false;}}
   const assistantHelpers={db,llm:options.llm,actor,canPlan,mutate,live,ancestors,ensureNotArchived,event,createItem,isProbeRunning:()=>inferenceRunning};
+  registerStoryLifecycle(app,assistantHelpers);
+  registerStorySpecifications(app,assistantHelpers);
   registerReleases(app,assistantHelpers);
   registerConversations(app,assistantHelpers);
   const {processChatJobs}=registerAssistant(app,assistantHelpers);

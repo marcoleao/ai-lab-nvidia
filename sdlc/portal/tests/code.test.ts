@@ -1,7 +1,17 @@
 import {test,expect,vi,afterEach} from 'vitest';
-import {validatePatch} from '../apps/api/src/code-schema.ts';
+import {validatePatch,specificationSchemaForCriteria} from '../apps/api/src/code-schema.ts';
 import {GitLabProvider} from '../apps/api/src/gitlab.ts';
 afterEach(()=>vi.unstubAllGlobals());
+
+test('technical generation constrains criterion references rather than numbering test cases',()=>{
+ const specification={requirements:'Implementar o dobro de um número.',architecture:'Função pura em módulo ES isolado.',risks:[],testCases:[{criterionIndex:0,description:'O dobro de três deve retornar seis.'},{criterionIndex:0,description:'O dobro de zero deve retornar zero.'}]};
+ const schema=specificationSchemaForCriteria(1);
+ expect(schema.parse(specification).testCases).toHaveLength(2);
+ const invalid={...specification,testCases:[specification.testCases[0],{...specification.testCases[1],criterionIndex:1}]};
+ expect(schema.safeParse(invalid).success).toBe(false);
+ expect(specificationSchemaForCriteria(2).safeParse(invalid).success).toBe(true);
+ expect(()=>specificationSchemaForCriteria(0)).toThrow();
+});
 test('code patch rejects infrastructure, traversal, duplicate paths and empty output',()=>{
   for(const path of ['../secret.py','.gitlab-ci.yml','src/../secret.py','package.json','src/.env.py','Dockerfile','src/a.ts/../../a.py'])expect(()=>validatePatch({summary:'Test',files:[{path,content:'code'}]})).toThrow();
   expect(()=>validatePatch({summary:'Test',files:[{path:'src/a.py',content:'x'},{path:'src/A.py',content:'y'}]})).toThrow();

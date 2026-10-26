@@ -36,6 +36,7 @@ function evidence(value:AuditEvidence):AuditEvidence{
 function target(value:AuditTarget):AuditTarget{return {type:identifier(value.type,'TARGET_TYPE'),id:identifier(value.id,'TARGET'),...(value.key?{key:safeAuditText(value.key)}:{}),...(value.name?{name:safeAuditText(value.name)}:{}),...(Number.isInteger(value.version)&&value.version!>=0?{version:value.version}:{})};}
 const publicFields=new Set(['id','kind','key','name','status','version','archived','parentId','parentKind','projectLifecycle','repositoryIds','taskIds','taskId','releaseId','fromReleaseId','toReleaseId','plannedStoryVersion','gitlabState','gitlabGroupId','gitlabGroupPath','gitlabProjectId','gitlabPath','state','stage','attempts','currentAttemptId','currentVersion','currentPackageDigest','decision','gate','sha','commitSha','baseSha','policyVersion','revision','sourceBranch','targetBranch','allowDependencies','completion','scope','links','stories','storyId','repositoryId','storyVersion','releaseVersion','descriptionRevision','descriptionDigest']);
 for(const field of ['linkId','sourceType','sourceId','sourceVersion','projectId','planProposalId','planRevision','sourceTurnId'])publicFields.add(field);
+for(const field of ['creationOrigin','pipelineStage','revisionId','revisionNumber','draftVersion','baseRevision','resultId','source','count'])publicFields.add(field);
 type AuditJson=Extract<AuditChange['before'],{kind:'value'}>['value'];
 function cleanValue(value:unknown,depth=0):AuditJson{
   if(depth>5)throw new Error('AUDIT_VALUE_TOO_DEEP');
@@ -86,6 +87,8 @@ export function safePublicAudit(value:unknown):AuditEnvelope|null{
 const payloadScalars=new Set(['metricsVersion','key','status','version','releaseVersion','plannedStoryVersion','projectLifecycle','from','to','state','result','outcome','durationMs','processingMs','queueMs','runId','executionId','operationId','activityId','attemptId','turnId','messageId','proposalId','checkId','releaseId','repositoryId','projectId','previousRunId','fromReleaseId','toReleaseId','correlationId','requestId','commitSha','sha','baseSha','revision','gate','stage','kind','policyVersion','errorCode','model','retry','ready','origin','mergedBy','gitlabGroupId','gitlabGroupPath','gitlabProjectId','gitlabPath','name','storyCount','storyId','storyVersion','removed','workProcess','workKind','workScopeKey']);
 const payloadArrays=new Set(['itemIds','taskIds','repositoryIds','transferredStoryIds','fromReleaseIds','categories']);
 for(const field of ['linkId','sourceType','sourceId','sourceVersion','planProposalId','planRevision','sourceTurnId'])payloadScalars.add(field);
+for(const field of ['creationOrigin','pipelineStage','revisionId','revisionNumber','draftVersion','baseRevision','resultId','source','initial'])payloadScalars.add(field);
+payloadArrays.add('changedSections');
 export function safeStoredPayload(value:unknown):Prisma.InputJsonValue{
   const result:Record<string,Prisma.JsonValue>={};
   for(const [key,field] of Object.entries(plain(value))){

@@ -7,6 +7,7 @@ import './dashboard-navigation.css';
 import MergeMetrics,{type MergeMetricsData} from './merge-metrics';
 import WorkMetrics,{type WorkMetricsData} from './work-metrics';
 import AssistantMetrics,{type AssistantMetricsData} from './assistant-metrics';
+import StoryMetrics,{type StoryMetricsData} from './story-metrics';
 import {ErrorState,FilterPanel,LoadingState,Spinner} from './experience-ui';
 
 type Kind='system'|'project'|'epic'|'story'|'task';
@@ -16,7 +17,7 @@ type FilterOptions={users:{id:string;name:string}[];systems:{id:string;name:stri
 const emptyFilters:Filters={userId:'',systemId:'',projectId:''};
 const queryOf=(filters:Filters)=>{const query=new URLSearchParams();for(const [key,value] of Object.entries(filters))if(value)query.set(key,value);return query.toString();};
 const filtersFromURL=():Filters=>{const query=new URLSearchParams(window.location.search);return {userId:query.get('userId')||'',systemId:query.get('systemId')||'',projectId:query.get('systemId')?(query.get('projectId')||''):''};};
-const sections=[{key:'inventory',label:'Inventário'},{key:'flow',label:'Fluxo semanal'},{key:'rework',label:'Retrabalho'},{key:'aging',label:'Tempo em aberto'},{key:'dora',label:'DORA'},{key:'releases',label:'Releases'},{key:'merges',label:'Merge Requests'},{key:'activities',label:'Atividades'},{key:'assistant',label:'Assistente'}] as const;
+const sections=[{key:'inventory',label:'Inventário'},{key:'flow',label:'Fluxo semanal'},{key:'rework',label:'Retrabalho'},{key:'aging',label:'Tempo em aberto'},{key:'dora',label:'DORA'},{key:'releases',label:'Releases'},{key:'merges',label:'Merge Requests'},{key:'activities',label:'Atividades'},{key:'assistant',label:'Assistente'},{key:'stories',label:'Histórias'}] as const;
 type Section=typeof sections[number]['key'];
 const sectionFromURL=():Section=>sections.find(section=>window.location.hash===`#dashboard-${section.key}`)?.key||'inventory';
 export type DashboardData={
@@ -24,7 +25,7 @@ export type DashboardData={
  filters?:Partial<Filters>;filterOptions?:FilterOptions;
  releaseMetrics?:ReleaseMetricsData;
  merges?:MergeMetricsData;
- work?:WorkMetricsData; assistant?:AssistantMetricsData;
+ work?:WorkMetricsData; assistant?:AssistantMetricsData; stories?:StoryMetricsData;
  inventory:{kind:Kind;total:number;archivedTotal:number;statuses:{status:string;count:number}[];lifecycle?:{status:string;count:number}[]}[];
  weeks:{start:string;end:string;label:string;partial:boolean;metrics:Metric[]}[];
  aging:{kind:Kind;total:number;buckets:{key:string;label:string;count:number}[]}[];
@@ -80,6 +81,7 @@ export default function Dashboard(){
    {section==='merges'&&<MergeMetrics data={data.merges}/>}
    {section==='activities'&&<WorkMetrics data={data.work}/>}
    {section==='assistant'&&<AssistantMetrics data={data.assistant}/>}
+   {section==='stories'&&<StoryMetrics data={data.stories}/>}
    {data.notes?.length?<details className="panel dashboard-notes"><summary>Como interpretar estes indicadores</summary><ul>{data.notes.map(note=><li key={note}>{note}</li>)}</ul></details>:null}
   </>}
  </div>;

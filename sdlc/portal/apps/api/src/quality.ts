@@ -1,3 +1,4 @@
+import {hierarchyState} from './lifecycle-policy.ts';
 import {createHash,randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import type {FastifyInstance} from 'fastify';
@@ -6,7 +7,7 @@ import type {GitProvider,CodeContext} from './gitlab.ts';
 import type {Prisma} from '../../../packages/db/generated/client.ts';
 import {DomainError} from './errors.ts';
 import {mergeReadiness,qualityPolicy,qualityRulesDigest} from './merge-readiness.ts';
-import {checkExecutionScope} from './execution.ts';
+import {checkExecutionScope,executionStoryVersionCurrent} from './execution.ts';
 import {enqueueAttempt,currentAttempt,startAttempt,finishAttempt,progress,withWorkHeartbeat,workErrorCategory,invalidateActivities} from './work-activities.ts';
 
 const json=(v:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(v));
@@ -27,7 +28,7 @@ export function registerQuality(app:FastifyInstance,h:AssistantHelpers,git?:GitP
    if(!configured)throw new DomainError('QUALITY_NOT_CONFIGURED','Configure o modelo local, o GitLab e o scanner antes de executar as verificações.',503);
    const run=await tx.storyExecution.findUniqueOrThrow({where:{id:request.params.id}}),story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);
    const operation=await tx.mergeOperation.findUnique({where:{executionId:run.id}});
-   if(!operation||run.state!=='succeeded'||run.commitSha!==body.expectedSha||run.storyVersion!==story.version||story.version!==body.expectedVersion)throw new DomainError('QUALITY_STALE','A entrega mudou. Atualize antes de iniciar a verificação.',409);
+   if(!operation||run.state!=='succeeded'||run.commitSha!==body.expectedSha||!executionStoryVersionCurrent(run,story)||story.version!==body.expectedVersion)throw new DomainError('QUALITY_STALE','A entrega mudou. Atualize antes de iniciar a verificação.',409);
    const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('QUALITY_STALE',scope.reason||'O escopo aprovado mudou. Prepare nova especificação e G1.',409);
    if(['queued','running','succeeded'].includes(operation.state))throw new DomainError('MERGE_BUSY','A integração já foi solicitada ou concluída. Consulte o resultado antes de verificar novamente.',409);
    const links=await tx.itemRepository.findMany({where:{itemId:story.id}});if(links.length!==1||links[0].repositoryId!==run.repositoryId)throw new DomainError('QUALITY_STALE','O vínculo do repositório mudou.',409);
@@ -52,7 +53,7 @@ export function registerQuality(app:FastifyInstance,h:AssistantHelpers,git?:GitP
    if(!h.llm||!git?.publishCorrection)throw new DomainError('QUALITY_CORRECTION_UNAVAILABLE','A integração de correção ainda não está configurada.',503);
    const run=await tx.storyExecution.findUniqueOrThrow({where:{id:request.params.id}}),story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);
    const check=await tx.qualityCheck.findUniqueOrThrow({where:{id:body.checkId}}),operation=await tx.mergeOperation.findUnique({where:{executionId:run.id}});
-   if(run.state!=='succeeded'||run.commitSha!==body.expectedSha||story.version!==body.expectedVersion||run.storyVersion!==story.version||check.executionId!==run.id||check.sha!==run.commitSha||check.state!=='blocked'||!operation||['queued','running','succeeded'].includes(operation.state))throw new DomainError('QUALITY_STALE','Este resultado não pode mais iniciar uma correção. Atualize a entrega.',409);
+   if(run.state!=='succeeded'||run.commitSha!==body.expectedSha||story.version!==body.expectedVersion||!executionStoryVersionCurrent(run,story)||check.executionId!==run.id||check.sha!==run.commitSha||check.state!=='blocked'||!operation||['queued','running','succeeded'].includes(operation.state))throw new DomainError('QUALITY_STALE','Este resultado não pode mais iniciar uma correção. Atualize a entrega.',409);
    const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('QUALITY_STALE',scope.reason||'O escopo aprovado mudou. Prepare nova especificação e G1.',409);
    if(await tx.qualityCheck.count({where:{executionId:run.id,state:{in:['queued','running']}}}))throw new DomainError('QUALITY_BUSY','Aguarde a verificação atual.',409);
    const latest=await tx.qualityCheck.findFirst({where:{executionId:run.id,kind:check.kind},orderBy:[{createdAt:'desc'},{id:'desc'}]});if(latest?.id!==check.id)throw new DomainError('QUALITY_STALE','Há um resultado mais recente. Consulte-o antes de solicitar correção.',409);
@@ -77,6 +78,7 @@ export function registerQuality(app:FastifyInstance,h:AssistantHelpers,git?:GitP
     for(const old of expired){await tx.qualityCheck.update({where:{id:old.id},data:{state:'failed',error:'Verificação interrompida. Execute novamente; nenhuma aprovação foi presumida.',finishedAt:now,leaseId:null,leaseUntil:null}});await finishAttempt(tx,h,`quality:${old.id}`,{state:'failed',summary:'Verificação interrompida; concessão expirada.',category:'provider_unavailable'});await h.event(tx,await h.live(tx,old.storyId),{id:'agent:quality',name:'Agente de qualidade'},'QUALITY_CHECK_FAILED','Verificação interrompida.',{metricsVersion:1,runId:old.executionId,checkId:old.id,kind:old.kind,errorCode:'LEASE_EXPIRED'},'agent',{before:{state:old.state},after:{state:'failed'},initiator:{id:old.actorId,name:old.actorName,type:'human'},operationId:old.id,subject:{type:'quality_check',id:old.id},reasonCode:'LEASE_EXPIRED',decision:'NOT_EVALUATED'});}
     if(await tx.qualityCheck.count({where:{state:'running',leaseUntil:{gt:now}}})||await tx.mergeDiscussionTurn.count({where:{state:'running',leaseUntil:{gt:now}}})||await tx.chatTurn.count({where:{status:{in:['running','cancelled']},leaseUntil:{gt:now}}})||await tx.storyExecution.count({where:{state:{in:['running','cancelled']},leaseUntil:{gt:now}}}))return null;
     const next=await tx.qualityCheck.findFirst({where:{state:'queued'},orderBy:{createdAt:'asc'}});if(!next)return null;
+    const queuedStory=await tx.item.findUnique({where:{id:next.storyId}});if(!queuedStory||!(await hierarchyState(tx,queuedStory)).writable)return null;
     const claimed=await tx.qualityCheck.update({where:{id:next.id},data:{state:'running',leaseId:randomUUID(),leaseUntil:new Date(Date.now()+1200000)}});
     await startAttempt(tx,`quality:${claimed.id}`,claimed.leaseId!,'context');return claimed;
    });
@@ -86,7 +88,7 @@ export function registerQuality(app:FastifyInstance,h:AssistantHelpers,git?:GitP
    try{
     await withWorkHeartbeat(h.db,workKey,check.leaseId,async()=>{
     const run=await h.db.storyExecution.findUniqueOrThrow({where:{id:check.executionId}}),operation=await h.db.mergeOperation.findUniqueOrThrow({where:{executionId:run.id}}),repository=await h.db.repository.findUniqueOrThrow({where:{id:run.repositoryId}});
-    await h.db.$transaction(async tx=>{const story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);if(story.version!==run.storyVersion||run.commitSha!==check.sha||run.state!=='succeeded')throw new DomainError('QUALITY_STALE','Entrega mudou durante a verificação.',409);const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('QUALITY_STALE',scope.reason||'O escopo aprovado mudou.',409);});
+    await h.db.$transaction(async tx=>{const story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);if(!executionStoryVersionCurrent(run,story)||run.commitSha!==check.sha||run.state!=='succeeded')throw new DomainError('QUALITY_STALE','Entrega mudou durante a verificação.',409);const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('QUALITY_STALE',scope.reason||'O escopo aprovado mudou.',409);});
     await reportProgress('gitlab_context','Consultando o commit, a base e os arquivos reais da revisão.','gitlab');
     const context=await git!.qualityContext!(operation.projectId,operation.iid,check.sha,check.baseSha);
     await reportProgress('context_received','Contexto da revisão recebido do GitLab.','gitlab');
@@ -137,7 +139,7 @@ export function registerQuality(app:FastifyInstance,h:AssistantHelpers,git?:GitP
     if(!current.leaseUntil||current.leaseUntil.getTime()<=Date.now()){state='failed';error='Prazo do executor expirado. Execute novamente; nenhuma aprovação foi presumida.';errorCategory='provider_unavailable';}
     const run=await tx.storyExecution.findUniqueOrThrow({where:{id:check.executionId}}),story=await h.live(tx,check.storyId);
     try{await h.ensureNotArchived(tx,story);}catch{state='stale';error='Contexto arquivado ou encerrado durante a análise.';}
-    if(run.commitSha!==check.sha||run.state!=='succeeded'||run.storyVersion!==story.version){state='stale';error='Entrega mudou durante a verificação.';}
+    if(run.commitSha!==check.sha||run.state!=='succeeded'||!executionStoryVersionCurrent(run,story)){state='stale';error='Entrega mudou durante a verificação.';}
     const scope=await checkExecutionScope(h,tx,run);if(!scope.current){state='stale';error=scope.reason||'O escopo aprovado mudou durante a verificação.';errorCategory='changed_scope';}
     await tx.qualityCheck.update({where:{id:check.id},data:{state,summary,findings:json(findings),evidence:json(evidence),error,finishedAt:new Date(),leaseId:null,leaseUntil:null}});
     await finishAttempt(tx,h,workKey,{state:state==='passed'?'succeeded':state,summary:error||summary,category:state==='blocked'?(check.kind==='security_scan'?'security_finding':'code_finding'):errorCategory,revision:check.sha,completeTask:state==='passed',leaseId:check.leaseId});

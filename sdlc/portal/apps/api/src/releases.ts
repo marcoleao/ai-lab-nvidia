@@ -123,7 +123,7 @@ export function registerReleases(app:FastifyInstance,h:Helpers){
   app.post('/api/releases',async request=>{
     const body=z.object({systemId:z.string().min(1),name:z.string().trim().min(3).max(100)}).strict().parse(request.body);
     return mutate(request,managers,async(tx,person)=>{
-      await system(tx,body.systemId);
+      await h.ensureNotArchived(tx,await system(tx,body.systemId));
       const counter=await tx.counter.upsert({where:{scope:'release'},create:{scope:'release',value:1},update:{value:{increment:1}}});
       const created=await tx.release.create({data:{systemId:body.systemId,name:body.name,key:`REL-${counter.value}`,createdById:person.id,createdByName:person.name},include:summaryInclude});
       await record(tx,created,person,'RELEASE_CREATED','Release criada em DRAFT; composição vazia, sem pacote, aprovação ou implantação.',{name:created.name,stage:'DRAFT',storyCount:0},{before:null,after:{name:created.name,stage:created.stage,version:created.version}});
@@ -172,7 +172,7 @@ export function registerReleases(app:FastifyInstance,h:Helpers){
   app.put<{Params:{id:string}}>('/api/releases/:id/stories',{bodyLimit:512*1024},async request=>{
     const body=z.object({expectedVersion:expected,stories:z.array(selection).max(500)}).strict().parse(request.body);
     return mutate(request,managers,async(tx,person)=>{
-      const target=await release(tx,request.params.id);editable(target);checkVersion(target.version,body.expectedVersion);
+      const target=await release(tx,request.params.id);editable(target);await h.ensureNotArchived(tx,await system(tx,target.systemId));checkVersion(target.version,body.expectedVersion);
       if(new Set(body.stories.map(row=>row.id)).size!==body.stories.length)throw new DomainError('DUPLICATE_STORY','Cada História deve aparecer apenas uma vez.');
       const before=await tx.releaseStory.findMany({where:{releaseId:target.id},orderBy:{storyId:'asc'}});
       const sources=new Map<string,Release>();

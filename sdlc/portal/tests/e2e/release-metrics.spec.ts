@@ -137,7 +137,7 @@ test('persisted releases feed the dashboard with empty drafts and actual Project
  expect((await (await request.get('/api/health')).json()).databaseMode).toBe('test');
  const headers=(persona='admin')=>({'X-Persona':persona,'Idempotency-Key':crypto.randomUUID()});
  const create=async(kind:string,parentId?:string)=>{
-  const response=await request.post('/api/items',{headers:headers(),data:{kind,name:`${kind} de métricas de releases`,description:'Criado somente no banco isolado para testar os indicadores persistidos.',...(parentId?{parentId}:{}),...(kind==='system'?{key:systemKey()}:kind==='project'?{key:`M${crypto.randomUUID().replaceAll('-','').slice(0,8).toUpperCase()}`}:{})}});
+  const response=await request.post('/api/items',{headers:headers(),data:{kind,name:`${kind} de métricas de releases`,description:'Criado somente no banco isolado para testar os indicadores persistidos.',...(parentId?{parentId}:{}),...(kind==='system'?{key:systemKey()}:kind==='project'?{key:systemKey()}:{})}});
   expect(response.ok(),await response.text()).toBe(true);return (await response.json()).item;
  };
  const system=await create('system');

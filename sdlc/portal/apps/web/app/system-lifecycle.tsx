@@ -16,7 +16,7 @@ export default function SystemLifecycle({ value, version, enabled, onChange }: {
   return <LifecyclePanel title="Ciclo do Sistema" description="O Sistema é um produto contínuo. A ativação e a inativação são reversíveis e preservam Projetos, repositórios, ambientes e histórico." value={value} stages={['active', 'inactive']} busy={busy} error={error}>
     <div className="actions"><button type="button" disabled={!enabled || busy || !next} onClick={() => void change()}>{value === 'active' ? 'Inativar · INACTIVE' : 'Reativar · ACTIVE'}</button></div>
     {!enabled && <p className="hint">Para alterar o ciclo, selecione uma persona Administrador, Product Owner ou Arquiteto.</p>}
-    <p className="hint">Inativação e arquivamento são operações separadas. A aprovação e o ciclo dos Projetos permanecem independentes.</p>
+    <p className="hint">A pausa bloqueia alterações e novos trabalhos em toda a árvore. Operações em andamento precisam terminar ou ser interrompidas antes. Reativar não inicia agentes automaticamente.</p>
     {notice && <p className="alert success" role="status">{notice}</p>}
   </LifecyclePanel>;
 }

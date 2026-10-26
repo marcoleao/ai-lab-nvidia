@@ -10,7 +10,7 @@ const pageSize=20;
 const booleanQuery=z.enum(['true','false']).default('false');
 const pageQuery=z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).default(1);
 const directionQuery=z.enum(['asc','desc']);
-const lifecycle=['planned','active','completed','cancelled'] as const;
+const lifecycle=['planned','active','inactive','completed','cancelled'] as const;
 const idsQuery=z.string().max(161000).refine(value=>value==='none'||(value.split(',').length<=1000&&value.split(',').every(id=>id.length>0&&id.length<=160)),'Informe até 1000 identificadores válidos.').optional();
 const itemQuery=z.object({
   kind:z.enum(kinds),parentId:z.string().trim().min(1).max(160).optional(),
@@ -132,6 +132,7 @@ export function registerCollections(app:FastifyInstance,db:Database,authorizeGlo
       if(query.projectId)scope.push(Prisma.sql`EXISTS (SELECT 1 FROM "Item" epic WHERE epic.id=i."parentId" AND epic.kind='epic' AND epic."parentId"=${query.projectId} ${includeArchived?Prisma.sql``:Prisma.sql`AND epic.archived=false`})`);
       const defaultVisibility=query.kind==='system'?Prisma.sql`i.archived = false AND i.status = 'active'`
         :query.kind==='project'?Prisma.sql`i.archived = false AND i."projectLifecycle" = 'active'`
+        :query.kind==='epic'?Prisma.sql`i.archived = false AND i.status IN ('active','todo','doing','approved')`
         :Prisma.sql`i.archived = false`;
       const [{count:extraCount}]=await tx.$queryRaw<{count:number}[]>`SELECT COUNT(*)::integer AS count FROM "Item" i WHERE ${and(scope)} AND NOT (${defaultVisibility})`;
       const filters=[...scope];
@@ -140,14 +141,21 @@ export function registerCollections(app:FastifyInstance,db:Database,authorizeGlo
       if(query.includeInactive!=='true'&&!archiveContext){
         if(query.kind==='system')filters.push(Prisma.sql`i.status = 'active'`);
         if(query.kind==='project')filters.push(Prisma.sql`i."projectLifecycle" = 'active'`);
+        if(query.kind==='epic')filters.push(Prisma.sql`i.status IN ('active','todo','doing','approved')`);
       }
       if(query.q){const pattern=like(query.q);filters.push(Prisma.sql`(i.name ILIKE ${pattern} OR i.key ILIKE ${pattern})`);}
-      if(query.status)filters.push(Prisma.sql`i.status = ${query.status}`);
+      if(query.status){
+        if(query.kind==='epic'&&query.status==='active')filters.push(Prisma.sql`i.status IN ('active','todo','doing','approved')`);
+        else if(query.kind==='epic'&&query.status==='completed')filters.push(Prisma.sql`i.status IN ('completed','done')`);
+        else if(query.kind==='project')filters.push(Prisma.sql`i."projectLifecycle" = ${query.status}`);
+        else filters.push(Prisma.sql`i.status = ${query.status}`);
+      }
       if(query.projectLifecycle)filters.push(Prisma.sql`i."projectLifecycle" = ${query.projectLifecycle}`);
       const [{count:total}]=await tx.$queryRaw<{count:number}[]>`SELECT COUNT(*)::integer AS count FROM "Item" i WHERE ${and(filters)}`;
       const meta=pagination(query.page,total),sort=query.sort??(query.kind==='system'?'name':'createdAt');
       const direction=query.direction??(sort==='createdAt'||sort==='updatedAt'?'desc':'asc');
-      const columns={name:Prisma.sql`i.name`,createdAt:Prisma.sql`i."createdAt"`,updatedAt:Prisma.sql`i."updatedAt"`,status:domainOrder(Prisma.sql`i.status`,statuses[query.kind]),projectLifecycle:domainOrder(Prisma.sql`i."projectLifecycle"`,lifecycle)};
+      const stateColumn=query.kind==='project'?Prisma.sql`i."projectLifecycle"`:query.kind==='epic'?Prisma.sql`CASE WHEN i.status IN ('todo','doing','approved') THEN 'active' WHEN i.status='done' THEN 'completed' ELSE i.status END`:Prisma.sql`i.status`;
+      const columns={name:Prisma.sql`i.name`,createdAt:Prisma.sql`i."createdAt"`,updatedAt:Prisma.sql`i."updatedAt"`,status:domainOrder(stateColumn,statuses[query.kind]),projectLifecycle:domainOrder(Prisma.sql`i."projectLifecycle"`,lifecycle)};
       const order=direction==='asc'?Prisma.sql`ASC`:Prisma.sql`DESC`;
       const items=await tx.$queryRaw<Item[]>`SELECT i.* FROM "Item" i WHERE ${and(filters)} ORDER BY ${columns[sort]} ${order}, i.id ${order} LIMIT ${pageSize} OFFSET ${(meta.page-1)*pageSize}`;
       return {items,...meta,extraCount,query:{...query,sort,direction,page:meta.page,includeArchived,includeInactive:query.includeInactive==='true'||archiveContext}};

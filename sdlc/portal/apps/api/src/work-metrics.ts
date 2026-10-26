@@ -4,7 +4,7 @@ type Window={start:string;end:string;label:string;partial:boolean};
 type Filters={userId?:string;systemId?:string;projectId?:string};
 type Item={id:string;kind:string;parentId:string|null;archived?:boolean};
 type Participation={itemId:string;actorId:string};
-type Activity={id:string;storyId:string;taskId:string;createdAt:Date};
+type Activity={id:string;storyId:string;taskId:string|null;createdAt:Date};
 type Attempt={id:string;activityId:string;actorId:string;state:string;queuedAt:Date;startedAt:Date|null;finishedAt:Date|null};
 type Event={id:string;attemptId:string;key:string;kind:string;category:string|null;timestamp:Date;payload:unknown};
 type Link={activityId:string;taskId:string;createdAt:Date};
@@ -33,20 +33,40 @@ export function computeWorkDashboard(source:WorkMetricsSource,now:Date,windows:r
   for(const id of p.taskIds)if(typeof id==='string'&&items.get(id)?.kind==='task'&&ancestors(id).includes(activity.storyId)){const previous=linked.get(id);if(!previous||binding.timestamp<previous)linked.set(id,binding.timestamp);}
   historicalLinks.set(activity.id,linked);
  }
- const activityScope=source.activities.filter(activity=>activity.createdAt<=now&&inHierarchy(activity.storyId)&&(!filters.userId||participated.has(activity.storyId)||participated.has(activity.taskId)||[...(linksByActivity.get(activity.id)??[]),...(historicalLinks.get(activity.id)?.keys()??[])].some(id=>participated.has(id))||source.attempts.some(attempt=>attempt.activityId===activity.id&&attempt.actorId===filters.userId&&attempt.queuedAt<=now)));
+ const activityScope=source.activities.filter(activity=>activity.createdAt<=now&&inHierarchy(activity.storyId)&&(!filters.userId||participated.has(activity.storyId)||!!activity.taskId&&participated.has(activity.taskId)||[...(linksByActivity.get(activity.id)??[]),...(historicalLinks.get(activity.id)?.keys()??[])].some(id=>participated.has(id))||source.attempts.some(attempt=>attempt.activityId===activity.id&&attempt.actorId===filters.userId&&attempt.queuedAt<=now)));
  const activities=new Map(activityScope.map(activity=>[activity.id,activity]));
  const attempts=source.attempts.filter(attempt=>activities.has(attempt.activityId)&&attempt.queuedAt<=now),attemptIds=new Set(attempts.map(attempt=>attempt.id));
  // The unique operation key, rather than an audit row ID, owns the observation.
  const eventKeys=new Set<string>();
  const events=source.events.filter(event=>{const key=`${event.attemptId}:${event.key}`;if(!attemptIds.has(event.attemptId)||event.timestamp>now||eventKeys.has(key))return false;eventKeys.add(key);return true;}).sort((a,b)=>a.timestamp.getTime()-b.timestamp.getTime()||a.id.localeCompare(b.id));
  const attemptsById=new Map(attempts.map(attempt=>[attempt.id,attempt]));
+ type Interval=[number,number];
+ const closedPauses=new Map<string,Interval[]>(),pauseStarts=new Map<string,number>();
+ for(const event of events){
+  if(event.kind==='paused'&&!pauseStarts.has(event.attemptId))pauseStarts.set(event.attemptId,event.timestamp.getTime());
+  if(event.kind==='resumed'&&pauseStarts.has(event.attemptId)){
+   const start=pauseStarts.get(event.attemptId)!;pauseStarts.delete(event.attemptId);
+   if(event.timestamp.getTime()>=start){const spans=closedPauses.get(event.attemptId)??[];spans.push([start,event.timestamp.getTime()]);closedPauses.set(event.attemptId,spans);}
+  }
+ }
+ const queueWithoutPauses=(attempt:Attempt,seconds:number,boundary:Date,stages:Event[])=>{
+  const pauses=(closedPauses.get(attempt.id)??[]).filter(([,end])=>end<=boundary.getTime());if(!pauses.length)return seconds;
+  const intervals:Interval[]=stages.filter(stage=>stage.timestamp<=boundary&&validDuration(payload(stage).queueMs)).map(stage=>[Math.max(attempt.queuedAt.getTime(),stage.timestamp.getTime()-Number(payload(stage).queueMs)),stage.timestamp.getTime()]);
+  if(!intervals.length&&attempt.startedAt&&attempt.startedAt<=boundary)intervals.push([attempt.queuedAt.getTime(),attempt.startedAt.getTime()]);
+  // Union queue intervals before intersection: duplicate/overlapping source
+  // boundaries must never subtract the same paused second twice.
+  intervals.sort(([a],[b])=>a-b);const queueIntervals:Interval[]=[];
+  for(const interval of intervals){const last=queueIntervals.at(-1);if(last&&interval[0]<=last[1])last[1]=Math.max(last[1],interval[1]);else queueIntervals.push([...interval]);}
+  const pausedMs=pauses.reduce((sum,[pauseStart,pauseEnd])=>sum+queueIntervals.reduce((within,[start,end])=>within+Math.max(0,Math.min(end,pauseEnd)-Math.max(start,pauseStart)),0),0);
+  return Math.max(0,seconds-Math.min(seconds,pausedMs/1000));
+ };
  const firstFinishes=new Map<string,{timestamp:Date;seconds:number;queueSeconds:number|null}>();
  for(const event of events){const p=payload(event);if(!firstFinishes.has(event.attemptId)&&['waiting_input','waiting_approval','blocked','failed','succeeded','cancelled','stale'].includes(event.kind)&&validDuration(p.processingMs))firstFinishes.set(event.attemptId,{timestamp:event.timestamp,seconds:p.processingMs/1000,queueSeconds:validDuration(p.queueMs)?p.queueMs/1000:null});}
  const observedQueues=attempts.flatMap(attempt=>{
-  const finish=firstFinishes.get(attempt.id);if(finish?.queueSeconds!==null&&finish?.queueSeconds!==undefined)return [{timestamp:finish.timestamp,seconds:finish.queueSeconds}];
   const stages=events.filter(event=>event.attemptId===attempt.id&&event.kind==='stage_started'&&validDuration(payload(event).queueMs));
-  if(stages.length)return [{timestamp:stages.at(-1)!.timestamp,seconds:stages.reduce((sum,event)=>sum+Number(payload(event).queueMs)/1000,0)}];
-  return attempt.startedAt&&attempt.startedAt>=attempt.queuedAt?[{timestamp:attempt.startedAt,seconds:(attempt.startedAt.getTime()-attempt.queuedAt.getTime())/1000}]:[];
+  const finish=firstFinishes.get(attempt.id);if(finish?.queueSeconds!==null&&finish?.queueSeconds!==undefined)return [{timestamp:finish.timestamp,seconds:queueWithoutPauses(attempt,finish.queueSeconds,finish.timestamp,stages)}];
+  if(stages.length){const boundary=stages.at(-1)!.timestamp;return [{timestamp:boundary,seconds:queueWithoutPauses(attempt,stages.reduce((sum,event)=>sum+Number(payload(event).queueMs)/1000,0),boundary,stages)}];}
+  return attempt.startedAt&&attempt.startedAt>=attempt.queuedAt?[{timestamp:attempt.startedAt,seconds:queueWithoutPauses(attempt,(attempt.startedAt.getTime()-attempt.queuedAt.getTime())/1000,attempt.startedAt,[])}]:[];
  });
  const resolutions=events.filter(event=>event.kind==='wait_resolved').flatMap(event=>{
   const p=payload(event);if(!validDuration(p.durationMs))return [];
@@ -58,15 +78,15 @@ export function computeWorkDashboard(source:WorkMetricsSource,now:Date,windows:r
   const p=payload(event),attempt=attemptsById.get(event.attemptId),activity=attempt?activities.get(attempt.activityId):undefined;
   const explicit=Array.isArray(p.taskIds)?p.taskIds.filter((id):id is string=>typeof id==='string'):typeof p.taskId==='string'?[p.taskId]:[];
   const linked=new Set(activity?[activity.taskId,...(linksByActivity.get(activity.id)??[]),...(historicalLinks.get(activity.id)?.keys()??[])]:[]);
-  return [...new Set(explicit.length?explicit:activity?[activity.taskId]:[])].filter(id=>linked.has(id)&&items.get(id)?.kind==='task'&&inHierarchy(id));
+  return [...new Set(explicit.length?explicit:activity?[activity.taskId]:[])].filter((id):id is string=>typeof id==='string'&&linked.has(id)&&items.get(id)?.kind==='task'&&inHierarchy(id));
  };
  const taskScope=source.items.filter(item=>item.kind==='task'&&!item.archived&&inHierarchy(item.id)&&(!filters.userId||participated.has(item.id)||ancestors(item.id).some(id=>items.get(id)?.kind==='story'&&participated.has(id))||activityScope.some(activity=>activity.taskId===item.id||linksByActivity.get(activity.id)?.has(item.id))));
  const scopedTasks=new Set(taskScope.map(task=>task.id)),firstLinks=new Map<string,Date>(),firstObservedLinks=new Map<string,Date>();
  const observeLink=(taskId:string,date:Date)=>{if(!scopedTasks.has(taskId)||date>now)return;const previous=firstLinks.get(taskId);if(!previous||date<previous)firstLinks.set(taskId,date);};
- for(const activity of activityScope)observeLink(activity.taskId,activity.createdAt);
+ for(const activity of activityScope)if(activity.taskId)observeLink(activity.taskId,activity.createdAt);
  for(const link of source.links)if(activities.has(link.activityId))observeLink(link.taskId,link.createdAt);
  const observeHistorical=(taskId:string,date:Date)=>{if(items.get(taskId)?.kind!=='task'||!inHierarchy(taskId)||date>now)return;const previous=firstObservedLinks.get(taskId);if(!previous||date<previous)firstObservedLinks.set(taskId,date);};
- for(const activity of activityScope){observeHistorical(activity.taskId,activity.createdAt);for(const [id,date]of historicalLinks.get(activity.id)??[])observeHistorical(id,date);}
+ for(const activity of activityScope){if(activity.taskId)observeHistorical(activity.taskId,activity.createdAt);for(const [id,date]of historicalLinks.get(activity.id)??[])observeHistorical(id,date);}
  // Current links are a fallback for an association whose original audit record
  // predates this collector; deleting/recreating a link never erases its audit.
  for(const link of source.links)if(activities.has(link.activityId))observeHistorical(link.taskId,historicalLinks.get(link.activityId)?.get(link.taskId)??link.createdAt);
@@ -93,6 +113,7 @@ export function computeWorkDashboard(source:WorkMetricsSource,now:Date,windows:r
   notes:[
    'Tempos são medianas em segundos. Cada duração exige início e fim observados; sem amostras aparece Sem medição. A semana atual é parcial.',
    'Fila soma intervalos encerrados ao iniciar cada etapa da tentativa; não inclui fila ainda aberta. Usa o total do primeiro término ou, enquanto ativa, a soma observada até o último início de etapa. A amostra ativa é parcial e pertence à semana desse último início; encerrada, à semana do término. Registros anteriores com só um início preservam a duração confirmada até esse início.',
+   'Pausas por inatividade são excluídas da fila somente quando os eventos de pausa e retomada foram observados e sobrepõem um intervalo de fila confirmado. Pausas abertas não alteram amostras anteriores; registros legados sem esses eventos mantêm sua medição original.',
    'Processamento soma somente etapas ocupadas até o primeiro término confirmado, incluindo espera pelo provedor e excluindo filas entre etapas e espera humana posterior; atribuído à semana do término.',
    'Espera humana mede somente ciclos waiting_input ou waiting_approval resolvidos. Resolução de impedimentos mede ciclos blocked ou failed resolvidos, separados pela categoria registrada; não comprova que o código ou a integração foram aprovados.',
    'Um ciclo de espera que atravessa semanas entra inteiro na semana de sua resolução. Esperas abertas não são durações concluídas e não entram na mediana.',
@@ -113,7 +134,7 @@ export async function workDashboard(tx:Transaction,now:Date,windows:readonly Win
  const activityIds=activities.map(activity=>activity.id);
  const attempts=await tx.workAttempt.findMany({where:{activityId:{in:activityIds},queuedAt:{lte:now}},select:{id:true,activityId:true,actorId:true,state:true,queuedAt:true,startedAt:true,finishedAt:true}});
  const [events,links,bindings]=await Promise.all([
-  tx.workEvent.findMany({where:{attemptId:{in:attempts.map(attempt=>attempt.id)},timestamp:{lte:now},kind:{in:['stage_started','waiting_input','waiting_approval','blocked','failed','succeeded','cancelled','stale','wait_resolved','reopened']}},select:{id:true,attemptId:true,key:true,kind:true,category:true,timestamp:true,payload:true},orderBy:[{timestamp:'asc'},{id:'asc'}]}),
+  tx.workEvent.findMany({where:{attemptId:{in:attempts.map(attempt=>attempt.id)},timestamp:{lte:now},kind:{in:['stage_started','paused','resumed','waiting_input','waiting_approval','blocked','failed','succeeded','cancelled','stale','wait_resolved','reopened']}},select:{id:true,attemptId:true,key:true,kind:true,category:true,timestamp:true,payload:true},orderBy:[{timestamp:'asc'},{id:'asc'}]}),
   tx.workTaskLink.findMany({where:{activityId:{in:activityIds},createdAt:{lte:now}},select:{activityId:true,taskId:true,createdAt:true}}),
   tx.historyEvent.findMany({where:{action:'WORK_TASKS_BOUND',timestamp:{lte:now}},select:{itemId:true,timestamp:true,payload:true}}),
  ]);

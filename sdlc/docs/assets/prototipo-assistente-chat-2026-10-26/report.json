@@ -1,0 +1,43 @@
+{
+  "passed": 11,
+  "results": [
+    "Desktop: conversa rolável e compositor visível sem scroll da página",
+    "Proposta preserva rascunho e posição do chat e confirmação é somente simulação",
+    "Carregar anteriores preserva âncora, foco e permite acessar todas as sete interações",
+    "Enter envia, Shift+Enter quebra linha, texto é seguro e nova resposta não desloca leitura antiga",
+    "Pausa fica visível na Proposta e retomada exige ação explícita",
+    "Confirmação incerta é reconciliada sem duplicar a mensagem",
+    "Projeto inativo mantém leitura e reativar não retoma a rodada",
+    "Falha oferece recuperação da mensagem concreta e retry",
+    "Outro Projeto não herda proposta/resumo e conserva seu próprio rascunho",
+    "Celular e espaço reduzido de teclado: sem overflow ou controles encobertos",
+    "Prévia não faz chamadas externas, comandos ou requisições ao Portal"
+  ],
+  "metrics": [
+    {
+      "width": 390,
+      "height": 844,
+      "composerTop": 706,
+      "sendBottom": 808
+    },
+    {
+      "width": 390,
+      "height": 500,
+      "composerTop": 381,
+      "sendBottom": 483
+    },
+    {
+      "width": 780,
+      "height": 844,
+      "composerTop": 698,
+      "sendBottom": 798
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:8080/",
+      "method": "GET"
+    }
+  ]
+}

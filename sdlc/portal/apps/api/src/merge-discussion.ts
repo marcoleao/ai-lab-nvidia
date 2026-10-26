@@ -1,3 +1,4 @@
+import {hierarchyState} from './lifecycle-policy.ts';
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import type {FastifyInstance} from 'fastify';
@@ -68,6 +69,7 @@ export function registerMergeDiscussion(app:FastifyInstance,h:AssistantHelpers,p
     if(await tx.qualityCheck.count({where:{state:'running',leaseUntil:{gt:now}}})||await tx.mergeDiscussionTurn.count({where:{state:'running',leaseUntil:{gt:now}}})||await tx.storyExecution.count({where:{state:{in:['running','cancelled']},leaseUntil:{gt:now}}})||await tx.chatTurn.count({where:{status:{in:['running','cancelled']},leaseUntil:{gt:now}}}))return null;
     const next=await tx.mergeDiscussionTurn.findFirst({where:{state:'queued'},orderBy:{createdAt:'asc'}});
     if(!next)return null;
+    const queuedOperation=await tx.mergeOperation.findUnique({where:{id:next.operationId}}),queuedStory=queuedOperation?await tx.item.findUnique({where:{id:queuedOperation.storyId}}):null;if(!queuedStory||!(await hierarchyState(tx,queuedStory)).writable)return null;
     const claimed=await tx.mergeDiscussionTurn.update({where:{id:next.id},data:{state:'running',leaseId:randomUUID(),leaseUntil:new Date(Date.now()+300000)}});
     await startAttempt(tx,`merge-discussion:${claimed.id}`,claimed.leaseId!,'gitlab_context');return claimed;
    });

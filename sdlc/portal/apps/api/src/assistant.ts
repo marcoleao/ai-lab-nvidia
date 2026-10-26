@@ -7,10 +7,11 @@ import type {Database,Transaction} from '../../../packages/db/client.ts';
 import type {Item,Prisma} from '../../../packages/db/generated/client.ts';
 import type {LLMProvider} from './llm.ts';
 import {DomainError} from './errors.ts';
-import {registerPlans,proposalList,parsePlan,planInstructions,projectFingerprint,createPlanItems,planApplicationAudit} from './plans.ts';
+import {registerPlans,proposalList,projectProposalProjection,parsePlan,planInstructions,projectFingerprint,createPlanItems,planApplicationAudit} from './plans.ts';
 import {planOutputSchema,type Plan} from './plan-schema.ts';
 import {analystInstructions,formalPlanInstructions,interviewSchema} from './requirements.ts';
 import type {AuditOptions} from './audit.ts';
+import {hierarchyBlock,itemLifecycle} from './lifecycle-policy.ts';
 
 export type AssistantHelpers={db:Database;llm?:LLMProvider;actor:(request:FastifyRequest)=>Persona;canPlan:(person:Persona)=>void;
   mutate:(request:FastifyRequest,fn:(tx:Transaction,person:Persona)=>Promise<unknown>)=>Promise<unknown>;
@@ -19,7 +20,7 @@ export type AssistantHelpers={db:Database;llm?:LLMProvider;actor:(request:Fastif
   event:(tx:Transaction,item:Item,person:{id:string;name:string},action:string,message:string,payload:unknown,actorType?:string,options?:AuditOptions)=>Promise<void>;
   createItem:(tx:Transaction,person:Persona,body:{kind:ItemKind;parentId?:string;name:string;description:string;key?:string;repositoryIds?:string[]},provenance?:Record<string,string|number>,creationAudit?:AuditOptions)=>Promise<Item>;
   isProbeRunning:()=>boolean};
-const publicTurn={id:true,input:true,output:true,status:true,model:true,error:true,actorName:true,createdAt:true,kind:true} as const;
+const publicTurn={id:true,sequence:true,input:true,output:true,status:true,model:true,error:true,actorName:true,createdAt:true,updatedAt:true,kind:true} as const;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value));
 const pageNumber=z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).default(1);
 const pageMetadata=(page:number,total:number)=>{const totalPages=Math.max(1,Math.ceil(total/20));const current=Math.min(page,totalPages);return {page:current,pageSize:20,total,totalPages,hasMore:current<totalPages};};
@@ -41,24 +42,75 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
     const chain=await assistantLineage(tx,id,includeArchived);
     return chain.find(i=>i.kind==='story')??chain.find(i=>i.kind==='project')??chain.find(i=>i.kind==='system')!;
   }
+  app.get('/api/assistant/messages',async request=>{
+    const cursor=z.string().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(0).max(2147483647));
+    const {contextId,before,after,includeArchived}=z.object({contextId:z.string().min(1),before:cursor.refine(value=>value>0).optional(),after:cursor.optional(),includeArchived:z.enum(['true','false']).default('false')}).strict().refine(query=>query.before===undefined||query.after===undefined,{message:'Use apenas um cursor: before ou after.'}).parse(request.query);
+    return h.db.$transaction(async tx=>{
+      const requestedChain=await assistantLineage(tx,contextId,includeArchived==='true');
+      const item=requestedChain.find(candidate=>candidate.kind==='story')??requestedChain.find(candidate=>candidate.kind==='project')??requestedChain.find(candidate=>candidate.kind==='system')!;
+      const block=hierarchyBlock(requestedChain);
+      const session=await tx.chatSession.findUnique({where:{contextId:item.id},select:{id:true}});
+      const empty={contextId:item.id,turns:[],page:{pageSize:20,total:0,hasOlder:false,hasNewer:false,firstSequence:null,lastSequence:null,latestSequence:null},readOnly:!!block,readOnlyReason:block?.reason??null};
+      if(!session)return empty;
+      const where={sessionId:session.id};
+      const [total,latest,selected]=await Promise.all([
+        tx.chatTurn.count({where}),
+        tx.chatTurn.findFirst({where,orderBy:{sequence:'desc'},select:{sequence:true}}),
+        tx.chatTurn.findMany({where:{...where,...(before!==undefined?{sequence:{lt:before}}:after!==undefined?{sequence:{gt:after}}:{})},orderBy:{sequence:after!==undefined?'asc':'desc'},take:20,select:publicTurn}),
+      ]);
+      const turns=after!==undefined?selected:selected.reverse();
+      const firstSequence=turns[0]?.sequence??null,lastSequence=turns.at(-1)?.sequence??null;
+      // Empty pages retain the cursor's boundary; neither a count nor a missing
+      // page is used to infer that the entire conversation has been loaded.
+      const older=firstSequence!==null?{lt:firstSequence}:before!==undefined?{lt:before}:after!==undefined?{lte:after}:null;
+      const newer=lastSequence!==null?{gt:lastSequence}:after!==undefined?{gt:after}:before!==undefined?{gte:before}:null;
+      const [olderTurn,newerTurn]=await Promise.all([
+        older?tx.chatTurn.findFirst({where:{...where,sequence:older},select:{id:true}}):null,
+        newer?tx.chatTurn.findFirst({where:{...where,sequence:newer},select:{id:true}}):null,
+      ]);
+      return {...empty,turns,page:{pageSize:20,total,hasOlder:!!olderTurn,hasNewer:!!newerTurn,firstSequence,lastSequence,latestSequence:latest?.sequence??null}};
+    },{isolationLevel:'RepeatableRead'});
+  });
   app.get('/api/assistant',async request=>{
     const {contextId,page,proposalsPage,includeArchived}=z.object({contextId:z.string().min(1),page:pageNumber,proposalsPage:pageNumber,includeArchived:z.enum(['true','false']).default('false')}).strict().parse(request.query);
     return h.db.$transaction(async tx=>{
       const item=await context(tx,contextId,includeArchived==='true');
       const chain=await assistantLineage(tx,item.id,includeArchived==='true');
-      const readOnly=(await assistantLineage(tx,contextId,includeArchived==='true')).some(i=>i.archived||i.kind==='project'&&['completed','cancelled'].includes(i.projectLifecycle??''));
+      const requestedChain=contextId===item.id?chain:await assistantLineage(tx,contextId,includeArchived==='true');
+      const block=hierarchyBlock(requestedChain),readOnly=!!block;
+      const hierarchy={writable:!block,...(block?{reason:block.reason,code:block.code,blockedBy:block.itemId}:{})};
+      const blockedItem=block?requestedChain.find(candidate=>candidate.id===block.itemId):null;
+      const blockedBy=blockedItem?{id:blockedItem.id,kind:blockedItem.kind,key:blockedItem.key,name:blockedItem.name,status:blockedItem.status,projectLifecycle:blockedItem.projectLifecycle,archived:blockedItem.archived,lifecycle:itemLifecycle(blockedItem)}:null;
       const assistantMode=item.kind==='story'?'delivery':'planning';
       const session=await tx.chatSession.findUnique({where:{contextId:item.id}});
       const turnsPage=pageMetadata(page,session?await tx.chatTurn.count({where:{sessionId:session.id}}):0);
       const turns=session?(await tx.chatTurn.findMany({where:{sessionId:session.id},orderBy:{sequence:'desc'},take:20,skip:(turnsPage.page-1)*20,select:publicTurn})).reverse():[];
-      const activeTurn=session?await tx.chatTurn.findFirst({where:{sessionId:session.id,status:{in:['queued','running']}},orderBy:{sequence:'desc'},select:publicTurn}):null;
+      const latestTurn=session?await tx.chatTurn.findFirst({where:{sessionId:session.id},orderBy:{sequence:'desc'},select:publicTurn}):null;
+      const activeTurn=session?await tx.chatTurn.findFirst({where:{sessionId:session.id,status:{in:['queued','running','paused']}},orderBy:{sequence:'desc'},select:publicTurn}):null;
       const hasSuccessfulInterview=!!session&&await tx.chatTurn.count({where:{sessionId:session.id,status:'succeeded',kind:'chat'}})>0;
       const latest=session?await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded',kind:'chat'},orderBy:{sequence:'desc'},select:{contextSnapshot:true}}):null;
       const brief=(latest?.contextSnapshot as Record<string,unknown>|null)?.interviewBrief??null;
       const availableRepositories=item.kind==='project'?await tx.repository.findMany({where:{links:{some:{itemId:item.id}}},select:{id:true,name:true,key:true}}):[];
       const targetProjects=assistantMode==='delivery'?[]:await tx.item.findMany({where:{archived:false,kind:'project',...(item.kind==='system'?{parentId:item.id}:{id:item.id}),projectLifecycle:{in:['planned','active']}},select:{id:true,name:true},orderBy:[{name:'asc'},{id:'asc'}]});
       const proposalMetadata=pageMetadata(proposalsPage,item.kind==='project'?await tx.planProposal.count({where:{projectId:item.id}}):0);
-      return {context:{id:item.id,kind:item.kind,key:item.key,name:item.name,version:item.version,systemId:chain.find(i=>i.kind==='system')?.id,projectId:chain.find(i=>i.kind==='project')?.id},session:session?{id:session.id,version:session.version}:null,turns,turnsPage,proposalsPage:proposalMetadata,activeTurn,hasSuccessfulInterview,readOnly,assistantMode,targetProjects,proposals:await proposalList(tx,item,session?.version??0,proposalMetadata.page),availableRepositories,requirementsMode:assistantMode==='planning'&&(latest?.contextSnapshot as Record<string,unknown>|null)?.requirementsVersion===1,brief,configured:!!h.llm,model:h.llm?.model??null};
+      const proposals=await proposalList(tx,item,session?.version??0,proposalMetadata.page);
+      const latestProposal=assistantMode==='delivery'?null:await tx.planProposal.findFirst({where:item.kind==='project'?{projectId:item.id}:session?{turn:{sessionId:session.id},...(includeArchived==='true'?{}:{project:{archived:false}})}:{id:{in:[]}},orderBy:[{createdAt:'desc'},{id:'desc'}]});
+      let currentProposal=latestProposal?proposals.find(proposal=>proposal.id===latestProposal.id)??null:null;
+      if(latestProposal&&!currentProposal){
+        const project=latestProposal.projectId===item.id?item:await tx.item.findUniqueOrThrow({where:{id:latestProposal.projectId}});
+        currentProposal=(await projectProposalProjection(tx,project,session?.version??0,[latestProposal]))[0];
+      }
+      // GET remains available without a persona. Missing/unknown identity grants
+      // no commands; declared personas use the same planning roles as mutate().
+      const person=personas.find(candidate=>candidate.id===request.headers['x-persona']);
+      const canPlan=!!person&&['admin','product_owner','architect'].includes(person.role)&&!readOnly;
+      const latestSuccessful=session?await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded'},orderBy:{sequence:'desc'},select:{kind:true,contextSnapshot:true}}):null;
+      const latestSnapshot=latestSuccessful?.contextSnapshot as Record<string,unknown>|null;
+      const completionAlreadyApplied=latestSuccessful?.kind==='plan'&&!!latestSnapshot?.createItems;
+      const requirementsMode=assistantMode==='planning'&&(latest?.contextSnapshot as Record<string,unknown>|null)?.requirementsVersion===1;
+      const openQuestions=(latestSnapshot?.interviewBrief as {openQuestions?:unknown[]}|undefined)?.openQuestions??[];
+      const capabilities={canMessage:canPlan&&!!h.llm&&!activeTurn,canCancelTurn:canPlan&&!!activeTurn,canGeneratePlan:canPlan&&!!h.llm&&item.kind==='project'&&hasSuccessfulInterview&&!activeTurn,canComplete:canPlan&&!!h.llm&&assistantMode==='planning'&&!!latestSuccessful&&!activeTurn&&!completionAlreadyApplied&&!(latestSnapshot?.requirementsVersion===1&&openQuestions.length),canEditPlan:canPlan&&item.kind==='project',canApplyPlan:canPlan&&item.kind==='project',canCreateProject:canPlan&&item.kind==='system'};
+      return {context:{id:item.id,kind:item.kind,key:item.key,name:item.name,version:item.version,status:item.status,projectLifecycle:item.projectLifecycle,archived:item.archived,lifecycle:itemLifecycle(item),systemId:chain.find(i=>i.kind==='system')?.id,projectId:chain.find(i=>i.kind==='project')?.id},session:session?{id:session.id,version:session.version}:null,turns,turnsPage,proposalsPage:proposalMetadata,latestTurn,activeTurn,hasSuccessfulInterview,readOnly,readOnlyReason:block?.reason??null,hierarchy,blockedBy,capabilities,assistantMode,targetProjects,proposals,currentProposal,availableRepositories,requirementsMode,brief,configured:!!h.llm,model:h.llm?.model??null};
     },{isolationLevel:'RepeatableRead'});
   });
   app.post('/api/assistant/turns',async request=>{
@@ -70,7 +122,7 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
       if(body.assistantMode&&body.assistantMode!==assistantMode)throw new DomainError('ASSISTANT_CONTEXT_MISMATCH','O modo informado não corresponde ao contexto da conversa.',409);
       let session=await tx.chatSession.findUnique({where:{contextId:item.id}});
       if((session?.version??0)!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A conversa foi atualizada. Atualize e revise antes de enviar.',409);
-      if(session&&await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running']}}}))throw new DomainError('CHAT_BUSY','Aguarde ou cancele a resposta pendente antes de enviar outra mensagem.',409);
+      if(session&&await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running','paused']}}}))throw new DomainError('CHAT_BUSY','Retome ou cancele a rodada pendente antes de enviar outra mensagem.',409);
       session??=await tx.chatSession.create({data:{contextId:item.id}});
       const chain=[...await h.ancestors(tx,item),item];const system=chain.find(i=>i.kind==='system')!;
       const repositories=await tx.repository.findMany({where:item.kind==='system'?{systemId:item.id}:{links:{some:{itemId:item.id}}},select:{name:true,key:true,runtime:true},take:8});
@@ -92,7 +144,7 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
       if(!turn)throw new DomainError('CHAT_NOT_FOUND','Mensagem não encontrada.',404);
       const item=await context(tx,turn.session.contextId);
       await h.ensureNotArchived(tx,item);
-      if(!['queued','running'].includes(turn.status))throw new DomainError('CHAT_FINISHED','Esta rodada já foi concluída. Atualize a conversa.',409);
+      if(!['queued','running','paused'].includes(turn.status))throw new DomainError('CHAT_FINISHED','Esta rodada já foi concluída. Atualize a conversa.',409);
       await tx.chatTurn.update({where:{id:turn.id},data:{status:'cancelled',error:'Rodada cancelada pelo usuário. O motor local pode levar alguns instantes para finalizar a geração.'}});
       await tx.chatSession.update({where:{id:turn.sessionId},data:{version:{increment:1}}});
       await h.event(tx,item,person,'ASSISTANT_TURN_CANCELLED','Rodada da assistente cancelada.',{turnId:turn.id},'human',{before:{state:turn.status},after:{state:'cancelled'},operationId:turn.id,subject:{type:'chat_turn',id:turn.id}});
@@ -123,10 +175,12 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
         if(!turn)return null;
         const item=turn.session.context;
         const sourceChain=await assistantLineage(tx,item.id,true);
-        if(sourceChain.some(i=>i.archived||i.kind==='project'&&['completed','cancelled'].includes(i.projectLifecycle??''))){
-          await tx.chatTurn.update({where:{id:turn.id},data:{status:'cancelled',error:'Contexto arquivado ou Projeto encerrado.'}});
+        const block=hierarchyBlock(sourceChain);
+        if(block){
+          const paused=block.code==='HIERARCHY_INACTIVE';
+          await tx.chatTurn.update({where:{id:turn.id},data:{status:paused?'paused':'cancelled',error:block.reason}});
           await tx.chatSession.update({where:{id:turn.sessionId},data:{version:{increment:1}}});
-          await h.event(tx,item,{id:'assistant:local',name:'Assistente local'},'ASSISTANT_TURN_CANCELLED','Rodada cancelada porque o contexto foi arquivado ou encerrado.',{turnId:turn.id},'system',{before:{state:turn.status},after:{state:'cancelled'},initiator:{id:turn.actorId,name:turn.actorName,type:'human'},operationId:turn.id,subject:{type:'chat_turn',id:turn.id},reasonCode:'CONTEXT_CLOSED'});return null;
+          await h.event(tx,item,{id:'assistant:local',name:'Assistente local'},paused?'HIERARCHY_WORK_PAUSED':'ASSISTANT_TURN_CANCELLED',paused?'Rodada pausada porque o contexto está inativo; retomada exige ação explícita.':'Rodada cancelada porque o contexto foi arquivado ou encerrado.',{turnId:turn.id},'system',{before:{state:turn.status},after:{state:paused?'paused':'cancelled'},initiator:{id:turn.actorId,name:turn.actorName,type:'human'},operationId:turn.id,subject:{type:'chat_turn',id:turn.id},reasonCode:block.code});return null;
         }
         const leaseId=randomUUID();
         await tx.chatTurn.update({where:{id:turn.id},data:{status:'running',model:h.llm!.model,leaseId,leaseUntil:new Date(Date.now()+300000)}});
@@ -174,7 +228,7 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
         const completion=z.object({createItems:z.literal(true),contextId:z.string(),version:z.number(),fingerprint:z.string()}).safeParse(claimed.contextSnapshot);
         const item=completion.success?await tx.item.findUniqueOrThrow({where:{id:completion.data.contextId}}):source;
         const completionChain=await assistantLineage(tx,item.id,true);
-        const closed=source.archived||completionChain.some(i=>i.archived||i.kind==='project'&&['completed','cancelled'].includes(i.projectLifecycle??''));
+        const closed=source.archived||!!hierarchyBlock(completionChain);
         if(completion.success&&!error&&!closed&&(item.version!==completion.data.version||await projectFingerprint(tx,item.id)!==completion.data.fingerprint))error='O Projeto mudou durante a geração. Nenhum item foi criado; revise antes de concluir novamente.';
         if(plan&&!error&&!closed){
           const snapshot=z.object({version:z.number().int(),fingerprint:z.string()}).parse(claimed.contextSnapshot);
@@ -182,16 +236,17 @@ export function registerAssistant(app:FastifyInstance,h:AssistantHelpers){
           await tx.planRevision.create({data:{proposalId:proposal.id,version:1,content:plan,source:'model',actorId:'assistant:local',actorName:h.llm!.model}});
           if(completion.success){
             const person=personas.find(p=>p.id===current.actorId);
-            if(!person||!['admin','product_owner'].includes(person.role))throw new DomainError('ROLE_DENIED','Criação exige Admin ou Product Owner.',403);
+            if(!person||!['admin','product_owner','architect'].includes(person.role))throw new DomainError('ROLE_DENIED','Criação exige Admin, Product Owner ou Arquiteto.',403);
             const ids=await createPlanItems(tx,h,person,item.id,plan,proposal.id,1,current.id,{executor:{id:'assistant:local',name:'Assistente local',type:'system'},initiator:{id:current.actorId,name:current.actorName,type:'human'},operationId:current.id});
             await tx.planProposal.update({where:{id:proposal.id},data:{status:'applied',appliedItemIds:ids}});
             await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});
             const stories=plan.epics.flatMap(e=>e.stories);
-            output=`Criados no Projeto ${item.name}: ${plan.epics.length} épico(s), ${stories.length} história(s) e ${stories.reduce((n,s)=>n+s.tasks.length,0)} tarefa(s).\nStatus iniciais: TO DO / SPECIFICATION / TO DO.`;
+            const createdTasks=await tx.item.count({where:{id:{in:ids},kind:'task'}});
+            output=`Criados no Projeto ${item.name}: ${plan.epics.length} épico(s), ${stories.length} história(s) e ${createdTasks} tarefa(s), incluindo as seis Tarefas padrão de cada História.\nStatus iniciais: ACTIVE / SPECIFICATION / TO DO. Nenhuma execução foi iniciada.`;
             await h.event(tx,item,{id:'assistant:local',name:'Assistente local'},'PLAN_APPLIED','Assistente criou o planejamento ao concluir a entrevista, conforme solicitação do usuário.',{proposalId:proposal.id,revision:1,itemIds:ids},'system',{...await planApplicationAudit(tx,ids,proposal.id,1,current.id),before:{state:'draft',version:1},after:{state:'applied',version:1},initiator:{id:current.actorId,name:current.actorName,type:'human'},operationId:current.id,subject:{type:'plan_proposal',id:proposal.id}});
           }
         }
-        await tx.chatTurn.update({where:{id:current.id},data:{status:closed?'cancelled':error?'failed':'succeeded',output:closed?null:output,error:closed?'Contexto arquivado ou Projeto encerrado durante a consulta.':error,...(interviewBrief&&!error&&!closed?{contextSnapshot:json({...claimed.contextSnapshot as object,interviewBrief})}:{}),leaseId:null,leaseUntil:null}});
+        await tx.chatTurn.update({where:{id:current.id},data:{status:closed?'cancelled':error?'failed':'succeeded',output:closed?null:output,error:closed?'Contexto inativo, arquivado, cancelado ou encerrado durante a consulta.':error,...(interviewBrief&&!error&&!closed?{contextSnapshot:json({...claimed.contextSnapshot as object,interviewBrief})}:{}),leaseId:null,leaseUntil:null}});
         await tx.chatSession.update({where:{id:current.sessionId},data:{version:{increment:1}}});
         await h.event(tx,source,{id:'assistant:local',name:'Assistente local'},closed?'ASSISTANT_TURN_CANCELLED':error?'ASSISTANT_TURN_FAILED':completion.success?'ASSISTANT_COMPLETED':plan?'PLAN_PROPOSED':'ASSISTANT_RESPONSE_RECORDED',closed?'Contexto arquivado ou encerrado durante a consulta; resposta descartada.':error?'Falha na consulta; mensagem preservada.':completion.success?'Planejamento criado pela assistente.':'Resposta do modelo local registrada para revisão, sem criar itens.',{turnId:current.id,model:h.llm!.model},'system',{before:{state:current.status},after:{state:closed?'cancelled':error?'failed':'succeeded'},initiator:{id:current.actorId,name:current.actorName,type:'human'},operationId:current.id,subject:{type:'chat_turn',id:current.id},...(closed?{reasonCode:'CONTEXT_CLOSED'}:{})});
       }).catch(async()=>{

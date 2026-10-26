@@ -21,8 +21,8 @@ test('normalization records exact prior/new states, leaves the archive unchanged
   const f=await fixture(),operation='state-policy:'+randomUUID();
   expect(await normalizeItemStates(db,operation)).toMatchObject({changed:2});
   expect(await normalizeItemStates(db,operation)).toMatchObject({changed:0});
-  expect(await db.item.findUnique({where:{id:f.project.id}})).toMatchObject({status:'awaiting_approval',projectLifecycle:'active',version:2});
-  expect(await db.item.findUnique({where:{id:f.epic.id}})).toMatchObject({status:'todo',version:2});
+  expect(await db.item.findUnique({where:{id:f.project.id}})).toMatchObject({status:'active',projectLifecycle:'active',version:2});
+  expect(await db.item.findUnique({where:{id:f.epic.id}})).toMatchObject({status:'active',version:2});
   expect(await db.item.findUnique({where:{id:f.archived.id}})).toMatchObject({projectLifecycle:'planned',archived:true,version:1});
   const events=await db.historyEvent.findMany({where:{operationId:operation}});
   expect(events).toHaveLength(2);
@@ -35,7 +35,7 @@ test('normalization records exact prior/new states, leaves the archive unchanged
   const rollback='rollback:'+randomUUID();
   expect(await normalizeItemStates(db,rollback,operation)).toMatchObject({changed:2});
   expect(await normalizeItemStates(db,rollback,operation)).toMatchObject({changed:0});
-  expect(await db.item.findUnique({where:{id:f.project.id}})).toMatchObject({projectLifecycle:'planned',version:3});
+  expect(await db.item.findUnique({where:{id:f.project.id}})).toMatchObject({status:'awaiting_approval',projectLifecycle:'planned',version:3});
   expect(await db.item.findUnique({where:{id:f.epic.id}})).toMatchObject({status:'approved',version:3});
   expect(await db.historyEvent.count({where:{operationId:operation}})).toBe(2);
   // Restore this isolated fixture to the current policy for the following test.
@@ -58,8 +58,8 @@ test('a failed audit write rolls back every state change and a retry records eac
   expect(await normalizeItemStates(db,operation)).toMatchObject({changed:2});
   expect(await normalizeItemStates(db,operation)).toMatchObject({changed:0});
   expect(await db.historyEvent.count({where:{operationId:operation}})).toBe(2);
-  await db.item.update({where:{id:f.epic.id},data:{status:'doing',version:{increment:1}}});
+  await db.item.update({where:{id:f.epic.id},data:{status:'inactive',version:{increment:1}}});
   await expect(normalizeItemStates(db,'unsafe-rollback:'+randomUUID(),operation)).rejects.toThrow('State changed after normalization');
-  expect(await db.item.findUnique({where:{id:f.epic.id}})).toMatchObject({status:'doing',version:3});
+  expect(await db.item.findUnique({where:{id:f.epic.id}})).toMatchObject({status:'inactive',version:3});
   expect(await db.item.findUnique({where:{id:f.project.id}})).toMatchObject({projectLifecycle:'active',version:2});
 });

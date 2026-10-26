@@ -49,6 +49,24 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('audited commands in a disposabl
     expect((await db.item.findUniqueOrThrow({where:{id:target.id}})).version).toBe(before);
   });
 
+  test('automatic pipeline tasks retain the human initiator and do not duplicate on Story creation replay',async()=>{
+    async function create(kind:string,parentId?:string,key?:string){
+      const result=await runtime.app.inject({method:'POST',url:'/api/items',headers:{...headers,'idempotency-key':randomUUID()},payload:{kind,parentId,key,name:'Isolated audit '+kind}});
+      expect(result.statusCode,result.body).toBe(200);return result.json().item;
+    }
+    const system=await create('system',undefined,'AUDIST'),project=await create('project',system.id,'TASKER'),epic=await create('epic',project.id);
+    const commandHeaders={...headers,'idempotency-key':randomUUID()},payload={kind:'story',parentId:epic.id,name:'Manual Story with planned pipeline'};
+    const first=await runtime.app.inject({method:'POST',url:'/api/items',headers:commandHeaders,payload});expect(first.statusCode,first.body).toBe(200);
+    expect((await runtime.app.inject({method:'POST',url:'/api/items',headers:commandHeaders,payload})).json()).toEqual(first.json());
+    const story=first.json().item,tasks=await db.item.findMany({where:{parentId:story.id,kind:'task'}});
+    expect(tasks).toHaveLength(6);
+    const events=await db.historyEvent.findMany({where:{itemId:{in:tasks.map(task=>task.id)},action:'ITEM_CREATED'}});expect(events).toHaveLength(6);
+    for(const event of events){expect(event).toMatchObject({outcome:'SUCCEEDED',phase:'COMPLETED',actorType:'system'});expect((event.audit as any).initiator).toMatchObject({id:'admin',type:'human'});expect((event.audit as any).executor).toMatchObject({id:'system:pipeline',type:'system'});}
+    const cancelled=await runtime.app.inject({method:'POST',url:`/api/items/${story.id}/cancel`,headers:{...headers,'idempotency-key':randomUUID()},payload:{expectedVersion:story.version,comment:'Private cancellation explanation kept in controlled source.'}});expect(cancelled.statusCode,cancelled.body).toBe(200);
+    const confirmed=await db.historyEvent.findMany({where:{itemId:story.id,action:'STORY_CANCELLED'}});expect(confirmed).toHaveLength(1);expect(confirmed[0]).toMatchObject({outcome:'CANCELLED',phase:'COMPLETED'});
+    expect(JSON.stringify(confirmed)).not.toContain('Private cancellation explanation');
+  });
+
   test('runtime role cannot truncate, mutate, downgrade or disable the audit trail',async()=>{
     for(const sql of ['TRUNCATE "HistoryEvent"','DELETE FROM "HistoryEvent"','ALTER TABLE "HistoryEvent" DISABLE TRIGGER ALL','UPDATE "HistoryEvent" SET message=\'changed\'']){
       await expect(db.$transaction(async tx=>{await tx.$executeRawUnsafe('SET LOCAL ROLE sdlc_portal_app');await tx.$executeRawUnsafe(sql);})).rejects.toThrow();

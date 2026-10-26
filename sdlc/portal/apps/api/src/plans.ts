@@ -1,13 +1,16 @@
 import {createHash} from 'node:crypto';
 import {z} from 'zod';
 import type {FastifyInstance} from 'fastify';
-import type {Item} from '../../../packages/db/generated/client.ts';
+import type {Item,PlanProposal} from '../../../packages/db/generated/client.ts';
 import type {Transaction} from '../../../packages/db/client.ts';
 import {assistantLineage,type AssistantHelpers} from './assistant.ts';
 import {DomainError} from './errors.ts';
 import {planSchema,validatePlanScope,type Plan} from './plan-schema.ts';
 import {assertFormalPlan} from './requirements.ts';
 import type {AuditOptions} from './audit.ts';
+import {hierarchyBlock} from './lifecycle-policy.ts';
+import {ensurePipelineTasks,applyPipelineTaskPlan,pipelineStageOf} from './pipeline-tasks.ts';
+import {initializeStorySpecification} from './story-specifications.ts';
 
 export async function projectFingerprint(tx:Transaction,projectId:string){
   const tree=await tx.$queryRaw<{id:string;version:number;archived:boolean;status:string;parentId:string|null;projectLifecycle:string|null}[]>`WITH RECURSIVE tree AS (SELECT * FROM "Item" WHERE id=${projectId} UNION ALL SELECT i.* FROM "Item" i JOIN tree t ON i."parentId"=t.id) SELECT id,version,archived,status,"parentId","projectLifecycle" FROM tree ORDER BY id`;
@@ -17,10 +20,43 @@ export async function projectFingerprint(tx:Transaction,projectId:string){
 export async function proposalList(tx:Transaction,item:Item,sessionVersion:number,page=1){
   if(item.kind!=='project')return [];
   const proposals=await tx.planProposal.findMany({where:{projectId:item.id},orderBy:[{createdAt:'desc'},{id:'desc'}],take:20,skip:(page-1)*20});
-  const fingerprint=proposals.some(p=>p.status==='draft')?await projectFingerprint(tx,item.id):'';
-  return proposals.map(p=>({...p,stale:p.status==='draft'&&(p.projectVersion!==item.version||p.sessionVersion!==sessionVersion||p.contextFingerprint!==fingerprint)}));
+  return projectProposalProjection(tx,item,sessionVersion,proposals);
 }
-export const planInstructions='Gere somente um objeto JSON válido, sem markdown: {"summary":"...","epics":[{"title":"...","description":"...","stories":[{"title":"...","description":"...","acceptanceCriteria":["..."],"repositoryIds":[],"tasks":[{"title":"...","description":"...","repositoryIds":[]}]}]}]}. Use apenas objetivos e restrições informados pelo usuário; não invente domínio, demandas ou aprovações. Se faltarem informações, retorne {"error":"entrevista insuficiente"}. Respeite quantidades explicitamente solicitadas pelo usuário. Na ausência delas, proponha fatia pequena: 1 ou 2 épicos, até 2 histórias por épico, até 2 tarefas por história. Seja conciso: descrições de uma frase, resumo de até 300 caracteres, sem repetir o título na descrição. Preserve o escopo já combinado na entrevista. Limites: títulos 120 caracteres, descrições 1000, resumo 2000, critérios até 6 de 200 caracteres. Cada história e cada tarefa deve conter repositoryIds, mesmo vazio. Use somente IDs do contexto; tarefas usam subconjunto da história. Se não informado, use []. Não execute operações. Tudo será revisado antes de criar itens.';
+
+const appliedIds=(proposal:PlanProposal)=>proposal.status==='applied'&&Array.isArray(proposal.appliedItemIds)?[...new Set(proposal.appliedItemIds.filter((id):id is string=>typeof id==='string'&&id.length>0))]:[];
+const projectReference=(item:Item)=>({id:item.id,key:item.key,name:item.name});
+type PlanCreationReceipt={itemIds:string[];items:Pick<Item,'id'|'kind'|'key'|'name'|'status'|'parentId'|'archived'>[];totals:{epics:number;stories:number;tasks:number;total:number};coverage:{expected:number;available:number;complete:boolean}};
+async function creationReceipts(tx:Transaction,proposals:PlanProposal[]){
+  const ids=[...new Set(proposals.flatMap(appliedIds))];
+  // The receipt is based on persisted item IDs, never on generated prose or a
+  // reconstruction from the current tree. Limit its projection to safe labels.
+  const found=ids.length?await tx.item.findMany({where:{id:{in:ids}},select:{id:true,kind:true,key:true,name:true,status:true,parentId:true,archived:true,parent:{select:{parentId:true,parent:{select:{parentId:true}}}}}}):[];
+  const byId=new Map(found.map(item=>[item.id,item]));
+  return new Map<string,PlanCreationReceipt|null>(proposals.map(proposal=>{
+    const itemIds=appliedIds(proposal);
+    if(!itemIds.length)return [proposal.id,null] as const;
+    const items=itemIds.flatMap(id=>{
+      const item=byId.get(id);
+      if(!item)return [];
+      const projectId=item.kind==='epic'?item.parentId:item.kind==='story'?item.parent?.parentId:item.kind==='task'?item.parent?.parent?.parentId:null;
+      if(projectId!==proposal.projectId)return [];
+      const {parent,...safe}=item;return [safe];
+    });
+    const totals={epics:items.filter(item=>item.kind==='epic').length,stories:items.filter(item=>item.kind==='story').length,tasks:items.filter(item=>item.kind==='task').length,total:items.length};
+    return [proposal.id,{itemIds,items,totals,coverage:{expected:itemIds.length,available:items.length,complete:items.length===itemIds.length}}] as const;
+  }));
+}
+
+export async function planCreationReceipt(tx:Transaction,proposal:PlanProposal){
+  return (await creationReceipts(tx,[proposal])).get(proposal.id)??null;
+}
+
+export async function projectProposalProjection(tx:Transaction,item:Item,sessionVersion:number,proposals:PlanProposal[]){
+  const fingerprint=proposals.some(p=>p.status==='draft')?await projectFingerprint(tx,item.id):'';
+  const receipts=await creationReceipts(tx,proposals);
+  return proposals.map(p=>({...p,project:projectReference(item),stale:p.status==='draft'&&(p.projectVersion!==item.version||p.sessionVersion!==sessionVersion||p.contextFingerprint!==fingerprint),creationReceipt:receipts.get(p.id)??null}));
+}
+export const planInstructions='Gere somente um objeto JSON válido, sem markdown: {"summary":"...","epics":[{"title":"...","description":"...","stories":[{"title":"...","description":"...","acceptanceCriteria":["..."],"repositoryIds":[],"tasks":[{"title":"...","description":"...","repositoryIds":[],"pipelineStage":"coding"}]}]}]}. Use apenas objetivos e restrições informados pelo usuário; não invente domínio, demandas ou aprovações. Se faltarem informações, retorne {"error":"entrevista insuficiente"}. Respeite quantidades explicitamente solicitadas pelo usuário. Na ausência delas, proponha uma fatia pequena de um épico e uma História. Seja conciso: descrições de uma frase, resumo de até 300 caracteres, sem repetir o título na descrição. Preserve o escopo já combinado na entrevista. Cada História recebe automaticamente seis Tarefas fixas: Codificação (coding), Teste (test), Revisão de Código (code_review), Revisão de Segurança (security_scan), Teste Final (final_test), Merge de Código (merge). Para detalhar uma dessas Tarefas, use pipelineStage com a etapa correspondente; não crie uma equivalente em paralelo e não repita a etapa. Tarefas adicionais de trabalho humano podem omitir pipelineStage; tasks pode ser vazio. A existência das Tarefas não inicia executores nem comprova testes/revisões. Limites: títulos 120 caracteres, descrições 1000, resumo 2000, critérios até 6 de 200 caracteres; no máximo 30 itens incluindo as seis Tarefas padrão de cada História. Cada História e Tarefa deve conter repositoryIds, mesmo vazio. Use somente IDs do contexto; Tarefas usam subconjunto da História. Se não informado, use []. Não execute operações. Tudo será revisado antes de criar itens.';
 
 export function parsePlan(output:string,allowedIds:string[],formal=false):Plan{
   let parsed:unknown;
@@ -42,22 +78,21 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const chain=await assistantLineage(tx,proposal.projectId,includeArchived==='true'),project=chain.at(-1)!;
       const revision=await tx.planRevision.findUnique({where:{proposalId_version:{proposalId:proposal.id,version}}});
       if(!revision)throw new DomainError('PLAN_REVISION_NOT_FOUND','Revisão da proposta não encontrada.',404);
-      return {proposalId:proposal.id,version,revision,context:{id:project.id,kind:project.kind,key:project.key,name:project.name,systemId:chain.find(i=>i.kind==='system')?.id,projectId:project.id,archived:chain.some(i=>i.archived)},readOnly:chain.some(i=>i.archived||i.kind==='project'&&['completed','cancelled'].includes(i.projectLifecycle??'')),coverage:'Conteúdo da revisão persistida na fonte de planejamento; não implica aplicação nem aprovação de G1.'};
+      return {proposalId:proposal.id,version,revision,context:{id:project.id,kind:project.kind,key:project.key,name:project.name,systemId:chain.find(i=>i.kind==='system')?.id,projectId:project.id,archived:chain.some(i=>i.archived)},readOnly:!!hierarchyBlock(chain),coverage:'Conteúdo da revisão persistida na fonte de planejamento; não implica aplicação nem aprovação de G1.'};
     },{isolationLevel:'RepeatableRead'});
   });
   app.post('/api/assistant/complete',async request=>{
     const body=z.object({contextId:z.string().min(1),projectId:z.string().min(1),expectedVersion:z.number().int().positive(),confirmed:z.literal(true),requirementsMode:z.boolean().optional()}).strict().parse(request.body);
     return h.mutate(request,async(tx,person)=>{
-      if(!['admin','product_owner'].includes(person.role))throw new DomainError('ROLE_DENIED','Criar planejamento exige Admin ou Product Owner.',403);
+      if(!['admin','product_owner','architect'].includes(person.role))throw new DomainError('ROLE_DENIED','Criar planejamento exige Admin, Product Owner ou Arquiteto.',403);
       if(!h.llm)throw new DomainError('LLM_NOT_CONFIGURED','Modelo local não configurado.',503);
       const source=await context(tx,body.contextId),project=await h.live(tx,body.projectId);
       if(source.kind==='story')throw new DomainError('PROJECT_REQUIRED','Criação de épicos, histórias e tarefas pertence ao planejamento do Projeto.',409);
       if(project.kind!=='project'||(source.kind==='project'?source.id!==project.id:project.parentId!==source.id))throw new DomainError('PROJECT_SCOPE','Selecione um Projeto deste Sistema.',409);
       await h.ensureNotArchived(tx,source);await h.ensureNotArchived(tx,project);
-      if(['completed','cancelled'].includes(project.projectLifecycle??''))throw new DomainError('PROJECT_CLOSED','Projeto encerrado.',409);
       const session=await tx.chatSession.findUnique({where:{contextId:source.id}});
       if(!session||session.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A conversa mudou; revise antes de concluir.',409);
-      if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running']}}}))throw new DomainError('CHAT_BUSY','Aguarde a geração pendente.',409);
+      if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running','paused']}}}))throw new DomainError('CHAT_BUSY','Aguarde, retome ou cancele a geração pendente.',409);
       const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded'},orderBy:{sequence:'desc'}});
       if(!latest)throw new DomainError('INTERVIEW_REQUIRED','Converse sobre o objetivo antes de concluir.',409);
       const latestSnapshot=latest.contextSnapshot as Record<string,unknown>;
@@ -80,7 +115,7 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const session=await tx.chatSession.findUnique({where:{contextId:item.id}});
       if(!session||!await tx.chatTurn.count({where:{sessionId:session.id,status:'succeeded',kind:'chat'}}))throw new DomainError('INTERVIEW_REQUIRED','Converse com a assistente sobre seu objetivo antes de gerar o plano.',409);
       if(session.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A conversa foi atualizada; revise antes de gerar.',409);
-      if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running']}}}))throw new DomainError('CHAT_BUSY','Aguarde ou cancele a geração pendente.',409);
+      if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running','paused']}}}))throw new DomainError('CHAT_BUSY','Aguarde, retome ou cancele a geração pendente.',409);
       const repositories=await tx.repository.findMany({where:{links:{some:{itemId:item.id}}},select:{id:true,key:true,name:true},take:20});
       const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded'},orderBy:{sequence:'desc'}});
       const snapshot={contextId:item.id,kind:'project',name:item.name,description:item.description.slice(0,1000),version:item.version,repositories,fingerprint:await projectFingerprint(tx,item.id),...(body.requirementsMode||(latest?.contextSnapshot as Record<string,unknown>)?.requirementsVersion===1?{requirementsVersion:1}:{} )};
@@ -100,13 +135,13 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const version=proposal.version+1;
       const changed=await tx.planProposal.update({where:{id:proposal.id},data:{content:body.content,version}});
       await tx.planRevision.create({data:{proposalId:proposal.id,version,content:body.content,source:'human',actorId:person.id,actorName:person.name}});
-      await h.event(tx,item,person,'PLAN_REVISED','Nova revisão humana da proposta registrada.',{proposalId:proposal.id,version},'human',{before:{version:proposal.version},after:{version},operationId:proposal.id,subject:{type:'plan_proposal',id:proposal.id}});return {proposal:changed};
+      await h.event(tx,item,person,'PLAN_REVISED','Nova revisão humana da proposta registrada.',{proposalId:proposal.id,version},'human',{before:{version:proposal.version},after:{version},operationId:proposal.id,subject:{type:'plan_proposal',id:proposal.id}});return {proposal:{...changed,project:projectReference(item)}};
     });
   });
   app.post<{Params:{id:string}}>('/api/assistant/plans/:id/apply',async request=>{
     const body=z.object({expectedVersion:z.number().int().positive(),expectedProjectVersion:z.number().int().positive(),expectedSessionVersion:z.number().int().positive(),confirmed:z.literal(true)}).strict().parse(request.body);
     return h.mutate(request,async(tx,person)=>{
-      if(!['admin','product_owner'].includes(person.role))throw new DomainError('ROLE_DENIED','Aplicar plano exige Admin ou Product Owner.',403);
+      if(!['admin','product_owner','architect'].includes(person.role))throw new DomainError('ROLE_DENIED','Aplicar plano exige Admin, Product Owner ou Arquiteto.',403);
       const proposal=await tx.planProposal.findUnique({where:{id:request.params.id},include:{turn:{include:{session:true}}}});
       if(!proposal)throw new DomainError('PLAN_NOT_FOUND','Proposta não encontrada.',404);
       if(proposal.status==='applied')throw new DomainError('PLAN_ALREADY_APPLIED','Esta proposta já foi aplicada. Consulte os itens criados.',409);
@@ -119,20 +154,32 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const changed=await tx.planProposal.update({where:{id:proposal.id},data:{status:'applied',appliedItemIds:ids}});
       await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});
       await h.event(tx,item,person,'PLAN_APPLIED','Plano revisado aplicado ao planejamento; sem aprovar ou iniciar execução.',{proposalId:proposal.id,revision:proposal.version,itemIds:ids},'human',{...await planApplicationAudit(tx,ids,proposal.id,proposal.version,proposal.turnId),before:{version:proposal.version,state:proposal.status},after:{version:proposal.version,state:'applied'},operationId:proposal.id,subject:{type:'plan_proposal',id:proposal.id}});
-      return {proposal:changed,itemIds:ids};
+      const creationReceipt=await planCreationReceipt(tx,changed);
+      return {proposal:{...changed,project:projectReference(item),creationReceipt},itemIds:ids,creationReceipt};
     });
   });
 }
 
 export async function createPlanItems(tx:Transaction,h:AssistantHelpers,person:Parameters<AssistantHelpers['canPlan']>[0],projectId:string,plan:Plan,proposalId:string,revision:number,turnId:string,creationAudit?:AuditOptions){
-      const ids:string[]=[];const source={planProposalId:proposalId,planRevision:revision,sourceTurnId:turnId};
+      const ids:string[]=[];const source={planProposalId:proposalId,planRevision:revision,sourceTurnId:turnId,creationOrigin:'assistant'};
+      const planRevision=await tx.planRevision.findUnique({where:{proposalId_version:{proposalId,version:revision}}});
+      const specificationSource=planRevision?.source==='human'?'human':'agent';
+      const specificationAuthor=planRevision?{id:planRevision.actorId,name:planRevision.actorName}:undefined;
       for(const epic of plan.epics){
         const e=await h.createItem(tx,person,{kind:'epic',parentId:projectId,name:epic.title,description:epic.description},source,creationAudit);ids.push(e.id);
         for(const story of epic.stories){
           const description=story.requirements?story.description:story.description+'\n\nCritérios de aceite:\n'+story.acceptanceCriteria.map(c=>'• '+c).join('\n');
           const s=await h.createItem(tx,person,{kind:'story',parentId:e.id,name:story.title,description,repositoryIds:story.repositoryIds},source,creationAudit);ids.push(s.id);
-          await tx.item.update({where:{id:s.id},data:{data:{...source,acceptanceCriteria:story.acceptanceCriteria,...(story.requirements?{requirements:story.requirements}:{})}}});
-          for(const task of story.tasks){const t=await h.createItem(tx,person,{kind:'task',parentId:s.id,name:task.title,description:task.description,repositoryIds:task.repositoryIds},source,creationAudit);ids.push(t.id);}
+          const defaults=await ensurePipelineTasks(tx,s,person,h.createItem,creationAudit);ids.push(...defaults.map(task=>task.id));
+          for(const task of story.tasks){
+            if(task.pipelineStage){
+              const planned=defaults.find(candidate=>pipelineStageOf(candidate)===task.pipelineStage)!;
+              await applyPipelineTaskPlan(tx,h,planned,person,task,creationAudit);
+            }else{
+              const t=await h.createItem(tx,person,{kind:'task',parentId:s.id,name:task.title,description:task.description,repositoryIds:task.repositoryIds},source,creationAudit);ids.push(t.id);
+            }
+          }
+          await initializeStorySpecification(tx,h,s,person,{requirements:{...(story.requirements??{}),objective:story.requirements?.objective||story.title,behavior:story.requirements?.behavior||story.description,functionalCriteria:story.acceptanceCriteria},technical:null},specificationSource,{author:specificationAuthor,initiator:person,executor:creationAudit?.executor??{...person,type:'human'}});
         }
       }
 

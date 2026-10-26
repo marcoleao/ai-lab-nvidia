@@ -20,7 +20,7 @@ test('inventory, aging boundaries and weekly events keep distinct meanings witho
     {action:'MERGE_DISCUSSION_FAILED',timestamp:now,payload:{durationMs:6000}},
   ];
   const discussion=[{id:'old',timestamp:new Date('2026-09-01T12:00:00Z'),payload:{runId:'run'}},{id:'new',timestamp:now,payload:{runId:'run'}}];
-  const tx={chatTurn:{findMany:async()=>[]},planProposal:{findMany:async()=>[]},planRevision:{findMany:async()=>[]},workActivity:{findMany:async()=>[]},workAttempt:{findMany:async()=>[]},workEvent:{findMany:async()=>[]},workTaskLink:{findMany:async()=>[]},item:{findMany:async()=>items},release:{findMany:async()=>[]},historyEvent:{findMany:async(args:any)=>args.where.actorType?[]:args.where.action?discussion:events},storyExecution:{findMany:async()=>[{id:'run',createdAt:new Date(+now-7200000)}]}};
+  const tx={storySpecificationRevision:{findMany:async()=>[]},flowPolicyInstallation:{findUniqueOrThrow:async()=>({startedAt:new Date('2026-01-01T00:00:00Z')})},chatTurn:{findMany:async()=>[]},planProposal:{findMany:async()=>[]},planRevision:{findMany:async()=>[]},workActivity:{findMany:async()=>[]},workAttempt:{findMany:async()=>[]},workEvent:{findMany:async()=>[]},workTaskLink:{findMany:async()=>[]},item:{findMany:async()=>items},release:{findMany:async()=>[]},historyEvent:{findMany:async(args:any)=>args.where.actorType?[]:args.where.action?discussion:events},storyExecution:{findMany:async()=>[{id:'run',createdAt:new Date(+now-7200000)}]}};
   const db={$transaction:async(fn:Function)=>fn(tx)} as unknown as Database;
   const result=await dashboard(db,now);
   for(const a of result.aging){expect(a.total).toBe(4);expect(a.buckets.map(b=>b.count)).toEqual([1,1,1,1]);}

@@ -9,6 +9,10 @@ test('system acronyms require six letters and normalize case before persistence'
   }
 });
 
-test('project keys retain their existing alphanumeric contract',()=>{
-  expect(createItemSchema.parse({kind:'project',parentId:'system',name:'Projeto',key:'app1'}).key).toBe('APP1');
+test('project keys use the same six-letter rule and case normalization as Systems',()=>{
+  const input={kind:'project',parentId:'system',name:'Projeto'};
+  expect(createItemSchema.parse({...input,key:'pRoJeT'}).key).toBe('PROJET');
+  for(const key of [undefined,'','ABCDE','ABCDEFG','ABC123','AB CDE','ABC-DE','ÁBCDEF']){
+    expect(createItemSchema.safeParse({...input,key}).success,String(key)).toBe(false);
+  }
 });

@@ -12,8 +12,8 @@ const fixture:DashboardData={
  filters:{},filterOptions:{users:[{id:'admin',name:'Administrador'},{id:'qa',name:'Qualidade'}],systems:[{id:'system-a',name:'Sistema A'},{id:'system-b',name:'Sistema B'}],projects:[{id:'project-a',name:'Projeto A',systemId:'system-a'},{id:'project-b',name:'Projeto B',systemId:'system-b'}]},
  inventory:[
   {kind:'system',total:2,archivedTotal:1,statuses:[{status:'active',count:2}]},
-  {kind:'project',total:4,archivedTotal:0,statuses:[{status:'awaiting_approval',count:1},{status:'approved',count:3}],lifecycle:[{status:'active',count:3},{status:'completed',count:1}]},
-  {kind:'epic',total:6,archivedTotal:0,statuses:[{status:'todo',count:2},{status:'doing',count:2},{status:'done',count:2}]},
+  {kind:'project',total:4,archivedTotal:0,statuses:[{status:'active',count:3},{status:'completed',count:1}],lifecycle:[{status:'active',count:3},{status:'completed',count:1}]},
+  {kind:'epic',total:6,archivedTotal:0,statuses:[{status:'active',count:2},{status:'inactive',count:2},{status:'completed',count:2}]},
   {kind:'story',total:12,archivedTotal:0,statuses:[{status:'specification',count:4},{status:'coding',count:3},{status:'code_review',count:2},{status:'completed',count:3}]},
   {kind:'task',total:18,archivedTotal:0,statuses:[{status:'todo',count:6},{status:'doing',count:5},{status:'done',count:7}]}
  ],
@@ -43,7 +43,7 @@ test('overview shows distinct dashboard, explicit unavailable measurements and a
  await expect(page.locator('.dashboard-filter-scope')).toBeVisible();
  const inventory=page.getByRole('article',{name:'Indicadores de Projetos'});
  await expect(inventory.locator('.inventory-total')).toHaveText('4Total');
- await expect(inventory).toContainText('AWAITING APPROVAL');
+ await expect(inventory).toContainText('ACTIVE');
  await expect(page.getByTestId('create-item')).toHaveCount(0);
  expect(inventoryRequests).toBe(0);
  const navigation=page.getByRole('navigation',{name:'Seções dos indicadores'});
@@ -97,7 +97,7 @@ test('dashboard shows one subject at a time and keeps filters through keyboard, 
  await openDashboardFilters(page);
  const navigation=page.getByRole('navigation',{name:'Seções dos indicadores'}),form=page.getByRole('form',{name:'Filtros dos indicadores'});
  const panels=page.locator('.dashboard section[id^="dashboard-"]');
- await expect(navigation.getByRole('link')).toHaveText(['Inventário','Fluxo semanal','Retrabalho','Tempo em aberto','DORA','Releases','Merge Requests','Atividades','Assistente']);
+ await expect(navigation.getByRole('link')).toHaveText(['Inventário','Fluxo semanal','Retrabalho','Tempo em aberto','DORA','Releases','Merge Requests','Atividades','Assistente','Histórias']);
  await expect(panels).toHaveCount(1);
  await expect(panels).toHaveAttribute('id','dashboard-inventory');
  const initialHeight=await page.locator('.dashboard').evaluate(element=>element.getBoundingClientRect().height);
@@ -140,6 +140,25 @@ test('assistant indicators show four weeks, samples and the same dashboard scope
  await expect(section.getByRole('row',{name:/Tempo mediano/})).toContainText('1.5 h (1 amostras)');await expect(section.getByText('Sem medição',{exact:true})).toHaveCount(4);
  await expect(page.locator('.dashboard-filter-scope')).toContainText('Projeto:');
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('Story metrics keep creation origin, revision authorship and confirmed cycles distinct across four weeks',async({page})=>{
+ const observed={available:true,partialCoverage:false,created:{manual:1,assistant:2,unknown:0},revisions:3,humanRevisions:2,agentRevisions:1,cancellations:2,cancelledStories:1,reopenings:1,reopenedStories:1};
+ const unobserved={...observed,available:false,revisions:null,humanRevisions:null,agentRevisions:null,cancellations:null,cancelledStories:null,reopenings:null,reopenedStories:null,created:{manual:0,assistant:0,unknown:1}};
+ await page.route('**/api/personas',route=>route.fulfill({json:{personas:[]}}));
+ await page.route('**/api/metrics/dashboard*',route=>route.fulfill({json:{...fixture,stories:{coverageStartedAt:'2026-10-05T03:00:00Z',total:observed,weeks:fixture.weeks.map((week,index)=>({...week,...(index===0?unobserved:observed)})),notes:['Rascunhos e pedidos pendentes não contam.']}}}));
+ await page.goto('/?userId=admin&systemId=system-a&projectId=project-a#dashboard-stories');
+ const section=page.locator('#dashboard-stories'),table=section.getByRole('table');
+ await expect(section.getByRole('heading',{name:'Planejamento e ciclos de Histórias'})).toBeVisible();
+ await expect(table.getByRole('columnheader')).toHaveCount(6);
+ await expect(table.getByRole('row',{name:/Criação manual/}).getByRole('cell')).toHaveText(['0','1','1','1','1']);
+ await expect(table.getByRole('row',{name:/Revisões de autoria humana/}).getByRole('cell')).toHaveText(['Sem cobertura','2','2','2','2']);
+ await expect(table.getByRole('row',{name:/Cancelamentos · ocorrências/}).getByRole('cell')).toHaveText(['Sem cobertura','2','2','2','2']);
+ await expect(table.getByRole('row',{name:/Histórias canceladas distintas/}).getByRole('cell')).toHaveText(['Sem cobertura','1','1','1','1']);
+ await expect(page.locator('.dashboard-filter-scope')).toContainText('Projeto:');
+ await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.reload();await expect(section).toBeVisible();await expect(page).toHaveURL(/userId=admin.*#dashboard-stories$/);
 });
 
 test('dashboard failure is actionable and never replaced with invented zero values',async({page})=>{

@@ -46,7 +46,7 @@ test('user creates their own hierarchy, navigates context, approves planning and
   await page.reload();
   await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Ambientes',exact:true}).click();
   await expect(page.getByText('NOT DEPLOYED',{exact:true})).toHaveCount(3);
-  await create('Projeto do ensaio','UX');
+  await create('Projeto do ensaio','UXTEST');
   await expect(page.locator('.page-heading .badge')).toContainText('AWAITING APPROVAL');
   await expect(page.getByText('NOT DEPLOYED',{exact:true})).toHaveCount(0);
   await expect(page.getByRole('navigation',{name:'Seções de Projeto'}).getByRole('link',{name:'Componentes',exact:true})).toHaveCount(0);

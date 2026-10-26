@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>História · Protótipo de navegação · Portal SDLC</title>
+  <link rel="stylesheet" href="assets/historia-2026-10-26/prototipo.css">
+  <script src="assets/historia-2026-10-26/prototipo.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Pular para o conteúdo</a>
+  <aside class="sidebar" aria-label="Navegação global">
+    <a class="brand" href="?scenario=g1&tab=tasks" aria-label="Portal SDLC, início do protótipo"><span class="brand-mark">S</span><span>Portal SDLC<small>DA IDEIA À ENTREGA</small></span></a>
+    <button class="mobile-menu" data-action="global-menu" aria-haspopup="dialog" aria-label="Abrir menu de navegação global"><span aria-hidden="true">☰</span> Menu</button>
+    <nav aria-label="Principal">
+      <a href="#overview" data-destination="Visão geral"><span aria-hidden="true">◫</span>Visão geral</a>
+      <a href="#assistant" data-destination="Assistente"><span aria-hidden="true">✧</span>Assistente</a>
+      <a class="selected" href="?view=system" data-view="system" aria-current="page"><span aria-hidden="true">▤</span>Sistemas</a>
+      <a href="#releases" data-destination="Releases"><span aria-hidden="true">◇</span>Releases</a>
+      <a href="#integrations" data-destination="Integrações"><span aria-hidden="true">⌘</span>Integrações</a>
+    </nav>
+    <div class="sidebar-foot"><span class="lab-dot"></span>LAB · revisão de experiência<small>História → Tarefas → Evidências</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span>Sistemas <span class="topbar-divider">/</span> Gestão da história</span><div class="persona"><span class="avatar" aria-hidden="true">MP</span><span>Marina Pereira<small>Persona PO · demonstração</small></span></div></header>
+    <section class="prototype-bar" aria-label="Controles do protótipo">
+      <div><span class="prototype-label">PROTÓTIPO</span><p>Navegação proposta <span>· dados fictícios isolados</span></p></div>
+      <label>Cenário <select id="scenario" aria-label="Cenário da história"></select></label>
+      <label>Consulta <select id="query-mode" aria-label="Estado da consulta"><option value="ready">Normal</option><option value="loading">Carregando</option><option value="error">Falha</option><option value="empty">Coleção vazia</option></select></label>
+      <button class="text-button" data-action="guide">Como explorar <span aria-hidden="true">↗</span></button>
+    </section>
+    <main id="main" tabindex="-1"></main>
+    <footer>Protótipo para revisão · 26/10/2026 · As interações alteram somente esta demonstração no navegador. Nenhum agente ou integração é acionado.</footer>
+  </div>
+  <div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+  <noscript>Ative JavaScript para explorar os cenários interativos deste protótipo.</noscript>
+</body>
+</html>

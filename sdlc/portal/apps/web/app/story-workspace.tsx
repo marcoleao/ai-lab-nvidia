@@ -11,7 +11,8 @@ import MergeDiscussion from './merge-discussion';
 import Assistant from './assistant';
 import ConversationHistory from './conversation-history';
 import './story-workspace.css';
-import RequirementsDetails from './requirements-details';
+import StorySpecification from './story-specification';
+import TaskResults from './task-results';
 import { Spinner, LoadingState, ErrorState, FilterPanel, Pagination, SortHeader, displayDate } from './experience-ui';
 
 type Item = { id: string; key: string; name: string; kind: string; description: string; status: string; version: number; createdAt?: string; updatedAt?: string; data?: Record<string, unknown> };
@@ -21,19 +22,19 @@ type Event = { id: string; type?: string; title?: string; message?: string; crea
 type Activity = { id: string; kind: string; label: string; taskId: string | null; state: string; currentAttemptId?: string | null; attempts: Attempt[]; legacy?: boolean; links?: { taskId: string; scope: string; completion: string }[] };
 type Task = Item & { activityKind?: string; operationalState?: string; processOwned?: boolean; managed?: boolean; activities?: Activity[] };
 type Action = { id: string; kind?: string; label: string; enabled: boolean; reason?: string; path?: string; method?: string; body?: Record<string, unknown>; href?: string; confirmation?: { title: string; description: string; checkboxLabel?: string } };
-type Run = { id: string; state: string; stage: string; commitSha?: string | null; branch?: string | null; mergeRequestUrl?: string | null; specification?: { requirements: string; architecture: string; testCases: { criterionIndex: number; description: string }[]; risks: string[] } | null; validationIssues?: { path: string; code: string; message: string }[]; discussionVersion?: number };
+type Run = { id: string; state: string; stage: string; createdAt?: string; commitSha?: string | null; branch?: string | null; mergeRequestUrl?: string | null; specification?: { requirements: string; architecture: string; testCases: { criterionIndex: number; description: string }[]; risks: string[] } | null; validationIssues?: { path: string; code: string; message: string }[]; discussionVersion?: number };
 type Journey = {
   story: Item; current: { phase: string; label?: string; state: string; taskId?: string | null; activityId?: string | null; title: string; message?: string; updatedAt?: string };
   nextAction: Action | null; secondaryActions?: Action[]; tasks: Task[]; activities: Activity[]; events?: Event[];
   run?: Run | null; chat?: { mode: 'execution' | 'merge' | null; executionId?: string; enabled: boolean; reason?: string; guidance?: string; version?: number };
-  permissions?: { canAct: boolean };
+  permissions?: { canAct: boolean; canManageLifecycle?: boolean };
   signals?: { lastEventAt?: string | null; lastHeartbeatAt?: string | null; heartbeatStaleAfterMs?: number; provider?: string; stage?: string; waitingSince?: string; queuedAt?: string; startedAt?: string; queueReason?: string; legacy?: boolean };
   binding?: { activityId?: string; enabled?: boolean; expectedLinksVersion: string; tasks: { id: string; key: string; name: string; description: string; linked: boolean; scope?: string; completion?: string }[] };
 };
 type Pending = { key: string; persona: string; path: string; method: string; body?: Record<string, unknown>; label: string; targetLabel?: string };
 type Props = { item: Item; persona: string; tab: string; headerTargetId: string; onRefresh: () => void; onEdit: () => void; onCreate: () => void; canPlan: boolean; administration: ReactNode; components: ReactNode; history: ReactNode; releases?: (choosing: boolean, onChoose: () => void) => ReactNode; formContent?: ReactNode; formActions?: (blocked: boolean) => ReactNode; formTitle?: string; manualActions?: ReactNode; planningContext?: ReactNode };
 
-const PHASES = ['SPECIFICATION', 'APPROVED', 'CODING', 'CODE REVIEW', 'SECURITY SCAN', 'TESTING', 'UAT', 'PRODUCTION', 'COMPLETED'];
+const PHASES = ['SPECIFICATION', 'APPROVED', 'CODING', 'CODE REVIEW', 'SECURITY SCAN', 'TESTING', 'UAT', 'PRODUCTION', 'COMPLETED', 'CANCELLED'];
 const label = (value?: string | null) => value === 'todo' ? 'TO DO' : (value || '').replaceAll('_', ' ').toUpperCase();
 const date = displayDate;
 const operationLabel: Record<string, string> = { queued: 'Na fila', running: 'Em processamento', waiting_input: 'Aguardando sua orientação', waiting_approval: 'Aguardando aprovação', blocked: 'Impedimento', failed: 'Falha na atividade', succeeded: 'Resultado registrado', passed: 'Verificação aprovada', stale: 'Revisão desatualizada', cancelled: 'Cancelada', not_started: 'Aguardando início', waiting_human: 'Aguardando você', waiting_dependency: 'Aguardando próxima etapa' };
@@ -97,7 +98,7 @@ function TaskCollection({ storyId, rows, currentTaskId, currentState, refresh }:
     <FilterPanel title="Filtrar Tarefas" id={`task-filters-${storyId}`}>
       <div className="sw-filters" aria-label="Atalhos de Tarefas">{Object.entries(titles).map(([value, title]) => <button type="button" key={value} aria-pressed={values.filter === value} onClick={() => quick(value)}>{title}</button>)}<p className="hint">Os atalhos aplicam a situação imediatamente. A busca pendente é preservada.</p></div>
       <form onSubmit={event => { event.preventDefault(); update({ ...draft, page: 1 }); }}>
-        <div className="sw-query-fields"><label>Buscar Tarefa<input type="search" value={draft.q} onChange={event => remember({ ...draft, q: event.target.value })} placeholder="Nome ou chave" /></label><label>Status da Tarefa<select value={draft.status} onChange={event => remember({ ...draft, status: event.target.value, filter: draft.filter === 'doing' ? 'all' : draft.filter })}><option value="">Todos os status</option>{['todo', 'doing', 'done'].map(status => <option value={status} key={status}>{label(status)}</option>)}</select></label></div>
+        <div className="sw-query-fields"><label>Buscar Tarefa<input type="search" value={draft.q} onChange={event => remember({ ...draft, q: event.target.value })} placeholder="Nome ou chave" /></label><label>Status da Tarefa<select value={draft.status} onChange={event => remember({ ...draft, status: event.target.value, filter: draft.filter === 'doing' ? 'all' : draft.filter })}><option value="">Todos os status</option>{['todo', 'doing', 'done', 'cancelled'].map(status => <option value={status} key={status}>{label(status)}</option>)}</select></label></div>
         <div className="actions"><button type="submit">Aplicar filtros</button><button type="button" onClick={() => { remember({ q: '', filter: 'all', status: '' }, { q: '', filter: 'all', status: '' }); update({ q: '', filter: 'all', status: '', page: 1 }); }}>Limpar filtros</button></div>{JSON.stringify(draft) !== JSON.stringify(applied) && <p className="hint" role="status">Filtros alterados. Use Aplicar filtros.</p>}
       </form>
     </FilterPanel>
@@ -273,7 +274,7 @@ function Workspace({ item, persona, tab, headerTargetId, onRefresh, onEdit, onCr
   }, [item.id, persona, refresh]);
 
   async function send(action: Action, repeat?: Pending) {
-    if (busy || discussionBusy || !persona || !canPlan || !repeat && (!planningAllowed || !currentContext || !action.enabled) || pending && pending.persona !== persona) return;
+    if (busy || discussionBusy || !persona || !canPlan || !repeat && ((!planningAllowed && action.id !== 'reopen_story') || !currentContext || !action.enabled) || pending && pending.persona !== persona) return;
     if (!repeat && action.confirmation && confirmation?.id !== action.id) { setConfirmation(action); setConfirmed(false); return; }
     if (!repeat && action.confirmation?.checkboxLabel && !confirmed) return;
     if (!repeat && action.href && !action.path) { router.push(action.href); return; }
@@ -326,7 +327,7 @@ function Workspace({ item, persona, tab, headerTargetId, onRefresh, onEdit, onCr
 
 
   const allowedAction = Boolean(currentContext && canPlan && persona && data?.permissions?.canAct !== false && !busy && !discussionBusy && !pending);
-  const actionButton = (action: Action, primary = false) => <button key={action.id} type="button" className={primary ? 'primary' : ''} disabled={!allowedAction || !action.enabled || confirmation?.id === action.id && Boolean(action.confirmation?.checkboxLabel) && !confirmed} onClick={() => void send(action)}>{busy && <Spinner />}{busy ? 'Enviando…' : action.label}</button>;
+  const actionButton = (action: Action, primary = false) => <button key={action.id} type="button" className={primary ? 'primary' : ''} disabled={!(action.id === 'reopen_story' ? canPlan && !busy && !discussionBusy && !pending : allowedAction) || !action.enabled || confirmation?.id === action.id && Boolean(action.confirmation?.checkboxLabel) && !confirmed} onClick={() => void send(action)}>{busy && <Spinner />}{busy ? 'Enviando…' : action.label}</button>;
 
   return <div className="sw-workspace" data-testid="story-workspace">
     {headerTarget ? createPortal(headerContent, headerTarget) : headerContent}
@@ -337,7 +338,7 @@ function Workspace({ item, persona, tab, headerTargetId, onRefresh, onEdit, onCr
       {!data && !loadError && <LoadingState className="panel">Carregando a jornada da História…</LoadingState>}
       {data && normalizedTab === 'planning' && <>
         {planningContext}
-        <LifecyclePanel title={isTask ? 'Ciclo da Tarefa' : 'Ciclo da História'} description={isTask ? 'A Tarefa registra o trabalho planejado ou uma atividade do processo. Sua conclusão depende da regra e da evidência vinculadas.' : 'A História percorre as etapas de especificação, aprovação, implementação e validação. As etapas avançam pelas operações e gates do processo.'} value={isTask ? selectedTask?.status || item.status : data.story.status} stages={isTask ? ['todo', 'doing', 'done'] : PHASES.map(phase => phase.toLowerCase().replaceAll(' ', '_'))}>
+        <LifecyclePanel title={isTask ? 'Ciclo da Tarefa' : 'Ciclo da História'} description={isTask ? 'A Tarefa registra o trabalho planejado ou uma atividade do processo. Sua conclusão depende da regra e da evidência vinculadas.' : 'A História percorre as etapas de especificação, aprovação, implementação e validação. As etapas avançam pelas operações e gates do processo.'} value={isTask ? selectedTask?.status || item.status : data.story.status} stages={isTask ? ['todo', 'doing', 'done', 'cancelled'] : PHASES.map(phase => phase.toLowerCase().replaceAll(' ', '_'))}>
           {!isTask && <><p className="hint">Aprovações e execução estão na seção Processo e decisões desta aba. As etapas do ciclo não permitem alterar o status manualmente nem dispensar gates. Testes, homologação e deploy dependem das próximas integrações.</p><div className="actions"><button type="button" disabled={Boolean(pending) || busy || discussionBusy} onClick={currentContext ? () => reveal('action') : continueCurrent}>Consultar próxima ação da História</button></div></>}
           {isTask && selectedTask && <>
             <p className="hint">{controlledTask ? 'Esta Tarefa é controlada pelo processo ou pela publicação de código. O status acompanha as operações e evidências; não pode ser alterado manualmente.' : manualTask ? 'Altere o status na seção Processo e decisões desta aba. Reabrir uma Tarefa DONE exige justificativa com pelo menos 10 caracteres.' : 'O controle de status desta Tarefa ainda não foi confirmado. Atualize a consulta antes de alterá-la.'}</p>
@@ -349,10 +350,10 @@ function Workspace({ item, persona, tab, headerTargetId, onRefresh, onEdit, onCr
       {data && isTask && normalizedTab === 'overview' && <section className="panel"><div className="sw-section-heading"><h2>Trabalho desta Tarefa</h2>{badge(item.status)}</div><p className="description">{item.description || 'Nenhuma descrição registrada.'}</p><p className="sw-task-origin">{selectedTask?.processOwned ? 'Atividade vinculada ao processo. O andamento é atualizado pelas operações e suas evidências.' : 'Trabalho planejado. A conclusão automática exige vínculo explícito de escopo e critério.'}</p>{attemptResult(selectedAttempt)}</section>}
       {data && !isTask && normalizedTab === 'tasks' && <section className="panel"><div className="sw-section-heading"><h2>Tarefas da História</h2></div>{taskRows(data.tasks)}</section>}
       {data && !isTask && normalizedTab === 'tasks' && previousActivities()}
-      {isTask && normalizedTab === 'evidence' && <section className="panel"><h2>Evidências e resultado</h2>{historical && <p className="sw-alert">Tentativa anterior em consulta. O resultado pertence à revisão indicada abaixo.</p>}{attemptResult(selectedAttempt)}</section>}
+      {isTask && normalizedTab === 'evidence' && <section className="panel"><h2>Evidências e resultado</h2>{historical && <p className="sw-alert">Tentativa anterior em consulta. O resultado pertence à revisão indicada abaixo.</p>}{attemptResult(selectedAttempt)}<TaskResults taskId={item.id} persona={persona} revision={item.version}/></section>}
       {isTask && normalizedTab === 'attempts' && <section className="panel"><h2>Tentativas desta Tarefa</h2><p className="hint">Cada tentativa conserva a revisão analisada e seu resultado. Consultar histórico não autoriza executar comandos sobre uma revisão anterior.</p>{data && <AttemptCollection taskId={item.id} attempts={attempts} processingAllowed={processing && currentContext} />}</section>}
-      {!isTask && normalizedTab === 'specification' && <RequirementsDetails value={item.data?.requirements}/>} 
-      {!isTask && normalizedTab === 'specification' && <section className="panel"><h2>Especificação e critérios</h2><p className="description">{story?.description}</p>{data?.run?.specification ? <><h3>Requisitos propostos</h3><p className="description">{data.run.specification.requirements}</p><h3>Arquitetura proposta</h3><p className="description">{data.run.specification.architecture}</p><h3>Casos de teste</h3><ol>{data.run.specification.testCases.map((test, index) => <li key={index}><strong>Critério {test.criterionIndex + 1}:</strong> {test.description}</li>)}</ol>{Boolean(data.run.specification.risks.length) && <><h3>Riscos identificados</h3><ul>{data.run.specification.risks.map((risk, index) => <li key={index}>{risk}</li>)}</ul></>}</> : <p className="hint">A proposta detalhada ficará disponível após a preparação da execução.</p>}</section>}
+      {!isTask && <div hidden={normalizedTab !== 'specification'}><StorySpecification storyId={item.id} persona={persona} version={item.version} canEdit={planningAllowed && !busy && !formContent && !pending} onRefresh={reload}/></div>}
+      {!isTask && normalizedTab === 'specification' && data?.run?.specification && <details className="panel" aria-label="Plano técnico registrado na execução"><summary>Consultar plano técnico registrado na execução</summary><p className="hint">A especificação vigente está apresentada acima. Esta consulta preserva o plano técnico usado pela execução identificada abaixo, que pode ter utilizado uma revisão anterior.</p><dl className="sw-metadata"><div><dt>Execução</dt><dd><code>{data.run.id}</code></dd></div><div><dt>Situação registrada</dt><dd>{operationLabel[data.run.state] || label(data.run.state)}</dd></div>{data.run.createdAt && <div><dt>Solicitada em · America/Sao_Paulo</dt><dd>{date(data.run.createdAt)}</dd></div>}{data.run.commitSha && <div><dt>Commit publicado</dt><dd><code>{data.run.commitSha}</code></dd></div>}</dl><h3>Requisitos técnicos da execução</h3><p className="description">{data.run.specification.requirements}</p><h3>Arquitetura registrada</h3><p className="description">{data.run.specification.architecture}</p><h3>Casos de teste registrados</h3><ol>{data.run.specification.testCases.map((test, index) => <li key={index}><strong>Critério {test.criterionIndex + 1}:</strong> {test.description}</li>)}</ol>{Boolean(data.run.specification.risks.length) && <><h3>Riscos registrados</h3><ul>{data.run.specification.risks.map((risk, index) => <li key={index}>{risk}</li>)}</ul></>}</details>}
       {isTask && normalizedTab === 'activity' && history}
       {normalizedTab === 'conversations' && <ConversationHistory itemId={item.id} persona={persona} canPlan={canPlan} revision={refresh} />}
       {!isTask && normalizedTab === 'components' && components}

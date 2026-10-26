@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { mockPersonas, uiJourney } from './journey-fixtures';
+import { assistantMessagePage } from './assistant-fixtures';
 
 const now = '2026-10-24T16:00:00.000Z';
 const item = (id: string, kind: string, parentId: string | null, name: string) => ({ id, kind, parentId, name, key: id.toUpperCase(), status: kind === 'system' ? 'active' : kind === 'story' ? 'specification' : kind === 'task' ? 'todo' : 'approved', projectLifecycle: kind === 'project' ? 'active' : undefined, version: 3, archived: false, description: 'Escopo registrado e preservado.', data: {}, createdAt: now, updatedAt: now });
@@ -18,14 +19,20 @@ async function fixtures(page: Page) {
     if (request.method() !== 'GET') {
       state.writes.push({ path, body: request.postDataJSON(), key: request.headers()['idempotency-key'] });
       if (path.endsWith('/conversation-links') && state.failLinkOnce) { state.failLinkOnce = false; return route.abort('failed'); }
+      if (path === '/api/assistant/turns') return route.fulfill({ json: { turn: { id: 'submitted-contextual-turn', status: 'queued' } } });
       return route.fulfill({ json: { ok: true } });
     }
     if (path === '/api/items') return route.fulfill({ json: { items: [system] } });
+    if (path === '/api/assistant/messages') {
+      const turns = [{ id: 'current-2', sequence: 25, kind: 'chat', input: 'Pergunta anterior preservada', output: 'Resposta consultiva anterior.', status: 'succeeded', actorName: 'Ana', model: 'isolated-model', error: null, createdAt: now }, { id: 'latest-contextual-turn', sequence: 45, kind: 'chat', input: 'Pergunta atual', output: 'Resposta consultiva.', status: 'succeeded', actorName: 'Ana', model: 'isolated-model', error: null, createdAt: now }, ...(state.activeTurn ? [{ ...state.activeTurn, sequence: 46 }] : [])];
+      return route.fulfill({ json: { contextId: url.searchParams.get('contextId'), ...assistantMessagePage(turns, url.searchParams) } });
+    }
     if (path === '/api/assistant') {
       const current = url.searchParams.get('contextId') === story.id ? story : project, pageNumber = Number(url.searchParams.get('page')) || 1;
-      return route.fulfill({ json: { context: current, session: { id: `session-${current.id}`, version: 4 }, turns: [{ id: `current-${pageNumber}`, kind: 'chat', input: pageNumber === 1 ? 'Pergunta atual' : 'Pergunta anterior preservada', output: 'Resposta consultiva.', status: 'succeeded', actorName: 'Ana', model: 'isolated-model', error: null, createdAt: now }], proposals: [], availableRepositories: [], configured: true, model: 'isolated-model', assistantMode: current.kind === 'story' ? 'delivery' : 'planning', readOnly: state.readOnly, activeTurn: state.activeTurn, hasSuccessfulInterview: true, turnsPage: { page: pageNumber, pageSize: 20, total: 45, totalPages: 3, hasMore: pageNumber < 3 }, proposalsPage: { page: 1, pageSize: 20, total: 0, totalPages: 1, hasMore: false }, brief: null } });
+      return route.fulfill({ json: { context: current, session: { id: `session-${current.id}`, version: 4 }, turns: [{ id: `current-${pageNumber}`, sequence: pageNumber === 1 ? 45 : 25, kind: 'chat', input: pageNumber === 1 ? 'Pergunta atual' : 'Pergunta anterior preservada', output: 'Resposta consultiva.', status: 'succeeded', actorName: 'Ana', model: 'isolated-model', error: null, createdAt: now }], latestTurn: state.activeTurn ? { ...state.activeTurn, sequence: 46 } : { id: 'latest-contextual-turn', sequence: 45, kind: 'chat', input: 'Pergunta atual', output: 'Resposta consultiva.', status: 'succeeded', actorName: 'Ana', model: 'isolated-model', error: null, createdAt: now }, currentProposal: null, proposals: [], availableRepositories: [], configured: true, model: 'isolated-model', assistantMode: current.kind === 'story' ? 'delivery' : 'planning', readOnly: state.readOnly, activeTurn: state.activeTurn, hasSuccessfulInterview: true, turnsPage: { page: pageNumber, pageSize: 20, total: 45, totalPages: 3, hasMore: pageNumber < 3 }, proposalsPage: { page: 1, pageSize: 20, total: 0, totalPages: 1, hasMore: false }, brief: null } });
     }
     if (path === '/api/assistant/plans/proposal/revisions/2') return route.fulfill({ json: { proposalId: 'proposal', version: 2, context: context(project), readOnly: false, revision: { content: { summary: 'Revisão humana exata número dois.', epics: [] }, actorName: 'Ana', source: 'human', createdAt: now } } });
+    if (path.endsWith('/release')) return route.fulfill({ json: { story: { ...story, projectId: project.id, projectName: project.name, epicId: epic.id, epicName: epic.name }, assignment: null, system: { id: system.id, name: system.name }, releases: [], truncated: false, totalChoices: 0 } });
     if (path === '/api/collections/items') {
       const kind = url.searchParams.get('kind'), query = (url.searchParams.get('q') || '').toLocaleLowerCase('pt-BR');
       const all = kind === 'system' ? [system] : kind === 'project' ? [project] : kind === 'task' ? [task] : stories;
@@ -116,7 +123,7 @@ test('story and task use the same contextual consultation without project plan a
   await page.goto('/stories/story?tab=planning&process=conversation');
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
   const conversation = page.getByRole('region', { name: 'Conversa contextual da História' });
-  await expect(conversation).toContainText('Conversa da História');
+  await expect(conversation).toContainText('Conversar sobre esta História');
   await expect(conversation.getByRole('button', { name: /Gerar proposta|Concluir entrevista/ })).toHaveCount(0);
   await conversation.getByRole('textbox', { name: 'Sua mensagem', exact: true }).fill('Como comprovar o aceite desta História?');
   await conversation.getByRole('button', { name: 'Enviar mensagem', exact: true }).click();
@@ -152,7 +159,7 @@ test('a running turn outside the consulted page still blocks new messages, and a
   await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
   const conversation = page.getByRole('region', { name: 'Conversa contextual da História' });
   await expect(conversation).toContainText('Pergunta anterior preservada');
-  await expect(conversation).toContainText('atividade atual, fora da página consultada');
+  await expect(conversation).toContainText('A atividade atual continua identificada ao consultar o histórico.');
   await conversation.getByRole('textbox', { name: 'Sua mensagem', exact: true }).fill('Rascunho preservado');
   await expect(conversation.getByRole('button', { name: 'Enviar mensagem', exact: true })).toBeDisabled();
   state.story.archived = true; state.readOnly = true;

@@ -86,6 +86,11 @@ model AuditInstallation {
   epochId String
   createdAt DateTime @default(now())
 }
+model FlowPolicyInstallation {
+  id Int @id
+  version String
+  startedAt DateTime @default(now())
+}
 model HistoryEvent {
   id String @id @default(cuid())
   itemId String
@@ -245,6 +250,45 @@ model StoryExecution {
   @@index([storyId,createdAt])
   @@index([state,createdAt])
 }
+
+// Drafts are separate from the content currently approved for execution.
+model StorySpecificationDraft {
+  storyId String @id
+  version Int @default(1)
+  baseRevision Int @default(0)
+  content Json
+  actorId String
+  actorName String
+  source String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Applied content is immutable; audit events reference these controlled sources.
+model StorySpecificationRevision {
+  id String @id @default(cuid())
+  storyId String
+  number Int
+  content Json
+  actorId String
+  actorName String
+  source String
+  createdAt DateTime @default(now())
+  @@unique([storyId, number])
+  @@index([storyId, createdAt, id])
+}
+model TaskResultRevision {
+  id String @id @default(cuid())
+  taskId String
+  version Int
+  summary String
+  evidence Json
+  actorId String
+  actorName String
+  createdAt DateTime @default(now())
+  @@unique([taskId, version])
+  @@index([taskId, createdAt, id])
+}
 model ExecutionMessage {
   id String @id @default(cuid())
   executionId String
@@ -348,7 +392,7 @@ model WorkActivity {
   repositoryId String
   kind String
   scopeKey String @unique
-  taskId String
+  taskId String?
   currentAttemptId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

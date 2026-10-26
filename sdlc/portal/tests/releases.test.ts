@@ -221,11 +221,17 @@ describe.skipIf(!url)('persisted Release planning',()=>{
   });
   test('archive blocks adding descendants while removing archived draft members remains possible',async()=>{
     const own=await scope();let value=await draft(own.system.id);value=(await compose(value,[own.story.id])).json().release;
-    const response=await write(`/items/${own.project.id}`,{expectedVersion:own.project.version},'admin','DELETE');expect(response.statusCode,response.body).toBe(200);
+    expect((await write(`/items/${own.project.id}`,{expectedVersion:own.project.version},'admin','DELETE')).statusCode).toBe(409);
+    const cancelled=await write(`/items/${own.story.id}/cancel`,{expectedVersion:own.story.version});expect(cancelled.statusCode,cancelled.body).toBe(200);
+    const reason='Encerramento explícito da composição descartável.';
+    const closedEpic=await write(`/items/${own.epic.id}/lifecycle`,{expectedVersion:own.epic.version,lifecycle:'cancelled',comment:reason});expect(closedEpic.statusCode,closedEpic.body).toBe(200);
+    const closedProject=await write(`/items/${own.project.id}/lifecycle`,{expectedVersion:own.project.version,lifecycle:'cancelled',comment:reason});expect(closedProject.statusCode,closedProject.body).toBe(200);
+    const response=await write(`/items/${own.project.id}`,{expectedVersion:closedProject.json().item.version},'admin','DELETE');expect(response.statusCode,response.body).toBe(200);
     expect((await compose(value,[])).statusCode).toBe(200);expect(await db.releaseStory.count({where:{releaseId:value.id}})).toBe(0);
     const fresh=await draft(own.system.id,'Outra composição');
     expect((await write(`/releases/${fresh.id}/stories`,{expectedVersion:fresh.version,stories:[{id:own.story.id,expectedVersion:own.story.version,expectedReleaseId:null,expectedReleaseVersion:null}]},'elisa','PUT')).statusCode).toBe(404);
-    const current=await db.item.findUniqueOrThrow({where:{id:own.system.id}});await write(`/items/${own.system.id}`,{expectedVersion:current.version},'admin','DELETE');
+    const current=await db.item.findUniqueOrThrow({where:{id:own.system.id}}),inactive=await write(`/items/${own.system.id}/status`,{expectedVersion:current.version,status:'inactive'});expect(inactive.statusCode,inactive.body).toBe(200);
+    const archivedSystem=await write(`/items/${own.system.id}`,{expectedVersion:inactive.json().item.version,comment:reason},'admin','DELETE');expect(archivedSystem.statusCode,archivedSystem.body).toBe(200);
     expect((await app.inject(`/api/releases/${value.id}`)).statusCode).toBe(404);expect((await draftDenied(own.system.id)).statusCode).toBe(404);
     async function draftDenied(systemId:string){return write('/releases',{systemId,name:'Archived System'});}
   });

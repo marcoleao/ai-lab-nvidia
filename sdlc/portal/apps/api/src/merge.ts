@@ -1,3 +1,4 @@
+import {hierarchyState} from './lifecycle-policy.ts';
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import type {FastifyInstance} from 'fastify';
@@ -7,7 +8,7 @@ import type {MergeOperation,Prisma} from '../../../packages/db/generated/client.
 import {DomainError} from './errors.ts';
 import {registerMergeDiscussion,mergeGuidance} from './merge-discussion.ts';
 import {mergeReadiness,requireMergeReadiness} from './merge-readiness.ts';
-import {checkExecutionScope} from './execution.ts';
+import {checkExecutionScope,executionStoryVersionCurrent} from './execution.ts';
 import {enqueueAttempt,currentAttempt,startAttempt,finishAttempt,progress,withWorkHeartbeat,workErrorCategory} from './work-activities.ts';
 
 export function registerMerge(app:FastifyInstance,h:AssistantHelpers,provider?:MergeProvider){
@@ -31,7 +32,7 @@ export function registerMerge(app:FastifyInstance,h:AssistantHelpers,provider?:M
    const story=await h.live(tx,run.storyId);await h.ensureNotArchived(tx,story);
    const job=await tx.mergeOperation.findUnique({where:{executionId:run.id}});
    const links=await tx.itemRepository.findMany({where:{itemId:story.id}});
-   if(!job||run.state!=='succeeded'||run.commitSha!==body.expectedSha||job.sha!==body.expectedSha||story.version!==body.expectedVersion||story.version!==run.storyVersion||links.length!==1||links[0].repositoryId!==run.repositoryId)throw new DomainError('MERGE_STALE','A História ou a entrega mudou. Atualize e revise antes de solicitar o merge.',409);
+   if(!job||run.state!=='succeeded'||run.commitSha!==body.expectedSha||job.sha!==body.expectedSha||story.version!==body.expectedVersion||!executionStoryVersionCurrent(run,story)||links.length!==1||links[0].repositoryId!==run.repositoryId)throw new DomainError('MERGE_STALE','A História ou a entrega mudou. Atualize e revise antes de solicitar o merge.',409);
    const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('MERGE_STALE',scope.reason||'O escopo aprovado mudou. Prepare nova especificação e G1.',409);
    if(job.state==='succeeded')return {operation:publicJob(job)};
    await requireMergeReadiness(tx,run);
@@ -55,6 +56,7 @@ export function registerMerge(app:FastifyInstance,h:AssistantHelpers,provider?:M
     if(!next)return null;
     // Tracking and failure reconciliation never issue another merge PUT.
     const active=next.state==='queued'||next.state==='running';
+    const queuedStory=await tx.item.findUnique({where:{id:next.storyId}});if(!queuedStory||!(await hierarchyState(tx,queuedStory)).writable)return null;
     const claimed=await tx.mergeOperation.update({where:{id:next.id},data:{state:active?'running':next.state,leaseId:randomUUID(),leaseUntil:new Date(Date.now()+120000),checkedAt:now}});
     const work=await currentAttempt(tx,'merge',claimed.id);if(active&&work)await startAttempt(tx,work.sourceKey,claimed.leaseId!,'gitlab_reconcile');
     return {value:claimed,previous:next.state,active};
@@ -68,7 +70,7 @@ export function registerMerge(app:FastifyInstance,h:AssistantHelpers,provider?:M
    try{
     await withWorkHeartbeat(h.db,active?work?.sourceKey:undefined,value.leaseId,async()=>{
     const context=await h.db.$transaction(async tx=>{const story=await h.live(tx,value.storyId);await h.ensureNotArchived(tx,story);const run=await tx.storyExecution.findUniqueOrThrow({where:{id:value.executionId}});const links=await tx.itemRepository.findMany({where:{itemId:story.id}});const scope=await checkExecutionScope(h,tx,run);if(!scope.current)throw new DomainError('MERGE_STALE',scope.reason||'O escopo aprovado mudou.',409);return {story,run,links};});
-    if(context.story.version!==context.run.storyVersion||context.run.commitSha!==value.sha||context.links.length!==1||context.links[0].repositoryId!==context.run.repositoryId)throw new DomainError('MERGE_STALE','O contexto da entrega mudou. Revise a História antes de integrar.',409);
+    if(!executionStoryVersionCurrent(context.run,context.story)||context.run.commitSha!==value.sha||context.links.length!==1||context.links[0].repositoryId!==context.run.repositoryId)throw new DomainError('MERGE_STALE','O contexto da entrega mudou. Revise a História antes de integrar.',409);
     // Always reconcile before a write, including after worker restart/timeout.
     await report('gitlab_reconcile','Consultando o estado real do Merge Request antes de qualquer integração.');
     let result=await provider.inspect(value);

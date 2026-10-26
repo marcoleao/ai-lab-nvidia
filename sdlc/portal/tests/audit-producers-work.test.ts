@@ -8,10 +8,10 @@ afterEach(()=>vi.clearAllMocks());
 
 test('automatic task start records the actual previous status, executor and requesting person',async()=>{
   const task={id:'task',kind:'task',parentId:'story',status:'todo',version:3};
-  const attempt={id:'attempt',sourceType:'execution',sourceId:'run',activityId:'activity',actorId:'admin',actorName:'Admin',state:'queued',startedAt:null,queuedAt:new Date(),activity:{currentAttemptId:'attempt',taskId:'task',taskLinks:[]}};
+  const attempt={id:'attempt',sourceType:'execution',sourceId:'run',activityId:'activity',actorId:'admin',actorName:'Admin',state:'queued',startedAt:null,queuedAt:new Date(),activity:{storyId:'story',currentAttemptId:'attempt',taskId:'task',taskLinks:[]}};
   const tx={
     workAttempt:{findUnique:vi.fn(async()=>attempt),update:vi.fn(async()=>({}))},
-    item:{findMany:vi.fn(async()=>[task]),update:vi.fn(async()=>({...task,status:'doing',version:4}))},
+    item:{findUniqueOrThrow:vi.fn(async()=>({id:'story',kind:'story',status:'coding',parentId:null,archived:false,data:{}})),findMany:vi.fn(async()=>[task]),update:vi.fn(async()=>({...task,status:'doing',version:4}))},
     workEvent:{upsert:vi.fn(async()=>({})),findFirst:vi.fn(async()=>null)},
   } as unknown as Transaction;
   await startAttempt(tx,'source','lease','specification');

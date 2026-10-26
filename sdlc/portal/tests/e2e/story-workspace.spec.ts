@@ -44,6 +44,8 @@ async function fixture(page: Page) {
       return route.fulfill({ json: copy });
     }
     if (path.endsWith('/release')) return route.fulfill({ json: { story: { ...story, projectId: 'project', projectName: 'Projeto', epicId: 'epic', epicName: 'Épico' }, assignment: null, system: { id: 'system', name: 'Sistema do ensaio' }, releases: [], truncated: false, totalChoices: 0 } });
+    if (path.endsWith('/specification')) return route.fulfill({ json: { story:{id:story.id,version:story.version},content:{requirements:{objective:'Disponibilizar a consulta desta entrega.',behavior:'Receber a entrada e apresentar o resultado esperado.',functionalCriteria:['O resultado atende ao contrato confirmado.']},technical:state.journey.run.specification},revision:null,draft:null,readOnly:false,history:{items:[],page:1,pageSize:20,total:0,asOf:now} } });
+    if (path.endsWith('/results')) return route.fulfill({ json: { results:[],pagination:{page:1,pageSize:20,total:0,totalPages:1},asOf:now,readOnly:false,coverage:{source:'TaskResultRevision',legacyResultAvailable:false} } });
     const selected = path.split('/').at(-1);
     const found = [story, review, planned].find(value => value.id === selected);
     if (found) return route.fulfill({ json: { item: found, ancestors: found.kind === 'task' ? [story] : [], children: found.kind === 'story' ? [review, planned] : [], repositories: [], availableRepositories: [], environments: [], history: [] } });
@@ -284,7 +286,12 @@ test('G1 requires review and confirmation, and an uncertain request reuses its i
   state.journey.secondaryActions = [];
   await page.goto('/stories/journey-story?tab=specification');
   await actAsAdmin(page);
-  await expect(page.getByText('Requisito verificável desta entrega.')).toBeVisible();
+  await expect(page.getByRole('region',{name:'Especificação da História',exact:true}).getByRole('region',{name:'Plano técnico consultado',exact:true}).getByText('Requisito verificável desta entrega.',{exact:true})).toBeVisible();
+  const executionPlan=page.locator('details[aria-label="Plano técnico registrado na execução"]');
+  await expect(executionPlan.getByRole('heading',{name:'Requisitos técnicos da execução',exact:true})).toBeHidden();
+  await executionPlan.getByText('Consultar plano técnico registrado na execução',{exact:true}).click();
+  await expect(executionPlan.getByText('journey-run',{exact:true})).toBeVisible();
+  await expect(executionPlan.getByText('Requisito verificável desta entrega.',{exact:true})).toBeVisible();
   await openInteraction(page);
   await expect(page.getByTestId('story-interaction')).toHaveCount(0);
   await interaction(page).getByRole('button', { name: 'Aprovar G1 e gerar código', exact: true }).click();
@@ -441,15 +448,20 @@ test('a newer assistant conversation never replaces the canonical blocked merge 
 
 test('manual task status updates preserve the active central planning section from DOING through DONE', async ({ page }) => {
   const state = await fixture(page);
-  state.onWrite = (path, body) => { if (path.endsWith('/status')) { state.planned.status = body.status; state.planned.version++; } };
+  state.onWrite = (path, body) => { if (path.endsWith('/status')) { state.planned.status = body.status; state.planned.version++; if(body.result)state.planned.data={taskResult:{summary:body.result,evidence:body.evidence}}; } };
   await page.goto('/tasks/journey-planned?interact=administration');
   await actAsAdmin(page);
   await interaction(page).getByRole('button', { name: 'DOING', exact: true }).click();
   await expect(interaction(page).getByRole('button', { name: 'Planejamento', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await interaction(page).getByRole('button', { name: 'DONE', exact: true }).click();
+  const done=interaction(page).getByRole('button', { name: 'DONE', exact: true });await expect(done).toBeDisabled();
+  await interaction(page).getByRole('textbox',{name:/^Resultado do trabalho/}).fill('Integração concluída e contrato conferido.');
+  await interaction(page).getByRole('textbox',{name:/^Evidências ou referências/}).fill('http://gitlab/test/-/merge_requests/11');
+  await done.click();
   await expect(page.getByRole('region', { name: 'Ciclo da Tarefa', exact: true }).locator('[aria-current="step"]')).toHaveText('DONE');
   await expect(interaction(page).getByRole('button', { name: 'Planejamento', exact: true })).toHaveAttribute('aria-pressed', 'true');
   expect(state.writes.map(write => write.body.status)).toEqual(['doing', 'done']);
+  expect(state.writes[1].body).toEqual({status:'done',expectedVersion:4,result:'Integração concluída e contrato conferido.',evidence:['http://gitlab/test/-/merge_requests/11']});
+  expect(state.planned.data).toEqual({taskResult:{summary:'Integração concluída e contrato conferido.',evidence:['http://gitlab/test/-/merge_requests/11']}});
 });
 
 test('refreshing the same item preserves edit and binding drafts and the interaction section', async ({ page }) => {

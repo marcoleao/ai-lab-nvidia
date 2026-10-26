@@ -8,6 +8,7 @@ import {mergeMetrics} from './merge-metrics.ts';
 import {qualityMetrics} from './quality-metrics.ts';
 import {workDashboard} from './work-metrics.ts';
 import {assistantMetrics} from './assistant-metrics.ts';
+import {storyMetrics} from './story-metrics.ts';
 
 const filtersSchema=z.object({userId:z.string().trim().min(1).max(120).optional(),systemId:z.string().trim().min(1).max(120).optional(),projectId:z.string().trim().min(1).max(120).optional()}).strict();
 export type DashboardFilters=z.infer<typeof filtersSchema>;
@@ -28,7 +29,13 @@ export async function dashboard(db:Database,now=new Date(),filters:DashboardFilt
   const windows=dashboardWeeks(now);
   return db.$transaction(async tx=>{
     const allItems=await tx.item.findMany({select:{id:true,name:true,parentId:true,kind:true,status:true,projectLifecycle:true,archived:true,createdAt:true}});
-    const humanEvents=await tx.historyEvent.findMany({where:{actorType:'human'},select:{itemId:true,actorId:true,actorName:true}});
+    const participationEvents=await tx.historyEvent.findMany({where:{OR:[{actorType:'human'},{schemaVersion:2}]},select:{itemId:true,actorId:true,actorName:true,actorType:true,audit:true}});
+    const humanEvents=participationEvents.flatMap(event=>{
+      const rows=event.actorType==='human'?[{itemId:event.itemId,actorId:event.actorId,actorName:event.actorName}]:[];
+      const initiator=(event.audit as {initiator?:{id?:string;name?:string;type?:string}}|null)?.initiator;
+      if(initiator?.type==='human'&&initiator.id&&initiator.name&&!rows.some(row=>row.actorId===initiator.id))rows.push({itemId:event.itemId,actorId:initiator.id,actorName:initiator.name});
+      return rows;
+    });
     const users=new Map(humanEvents.map(e=>[e.actorId,{id:e.actorId,name:e.actorName}]));
     for(const p of personas)users.set(p.id,{id:p.id,name:p.name});
     const byId=new Map(allItems.map(i=>[i.id,i]));
@@ -68,11 +75,11 @@ export async function dashboard(db:Database,now=new Date(),filters:DashboardFilt
     const inventory=kinds.map(kind=>{
       const own=active.filter(i=>i.kind===kind);
       const group=(values:string[])=>[...new Set(values)].map(status=>({status,count:own.filter(i=>i.status===status).length}));
-      return {kind,total:own.length,archivedTotal:items.filter(i=>i.kind===kind&&i.archived).length,statuses:group([...statuses[kind],...own.map(i=>i.status)]),...(kind==='project'?{lifecycle:['active','completed','cancelled'].map(status=>({status,count:own.filter(i=>(i.projectLifecycle??'active')===status).length}))}:{})};
+      return {kind,total:own.length,archivedTotal:items.filter(i=>i.kind===kind&&i.archived).length,statuses:group([...statuses[kind],...own.map(i=>i.status)]),...(kind==='project'?{lifecycle:['active','inactive','completed','cancelled'].map(status=>({status,count:own.filter(i=>(i.projectLifecycle??'active')===status).length}))}:{})};
     });
     const ageBands=[{key:'under7',label:'Menos de 7 dias',min:0,max:7},{key:'7to15',label:'7 a menos de 15 dias',min:7,max:15},{key:'15to30',label:'15 a menos de 30 dias',min:15,max:30},{key:'30plus',label:'30 dias ou mais',min:30,max:Infinity}];
     const aging=['project','epic','story'].map(kind=>{
-      const open=active.filter(i=>i.kind===kind&&(kind==='project'?!['completed','cancelled'].includes(i.projectLifecycle??'active'):!['done','completed'].includes(i.status)));
+      const open=active.filter(i=>i.kind===kind&&(kind==='project'?!['completed','cancelled'].includes(i.projectLifecycle??'active'):!['done','completed','cancelled'].includes(i.status)));
       return {kind,total:open.length,buckets:ageBands.map(b=>({key:b.key,label:b.label,count:open.filter(i=>{const days=Math.max(0,(now.getTime()-i.createdAt.getTime())/DAY);return days>=b.min&&days<b.max;}).length}))};
     });
     const runStarts=new Map(runs.map(r=>[r.id,r.createdAt.getTime()]));
@@ -105,15 +112,16 @@ export async function dashboard(db:Database,now=new Date(),filters:DashboardFilt
     const merges={...mergeMetrics(events,windows),quality:qualityMetrics(events,windows)};
     const work=await workDashboard(tx,now,windows,filters,allItems,humanEvents);
     const assistant=await assistantMetrics(tx,now,windows,scopeIds);
-    return {generatedAt:now.toISOString(),timezone:zone,filters,filterOptions:{users:[...users.values()].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')),systems:allItems.filter(i=>i.kind==='system').map(i=>({id:i.id,name:i.name+(i.archived?' (arquivado)':'')})),projects:allItems.filter(i=>i.kind==='project').map(i=>({id:i.id,name:i.name+(i.archived?' (arquivado)':''),systemId:i.parentId!}))},inventory,weeks,aging,dora,rework:{categories:reworkCategories},releaseMetrics,merges,work,assistant,notes:[
+    const stories=await storyMetrics(tx,now,windows,scopeIds);
+    return {generatedAt:now.toISOString(),timezone:zone,filters,filterOptions:{users:[...users.values()].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')),systems:allItems.filter(i=>i.kind==='system').map(i=>({id:i.id,name:i.name+(i.archived?' (arquivado)':'')})),projects:allItems.filter(i=>i.kind==='project').map(i=>({id:i.id,name:i.name+(i.archived?' (arquivado)':''),systemId:i.parentId!}))},inventory,weeks,aging,dora,rework:{categories:reworkCategories},releaseMetrics,merges,work,assistant,stories,notes:[
       'Filtros combinados por interseção. Usuário significa participação humana registrada no histórico do item, em qualquer data; inclui resultados dos agentes nesses itens. Não equivale a responsável ou proprietário.',
       'Sistema e Projeto delimitam o trabalho e seus descendentes. Ancestrais aparecem nos totais como contexto; seus outros eventos e descendentes não entram no recorte. Opções incluem arquivados para consulta histórica.',
-      'Estoque atual: itens não arquivados, com arquivados informados separadamente. Aprovação e ciclo de vida do Projeto são dimensões distintas.',
+      'Estoque atual: itens não arquivados, com arquivados informados separadamente. Projetos e Épicos são agrupadores sem aprovação própria; G1 pertence à História.',
       'Quatro semanas de calendário, de segunda a segunda, em São Paulo; a semana atual está parcial. Eventos usam intervalos [início, fim).',
       'Loops contam ocorrências de retomada explícita, rejeição técnica de patch e decisão que reinicia especificação; uma execução pode contribuir várias vezes.',
       'Retrabalho soma ocorrências das categorias com coleta disponível, incluindo esclarecimentos adicionais; não representa quantidade única de rotinas que falharam na primeira tentativa. Testes e revisão ainda não integrados não contribuem com zeros fictícios.',
       'Falhas históricas refletem somente eventos preservados. Instrumentação de falhas de execução e duração de etapas ampliada nesta versão; ausência de registro antigo não prova ausência de falha.',
-      'Idade conta desde criação, inclusive tempo de aprovação, em dias corridos de 24h. Um mês equivale a 30 dias. Projetos concluídos/cancelados, épicos DONE e histórias COMPLETED são fechados.',
+      'Idade conta desde criação, inclusive pausas, em dias corridos de 24h. Um mês equivale a 30 dias. Agrupadores e Histórias concluídos ou cancelados são fechados; INACTIVE é pausa.',
       'Tempo até MR inclui esperas e conversas da execução, não equivale ao Change lead time DORA. Sem amostras resulta em indisponível, não zero.',
     ]};
   },{isolationLevel:'RepeatableRead'});

@@ -1,5 +1,9 @@
 import {z} from 'zod';
 export const specificationSchema=z.object({requirements:z.string().min(10).max(3000),architecture:z.string().min(10).max(3000),testCases:z.array(z.object({criterionIndex:z.number().int().min(0),description:z.string().min(10).max(500)}).strict()).min(1).max(12),risks:z.array(z.string().min(1).max(300)).max(10)}).strict();
+export function specificationSchemaForCriteria(count:number){
+  if(!Number.isSafeInteger(count)||count<1)throw new Error('At least one functional criterion is required');
+  return specificationSchema.extend({testCases:z.array(specificationSchema.shape.testCases.element.extend({criterionIndex:z.number().int().min(0).max(count-1)})).min(1).max(12)});
+}
 export const codeSchema=z.object({summary:z.string().min(1).max(1000),files:z.array(z.object({path:z.string().min(1).max(180),content:z.string().min(1).max(12000)}).strict()).min(1).max(6)}).strict();
 export type CodePatch=z.infer<typeof codeSchema>;
 export const blockerSchema=z.object({reason:z.string().min(1).max(1500),question:z.string().min(1).max(500),options:z.array(z.string().min(1).max(300)).max(5),requestedCapabilities:z.array(z.enum(['dependencies'])).max(1)}).strict();

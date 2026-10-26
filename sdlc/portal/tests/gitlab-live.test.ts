@@ -54,7 +54,7 @@ test.skipIf(!process.env.TEST_GITLAB_ISOLATED)('real local model prepares G1 and
   const post=async(path:string,payload:unknown)=>{const r=await runtime.app.inject({method:'POST',url:'/api'+path,headers:{'x-persona':'admin','idempotency-key':crypto.randomUUID()},payload});expect(r.statusCode,r.body).toBe(200);return r.json();};
   try{
     const system=(await post('/items',{kind:'system',key:'REALCODE',name:'Ensaio isolado de codificação'})).item;
-    const project=(await post('/items',{kind:'project',parentId:system.id,key:'INIT',name:'Iniciativa técnica descartável'})).item;await post(`/items/${project.id}/approve`,{expectedVersion:project.version});
+    const project=(await post('/items',{kind:'project',parentId:system.id,key:'INITIA',name:'Iniciativa técnica descartável'})).item;await post(`/items/${project.id}/approve`,{expectedVersion:project.version});
     const epic=(await post('/items',{kind:'epic',parentId:project.id,name:'Verificação técnica'})).item;
     const repository=await db.repository.create({data:{systemId:system.id,key:'PROBE',name:'Repositório técnico descartável',runtime:'python',state:'ready',gitlabProjectId:remote.id}});
     await db.itemRepository.create({data:{itemId:project.id,repositoryId:repository.id}});
