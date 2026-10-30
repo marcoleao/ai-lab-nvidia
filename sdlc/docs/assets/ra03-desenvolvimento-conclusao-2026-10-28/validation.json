@@ -1,0 +1,421 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T14:22:39.791Z",
+    "duration": 93192.097,
+    "expected": 64,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "suites": [
+    "story-workspace",
+    "story-experience",
+    "hierarchy",
+    "releases",
+    "release-cancellation"
+  ],
+  "specs": [
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "user creates an active hierarchy, inherits its System repository and records a manual Task result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "context tabs preserve an editing draft and real persona permissions; confirmations stay beside the breadcrumb",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Releases shows DEV and the other System destinations separately from composition, including read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real compositionStatus counts and newest-first pages of twenty on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "quick views preserve applied scope and pending Project and Epic fields",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "refresh reviews changed selected Stories outside the filter and preserves choices on a read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "release list shortcuts preserve the applied System and pending System selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "an unavailable selected Story is reported and never silently removed on refresh",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a new Story without Tasks loads empty, filters and clears without submitting an empty status",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "45 real-portal Task fixtures use complete server queries, collapsed filters, URL and preserved drafts between tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "27 complete linked attempts paginate independently of the current phase and historical evidence cannot invoke current commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "current queued/running processing rotates, human wait and stale heartbeat remain static, and reduced motion is respected",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a failed Task query preserves the previous page, shows a red error with retry, and never reports an empty successful result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "desktop and mobile keep collapsed queries, complete count and a visible current phase without horizontal overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "coding activity keeps its own spinner while a previous conversation stays static; discussion animates only in its confirmed stage",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task editing uses a central mobile form and unique header actions, and Cancel restores its prior central process section",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Task edit preserves its draft across tabs, permission changes and a rejected save before confirming the versioned PATCH",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task edit acknowledgement retries the original PATCH identity without applying the update twice",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story creates a Task in the central form with one Save and Cancel in the header and preserves a cancelled draft across tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task creation acknowledgement keeps its draft and retries the same idempotency identity",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Story editing retains a rejected draft across persona and tab changes and can be confirmed from the header",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story remains macro and task drill down keeps phase and one place for interaction",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 1440px without commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 390px without commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and SECURITY SCAN without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and MERGE REQUEST without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and TESTING without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and CANCELLED without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "merge failure requests reconciliation without claiming a confirmed blocker; resolved state clears old diagnosis",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "assistant requests architect diagnosis inside the portal and preserves specialist attribution without release writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "unknown Draft release offers result verification without claiming Draft remains or requesting another release confirmation",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "the Specification Gateway requires review and confirmation, and an uncertain G1 request reuses its identity after reload",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "historical evidence and other tasks cannot execute the current review",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost correction confirmation can be reconciled with its original identity after the current task changes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "processing distinguishes screen connection, executor heartbeat and last real tool event",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "planned work binding has explicit scope and a completion criterion without silently completing tasks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "existing results remain readable without creating artificial process tasks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a binding draft keeps its original concurrency token until the user reviews a newer selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a newer assistant conversation never replaces the canonical blocked merge attempt",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "manual task status updates preserve the active central planning section from DOING through DONE",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "refreshing the same item preserves edit and binding drafts and the interaction section",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "desktop and mobile keep both Story and Task processes central without any interaction sidebar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "legacy Task interaction URLs normalize to central process views and survive reload without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task destination consultation preserves historical attempt, current journey and read-only context",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "destination keyboard consultation keeps unsaved release choice separate from confirmed association across tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 keeps development and completion separate with revision details collapsed",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 Task DONE and historical evidence keep the current parent Story reading on mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 missing references and lost refresh retain uncertainty without approving or reopening legacy completion",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 collection keeps phase primary and the same reading as Story details",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/story-workspace.spec.ts",
+            "column": 38,
+            "line": 751
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('row').filter({ has: getByRole('link', { name: /Entrega na nova navegação/ }) }).locator('.badge')\nExpected: \u001b[32m\"MERGE REQUEST\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByRole('row').filter({ has: getByRole('link', { name: /Entrega na nova navegação/ }) }).locator('.badge') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('row').filter({ has: getByRole('link', { name: /Entrega na nova navegação/ }) }).locator('.badge')\u001b[22m\n\n\n  749 |  await page.route(url=>url.pathname==='/api/collections/items',route=>route.fulfill({json:{items:[{...state.story,storyLifecycle:state.journey.storyLifecycle}],page:1,total:1,totalPages:1,pageSize:20,extraCount:0}}));\n  750 |  await page.goto('/stories');const row=page.getByRole('row').filter({has:page.getByRole('link',{name:/Entrega na nova navegação/})});\n> 751 |  await expect(row.locator('.badge')).toHaveText('MERGE REQUEST');await expect(row.getByTestId('story-lifecycle-status')).toContainText('Sem aprovação registrada');\n      |                                      ^\n  752 |  await page.screenshot({path:`${process.env.SCREENSHOT_DIR||'/tmp'}/ra03-list-desktop.png`,fullPage:true});\n  753 |  await row.getByRole('link',{name:/Entrega na nova navegação/}).click();await expect(page.getByTestId('story-lifecycle-status')).toContainText('Aberta; depende da entrada em produção');expect(state.writes).toHaveLength(0);\n  754 | });\n    at /app/tests/e2e/story-workspace.spec.ts:751:38"
+        }
+      ]
+    }
+  ]
+}

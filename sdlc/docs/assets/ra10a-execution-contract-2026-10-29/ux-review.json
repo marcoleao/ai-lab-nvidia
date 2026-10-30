@@ -1,0 +1,25 @@
+{
+  "reviewer": "ux_ra10a",
+  "result": "approved",
+  "source": "4d3227146cb039674dd9ce86a6b0e24f15fd25f23678634bddb6f87073cae010",
+  "image": "sha256:27f8d9fa47834f2f668f119f95d7d1f7d3066297fa183933186d7839c9171531",
+  "viewports": [1440, 390],
+  "screenshots": 12,
+  "materialBlockers": 0,
+  "scope": "Consulta explícita do contrato versionado no quadro Repositório do Sistema, com revisão por commit, campos pendentes, estados de validação e falha de leitura.",
+  "observations": [
+    "Sistema, repositório e contrato preservam a hierarquia e identidade existentes.",
+    "Estrutura conferida permanece distinta de autorização ou resultado de execução.",
+    "Ausente, inválido, versão não suportada e falha de consulta têm apresentações próprias.",
+    "Erro oferece retentativa e conserva a leitura anterior datada.",
+    "Aviso de mudança da branch preserva o commit consultado.",
+    "Em 390px o conteúdo usa uma coluna e acomoda caminhos e identificadores.",
+    "Texto Consultar contrato novamente e orientação de releitura não sugerem editar o arquivo."
+  ],
+  "limitations": [
+    "Nas capturas fullPage após scroll, cabeçalho fixo e skip link sobrepõem trechos, especialmente em valid.",
+    "Nem toda captura mostra integralmente identidade e começo do contrato; fonte e cenários complementam a cobertura.",
+    "Não constitui validação assistiva integral.",
+    "Contratos válidos e erros sintéticos foram demonstrados somente em portal_test, sem alteração de aplicações reais."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ra09d-closure-final-20261028-c4391d35",
+  "source": "68f44541bc8590e7d2c9489640338a6fc86848e1cc0dc2f380c01c85d2225465",
+  "candidateImage": "sha256:547a646e3c37879c28e0c0347b6b5ce222ca4d5210066806e3a7a36d9ddc992b",
+  "verifiedAt": "2026-10-29T01:24:13.277338+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280006_merge_history_resolution"
+  ],
+  "existingTablesChecked": 35,
+  "newTables": [
+    "MergeHistoryResolution"
+  ],
+  "tablesChecked": 36,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra09d-closure-final-20261028-c4391d35",
+    "bytes": 213788,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 278,
+    "head": "ed33f79bf8ec8cdcd805c1a8b6e76cb3ba7903ef678f6e629b70a45595cdf11c",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

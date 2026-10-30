@@ -28,6 +28,12 @@ if ($Command -eq 'prepare') {
     if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.audit.json')) {
         $composeArguments += @('-f',"$portalPath/.prepared/compose.audit.json")
     }
+    if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.runtime-executor.json')) {
+        $composeArguments += @('-f',"$portalPath/.prepared/compose.runtime-executor.json")
+    }
+    if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.build-executor.json')) {
+        $composeArguments += @('-f',"$portalPath/.prepared/compose.build-executor.json")
+    }
     switch ($Command) {
         'up' {
             Invoke-SdlcNative wsl.exe ($composeArguments + @('up','-d','--wait','--pull','never','--no-build','db'))

@@ -33,7 +33,7 @@ test('quality phases precede merge, expose findings and require an explicit AI c
  });
  await page.route('**/api/executions/quality-run-ui/quality/correct',r=>{corrections++;expect(r.request().postDataJSON()).toMatchObject({expectedSha:sha,checkId:checks[0].id});return r.fulfill({json:{queued:true}});});
  await page.goto('/stories/quality-ui');await page.locator('.persona select').selectOption('admin');const panel=await openWorkPanel(page);
- await expect(page.getByTestId('story-journey-header')).toContainText('Code Review precisa ser iniciado');await expect(page.getByRole('button',{name:'Solicitar merge ao assistente',exact:true})).toHaveCount(0);expect(merged).toBe(0);
+ await expect(panel).toContainText('Code Review precisa ser iniciado');await expect(page.getByRole('button',{name:'Solicitar merge ao assistente',exact:true})).toHaveCount(0);expect(merged).toBe(0);
  await panel.getByRole('button',{name:'Executar Code Review',exact:true}).click();await expect(page.getByTestId('story-journey-header')).toContainText('Na fila');complete=true;
  await expect(panel.getByRole('button',{name:'Executar Security Scan',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Solicitar merge ao assistente',exact:true})).toHaveCount(0);
  await panel.getByRole('button',{name:'Executar Security Scan',exact:true}).click();complete=true;await expect(panel).toContainText('Um achado LOW impede');

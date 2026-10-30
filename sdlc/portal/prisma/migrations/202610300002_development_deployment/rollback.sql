@@ -1,0 +1,1 @@
+BEGIN;DO $$ BEGIN IF EXISTS(SELECT 1 FROM "DevelopmentDeployment") THEN RAISE EXCEPTION 'Retain deployment intent and evidence';END IF;END $$;DROP TABLE "DevelopmentDeployment";DROP FUNCTION validate_development_deployment();COMMIT;

@@ -8,19 +8,20 @@ export type ReleaseMetricWeek={start:string;end:string;label:string;partial:bool
 type Measurement={value:number|null;unavailableReason?:string};
 export type ReleaseMetricsData={
  total:number;
- stages:{stage:'DRAFT'|'QA'|'HML'|'PRODUCTION'|'REJECTED';label:string;count:number}[];
+ stages:{compositionStatus:'OPEN'|'CLOSED'|'CANCELED';label:string;count:number}[];
  composition:{samples:number;medianHours:number|null;oldestHours:number|null;buckets:{key:string;label:string;count:number}[];definition:string};
  weeks:(ReleaseMetricWeek&{created:number;compositionCompleted:Measurement&{samples:number};rejectionCycles:Measurement})[];
  rework:{available:boolean;total:number|null;categories:{key:string;label:string;total:number|null;weeks:{start:string;value:number|null}[];unavailableReason?:string}[];unavailableReason?:string};
  notes:string[];
+ branchPreparation?:{requested:number;unknown:number;confirmation:{samples:number;medianHours:number|null};weeks:(ReleaseMetricWeek&{requested:number;confirmation:{samples:number;medianHours:number|null}})[];definition:string;coverage:string};
 };
 
 const number=(value:number)=>new Intl.NumberFormat('pt-BR',{maximumFractionDigits:2}).format(value);
 const date=(value:string)=>new Date(value).toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit'});
-const stageNames={DRAFT:'Em composição',QA:'QA',HML:'Homologação',PRODUCTION:'Produção',REJECTED:'Rejeitadas'};
-type ReleaseView='stages'|'composition'|'weekly';
-const releaseViews:{key:ReleaseView;label:string}[]=[{key:'stages',label:'Etapas atuais'},{key:'composition',label:'Tempo em composição'},{key:'weekly',label:'Comparação semanal'}];
-const viewFromSearch=(search:string):ReleaseView=>{const value=new URLSearchParams(search).get('releaseView');return value==='composition'||value==='weekly'?value:'stages';};
+const stageNames={OPEN:'OPEN · Aberta',CLOSED:'CLOSED · Fechada',CANCELED:'CANCELED · Cancelada'};
+type ReleaseView='stages'|'composition'|'weekly'|'branches';
+const releaseViews:{key:ReleaseView;label:string}[]=[{key:'stages',label:'Composições atuais'},{key:'composition',label:'Tempo em composição'},{key:'weekly',label:'Comparação semanal'},{key:'branches',label:'Preparação de branches'}];
+const viewFromSearch=(search:string):ReleaseView=>{const value=new URLSearchParams(search).get('releaseView');return value==='composition'||value==='weekly'||value==='branches'?value:'stages';};
 function viewHref(search:string,view:ReleaseView){
  const params=new URLSearchParams(search);
  if(view==='stages')params.delete('releaseView');else params.set('releaseView',view);
@@ -51,23 +52,23 @@ export default function ReleaseMetrics({data,weeks}:{data?:ReleaseMetricsData;we
  if(!data)return <section id="dashboard-releases" className="panel release-metrics" aria-labelledby="release-metrics-title"><div className="dashboard-heading"><div><h2 id="release-metrics-title">Releases · composição e entrega</h2><p>Quantidade por etapa, tempo em composição e ciclos de retrabalho.</p></div><Layers3 size={24} aria-hidden="true"/></div><p className="release-metric-unavailable" role="status">Sem medição de releases nesta consulta. Use Atualizar para consultar novamente.</p></section>;
  const observedWeeks:ReleaseMetricsData['weeks']=data.weeks.length?data.weeks:weeks.map(week=>({...week,created:0,compositionCompleted:{value:null,samples:0},rejectionCycles:{value:null}}));
  const maximum=Math.max(1,...data.weeks.map(week=>week.created));
- const currentDrafts=data.stages.find(stage=>stage.stage==='DRAFT')?.count??data.composition.samples;
+ const currentDrafts=data.stages.find(compositionStatus=>compositionStatus.compositionStatus==='OPEN')?.count??data.composition.samples;
  const createdTotal=data.weeks.reduce((sum,week)=>sum+week.created,0);
  const compositionReason=data.weeks.find(week=>week.compositionCompleted.unavailableReason)?.compositionCompleted.unavailableReason;
  return <section id="dashboard-releases" className="release-metrics" aria-labelledby="release-metrics-title" data-testid="release-metrics">
   <div className="dashboard-heading"><div><h2 id="release-metrics-title">Releases · composição e entrega</h2><p>Este recorte usa os mesmos filtros de participação, Sistema e Projeto aplicados acima.</p></div><Layers3 size={24} aria-hidden="true"/></div>
   <nav className="release-metrics-views" aria-label="Visões dos indicadores de releases">{releaseViews.map(view=><a key={view.key} href={viewHref(navigation.search,view.key)} aria-current={navigation.view===view.key?'page':undefined} onClick={event=>navigate(event,view.key)}>{view.label}</a>)}</nav>
   {navigation.view==='stages'&&<div className="panel release-metrics-current">
-   <div className="release-metrics-total"><div><h3>Quantidade atual por etapa</h3><p>Estado registrado das releases no momento da consulta.</p></div><p><strong data-testid="release-metrics-total">{number(data.total)}</strong><span>Total de releases</span></p></div>
+   <div className="release-metrics-total"><div><h3>Quantidade atual por estado</h3><p>Estado registrado das releases no momento da consulta.</p></div><p><strong data-testid="release-metrics-total">{number(data.total)}</strong><span>Total de releases</span></p></div>
    <ol className="release-metrics-stages" aria-label="Releases por etapa">
-    {data.stages.map(stage=><li key={stage.stage} className={`release-metrics-stage release-metrics-stage-${stage.stage.toLowerCase()}`} data-testid={`release-metric-stage-${stage.stage}`}><span className="release-metrics-stage-label">{stageNames[stage.stage]||stage.label}</span><strong>{number(stage.count)}</strong><span className="release-metrics-stage-code">{stage.stage}</span></li>)}
+    {data.stages.map(compositionStatus=><li key={compositionStatus.compositionStatus} className={`release-metrics-stage release-metrics-stage-${compositionStatus.compositionStatus.toLowerCase()}`} data-testid={`release-metric-stage-${compositionStatus.compositionStatus}`}><span className="release-metrics-stage-label">{stageNames[compositionStatus.compositionStatus]||compositionStatus.label}</span><strong>{number(compositionStatus.count)}</strong><span className="release-metrics-stage-code">{compositionStatus.compositionStatus}</span></li>)}
    </ol>
    <p className="release-metrics-definition">As etapas refletem o estado registrado das releases. Esta contagem não executa testes em QA, homologação ou implantações.</p>
   </div>}
   {navigation.view==='composition'&&<div className="panel release-metrics-composition" aria-labelledby="release-composition-age-title">
-   <div className="dashboard-heading"><div><h3 id="release-composition-age-title">Idade das releases em composição</h3><p>Tempo decorrido desde a criação das releases que continuam em DRAFT. Esta medida acompanha o trabalho ainda aberto.</p></div><Clock3 size={22} aria-hidden="true"/></div>
+   <div className="dashboard-heading"><div><h3 id="release-composition-age-title">Idade das releases em composição</h3><p>Tempo decorrido desde a criação das releases que continuam em OPEN. Esta medida acompanha o trabalho ainda aberto.</p></div><Clock3 size={22} aria-hidden="true"/></div>
    <dl className="release-metrics-age-values"><div><dt>Mediana da idade atual</dt><dd data-testid="release-composition-median">{data.composition.samples===0?<span className="release-metric-no-samples">Sem amostras</span>:<MeasurementValue value={data.composition.medianHours} unit="h"/>}</dd></div><div><dt>Maior idade atual</dt><dd data-testid="release-composition-oldest">{data.composition.samples===0?<span className="release-metric-no-samples">Sem amostras</span>:<MeasurementValue value={data.composition.oldestHours} unit="h"/>}</dd></div><div><dt>Releases observadas</dt><dd>{number(data.composition.samples)}</dd></div></dl>
-   {currentDrafts===0&&<p className="release-metrics-empty">Nenhuma release em DRAFT neste recorte.</p>}
+   {currentDrafts===0&&<p className="release-metrics-empty">Nenhuma release em OPEN neste recorte.</p>}
    <dl className="release-metrics-age-buckets" aria-label="Releases em composição por faixa de idade">{data.composition.buckets.map((bucket,index)=><div key={bucket.key}><dt><i className={`release-metrics-age-${index}`} aria-hidden="true"/>{bucket.label}</dt><dd>{number(bucket.count)}</dd></div>)}</dl>
    <p className="dashboard-explanation">{data.composition.definition} O tempo de composição concluída é apresentado separadamente na comparação semanal.</p>
   </div>}
@@ -83,8 +84,13 @@ export default function ReleaseMetrics({data,weeks}:{data?:ReleaseMetricsData;we
    </tbody></table></div>
    {compositionReason&&<p className="dashboard-explanation"><strong>Composição concluída:</strong> {compositionReason}</p>}
    {data.rework.unavailableReason&&<p className="dashboard-explanation"><strong>Ciclos por rejeição:</strong> {data.rework.unavailableReason}</p>}
-   <p className="release-metrics-definition">Zero indica uma contagem observada sem ocorrências. “Sem medição” indica ausência de coleta ou de evidência suficiente. Ajustar uma composição em DRAFT não é contado como retrabalho por rejeição.</p>
+   <p className="release-metrics-definition">Zero indica uma contagem observada sem ocorrências. “Sem medição” indica ausência de coleta ou de evidência suficiente. Ajustar uma composição em OPEN não é contado como retrabalho por rejeição.</p>
   </div>}
+  {navigation.view==='branches'&&<div className="panel" aria-labelledby="release-branch-metrics-title"><h3 id="release-branch-metrics-title">Preparação de branches das releases</h3>{!data.branchPreparation?<p role="status">Sem medição da preparação nesta consulta.</p>:<>
+   <dl className="release-metrics-age-values"><div><dt>Preparações solicitadas nas 4 semanas</dt><dd>{number(data.branchPreparation.requested)}</dd></div><div><dt>Mediana até confirmação no período</dt><dd><MeasurementValue value={data.branchPreparation.confirmation.medianHours} unit="h"/></dd><small>{number(data.branchPreparation.confirmation.samples)} confirmações com duração</small></div><div><dt>Resultados ainda não confirmados</dt><dd>{number(data.branchPreparation.unknown)}</dd><small>Estoque atual, inclusive verificações em andamento</small></div></dl>
+   <p className="release-metrics-definition">Últimas quatro semanas · America/Sao_Paulo. A semana atual é parcial.</p><p className="release-metrics-scroll-hint">Deslize a tabela para comparar as semanas.</p><div className="table-wrap" tabIndex={0} role="region" aria-label="Preparações de branches por semana"><table className="weekly-table release-metrics-table"><caption className="sr-only">Solicitações e tempo de confirmação por semana</caption><thead><tr><th scope="col">Indicador</th>{data.branchPreparation.weeks.map(week=><th scope="col" key={week.start}>{week.label}<span>{date(week.start)} a {date(new Date(new Date(week.end).getTime()-1).toISOString())}</span>{week.partial&&<small>PARCIAL</small>}</th>)}</tr></thead><tbody><tr><th scope="row">Preparações solicitadas</th>{data.branchPreparation.weeks.map(week=><td key={week.start}>{number(week.requested)}</td>)}</tr><tr><th scope="row">Mediana até confirmação</th>{data.branchPreparation.weeks.map(week=><td key={week.start}><MeasurementValue value={week.confirmation.medianHours} unit="h"/><small>{number(week.confirmation.samples)} amostras</small></td>)}</tr></tbody></table></div>
+   <p className="dashboard-explanation">{data.branchPreparation.definition}</p><p className="release-metrics-definition">Resultados sem confirmação são operações incertas em releases de Sistemas não arquivados; não são todas as operações em fila ou em processamento. Criações e confirmações históricas preservam Sistemas hoje arquivados.</p><p className="release-metrics-definition">{data.branchPreparation.coverage}</p>
+  </>}</div>}
   {data.notes.length>0&&<details className="release-metrics-notes"><summary>Como interpretar os indicadores de releases</summary><ul>{data.notes.map(note=><li key={note}>{note}</li>)}</ul></details>}
  </section>;
 }

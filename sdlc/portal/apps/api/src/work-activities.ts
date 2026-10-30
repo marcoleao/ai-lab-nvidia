@@ -1,3 +1,4 @@
+import {repositoriesOfSystem} from './system-repository.ts';
 import {randomUUID,createHash} from 'node:crypto';
 import type {Database,Transaction} from '../../../packages/db/client.ts';
 import type {Prisma} from '../../../packages/db/generated/client.ts';
@@ -138,7 +139,7 @@ export async function bindActivityTasks(tx:Transaction,h:AssistantHelpers,args:{
   const task=await h.live(tx,link.taskId);
   if(task.kind!=='task'||task.parentId!==activity.storyId||task.archived||(task.data as Record<string,unknown>).workProcess)throw new DomainError('WORK_LINK_SCOPE','Selecione Tarefas planejadas desta História.',409);
   if(!link.scope.trim()||link.scope.length>2000)throw new DomainError('WORK_LINK_SCOPE','Descreva o escopo atendido para cada Tarefa.',409);
-  const explicit=await tx.itemRepository.findMany({where:{itemId:task.id}});if(explicit.length&&!explicit.some(r=>r.repositoryId===activity.repositoryId))throw new DomainError('WORK_LINK_REPOSITORY','O componente da Tarefa não corresponde a esta execução.',409);
+  const explicit=(await repositoriesOfSystem(tx,task)).map(repository=>({repositoryId:repository.id}));if(explicit.length&&!explicit.some(r=>r.repositoryId===activity.repositoryId))throw new DomainError('WORK_LINK_REPOSITORY','O componente da Tarefa não corresponde a esta execução.',409);
   await tx.workTaskLink.upsert({where:{activityId_taskId:{activityId:activity.id,taskId:task.id}},create:{activityId:activity.id,taskId:task.id,scope:link.scope,completion:link.completion??'manual_evidence',actorId:args.person.id,actorName:args.person.name},update:{scope:link.scope,completion:link.completion??'manual_evidence',actorId:args.person.id,actorName:args.person.name}});
  }
  await tx.workTaskLink.deleteMany({where:{activityId:activity.id,taskId:{notIn:args.taskIds.map(link=>link.taskId)}}});

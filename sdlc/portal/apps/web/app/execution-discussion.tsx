@@ -32,7 +32,7 @@ export default function ExecutionDiscussion({ executionId, persona, running, act
   const [refresh, setRefresh] = useState(0);
   const [allowDependencies, setAllowDependencies] = useState(false);
   const storage = `sdlc-execution-discussion:${executionId}`;
-  const draftLoaded = useRef(false);
+  const [restoredStorage, setRestoredStorage] = useState<string | null>(null);
   const callback = useRef(onRefresh); callback.current = onRefresh;
   const busyCallback = useRef(onBusyChange); busyCallback.current = onBusyChange;
   const canAct = !readOnly && ['ana', 'bruno', 'admin'].includes(persona);
@@ -43,11 +43,11 @@ export default function ExecutionDiscussion({ executionId, persona, running, act
     try {
       setDraft(sessionStorage.getItem(`${storage}:draft`) || '');
       const saved = sessionStorage.getItem(`${storage}:pending`);
-      if (saved) setRetry(JSON.parse(saved));
-    } catch {}
-    draftLoaded.current = true;
+      setRetry(saved ? JSON.parse(saved) : null);
+    } catch { setDraft(''); setRetry(null); }
+    setRestoredStorage(storage);
   }, [storage]);
-  useEffect(() => { if (draftLoaded.current) try { sessionStorage.setItem(`${storage}:draft`, draft); } catch {} }, [storage, draft]);
+  useEffect(() => { if (restoredStorage === storage) try { sessionStorage.setItem(`${storage}:draft`, draft); } catch {} }, [storage, draft, restoredStorage]);
   function remember(value: Attempt | null) {
     setRetry(value);
     try { if (value) sessionStorage.setItem(`${storage}:pending`, JSON.stringify(value)); else sessionStorage.removeItem(`${storage}:pending`); } catch {}
@@ -117,15 +117,15 @@ export default function ExecutionDiscussion({ executionId, persona, running, act
       {!retry && <div className="actions"><button className={data?.proposal?.ready ? undefined : 'primary'} disabled={!active || !data || !canAct || disabled || busy || running || !draft.trim()}>Enviar para a assistente</button></div>}
     </form>}
     {!readOnly && active && <div style={{ marginTop: 18 }}>
-      <p className="hint">A conversa esclarece suas escolhas. Quando quiser encerrar a discussão, peça um resumo para revisar. Esse pedido prepara a decisão; a implementação depende da sua confirmação e de um novo G1.</p>
+      <p className="hint">A conversa esclarece suas escolhas. Quando quiser encerrar a discussão, peça um resumo para revisar. Esse pedido prepara a decisão; a implementação depende da sua confirmação e de um novo Gateway de Especificação.</p>
       {!retry && <button disabled={!hasUserChoice || !canAct || disabled || busy || running} onClick={() => void submit('prepare')}>Preparar decisão para revisão</button>}
     </div>}
     {data?.proposal && <div className="decision" style={{ marginTop: 20 }}>
       <div><strong>{data.proposal.ready ? 'Decisão proposta' : 'Conversa em andamento'}</strong><p style={{ whiteSpace: 'pre-wrap' }}>{data.proposal.summary}</p></div>
-      {needsDependencies && !readOnly && <label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', width: '100%' }}><input type="checkbox" checked={allowDependencies} disabled={!active || !canAct || disabled || busy || running || Boolean(retry)} onChange={event => setAllowDependencies(event.target.checked)} />Autorizo adicionar dependências ao projeto para implementar esta decisão.</label>}
-      {needsDependencies && !allowDependencies && <p>Para seguir com essa proposta, autorize as dependências. Se preferir outra solução, continue a conversa e peça uma alternativa.</p>}
+      {needsDependencies && data.proposal.ready && !readOnly && <label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', width: '100%' }}><input type="checkbox" checked={allowDependencies} disabled={!active || !canAct || disabled || busy || running || Boolean(retry)} onChange={event => setAllowDependencies(event.target.checked)} />Autorizo adicionar dependências ao projeto para implementar esta decisão.</label>}
+      {needsDependencies && <p className="hint">{data.proposal.ready?'Esta decisão pede novas bibliotecas ou pacotes de software. Confira no resumo quais são, por que são necessários e seu impacto antes de autorizar. Se isso não estiver explicado, peça esclarecimento ou uma alternativa sem novas dependências na conversa.':'A conversa mencionou novas dependências, mas ainda não há decisão pronta para autorizar. Peça que a assistente identifique as bibliotecas ou pacotes e explique a necessidade; dividir ou esclarecer uma História não exige essa autorização por si só.'}</p>}
       {data.proposal.requestedCapabilities.filter(capability => capability !== 'dependencies').map(capability => <p key={capability}>Capacidade solicitada: {capability}</p>)}
-      {data.proposal.ready && !readOnly && <><p style={{ width: '100%' }}>Ao confirmar, a assistente revisará a especificação. Você precisará revisar e aprovar um novo G1 antes de gerar código.</p><button className="primary" disabled={!active || !canAct || disabled || busy || running || Boolean(retry) || Boolean(needsDependencies && !allowDependencies)} onClick={() => void submit('resolve')}>Confirmar decisão e revisar especificação</button></>}
+      {data.proposal.ready && !readOnly && <><p style={{ width: '100%' }}>Ao confirmar, a assistente revisará a especificação. Você precisará revisar e aprovar um novo Gateway de Especificação antes de gerar código.</p><button className="primary" disabled={!active || !canAct || disabled || busy || running || Boolean(retry) || Boolean(needsDependencies && !allowDependencies)} onClick={() => void submit('resolve')}>Confirmar decisão e revisar especificação</button></>}
     </div>}
     {retry && !readOnly && <div className="actions" style={{ marginTop: 16 }}><button className="primary" disabled={busy || disabled || !canAct || retry.persona !== persona} onClick={() => void submit(retry.kind)}>{busy ? 'Verificando…' : retry.kind === 'message' ? 'Verificar envio da mensagem' : retry.kind === 'prepare' ? 'Verificar preparação da decisão' : 'Verificar confirmação da decisão'}</button></div>}
     {retry && retry.persona !== persona && <p className="hint">Volte à persona usada no envio para verificar a mesma solicitação.</p>}

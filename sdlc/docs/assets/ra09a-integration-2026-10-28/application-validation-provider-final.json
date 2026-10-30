@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "file": "merge-integration-provider.test.ts",
+      "exitCode": 0,
+      "passed": 5
+    },
+    {
+      "file": "merge.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "kind": "História",
+      "width": 1440,
+      "executionVisible": true,
+      "phaseVisible": true,
+      "overflow": false,
+      "noRetrospectiveDestination": true
+    },
+    {
+      "kind": "Tarefa",
+      "width": 1440,
+      "executionVisible": true,
+      "phaseVisible": true,
+      "overflow": false,
+      "noRetrospectiveDestination": true
+    },
+    {
+      "kind": "História",
+      "width": 390,
+      "executionVisible": true,
+      "phaseVisible": true,
+      "overflow": false,
+      "noRetrospectiveDestination": true
+    },
+    {
+      "kind": "Tarefa",
+      "width": 390,
+      "executionVisible": true,
+      "phaseVisible": true,
+      "overflow": false,
+      "noRetrospectiveDestination": true
+    }
+  ],
+  "releaseVersion": 2,
+  "storyVersion": 18,
+  "executionId": "cmvpr9rig000201qsry08a5zu",
+  "legacyExecutionPreserved": true
+}

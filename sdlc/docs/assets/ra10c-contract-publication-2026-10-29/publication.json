@@ -1,0 +1,42 @@
+{
+  "id": "ra10c-contract-publication-20261029-e78f62f4",
+  "source": "f42f148a51018e33eccf7a49dda7fe4f73182900fe74e37e90d9bc4022c7735a",
+  "candidateImage": "sha256:3c37d24f1fc9ac69a1f10131a1d297b6a84303ebe2797d2ab5b92f00ba70c05e",
+  "verifiedAt": "2026-10-29T16:04:49.796391+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610290002_execution_contract_publication"
+  ],
+  "existingTablesChecked": 40,
+  "newTables": [
+    "ExecutionContractPublication"
+  ],
+  "tablesChecked": 41,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra10c-contract-publication-20261029-e78f62f4",
+    "bytes": 256519,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "volatileExclusions": {
+    "MergeOperation": [
+      "leaseId",
+      "leaseUntil",
+      "checkedAt",
+      "updatedAt"
+    ]
+  },
+  "audit": {
+    "records": 316,
+    "head": "f68eb15cc4b03bfad6cd8d92384118946da980968ea170ed189a9a2feb2fa5b1",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

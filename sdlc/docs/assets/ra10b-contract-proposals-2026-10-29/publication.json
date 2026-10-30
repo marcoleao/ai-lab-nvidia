@@ -1,0 +1,36 @@
+{
+  "id": "ra10b-contract-proposals-20261029-ad29d609",
+  "source": "8aea44cc660e3301094e2e03cb2d71352d47d4152d153d0b267d43ff80c4245f",
+  "candidateImage": "sha256:012f738df0846d9604fea9fc29c2df1b9d58a8f9930237af0e49b7e7489021f0",
+  "verifiedAt": "2026-10-29T14:28:28.397434+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610290001_execution_contract_proposals"
+  ],
+  "existingTablesChecked": 37,
+  "newTables": [
+    "ExecutionContractProposal",
+    "ExecutionContractRequest",
+    "ExecutionContractReview"
+  ],
+  "tablesChecked": 40,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra10b-contract-proposals-20261029-ad29d609",
+    "bytes": 233423,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 304,
+    "head": "9defe8f4cb42eb05bf1af1f416d96ab37893ace23c64c939765e5191e15f6120",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

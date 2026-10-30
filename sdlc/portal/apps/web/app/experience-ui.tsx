@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { usePathname } from 'next/navigation';
 import { AlertCircle, ArrowDown, ArrowUp, ArrowUpDown, LoaderCircle } from 'lucide-react';
 import './experience-ui.css';
@@ -17,11 +17,14 @@ export function ErrorState({ children, onRetry, className = '' }: { children: Re
   return <div role="alert" className={`experience-error ${className}`}><AlertCircle size={20} aria-hidden="true" /><div>{children}{onRetry && <button type="button" onClick={onRetry}>Tentar novamente</button>}</div></div>;
 }
 
-export function FilterPanel({ children, title = 'Filtros', id, className = '' }: { children: ReactNode; title?: string; id?: string; className?: string }) {
+export function FilterPanel({ children, title = 'Filtros', id, className = '', reveal = 0, focusRef }: { children: ReactNode; title?: string; id?: string; className?: string; reveal?: number; focusRef?: RefObject<HTMLElement|null> }) {
   const generated = useId(), pathname = usePathname();
   const key = `sdlc-filters:${pathname}:${id || generated}`;
   const [open, setOpen] = useState(false);
   useEffect(() => { try { setOpen(sessionStorage.getItem(key) === 'open'); } catch {} }, [key]);
+  useEffect(() => { if (reveal > 0) setOpen(true); }, [reveal]);
+  const focusedReveal = useRef(0);
+  useEffect(() => { if (open && reveal > focusedReveal.current) { focusedReveal.current = reveal; focusRef?.current?.focus(); } }, [open, reveal, focusRef]);
   return <details id={id} className={`experience-filters ${className}`} open={open} onToggle={event => {
     const expanded = event.currentTarget.open;
     setOpen(expanded);

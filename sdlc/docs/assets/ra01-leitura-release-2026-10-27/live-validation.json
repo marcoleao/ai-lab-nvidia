@@ -1,0 +1,23 @@
+{
+  "readOnly": true,
+  "totalReleases": 0,
+  "releaseSampleSize": 0,
+  "storyAssigned": false,
+  "checks": [
+    {
+      "width": 1440,
+      "listVisible": true,
+      "storySelectorVisible": true,
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "listVisible": true,
+      "storySelectorVisible": true,
+      "pageOverflow": false
+    }
+  ],
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0
+}

@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "file": "release-branch-preparation.test.ts",
+      "exitCode": 0,
+      "passed": 13
+    },
+    {
+      "file": "release-compositions.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    }
+  ]
+}

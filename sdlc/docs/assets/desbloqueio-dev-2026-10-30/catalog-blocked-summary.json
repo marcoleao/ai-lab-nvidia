@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-10-30T13:26:04.250Z",
+  "runtimeHash": "72b8cacb92d20cf82d40f529c0d128e0ebbef224dc790d0fc561e0794dab2231",
+  "testHash": "98771e0ecebf72a248bb61ac5cc0059bbe2633d8ad34f30858bc1a09ad24ada0",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 2533
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "error": "Browser cases differ from the versioned catalog; review and run catalog --write-catalog",
+  "finishedAt": "2026-10-30T13:26:04.354Z",
+  "sourceStable": true,
+  "ok": false
+}

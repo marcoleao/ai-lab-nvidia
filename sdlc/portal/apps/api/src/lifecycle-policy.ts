@@ -40,29 +40,53 @@ export async function descendantItems(tx:Transaction,item:Item){
   for(let offset=0;offset<result.length;){const ids=result.slice(offset).map(i=>i.id);offset=result.length;const children=await tx.item.findMany({where:{parentId:{in:ids}},orderBy:{id:'asc'}});for(const child of children){if(seen.has(child.id))throw new DomainError('INVALID_HIERARCHY','A hierarquia contém uma referência circular.',409);seen.add(child.id);result.push(child);}}
   return result;
 }
-export async function assertNoRunningDescendants(tx:Transaction,item:Item){
-  const tree=await descendantItems(tx,item),ids=tree.map(i=>i.id),storyIds=tree.filter(i=>i.kind==='story').map(i=>i.id),now=new Date();
+export function groupTransitions(kind:string,from:string):string[]{return (kind==='system'?{active:['inactive'],inactive:['active']}:{active:['inactive','completed','cancelled'],inactive:['active'],completed:['active'],cancelled:['active']})[from as 'active']??[];}
+export function closureReasonRequired(to:string,directChildren:readonly Item[]){return ['completed','cancelled'].includes(to)&&(to==='cancelled'||!directChildren.length||directChildren.every(child=>itemLifecycle(child)==='cancelled'));}
+export async function hierarchyRunningCounts(tx:Transaction,tree:readonly Item[]){
+ const ids=tree.map(i=>i.id),storyIds=tree.filter(i=>i.kind==='story').map(i=>i.id),now=new Date();
   const counts=await Promise.all([
+    tx.developmentTest.count({where:{systemId:{in:ids},state:'running'}}),
+    tx.developmentDeployment.count({where:{systemId:{in:ids},state:'running'}}),
+    tx.environmentOperation.count({where:{systemId:{in:ids},state:'running'}}),
+    tx.applicationPreparation.count({where:{systemId:{in:ids},state:'running'}}),
+    tx.developmentBuild.count({where:{storyId:{in:storyIds},state:'running'}}),
+    tx.executionContractIntegration.count({where:{systemId:{in:ids},state:'running'}}),
+    tx.executionContractPublication.count({where:{systemId:{in:ids},resolvedAt:null,state:'running'}}),
     tx.storyExecution.count({where:{storyId:{in:storyIds},OR:[{state:{in:['running','cancel_pending']}},{state:'cancelled',leaseUntil:{gt:now}}]}}),
     tx.chatTurn.count({where:{session:{contextId:{in:ids}},OR:[{status:'running'},{status:'cancelled',leaseUntil:{gt:now}}]}}),
     tx.qualityCheck.count({where:{storyId:{in:storyIds},state:'running'}}),
     tx.mergeOperation.count({where:{storyId:{in:storyIds},state:'running'}}),
+    tx.mergePreparation.count({where:{storyId:{in:storyIds},state:'running'}}),
+    tx.mergeHistoryCloseOperation.count({where:{storyId:{in:storyIds},state:'running'}}),
     tx.mergeDiscussionTurn.count({where:{operation:{storyId:{in:storyIds}},state:'running'}}),
     tx.workAttempt.count({where:{activity:{storyId:{in:storyIds}},state:'running'}}),
     tx.provisioningJob.count({where:{itemId:{in:ids},state:'running'}}),
     tx.repository.count({where:{systemId:{in:ids},state:'running'}}),
   ]);
+  return counts;
+}
+export async function assertNoRunningDescendants(tx:Transaction,item:Item){
+  const tree=await descendantItems(tx,item),counts=await hierarchyRunningCounts(tx,tree);
   if(counts.some(Boolean))throw new DomainError('HIERARCHY_WORK_RUNNING','Conclua ou interrompa explicitamente as operações em andamento antes de inativar ou encerrar.',409);
   return tree;
 }
 /** Exact bounded aggregates describe the selected scope without copying job
  * bodies or claiming that repository PENDING/FAILED was a QUEUED execution. */
-async function hierarchyWorkStates(tx:Transaction,ids:string[],storyIds:string[]){
+export async function hierarchyWorkStates(tx:Transaction,ids:string[],storyIds:string[]){
  const groups=await Promise.all([
+  tx.developmentTest.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'development_test',state:row.state,count:row._count._all}))),
+  tx.developmentDeployment.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'development_deployment',state:row.state,count:row._count._all}))),
+  tx.environmentOperation.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'environment_operation',state:row.state,count:row._count._all}))),
+  tx.applicationPreparation.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'application_preparation',state:row.state,count:row._count._all}))),
+  tx.developmentBuild.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'development_build',state:row.state,count:row._count._all}))),
+  tx.executionContractIntegration.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'contract_integration',state:row.state,count:row._count._all}))),
+  tx.executionContractPublication.groupBy({by:['state'],where:{systemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'contract_publication',state:row.state,count:row._count._all}))),
   tx.storyExecution.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'story_execution',state:row.state,count:row._count._all}))),
   tx.chatTurn.groupBy({by:['status'],where:{session:{contextId:{in:ids}}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'chat_turn',state:row.status,count:row._count._all}))),
   tx.qualityCheck.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'quality_check',state:row.state,count:row._count._all}))),
+  tx.mergePreparation.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'merge_preparation',state:row.state,count:row._count._all}))),
   tx.mergeOperation.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'merge_operation',state:row.state,count:row._count._all}))),
+  tx.mergeHistoryCloseOperation.groupBy({by:['state'],where:{storyId:{in:storyIds}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'merge_history_close',state:row.state,count:row._count._all}))),
   tx.mergeDiscussionTurn.groupBy({by:['state'],where:{operation:{storyId:{in:storyIds}}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'merge_discussion',state:row.state,count:row._count._all}))),
   tx.workAttempt.groupBy({by:['state'],where:{activity:{storyId:{in:storyIds}}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'work_attempt',state:row.state,count:row._count._all}))),
   tx.provisioningJob.groupBy({by:['state'],where:{itemId:{in:ids}},_count:{_all:true}}).then(rows=>rows.map(row=>({kind:'provisioning_job',state:row.state,count:row._count._all}))),
@@ -76,10 +100,19 @@ export async function pauseHierarchyWork(tx:Transaction,item:Item,person:{id:str
   const attempts=await tx.workAttempt.findMany({where:{activity:{storyId:{in:storyIds}},state:'queued'},select:{id:true,stage:true}});
   const operationId=currentAuditContext()?.operationId??`hierarchy-pause:${randomUUID()}`;
   const changed=await Promise.all([
+    tx.developmentTest.updateMany({where:{systemId:{in:ids},state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.developmentDeployment.updateMany({where:{systemId:{in:ids},state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.environmentOperation.updateMany({where:{systemId:{in:ids},state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.applicationPreparation.updateMany({where:{systemId:{in:ids},resolvedAt:null,state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.developmentBuild.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.executionContractIntegration.updateMany({where:{systemId:{in:ids},state:'queued'},data:{state:'paused',version:{increment:1}}}),
+    tx.executionContractPublication.updateMany({where:{systemId:{in:ids},resolvedAt:null,state:'queued'},data:{state:'paused',version:{increment:1}}}),
     tx.storyExecution.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused'}}),
     tx.chatTurn.updateMany({where:{session:{contextId:{in:ids}},status:'queued'},data:{status:'paused'}}),
     tx.qualityCheck.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused'}}),
     tx.mergeOperation.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused'}}),
+    tx.mergePreparation.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused'}}),
+    tx.mergeHistoryCloseOperation.updateMany({where:{storyId:{in:storyIds},state:'queued'},data:{state:'paused',version:{increment:1}}}),
     tx.mergeDiscussionTurn.updateMany({where:{operation:{storyId:{in:storyIds}},state:'queued'},data:{state:'paused'}}),
     tx.workAttempt.updateMany({where:{activity:{storyId:{in:storyIds}},state:'queued'},data:{state:'paused'}}),
     tx.provisioningJob.updateMany({where:{itemId:{in:ids},state:{in:['pending','failed','not_configured']}},data:{state:'paused'}}),
@@ -89,18 +122,30 @@ export async function pauseHierarchyWork(tx:Transaction,item:Item,person:{id:str
   if(changed.some(c=>c.count))await recordAudit(tx,item,person,'HIERARCHY_WORK_PAUSED','Trabalhos pendentes pausados; reativar o agrupador não os inicia.',{scope:'all_descendants'},'human',{before:{state:before},after:{state:await hierarchyWorkStates(tx,ids,storyIds)}});
   return changed.reduce((sum,c)=>sum+c.count,0);
 }
+export async function eligibleHierarchyItems(tx:Transaction,item:Item,tree:readonly Item[]){
+ const ancestors=await hierarchyItems(tx,item),byId=new Map([...ancestors,...tree].map(row=>[row.id,row]));
+ return tree.filter(row=>{const chain:Item[]=[];let cursor:Item|undefined=row;while(cursor){chain.unshift(cursor);if(!cursor.parentId)break;cursor=byId.get(cursor.parentId);if(!cursor)throw new DomainError('INVALID_HIERARCHY','Ancestral ausente na consulta do Épico.',409);}return !hierarchyBlock(chain);});
+}
 export async function resumeHierarchyWork(tx:Transaction,item:Item,person:{id:string;name:string}){
-  await ensureHierarchyWritable(tx,item);const tree=await descendantItems(tx,item),eligible:Item[]=[];
-  for(const child of tree)if((await hierarchyState(tx,child)).writable)eligible.push(child);
+  await ensureHierarchyWritable(tx,item);const tree=await descendantItems(tx,item),eligible=await eligibleHierarchyItems(tx,item,tree);
   const ids=eligible.map(i=>i.id),storyIds=eligible.filter(i=>i.kind==='story').map(i=>i.id);
   const before=await hierarchyWorkStates(tx,ids,storyIds);
   const attempts=await tx.workAttempt.findMany({where:{activity:{storyId:{in:storyIds}},state:'paused'},select:{id:true,stage:true}});
   const operationId=currentAuditContext()?.operationId??`hierarchy-resume:${randomUUID()}`;
   const changed=await Promise.all([
+    tx.developmentTest.updateMany({where:{systemId:{in:ids},state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.developmentDeployment.updateMany({where:{systemId:{in:ids},state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.environmentOperation.updateMany({where:{systemId:{in:ids},state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.applicationPreparation.updateMany({where:{systemId:{in:ids},resolvedAt:null,state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.developmentBuild.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.executionContractIntegration.updateMany({where:{systemId:{in:ids},state:'paused'},data:{state:'queued',version:{increment:1}}}),
+    tx.executionContractPublication.updateMany({where:{systemId:{in:ids},resolvedAt:null,state:'paused'},data:{state:'queued',version:{increment:1}}}),
     tx.storyExecution.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued'}}),
     tx.chatTurn.updateMany({where:{session:{contextId:{in:ids}},status:'paused'},data:{status:'queued'}}),
     tx.qualityCheck.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued'}}),
     tx.mergeOperation.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued'}}),
+    tx.mergePreparation.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued'}}),
+    tx.mergeHistoryCloseOperation.updateMany({where:{storyId:{in:storyIds},state:'paused'},data:{state:'queued',version:{increment:1}}}),
     tx.mergeDiscussionTurn.updateMany({where:{operation:{storyId:{in:storyIds}},state:'paused'},data:{state:'queued'}}),
     tx.workAttempt.updateMany({where:{activity:{storyId:{in:storyIds}},state:'paused'},data:{state:'queued'}}),
     tx.provisioningJob.updateMany({where:{itemId:{in:ids},state:'paused'},data:{state:'pending'}}),

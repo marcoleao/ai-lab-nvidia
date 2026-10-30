@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-10-30T04:46:20.909Z",
+  "runtimeHash": "fe5a15fe3c629986c3aa4bb77f7dfbe9ce470b61d794954f2be377b40e93acce",
+  "testHash": "12908e54f7858b206078bc994fa606b9821b0c1d337dfe3e10dfabe70006216f",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 1344
+    },
+    {
+      "name": "browser",
+      "exitCode": 1,
+      "durationMs": 83559
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-30T04:46:23.370Z",
+      "duration": 82586.02500000001,
+      "expected": 22,
+      "skipped": 0,
+      "unexpected": 22,
+      "flaky": 0
+    },
+    "total": 44,
+    "failed": [
+      {
+        "id": "UI-440475964b0a",
+        "file": "development-build.spec.ts",
+        "title": "DEV build confirms fixed source without release or deployment at 1440px"
+      },
+      {
+        "id": "UI-b651b6c09ea6",
+        "file": "development-build.spec.ts",
+        "title": "DEV build preserves known artifact when a later GET fails at 1440px"
+      },
+      {
+        "id": "UI-8748fe570c02",
+        "file": "development-build.spec.ts",
+        "title": "DEV build lost ACK recovers the original request across tabs and reload at 1440px"
+      },
+      {
+        "id": "UI-ac068470a46c",
+        "file": "development-build.spec.ts",
+        "title": "DEV build context refusal preserves draft and requires another review at 1440px"
+      },
+      {
+        "id": "UI-a209b24cf9ab",
+        "file": "development-build.spec.ts",
+        "title": "DEV build read-only persona sees blockers and cannot authorize at 1440px"
+      },
+      {
+        "id": "UI-fc20dd77d384",
+        "file": "development-build.spec.ts",
+        "title": "DEV build persona change invalidates confirmation and preserves reason at 1440px"
+      },
+      {
+        "id": "UI-0c2f471d808a",
+        "file": "development-build.spec.ts",
+        "title": "DEV build result reconciliation observes the same operation at 1440px"
+      },
+      {
+        "id": "UI-27acfed7e6d6",
+        "file": "development-build.spec.ts",
+        "title": "DEV build pause requires explicit resume of the original operation at 1440px"
+      },
+      {
+        "id": "UI-4d5575c4ccea",
+        "file": "development-build.spec.ts",
+        "title": "DEV build cancellation is explicit before dispatch at 1440px"
+      },
+      {
+        "id": "UI-68dd3dfd3739",
+        "file": "development-build.spec.ts",
+        "title": "DEV build from a task consults the owning story at 1440px"
+      },
+      {
+        "id": "UI-bab821d89102",
+        "file": "development-build.spec.ts",
+        "title": "DEV build confirms fixed source without release or deployment at 390px"
+      },
+      {
+        "id": "UI-7cde18670527",
+        "file": "development-build.spec.ts",
+        "title": "DEV build preserves known artifact when a later GET fails at 390px"
+      },
+      {
+        "id": "UI-113ee0ce445d",
+        "file": "development-build.spec.ts",
+        "title": "DEV build lost ACK recovers the original request across tabs and reload at 390px"
+      },
+      {
+        "id": "UI-ce4afe8d1177",
+        "file": "development-build.spec.ts",
+        "title": "DEV build context refusal preserves draft and requires another review at 390px"
+      },
+      {
+        "id": "UI-d2ab9e321471",
+        "file": "development-build.spec.ts",
+        "title": "DEV build read-only persona sees blockers and cannot authorize at 390px"
+      },
+      {
+        "id": "UI-090db0b64840",
+        "file": "development-build.spec.ts",
+        "title": "DEV build persona change invalidates confirmation and preserves reason at 390px"
+      },
+      {
+        "id": "UI-c2a3a5cf08fc",
+        "file": "development-build.spec.ts",
+        "title": "DEV build result reconciliation observes the same operation at 390px"
+      },
+      {
+        "id": "UI-cb1adfa7f8e7",
+        "file": "development-build.spec.ts",
+        "title": "DEV build pause requires explicit resume of the original operation at 390px"
+      },
+      {
+        "id": "UI-2043dbc5bb6e",
+        "file": "development-build.spec.ts",
+        "title": "DEV build cancellation is explicit before dispatch at 390px"
+      },
+      {
+        "id": "UI-94b1c93dee8f",
+        "file": "development-build.spec.ts",
+        "title": "DEV build from a task consults the owning story at 390px"
+      },
+      {
+        "id": "UI-d0500cc04d76",
+        "file": "development-deployment.spec.ts",
+        "title": "DEV publication follows build and reviews chained preparation in one decision at 1440px"
+      },
+      {
+        "id": "UI-4faba7a443fc",
+        "file": "development-deployment.spec.ts",
+        "title": "DEV publication follows build and reviews chained preparation in one decision at 390px"
+      }
+    ],
+    "errors": [],
+    "scope": "selected"
+  },
+  "finishedAt": "2026-10-30T04:47:39.131Z",
+  "sourceStable": true,
+  "ok": false
+}

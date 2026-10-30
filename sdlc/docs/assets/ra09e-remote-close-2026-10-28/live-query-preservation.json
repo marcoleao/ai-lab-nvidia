@@ -1,0 +1,21 @@
+{
+  "readOnly": true,
+  "before": {
+    "closeJobs": 0,
+    "resolutions": 0,
+    "references": 0,
+    "keys": 34,
+    "closureEvents": 0,
+    "historyConfirmations": 0,
+    "captures": 0
+  },
+  "after": {
+    "closeJobs": 0,
+    "resolutions": 0,
+    "references": 0,
+    "keys": 34,
+    "closureEvents": 0,
+    "historyConfirmations": 0,
+    "captures": 0
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type {StoryLifecycleReading} from '../../../packages/shared/src/story-lifecycle-reading';
 import AssistantWorkspace from './assistant-workspace';
 import Dashboard from './dashboard';
 import Integrations from './integrations';
@@ -8,10 +9,12 @@ import ArchivedItem from './archived-item';
 import StoryExecution from './story-execution';
 import StoryWorkspace from './story-workspace';
 import Releases from './releases';
-import Repositories, { Repository, RepositoryChoices } from './repos';
+import Repositories, { Repository } from './repos';
+import SystemEnvironments from './system-environments';
+import EnvironmentTargetPreparation from './environment-target-preparation';
 import ProjectLifecycle from './project-lifecycle';
 import SystemLifecycle from './system-lifecycle';
-import EpicLifecycle from './epic-lifecycle';
+import EpicExecution from './epic-execution';
 import ManualTaskActions from './manual-task-actions';
 import StoryReopen from './story-reopen';
 import ResumeWork from './resume-work';
@@ -26,7 +29,7 @@ import ConversationHistory from './conversation-history';
 import { LoadingState, ErrorState, Spinner } from './experience-ui';
 
 type Kind = 'system' | 'project' | 'epic' | 'story' | 'task';
-export type Item = { id: string; kind: Kind; key: string; name: string; description: string; status: string; projectLifecycle?: string; version: number; archived: boolean; parentId: string | null; data: Record<string, unknown>; createdAt: string; updatedAt: string };
+export type Item = { storyLifecycle?:StoryLifecycleReading; id: string; kind: Kind; key: string; name: string; description: string; status: string; projectLifecycle?: string; version: number; archived: boolean; parentId: string | null; data: Record<string, unknown>; createdAt: string; updatedAt: string };
 type Persona = { id: string; name: string; role: string };
 export type Detail = { item: Item; ancestors: Item[]; children: Item[]; repositories: Repository[]; availableRepositories: Repository[]; environments: { id: string; repositoryId: string; repositoryName: string; code: string; liveStatus: string; currentVersion: string | null; url: string | null }[]; history: Record<string, unknown>[]; hierarchy?: {writable:boolean;reason?:string}; readOnlyReason?:string|null; capabilities?:{canMutate:boolean;canChangeLifecycle:boolean} };
 type Tab = { id: string; title: string };
@@ -34,7 +37,7 @@ const kinds: Kind[] = ['system', 'project', 'epic', 'story', 'task'];
 const names: Record<Kind, string> = { system: 'Sistema', project: 'Projeto', epic: 'Épico', story: 'História', task: 'Tarefa' };
 const plurals: Record<Kind, string> = { system: 'Sistemas', project: 'Projetos', epic: 'Épicos', story: 'Histórias', task: 'Tarefas' };
 const routes: Record<Kind, string> = { system: 'systems', project: 'projects', epic: 'epics', story: 'stories', task: 'tasks' };
-const storyStatuses = ['specification', 'approved', 'coding', 'code_review', 'security_scan', 'testing', 'uat', 'production', 'completed'];
+const storyStatuses = ['specification', 'approved', 'coding', 'code_review', 'security_scan', 'merge_request', 'testing', 'uat', 'production', 'completed'];
 const label = (value: string) => value === 'todo' ? 'TO DO' : value.replaceAll('_', ' ').toUpperCase();
 const eventLabel = (value: string) => ({ ITEM_CREATED: 'Item criado', ITEM_UPDATED: 'Item atualizado', STATUS_CHANGED: 'Status alterado', ITEM_ARCHIVED: 'Item arquivado', ITEM_APPROVED: 'Planejamento aprovado' } as Record<string, string>)[value] || value.replaceAll('_', ' ');
 const href = (item: Item) => `/${routes[item.kind]}/${item.id}`;
@@ -110,11 +113,12 @@ function PortalContent() {
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
   const [childTotal, setChildTotal] = useState<number | null>(null);
-  const [draft, setDraft] = useState({ name: '', description: '', key: '', repositoryIds: [] as string[] });
+  const [draft, setDraft] = useState({ name: '', description: '', key: '' });
   const createKey = useRef('');
   const editVersion = useRef(0);
   const preserveForm = useRef(false);
   const loadedContext = useRef('');
+  const contextTabs = useRef<HTMLElement>(null);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [reopenComment, setReopenComment] = useState('');
   const [archiveComment, setArchiveComment] = useState('');
@@ -131,20 +135,25 @@ function PortalContent() {
   const assistantContext = item ? (['system', 'project'].includes(item.kind) ? item : detail?.ancestors.find(ancestor => ancestor.kind === 'project') || null) : null;
   const system = item?.kind === 'system' ? item : detail?.ancestors.find(a => a.kind === 'system');
   const project = item?.kind === 'project' ? item : detail?.ancestors.find(a => a.kind === 'project');
-  const epicProjectClosed = item?.kind === 'epic' && ['inactive', 'completed', 'cancelled'].includes(project?.projectLifecycle || '');
+  const requestedReturn = search.get('returnTo');
+  const returnToStory = requestedReturn && /^\/stories\/[A-Za-z0-9_-]+(?:\?.*)?$/.test(requestedReturn) ? requestedReturn : null;
+  const destinationParams = new URLSearchParams(search.toString()); destinationParams.delete('interact'); destinationParams.delete('returnTo'); destinationParams.set('tab', 'planning'); destinationParams.set('process', 'destination');
+  const destinationReturn = item?.kind === 'story' ? `${pathname}?${destinationParams}` : returnToStory;
+  const setupHref = (target: string) => destinationReturn ? `${target}&${new URLSearchParams({returnTo:destinationReturn})}` : target;
   const tabs: Tab[] = !item ? [] : item.kind === 'story' ? [
     { id: 'overview', title: 'Acompanhamento' }, { id: 'specification', title: 'Especificação' }, { id: 'blockers', title: 'Impedimentos' },
-    { id: 'delivery', title: 'Entrega de código' }, { id: 'tasks', title: 'Tarefas' }, { id: 'components', title: 'Componentes' },
+    { id: 'delivery', title: 'Entrega de código' }, { id: 'tasks', title: 'Tarefas' }, { id: 'components', title: 'Repositório do Sistema' },
     { id: 'activity', title: 'Auditoria' }, { id: 'releases', title: 'Releases' }, { id: 'manage', title: 'Configurações' },
   ] : [
     { id: 'overview', title: childKind ? plurals[childKind] : 'Acompanhamento' },
     ...(['system', 'project', 'epic'].includes(item.kind) ? [{ id: 'planning', title: 'Execução' }] : []),
     ...(['system', 'project', 'epic'].includes(item.kind) ? [{ id: 'conversations', title: 'Conversas' }] : []),
-    ...(['system', 'task'].includes(item.kind) ? [{ id: 'components', title: 'Componentes' }] : []),
+    ...(['system', 'task'].includes(item.kind) ? [{ id: 'components', title: 'Repositório do Sistema' }] : []),
     ...(item.kind === 'system' ? [{ id: 'environments', title: 'Ambientes' }] : []),
     { id: 'activity', title: 'Auditoria' }, { id: 'manage', title: 'Configurações' },
   ];
-  const selectedTab = tabs.some(tab => tab.id === search.get('tab')) ? search.get('tab')! : 'overview';
+  const requestedTab = search.get('tab') || 'overview';
+  const selectedTab = tabs.some(tab => tab.id === requestedTab) ? requestedTab : 'overview';
   const tabHref = (tab: string) => { const params = new URLSearchParams(search.toString()); if (tab === 'overview') params.delete('tab'); else params.set('tab', tab); return `${pathname}${params.size ? `?${params}` : ''}`; };
   const showChildren = !item || selectedTab === 'overview' && item.kind !== 'story' || item?.kind === 'story' && selectedTab === 'tasks';
   const children = item ? detail?.children || [] : items;
@@ -206,13 +215,26 @@ function PortalContent() {
     return () => { active = false; window.removeEventListener('sdlc-plan-applied', refresh); };
   }, [id]);
 
-  useEffect(() => { document.querySelector('.context-tabs [aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }, [selectedTab]);
+  useEffect(() => {
+    const nav = contextTabs.current || (journeyView ? document.querySelector<HTMLElement>('.sw-tabs') : null);
+    if (!nav) return;
+    const reveal = () => {
+      const current = nav.querySelector('[aria-current="page"]');
+      if (!current) return;
+      const tab = current.getBoundingClientRect(), viewport = nav.getBoundingClientRect();
+      if (tab.left < viewport.left) nav.scrollLeft += tab.left - viewport.left;
+      else if (tab.right > viewport.right) nav.scrollLeft += tab.right - viewport.right;
+    };
+    reveal();
+    const observer = new ResizeObserver(reveal); observer.observe(nav);
+    return () => observer.disconnect();
+  }, [selectedTab, requestedTab, loading, item?.id, journeyView]);
 
   const begin = (mode: 'create' | 'edit') => {
     if (archivedContext) return;
     createKey.current = crypto.randomUUID();
     editVersion.current = item?.version || 0;
-    setDraft({ name: mode === 'edit' ? item?.name || '' : '', description: mode === 'edit' ? item?.description || '' : '', key: '', repositoryIds: [] });
+    setDraft({ name: mode === 'edit' ? item?.name || '' : '', description: mode === 'edit' ? item?.description || '' : '', key: '' });
     setForm(mode); setError(''); setNotice('');
   };
 
@@ -248,7 +270,6 @@ function PortalContent() {
         const result = await request<{ item: Item }>('/items', persona, {
           kind: childKind, ...(item ? { parentId: item.id } : {}), name: draft.name, description: draft.description,
           ...(['system', 'project'].includes(childKind) ? { key: draft.key } : {}),
-          ...(['project', 'story', 'task'].includes(childKind) ? { repositoryIds: draft.repositoryIds } : {}),
         }, 'POST', createKey.current);
         window.location.assign(href(result.item));
       }
@@ -279,6 +300,7 @@ function PortalContent() {
     <div className="workspace">
       <header className="topbar">{assistantRoute && <AssistantMobileNavigation />}<span>{overview ? 'Indicadores do processo' : assistantRoute ? 'Entrevista e especificação' : releaseRoute ? 'Composição de releases' : integrationsRoute ? 'Disponibilidade das integrações' : 'Planejamento e entrega'}</span><label className="persona"><span>Modo demo local · Persona</span><select aria-label={assistantRoute ? 'Persona' : undefined} value={persona} onChange={event => { setPersona(event.target.value); sessionStorage.setItem('sdlc-persona', event.target.value); }}><option value="">Selecione para atuar</option>{personas.map(p => <option key={p.id} value={p.id}>{p.name} · {roleLabel(p.role)}</option>)}</select></label></header>
       <main id="main">
+        {returnToStory && ['system','project'].includes(item?.kind || '') && <p className="hint"><Link href={returnToStory}>← Voltar ao destino da História</Link></p>}
         <section className={`workflow-bar${journeyView ? ' story-journey-bar' : ''}${overview ? ' dashboard-workflow' : ''}`} aria-label="Situação e próxima ação">
           <nav className="breadcrumb" aria-label="Localização">
             {overview ? <span aria-current="page">Visão geral</span> : assistantRoute ? <span aria-current="page">Assistente</span> : releaseRoute ? <Link href="/releases">Releases</Link> : integrationsRoute ? <span aria-current="page">Integrações</span> : <Link href={item ? rememberedCollection('/systems') : '/systems'}>Sistemas</Link>}
@@ -310,42 +332,50 @@ function PortalContent() {
           {releaseRoute && <div id="release-workflow-actions" />}
         </section>
 
-        {overview ? <Dashboard /> : assistantRoute ? <AssistantWorkspace persona={persona} canPlan={canPlan} /> : releaseRoute ? <Releases persona={persona} role={role} /> : integrationsRoute ? <Integrations /> : loading ? <LoadingState className="panel">Carregando planejamento…</LoadingState> : id && !item ? <section className="panel"><h1>Item indisponível</h1><p>Não foi possível carregar este item. Verifique a mensagem acima ou retorne aos Sistemas.</p><Link href="/systems">Voltar para Sistemas</Link></section> : archivedContext && detail ? <ArchivedItem detail={detail} /> : <>
+        {item?.kind === 'system' && !archivedContext && <><div id={`application-preparation-recovery-${item.id}`} /><div id={`contract-proposal-recovery-${item.id}`} /><div id={`contract-publication-recovery-${item.id}`} /><div id={`environment-target-recovery-${item.id}`} /></>}
+
+        {overview ? <Dashboard /> : assistantRoute ? <AssistantWorkspace persona={persona} role={role} canPlan={canPlan} /> : releaseRoute ? <Releases persona={persona} role={role} /> : integrationsRoute ? <Integrations /> : loading ? <LoadingState className="panel">Carregando planejamento…</LoadingState> : id && !item ? <section className="panel"><h1>Item indisponível</h1><p>Não foi possível carregar este item. Verifique a mensagem acima ou retorne aos Sistemas.</p><Link href="/systems">Voltar para Sistemas</Link></section> : archivedContext && detail ? <ArchivedItem detail={detail} /> : <>
           {journeyView && item && <StoryWorkspace item={item} persona={persona} canPlan={authorized} tab={search.get('tab') || ''} headerTargetId="story-journey-header" onRefresh={() => window.dispatchEvent(new Event('sdlc-plan-applied'))} onEdit={() => begin('edit')} onCreate={() => begin('create')}
             planningContext={system && project ? <PlanningAssistant systemId={system.id} projectId={project.id} contextName={project.name} withinProject /> : <p className="hint">Consulte o Projeto de origem para planejar com a assistente.</p>}
             formTitle={form ? form === 'edit' ? `Editar ${names[item.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}` : undefined}
-            formContent={form ? <section className="panel form-panel"><h2>{form === 'edit' ? `Editar ${names[item!.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}`}</h2>{item && form === 'create' && <p className="hint">Em {names[item.kind].toLowerCase()}: <strong>{item.name}</strong></p>}<form id="item-form" aria-label="Formulário do item" onSubmit={save}><label>Nome ou título <span>(obrigatório)</span><input autoFocus required maxLength={120} value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} /></label>{form === 'create' && ['system', 'project'].includes(childKind!) && <label>{childKind === 'system' ? 'Sigla' : 'Chave'} <span>(obrigatório)</span><input required minLength={6} maxLength={6} pattern='[A-Z]{6}' title='Informe exatamente 6 letras de A a Z.' value={draft.key} onChange={event => setDraft({ ...draft, key: event.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() })} /><small>Use exatamente 6 letras de A a Z. Minúsculas são convertidas para maiúsculas.</small></label>}<label>Descrição<textarea rows={4} maxLength={4000} value={draft.description} onChange={event => setDraft({ ...draft, description: event.target.value })} /></label>{form === 'create' && ['project', 'story', 'task'].includes(childKind!) && <RepositoryChoices repositories={(childKind === 'task' || childKind === 'project' ? detail?.repositories : detail?.availableRepositories) || []} value={draft.repositoryIds} onChange={repositoryIds => setDraft({ ...draft, repositoryIds })} />}<p className="hint form-save-note">Salvar e Cancelar estão na faixa superior, junto à localização.</p></form></section> : undefined}
+            formContent={form ? <section className="panel form-panel"><h2>{form === 'edit' ? `Editar ${names[item!.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}`}</h2>{item && form === 'create' && <p className="hint">Em {names[item.kind].toLowerCase()}: <strong>{item.name}</strong></p>}<form id="item-form" aria-label="Formulário do item" onSubmit={save}><label>Nome ou título <span>(obrigatório)</span><input autoFocus required maxLength={120} value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} /></label>{form === 'create' && ['system', 'project'].includes(childKind!) && <label>{childKind === 'system' ? 'Sigla' : 'Chave'} <span>(obrigatório)</span><input required minLength={6} maxLength={6} pattern='[A-Z]{6}' title='Informe exatamente 6 letras de A a Z.' value={draft.key} onChange={event => setDraft({ ...draft, key: event.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() })} /><small>Use exatamente 6 letras de A a Z. Minúsculas são convertidas para maiúsculas.</small></label>}<label>Descrição<textarea rows={4} maxLength={4000} value={draft.description} onChange={event => setDraft({ ...draft, description: event.target.value })} /></label>{form === 'create' && childKind === 'system' && <p className="hint">O repositório do Sistema será criado automaticamente. O código será organizado em pastas conforme a arquitetura.</p>}<p className="hint form-save-note">Salvar e Cancelar estão na faixa superior, junto à localização.</p></form></section> : undefined}
             formActions={form ? blocked => <div className="actions"><button type="submit" form="item-form" className="primary" disabled={busy || !canPlan || blocked}>{busy ? <><Spinner />Salvando…</> : 'Salvar'}</button><button type="button" disabled={busy} onClick={() => setForm(null)}>Cancelar</button></div> : undefined}
-            components={<Repositories key={item.id} itemId={item.id} repositories={detail?.repositories || []} available={detail?.availableRepositories || []} version={item.version} canPlan={canPlan && !busy} call={(path, body, method) => request(path, persona, body, method)} onChanged={() => setRevision(value => value + 1)} />}
+            systemRepositoryHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined}
+            components={<Repositories key={item.id} systemHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined} repositories={detail?.repositories || []} />}
             history={<HistoryQuery itemId={item.id} revision={revision} />}
-            administration={<section className="panel"><h2>{item.kind === 'story' ? 'Configuração da História' : `Configurações de ${names[item.kind]}`}</h2>{item.kind === 'story' && item.status === 'cancelled' && <StoryReopen version={item.version} enabled={canManageLifecycle && !busy} onChange={body=>mutate(()=>request(`/items/${item.id}/reopen`,persona,body,'POST'),'História reaberta; novo G1 obrigatório.')} />}<p>Use Editar para alterar os campos permitidos. Arquivamento exige item finalizado.</p><button disabled={!canArchive || busy} onClick={()=>setArchiveOpen(true)}>Arquivar {names[item.kind].toLowerCase()}</button></section>}
+            administration={<section className="panel"><h2>{item.kind === 'story' ? 'Configuração da História' : `Configurações de ${names[item.kind]}`}</h2>{item.kind === 'story' && item.status === 'cancelled' && <StoryReopen version={item.version} enabled={canManageLifecycle && !busy} onChange={body=>mutate(()=>request(`/items/${item.id}/reopen`,persona,body,'POST'),'História reaberta; novo Gateway de Especificação obrigatório.')} />}<p>Use Editar para alterar os campos permitidos. Arquivamento exige item finalizado.</p><button disabled={!canArchive || busy} onClick={()=>setArchiveOpen(true)}>Arquivar {names[item.kind].toLowerCase()}</button></section>}
             manualActions={item.kind === 'task' ? <ManualTaskActions status={item.status} version={item.version} enabled={canPlan && !busy} onChange={body=>mutate(()=>request(`/items/${item.id}/status`,persona,body,'POST'),'Trabalho da Tarefa atualizado.')} /> : undefined}
             releases={item.kind === 'story' ? (choosing, onChoose) => <Releases persona={persona} role={role} storyId={item.id} systemId={system?.id} choosing={choosing} onChoose={onChoose} onChanged={() => window.dispatchEvent(new Event('sdlc-plan-applied'))} /> : undefined}
           />}
           {!journeyView && <>
-          <div className="page-heading"><div><p className="eyebrow">{item ? `${names[item.kind]} · ${item.key}` : 'SEU ESPAÇO DE ENTREGA'}</p><h1>{item?.name || (items.length ? 'Sistemas' : 'Seu SDLC começa com um Sistema')}</h1>{item?.kind === 'system' && <p>Produto contínuo · repositórios e ambientes compartilhados entre Projetos.</p>}{item?.kind === 'project' && <p>Iniciativa temporária · utiliza repositórios do Sistema.</p>}{item ? <span className={`badge ${['approved', 'done', 'completed'].includes(item.status) ? 'positive' : ''}`}>{label(item.kind === 'project' ? item.projectLifecycle || 'active' : item.status)}</span> : <p>Do macro ao micro: Sistema → Projeto → Épico → História → Tarefa.</p>}</div></div>
-          {item && <nav className="context-tabs" aria-label={`Seções de ${names[item.kind]}`}>{tabs.map(tab => <Link key={tab.id} href={tabHref(tab.id)} scroll={false} aria-current={selectedTab === tab.id ? 'page' : undefined}>{tab.title}{(tab.id === 'overview' && item.kind !== 'story' || tab.id === 'tasks') && childKind && childTotal !== null ? <span className="count">{childTotal}</span> : null}</Link>)}</nav>}
+          <div className="page-heading"><div><p className="eyebrow">{item ? `${names[item.kind]} · ${item.key}` : 'SEU ESPAÇO DE ENTREGA'}</p><h1>{item?.name || (items.length ? 'Sistemas' : 'Seu SDLC começa com um Sistema')}</h1>{item?.kind === 'system' && <p>Produto contínuo · um repositório e ambientes compartilhados entre Projetos.</p>}{item?.kind === 'project' && <p>Iniciativa temporária · utiliza o repositório do Sistema.</p>}{item ? <span className={`badge ${['approved', 'done', 'completed'].includes(item.status) ? 'positive' : ''}`}>{label(item.kind === 'project' ? item.projectLifecycle || 'active' : item.status)}</span> : <p>Do macro ao micro: Sistema → Projeto → Épico → História → Tarefa.</p>}</div></div>
+          {item && <nav ref={contextTabs} className="context-tabs" aria-label={`Seções de ${names[item.kind]}`}>{tabs.map(tab => <Link key={tab.id} href={tabHref(tab.id)} scroll={false} aria-current={selectedTab === tab.id ? 'page' : undefined}>{tab.title}{(tab.id === 'overview' && item.kind !== 'story' || tab.id === 'tasks') && childKind && childTotal !== null ? <span className="count">{childTotal}</span> : null}</Link>)}</nav>}
 
-          {form && <section className="panel form-panel"><h2>{form === 'edit' ? `Editar ${names[item!.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}`}</h2>{item && form === 'create' && <p className="hint">Em {names[item.kind].toLowerCase()}: <strong>{item.name}</strong></p>}<form id="item-form" aria-label="Formulário do item" onSubmit={save}><label>Nome ou título <span>(obrigatório)</span><input autoFocus required maxLength={120} value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} /></label>{form === 'create' && ['system', 'project'].includes(childKind!) && <label>{childKind === 'system' ? 'Sigla' : 'Chave'} <span>(obrigatório)</span><input required minLength={6} maxLength={6} pattern='[A-Z]{6}' title='Informe exatamente 6 letras de A a Z.' value={draft.key} onChange={event => setDraft({ ...draft, key: event.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() })} /><small>Use exatamente 6 letras de A a Z. Minúsculas são convertidas para maiúsculas.</small></label>}<label>Descrição<textarea rows={4} maxLength={4000} value={draft.description} onChange={event => setDraft({ ...draft, description: event.target.value })} /></label>{form === 'create' && ['project', 'story', 'task'].includes(childKind!) && <RepositoryChoices repositories={(childKind === 'task' || childKind === 'project' ? detail?.repositories : detail?.availableRepositories) || []} value={draft.repositoryIds} onChange={repositoryIds => setDraft({ ...draft, repositoryIds })} />}<p className="hint form-save-note">Salvar e Cancelar estão na faixa superior, junto à localização.</p></form></section>}
+          {form && <section className="panel form-panel"><h2>{form === 'edit' ? `Editar ${names[item!.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}`}</h2>{item && form === 'create' && <p className="hint">Em {names[item.kind].toLowerCase()}: <strong>{item.name}</strong></p>}<form id="item-form" aria-label="Formulário do item" onSubmit={save}><label>Nome ou título <span>(obrigatório)</span><input autoFocus required maxLength={120} value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} /></label>{form === 'create' && ['system', 'project'].includes(childKind!) && <label>{childKind === 'system' ? 'Sigla' : 'Chave'} <span>(obrigatório)</span><input required minLength={6} maxLength={6} pattern='[A-Z]{6}' title='Informe exatamente 6 letras de A a Z.' value={draft.key} onChange={event => setDraft({ ...draft, key: event.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase() })} /><small>Use exatamente 6 letras de A a Z. Minúsculas são convertidas para maiúsculas.</small></label>}<label>Descrição<textarea rows={4} maxLength={4000} value={draft.description} onChange={event => setDraft({ ...draft, description: event.target.value })} /></label>{form === 'create' && childKind === 'system' && <p className="hint">O repositório do Sistema será criado automaticamente. O código será organizado em pastas conforme a arquitetura.</p>}<p className="hint form-save-note">Salvar e Cancelar estão na faixa superior, junto à localização.</p></form></section>}
 
           {item?.kind === 'project' && <p className="project-lifecycle-summary">Ciclo do Projeto <span className="badge">{label(item.projectLifecycle || 'active')}</span> <Link href={tabHref('planning')}>Consultar ciclo na aba Execução</Link></p>}
           {item?.kind === 'story' && <>
             <section className="panel" hidden={selectedTab !== 'specification'}><h2>Escopo registrado da História</h2><p className="description">{item.description || 'Nenhuma descrição adicionada. Use Editar para registrar o contexto da História.'}</p></section>
-            <section className="panel story-cycle" hidden={selectedTab !== 'overview'}><div className="section-heading"><h2>Ciclo da História</h2><span className="badge">{label(item.status)}</span></div><p>Veja a etapa atual e consulte os detalhes pelas abas. Os próximos estágios só avançam quando executados e aprovados.</p><ol className="process" aria-label="Ciclo da História">{storyStatuses.map((status, index) => <li key={status} aria-current={item.status === status ? 'step' : undefined} className={item.status === status ? 'active' : ''}><span>{item.status === status ? <Circle size={17} /> : <span className="step-number">{index + 1}</span>}</span><strong>{label(status)}</strong></li>)}</ol><div className="gate-legend"><ShieldCheck size={17} /><span>Especificação, G1, codificação, Code Review e Security Scan estão disponíveis neste fluxo. A integração exige as duas verificações aprovadas para o mesmo commit. Testes, homologação e deploy dependem das próximas integrações.</span></div></section>
+            <section className="panel story-cycle" hidden={selectedTab !== 'overview'}><div className="section-heading"><h2>Ciclo da História</h2><span className="badge">{label(item.status)}</span></div><p>Veja a etapa atual e consulte os detalhes pelas abas. Os próximos estágios só avançam quando executados e aprovados.</p><ol className="process" aria-label="Ciclo da História">{storyStatuses.map((status, index) => <li key={status} aria-current={item.status === status ? 'step' : undefined} className={item.status === status ? 'active' : ''}><span>{item.status === status ? <Circle size={17} /> : <span className="step-number">{index + 1}</span>}</span><strong>{label(status)}</strong></li>)}</ol><div className="gate-legend"><ShieldCheck size={17} /><span>Especificação, Gateway de Especificação, codificação, Code Review e Security Scan estão disponíveis neste fluxo. A integração exige as duas verificações aprovadas para o mesmo commit. Testes, homologação e deploy dependem das próximas integrações.</span></div></section>
             <StoryExecution storyId={item.id} persona={persona} version={item.version} status={item.status} tab={['overview', 'specification', 'blockers', 'delivery'].includes(selectedTab) ? selectedTab as 'overview' | 'specification' | 'blockers' | 'delivery' : 'hidden'} actionTargetId="story-workflow-actions" onTabChange={tab => router.push(tabHref(tab), { scroll: false })} onRefresh={() => window.dispatchEvent(new Event('sdlc-plan-applied'))} />
           </>}
 
           {childKind && showChildren && <ItemCollection kind={childKind} parentId={item?.id} parentName={item?.name} revision={revision} onCount={setChildTotal} />}
 
           {item && ['system', 'project', 'epic'].includes(item.kind) && <div hidden={selectedTab !== 'planning'}>
-            <PlanningAssistant systemId={system?.id || item.id} projectId={project?.id} contextName={assistantContext?.name} withinProject={item.kind === 'epic'} />
-            {item.kind === 'system' ? <SystemLifecycle key={item.id} value={item.status} version={item.version} enabled={canManageLifecycle && !busy} onChange={async body => { const result = await request<{ item: Item }>(`/items/${item.id}/status`, persona, body, 'POST'); setDetail(current => current?.item.id === item.id ? { ...current, item: result.item } : current); setRevision(value => value + 1); }} /> : item.kind === 'epic' ? <EpicLifecycle projectClosed={epicProjectClosed} key={item.id} value={item.status} version={item.version} enabled={canManageLifecycle && !busy} onChange={async body => { const result = await request<{item: Item}>(`/items/${item.id}/status`, persona, body, 'POST'); setDetail(current => current?.item.id === item.id ? {...current, item: result.item} : current); setRevision(value => value + 1); }} /> : <ProjectLifecycle value={item.projectLifecycle || 'active'} version={item.version} enabled={canManageLifecycle && !busy} onChange={async body => { await request(`/items/${item.id}/lifecycle`, persona, body, 'POST'); setRevision(value => value + 1); }} />}
+            {item.kind==='epic'?<EpicExecution key={item.id} item={item} active={selectedTab==='planning'} persona={persona} enabled={canManageLifecycle&&!busy&&!form} revision={revision} systemId={system?.id||''} project={project} onChanged={async()=>{const result=await request<Detail>(`/items/${item.id}`,persona);setDetail(current=>current?.item.id===item.id?result:current);}}/>:<>
+            <PlanningAssistant systemId={system?.id || item.id} projectId={project?.id} contextName={assistantContext?.name} />
+            {item.kind === 'system' ? <SystemLifecycle key={item.id} value={item.status} version={item.version} enabled={canManageLifecycle && !busy} onChange={async body => { const result = await request<{ item: Item }>(`/items/${item.id}/status`, persona, body, 'POST'); setDetail(current => current?.item.id === item.id ? { ...current, item: result.item } : current); setRevision(value => value + 1); }} /> : <ProjectLifecycle value={item.projectLifecycle || 'active'} version={item.version} enabled={canManageLifecycle && !busy} onChange={async body => { await request(`/items/${item.id}/lifecycle`, persona, body, 'POST'); setRevision(value => value + 1); }} />}
             {item && ['system','project','epic'].includes(item.kind) && (item.kind === 'project' ? item.projectLifecycle : item.status) === 'active' && <ResumeWork enabled={canPlan && !busy} onResume={async()=>{const result=await request<{resumed:number}>(`/items/${item.id}/resume-work`,persona,{expectedVersion:item.version},'POST');setRevision(value=>value+1);return result;}}/>}
+            </>}
           </div>}
 
-          {item && ['system', 'story', 'task'].includes(item.kind) && <div hidden={selectedTab !== 'components'}>{item.kind !== 'system' && <Repositories key={item.id} itemId={item.id} repositories={detail?.repositories || []} available={detail?.availableRepositories || []} version={item.version} canPlan={canPlan && !busy} call={(path, body, method) => request(path, persona, body, method)} onChanged={() => setRevision(value => value + 1)} />}{item.kind === 'system' && <section className="panel"><h2>Integração GitLab do Sistema</h2><p><span className="badge">{label(String(item.data.gitlabState || 'not_configured'))}</span></p><p>{String(item.data.gitlabMessage || 'O provisionamento será processado em segundo plano após a criação solicitada por você.')}</p>{typeof item.data.gitlabUrl === 'string' && /^https?:\/\//.test(item.data.gitlabUrl) && <p><a href={item.data.gitlabUrl} target="_blank" rel="noreferrer">Abrir grupo no GitLab ↗</a></p>}{typeof item.data.gitlabGroupPath === 'string' && <p>Caminho: {String(item.data.gitlabGroupPath)}</p>}{['failed', 'not_configured'].includes(String(item.data.gitlabState)) && <button disabled={!canPlan || busy} onClick={() => void mutate(() => request(`/items/${item.id}/provision`, persona, { expectedVersion: item.version }, 'POST'), 'Nova tentativa de provisionamento solicitada.')}>Tentar provisionar novamente</button>}</section>}</div>}
+          {item && ['system', 'story', 'task'].includes(item.kind) && <div hidden={selectedTab !== 'components'}>{item.kind !== 'system' && <Repositories key={item.id} systemHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined} repositories={detail?.repositories || []} />}{item.kind === 'system' && <section className="panel"><h2>Integração GitLab do Sistema</h2><p><span className="badge">{label(String(item.data.gitlabState || 'not_configured'))}</span></p><p>{String(item.data.gitlabMessage || 'O provisionamento do Sistema e de seu repositório é processado em segundo plano.')}</p>{typeof item.data.gitlabUrl === 'string' && /^https?:\/\//.test(item.data.gitlabUrl) && <p><a href={item.data.gitlabUrl} target="_blank" rel="noreferrer">Abrir grupo no GitLab ↗</a></p>}{typeof item.data.gitlabGroupPath === 'string' && <p>Caminho: {String(item.data.gitlabGroupPath)}</p>}{['failed', 'not_configured'].includes(String(item.data.gitlabState)) && <button disabled={!canPlan || busy} onClick={() => void mutate(() => request(`/items/${item.id}/provision`, persona, { expectedVersion: item.version }, 'POST'), 'Nova tentativa de provisionamento solicitada.')}>Tentar provisionar novamente</button>}</section>}</div>}
 
-          {item?.kind === 'system' && <section hidden={selectedTab !== 'environments'} className="panel"><h2>Ambientes do Sistema</h2><p>Cada repositório mantém seus ambientes ao longo dos diferentes Projetos. Cadastrar um repositório não executa deploy.</p><div className="environment-grid">{detail?.environments.map(environment => <div className="environment" key={environment.id}><strong>{environment.repositoryName} · {environment.code}</strong><span className="badge">{label(environment.liveStatus)}</span><p>{environment.currentVersion ? `Versão ${environment.currentVersion}` : 'Nenhuma versão implantada.'}</p>{environment.url && /^https?:\/\//.test(environment.url) && <a href={environment.url} target="_blank" rel="noreferrer">Abrir ambiente ↗</a>}</div>)}</div>{!detail?.environments.length && <p className="hint">Nenhum ambiente registrado.</p>}</section>}
+          {item?.kind === 'system' && <div hidden={selectedTab !== 'components'}><Repositories key={item.id} systemId={item.id} systemVersion={item.version} persona={persona} role={role} active={selectedTab === 'components'} systemName={item.name} systemActive={item.status === 'active'} repositories={detail?.repositories || []} canPlan={canPlan && !busy && !form} call={(path, body, method) => request(path, persona, body, method)} onChanged={() => setRevision(value => value + 1)} /></div>}
+          {item?.kind === 'project' && <div hidden={selectedTab !== 'manage'}><Repositories key={item.id} systemHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined} repositories={detail?.repositories || []} /></div>}
+          {item?.kind === 'system' && <EnvironmentTargetPreparation key={`target-${item.id}`} systemId={item.id} systemVersion={item.version} persona={persona} role={role||''} active={selectedTab === 'environments'} readOnly={archivedContext || item.status !== 'active'} recoveryTargetId={`environment-target-recovery-${item.id}`} repositoryHref={tabHref('components')} onReturn={() => router.push(tabHref('environments'), {scroll:false})} onRefresh={() => setRevision(value => value + 1)} />}
+          {item?.kind === 'system' && <div hidden={selectedTab !== 'environments'}><SystemEnvironments key={item.id} systemId={item.id} persona={persona} role={role} active={selectedTab === 'environments'} onChanged={() => setRevision(value => value + 1)} /></div>}
 
           {item && selectedTab === 'activity' && <HistoryQuery itemId={item.id} revision={revision} />}
           {item && selectedTab === 'conversations' && <ConversationHistory itemId={item.id} persona={persona} canPlan={canPlan} revision={revision} />}

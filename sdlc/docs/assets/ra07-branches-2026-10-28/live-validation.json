@@ -1,0 +1,86 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "requiresRecordedDecision": true,
+      "noAutomaticPreparation": true,
+      "metricViewPreserved": true,
+      "zeroRequestsObserved": true,
+      "durationWithoutSamples": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "requiresRecordedDecision": true,
+      "noAutomaticPreparation": true,
+      "metricViewPreserved": true,
+      "zeroRequestsObserved": true,
+      "durationWithoutSamples": true,
+      "overflow": false
+    }
+  ],
+  "releaseVersion": 2,
+  "storyVersion": 18,
+  "currentDecisionId": null,
+  "currentOperationId": null,
+  "metrics": {
+    "requested": 0,
+    "unknown": 0,
+    "confirmation": {
+      "samples": 0,
+      "medianHours": null
+    },
+    "weeks": [
+      {
+        "start": "2026-10-05T03:00:00.000Z",
+        "end": "2026-10-12T03:00:00.000Z",
+        "label": "05/10",
+        "partial": false,
+        "requested": 0,
+        "confirmation": {
+          "samples": 0,
+          "medianHours": null
+        }
+      },
+      {
+        "start": "2026-10-12T03:00:00.000Z",
+        "end": "2026-10-19T03:00:00.000Z",
+        "label": "12/10",
+        "partial": false,
+        "requested": 0,
+        "confirmation": {
+          "samples": 0,
+          "medianHours": null
+        }
+      },
+      {
+        "start": "2026-10-19T03:00:00.000Z",
+        "end": "2026-10-26T03:00:00.000Z",
+        "label": "19/10",
+        "partial": false,
+        "requested": 0,
+        "confirmation": {
+          "samples": 0,
+          "medianHours": null
+        }
+      },
+      {
+        "start": "2026-10-26T03:00:00.000Z",
+        "end": "2026-11-02T03:00:00.000Z",
+        "label": "26/10",
+        "partial": true,
+        "requested": 0,
+        "confirmation": {
+          "samples": 0,
+          "medianHours": null
+        }
+      }
+    ],
+    "definition": "Uma preparação por operação persistida; reenvios de transporte e consultas de recuperação não aumentam a contagem. Tempo em horas corridas da solicitação aceita à primeira confirmação local da referência e proteção, incluindo fila, espera e recuperação. Durações pertencem à semana da confirmação; medianas não são somáveis.",
+    "coverage": "Cobertura desde a adoção da preparação controlada. Branches anteriores e criadas fora deste fluxo não são reconstruídas. Sem confirmação/amostras não é duração zero. Sem metas definidas."
+  }
+}

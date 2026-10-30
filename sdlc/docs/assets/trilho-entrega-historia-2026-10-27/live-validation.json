@@ -1,0 +1,91 @@
+{
+  "readOnly": true,
+  "businessDataChanged": false,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "storyId": "cmvpasfnn001901ngsax5ngj3",
+  "status": "merge_request",
+  "version": 18,
+  "taskCount": 6,
+  "delivery": {
+    "version": 1,
+    "development": {
+      "environment": "DEV",
+      "unit": "story",
+      "releaseRequired": false,
+      "publication": "unconfirmed",
+      "approval": "unconfirmed",
+      "next": true,
+      "publicationAvailable": false
+    },
+    "release": {
+      "association": "assigned",
+      "reference": {
+        "id": "cmvr2weuq000001pbiu4yy847",
+        "key": "REL-1",
+        "name": "Release 1 - Outubro",
+        "compositionStatus": "DRAFT"
+      },
+      "candidate": "unconfirmed"
+    },
+    "promotion": {
+      "releaseRequiredFrom": "QA",
+      "immutableCandidateRequired": true,
+      "allStoriesDevelopmentApprovalRequired": true,
+      "available": false
+    },
+    "destinations": [
+      {
+        "code": "DEV",
+        "label": "DEV",
+        "unit": "story",
+        "publication": "unconfirmed",
+        "validation": "unconfirmed"
+      },
+      {
+        "code": "QA",
+        "label": "QA",
+        "unit": "release",
+        "publication": "unconfirmed",
+        "validation": "unconfirmed"
+      },
+      {
+        "code": "HML",
+        "label": "HML",
+        "unit": "release",
+        "publication": "unconfirmed",
+        "validation": "unconfirmed"
+      },
+      {
+        "code": "PRD",
+        "label": "PROD",
+        "unit": "release",
+        "publication": "unconfirmed",
+        "validation": "unconfirmed"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "width": 1440,
+      "phase": "MERGE REQUEST",
+      "devIndependent": true,
+      "qaPrerequisites": true,
+      "keyboardFocus": true,
+      "reload": true,
+      "taskRail": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "phase": "MERGE REQUEST",
+      "devIndependent": true,
+      "qaPrerequisites": true,
+      "keyboardFocus": true,
+      "reload": true,
+      "taskRail": true,
+      "overflow": false
+    }
+  ]
+}

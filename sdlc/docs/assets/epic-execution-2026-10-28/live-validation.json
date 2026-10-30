@@ -1,0 +1,54 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "summaryFirst": true,
+      "noLinearCycle": true,
+      "reasonLayout": {
+        "input": 1092,
+        "label": 1092,
+        "x": 288,
+        "labelX": 288,
+        "display": "block"
+      },
+      "explicitConfirmation": true,
+      "filtersPreserved": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "summaryFirst": true,
+      "noLinearCycle": true,
+      "reasonLayout": {
+        "input": 322,
+        "label": 322,
+        "x": 34,
+        "labelX": 34,
+        "display": "block"
+      },
+      "explicitConfirmation": true,
+      "filtersPreserved": true,
+      "overflow": false
+    }
+  ],
+  "stories": {
+    "total": 2,
+    "open": 2,
+    "archived": 0
+  },
+  "openDescendants": 10,
+  "running": 0,
+  "resume": {
+    "paused": 0,
+    "eligible": 0,
+    "blockers": [
+      "Nenhum trabalho pausado elegível na consulta."
+    ]
+  },
+  "epicVersion": 1,
+  "storyVersion": 18
+}

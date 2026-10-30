@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-10-30T13:27:43.924Z",
+  "runtimeHash": "8d7f1cba6380790d5e2ad256c5bcb545dccd66014b4b07d5ffd9799a6b0ecb1c",
+  "testHash": "98771e0ecebf72a248bb61ac5cc0059bbe2633d8ad34f30858bc1a09ad24ada0",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 999
+    },
+    {
+      "name": "browser",
+      "exitCode": 0,
+      "durationMs": 154991
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-30T13:27:46.655Z",
+      "duration": 154397.81100000002,
+      "expected": 99,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "total": 99,
+    "failed": [],
+    "errors": [],
+    "scope": "selected"
+  },
+  "finishedAt": "2026-10-30T13:30:08.874Z",
+  "sourceStable": true,
+  "ok": true
+}

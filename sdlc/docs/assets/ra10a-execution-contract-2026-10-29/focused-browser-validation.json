@@ -1,0 +1,103 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-29T13:09:24.005Z",
+    "duration": 12938.776,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "globalErrors": [],
+  "suites": [
+    "execution-contract"
+  ],
+  "specs": [
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "explicit read separates structure, declarations and unavailable execution at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "missing invalid and unsupported contracts remain separate and do not promise unavailable corrections at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "failed refresh preserves the dated source and a retry clears the obsolete failure at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "revision query, pending commit input and System form survive consultation and tabs at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "branch changed during the read keeps the pinned commit and explains how to consult again at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "leaving the tab aborts a delayed read and a newer response keeps its own identity at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "a different System starts with its own collapsed contract context at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "explicit read separates structure, declarations and unavailable execution at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "missing invalid and unsupported contracts remain separate and do not promise unavailable corrections at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "failed refresh preserves the dated source and a retry clears the obsolete failure at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "revision query, pending commit input and System form survive consultation and tabs at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "branch changed during the read keeps the pinned commit and explains how to consult again at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "leaving the tab aborts a delayed read and a newer response keeps its own identity at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "execution-contract.spec.ts",
+      "title": "a different System starts with its own collapsed contract context at 390px",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

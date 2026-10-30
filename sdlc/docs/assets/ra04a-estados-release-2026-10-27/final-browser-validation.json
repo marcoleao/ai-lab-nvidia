@@ -1,0 +1,56 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T02:02:37.685Z",
+    "duration": 10401.833,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "releases",
+    "audit-history",
+    "release-metrics"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

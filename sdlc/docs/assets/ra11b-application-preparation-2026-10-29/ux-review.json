@@ -1,0 +1,199 @@
+﻿{
+    "version":  3,
+    "date":  "2026-10-29",
+    "slice":  "RA-11b",
+    "reviewProfile":  "UX implementation and visual review",
+    "decision":  "approved_with_documented_limits",
+    "scope":  "System application-preparation UI only; the new interface scenarios fully intercept API requests and do not modify operational applications, data or agent results.",
+    "navigation":  {
+                       "newTabs":  false,
+                       "shellPreserved":  true,
+                       "entry":  "System \u003e Repositório do Sistema \u003e Preparação da aplicação, before the existing execution-contract board",
+                       "historicalContractQuery":  "contract.sha remains independent and is never cleared by preparation or refresh",
+                       "recovery":  "Component remains mounted across System tabs; an external placeholder shows recovery while the tab is hidden."
+                   },
+    "behaviorReviewed":  [
+                             "All nine files and full selected content are available before confirming a branch/commit/Draft MR request.",
+                             "Draft release and integration require separate fresh context, reason and checkbox decisions.",
+                             "Post-integration source query is read-only: no obsolete Draft/merge checkbox or action-only blocker is shown.",
+                             "Known historical integration survives canonical GET failure and current-source drift.",
+                             "Lost ACK keeps the original persona, request body and idempotency key through Audit navigation and reload.",
+                             "Changing persona or context invalidates acceptance while preserving the reason.",
+                             "Local resolution preserves uncertain effects, known commit and original intent; it does not claim GitLab undo.",
+                             "Paused resume, pre-dispatch cancel and partial MR continuation are explicit commands of the same operation.",
+                             "Wrong-System reading or preview cannot authorize a write.",
+                             "System version and repository version participate in the confirmation signature.",
+                             "Contract refresh avoids remounting its editor or clearing a historical SHA.",
+                             "The eighteen application-preparation audit actions and target label are translated while keeping outcome/decision/phase independent.",
+                             "Initial confirmation explicitly authorizes branch/MR creation plus build and HTTP verification of the fixed technical structure.",
+                             "Partial publication distinguishes continuing an unopened MR from continuing technical validation of its known MR; the UI requires the server canContinue flag.",
+                             "Unknown technical execution offers observation of the same intent and never infers permission to run the build again.",
+                             "Technical image/digest/pipeline/status proof is separate from Story functional tests, Development Finalized and environment deployment."
+                         ],
+    "validation":  {
+                       "priorContractCases":  {
+                                                  "run":  "20261029T202737Z-6598ca",
+                                                  "aggregateRunPassed":  38,
+                                                  "note":  "Initial run passed24new plus14previous contract cases. Later source-view refinement was revalidated in the final24new run; repeated cases are not added twice.",
+                                                  "passed":  14
+                                              },
+                       "directedRefinements":  [
+                                                   {
+                                                       "run":  "20261029T203150Z-31a80a",
+                                                       "passed":  4
+                                                   },
+                                                   {
+                                                       "run":  "20261029T203309Z-b69947",
+                                                       "passed":  4
+                                                   }
+                                               ],
+                       "auditCases":  {
+                                          "run":  "20261029T203709Z-378279",
+                                          "note":  "Existing case IDs and pagination/legacy expectations preserved; first case additionally checks the new action/target labels and independent outcome/domain decision.",
+                                          "passed":  3
+                                      },
+                       "uniqueCasesAcrossDirectedRuns":  41,
+                       "finalNewCases":  {
+                                             "run":  "20261029T205034Z-5555c4",
+                                             "passed":  24,
+                                             "viewports":  [
+                                                               1440,
+                                                               390
+                                                           ],
+                                             "flaky":  0,
+                                             "skipped":  0,
+                                             "unexpected":  0
+                                         },
+                       "pageErrorsObserved":  0,
+                       "overflowAssertions":  "Automated for the new preview at both widths; remaining captured states visually inspected.",
+                       "unexpectedMutationsObserved":  0,
+                       "previousNewCases":  {
+                                                "run":  "20261029T205034Z-5555c4",
+                                                "passed":  24,
+                                                "viewports":  [
+                                                                  1440,
+                                                                  390
+                                                              ],
+                                                "flaky":  0,
+                                                "skipped":  0,
+                                                "unexpected":  0
+                                            }
+                   },
+    "captures":  {
+                     "run":  "20261029T205034Z-5555c4",
+                     "states":  [
+                                    "file preview and confirmation",
+                                    "integration and read-only current source",
+                                    "known proof with failed canonical GET",
+                                    "existing-application conflict",
+                                    "local resolution with uncertain effect preserved",
+                                    "technical build and HTTP verification proof"
+                                ],
+                     "inspected":  true,
+                     "files":  [
+                                   "application-conflict-1440.png",
+                                   "application-conflict-390.png",
+                                   "application-integrated-1440.png",
+                                   "application-integrated-390.png",
+                                   "application-known-read-failed-1440.png",
+                                   "application-known-read-failed-390.png",
+                                   "application-preview-1440.png",
+                                   "application-preview-390.png",
+                                   "application-resolved-1440.png",
+                                   "application-resolved-390.png",
+                                   "application-technical-proof-1440.png",
+                                   "application-technical-proof-390.png"
+                               ],
+                     "count":  12
+                 },
+    "sourceFilesSha256":  {
+                              "apps/web/app/application-preparation.tsx":  "a822509e959785786ad06064d9445bc2075f7ff658e538655f8ab0b76296a5fe",
+                              "apps/web/app/application-preparation.css":  "37d5a0255ac6940bed532a6478da2edfa5159616a45c2269f7921dcbdc2e484f",
+                              "apps/web/app/repos.tsx":  "c8970310b776839bbc8312f4aad28bc41968d079f8ad38d77e8786382a86a25c",
+                              "apps/web/app/portal.tsx":  "8940d50bd79b76f891ebf0c4200fa990b6ce43ab19a4a38d5c8b5dad0b610d41",
+                              "apps/web/app/execution-contract.tsx":  "288f14c20e0143efc4ab4bb0bd51b62c7838a4e726b8c9a650231156f942d230",
+                              "apps/web/app/history-collection.tsx":  "1b451ca80f983e43b70b0da3eb33ff25c4384b5d00c7fa95498416f776c1317f",
+                              "tests/e2e/application-preparation.spec.ts":  "533b89f50357a4f4530f304f98d1a45a2cd43ca9408f54e14d432f7a725dc8a3",
+                              "tests/e2e/execution-contract.spec.ts":  "70ee0f64287a1bfcecdfa1e4a1c1c008c8693e06c3daf9cf54b7ff5106627da9",
+                              "tests/e2e/audit-history.spec.ts":  "0f7180841a91486fabc526be598f9b0a166be604c9406d2dc988dd61149699c8"
+                          },
+    "limitations":  [
+                        "Targeted UI coverage does not certify backend/provider execution, real GitLab integration, build or deployment.",
+                        "Captures intentionally expand technical file preview and a historical contract query; they are not the collapsed default page.",
+                        "FullPage captures include the existing fixed-header/sidebar behavior and the Next development indicator from the isolated test host.",
+                        "Programmatic focus, selected keyboard behavior from existing contract tests and mobile overflow are covered; a full native keyboard and screen-reader certification was not performed.",
+                        "The current operation and known receipts are not a complete operation-history catalog; audit events remain in the existing Auditoria tab.",
+                        "The actual pilot data and source were not used for these UI scenarios."
+                    ],
+    "runProvenance":  [
+                          {
+                              "run":  "20261029T202737Z-6598ca",
+                              "ok":  true,
+                              "sourceStable":  true,
+                              "runtimeHash":  "88412443f5201093cd3fa9d42f288677a16d1be2459eb389d1c12a6e0c0efb85",
+                              "testHash":  "2e1a3c6689eb8dbf65d7e348332487852d34f48705a659c85b73df17834d718f",
+                              "stats":  {
+                                            "startTime":  "2026-10-29T20:27:53.834Z",
+                                            "duration":  55899.793,
+                                            "expected":  38,
+                                            "skipped":  0,
+                                            "unexpected":  0,
+                                            "flaky":  0
+                                        }
+                          },
+                          {
+                              "run":  "20261029T203351Z-dfde06",
+                              "ok":  true,
+                              "sourceStable":  true,
+                              "runtimeHash":  "e3b2f2c98c7ea024fad34d49714926d82e341d8884a0edc94cc6998a0859d4a3",
+                              "testHash":  "66615acfec79aaf911eabe637c54131bfde5d21ee9c7047570f0dd67cd6c4ae3",
+                              "stats":  {
+                                            "startTime":  "2026-10-29T20:34:03.246Z",
+                                            "duration":  33287.621,
+                                            "expected":  24,
+                                            "skipped":  0,
+                                            "unexpected":  0,
+                                            "flaky":  0
+                                        }
+                          },
+                          {
+                              "run":  "20261029T203709Z-378279",
+                              "ok":  true,
+                              "sourceStable":  true,
+                              "runtimeHash":  "bae70fb224fc5eaba1542585daa39e263357ebeb6bfd801f838800f31944ab8d",
+                              "testHash":  "c63f807aac88018c56039528655f639a58d74c368225c197c0c8ec7c27850655",
+                              "stats":  {
+                                            "startTime":  "2026-10-29T20:37:21.963Z",
+                                            "duration":  8283.688,
+                                            "expected":  3,
+                                            "skipped":  0,
+                                            "unexpected":  0,
+                                            "flaky":  0
+                                        }
+                          },
+                          {
+                              "run":  "20261029T205034Z-5555c4",
+                              "ok":  true,
+                              "sourceStable":  true,
+                              "runtimeHash":  "f48c1380d2c1e3b549de53ad69db4dc50c45566b62e28163b2260004b7b32d69",
+                              "testHash":  "36219ebfac13008f19eb9bd96b595d32f421290f5509edcdc00dc3c58a5b9a09",
+                              "stats":  {
+                                            "startTime":  "2026-10-29T20:50:46.517Z",
+                                            "duration":  32297.669,
+                                            "expected":  24,
+                                            "skipped":  0,
+                                            "unexpected":  0,
+                                            "flaky":  0
+                                        }
+                          }
+                      ],
+    "reproduction":  [
+                         "python3 scripts/regression.py browser application-preparation.spec.ts execution-contract.spec.ts",
+                         "python3 scripts/regression.py browser application-preparation.spec.ts",
+                         "python3 scripts/regression.py browser audit-history.spec.ts"
+                     ],
+    "labelOnlyFollowup":  {
+                              "scope":  "Added Portuguese labels for APPLICATION_PREPARATION_MR_OBSERVED and APPLICATION_PREPARATION_TECHNICAL_CHECKED only; layout and tests unchanged.",
+                              "validation":  "Source inspection only, per coordinator request; no regression rerun after these two labels."
+                          }
+}

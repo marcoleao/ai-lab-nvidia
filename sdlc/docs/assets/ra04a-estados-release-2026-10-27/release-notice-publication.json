@@ -1,0 +1,21 @@
+{
+  "candidateImage": "sha256:c591375918a9c8519c5d7103842f9f2e23df0fe91a48b6d519f6820bf9eb1763",
+  "source": "7aa17098a84426b752959b3ddf58d4d0e2295a8d6fba95605f5f938277a40b25",
+  "published": true,
+  "verifiedAt": "2026-10-28T02:15:31.343410+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true,
+  "migrationsApplied": false,
+  "audit": {
+    "records": 158,
+    "head": "66aa718a6e9e104144a27ed9eec3ffa5ac9547e2606ff5e44eb987b79dec7e9e",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

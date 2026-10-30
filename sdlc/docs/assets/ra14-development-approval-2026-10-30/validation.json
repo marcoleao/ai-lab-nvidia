@@ -1,0 +1,190 @@
+{
+  "slice": "RA-14",
+  "date": "2026-10-30",
+  "published": true,
+  "source": "8ecdb49d8532015a0102555b7f5dbaa417717f7b93f62dd3a878faee1e6c7e64",
+  "image": "sha256:8f7d3aa49935fbbfad43acc311e8b403ccdf568161b2cab2fcb92980156b71cd",
+  "policy": {
+    "roles": [
+      "product_owner",
+      "architect",
+      "admin"
+    ],
+    "g1SegregationRequiredInLab": false,
+    "userConfirmed": true,
+    "existingMetricsRetained": true
+  },
+  "backend": {
+    "uniqueSelected": 189,
+    "files": {
+      "application-preparations.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 20,
+        "failed": 0
+      },
+      "audit-guard.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 2,
+        "failed": 0
+      },
+      "collections.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 17,
+        "failed": 0
+      },
+      "development-approvals.test.ts": {
+        "run": "20261030T122044Z-07bff5",
+        "passed": 27,
+        "failed": 0
+      },
+      "development-builds.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 14,
+        "failed": 0
+      },
+      "development-deployments.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 12,
+        "failed": 0
+      },
+      "development-tests.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 17,
+        "failed": 0
+      },
+      "environment-targets.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 10,
+        "failed": 0
+      },
+      "journey.test.ts": {
+        "run": "20261030T122044Z-07bff5",
+        "passed": 22,
+        "failed": 0
+      },
+      "planning-references.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 11,
+        "failed": 0
+      },
+      "releases.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 26,
+        "failed": 0
+      },
+      "story-lifecycle-reading.test.ts": {
+        "run": "20261030T121310Z-7c1025",
+        "passed": 11,
+        "failed": 0
+      }
+    },
+    "qualification": "Latest successful result per file across the two identified snapshots. Not a complete final-source system regression."
+  },
+  "browser": {
+    "initialRun": "20261030T121334Z-c07652",
+    "initialPassed": 95,
+    "finalRun": "20261030T122253Z-dcb3a6",
+    "finalPassed": 40,
+    "newCases": 24,
+    "qualification": "Final run repeats 24 new and 16 adjacent Release cases after marker qualification; overlapping runs are not added. Remaining adjacent cases are evidenced by the initial source snapshot. See UX receipt."
+  },
+  "catalog": {
+    "run": "20261030T122312Z-072749",
+    "cases": 557,
+    "files": 54
+  },
+  "fastSmoke": {
+    "run": "20261030T122330Z-21952a",
+    "passed": 4,
+    "qualification": "Owned fast environment refreshed once for final unpublished migration. Subsequent automation retains the warm lane; operational lab was not reset."
+  },
+  "productionBuild": {
+    "typescript": true,
+    "next": true
+  },
+  "publication": {
+    "migration": [
+      "202610300004_development_approval"
+    ],
+    "existingTables": 48,
+    "tablesAfter": 49,
+    "newTables": [
+      "StoryDevelopmentApproval"
+    ],
+    "exactTablesPreserved": true,
+    "backup": {
+      "backupId": "ra14-development-approval-verified-20261030-a5a8b358",
+      "bytes": 359625,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "administrativeAudit": "PORTAL_PUBLICATION outside operational database"
+  },
+  "live": {
+    "run": "ra14-live-readonly-ef567eba",
+    "browser": {
+      "ok": true,
+      "mode": "GET/HEAD-only",
+      "blockedWrites": 0,
+      "results": [
+        {
+          "width": 1440,
+          "targetPanel": true,
+          "assistantUsesTargetPanel": true,
+          "buildDeploymentTestsMounted": true,
+          "realMissingDeploymentBlocked": true,
+          "approvalMounted": true,
+          "realMissingEvidenceBlocksApproval": true,
+          "confirmationDisabled": true,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "targetPanel": true,
+          "assistantUsesTargetPanel": true,
+          "buildDeploymentTestsMounted": true,
+          "realMissingDeploymentBlocked": true,
+          "approvalMounted": true,
+          "realMissingEvidenceBlocksApproval": true,
+          "confirmationDisabled": true,
+          "overflow": false
+        }
+      ]
+    },
+    "runtime": {
+      "ok": true,
+      "mode": "read-only",
+      "uid": 1000,
+      "dockerSocketExposed": false,
+      "testsExecutorReady": true,
+      "role": {
+        "role": "sdlc_portal_app",
+        "insert_approval": true,
+        "update_approval": false,
+        "delete_approval": false
+      },
+      "counts": {
+        "targets": 0,
+        "deployments": 0,
+        "tests": 0,
+        "approvals": 0,
+        "events": 161
+      }
+    },
+    "preservation": {
+      "ok": true,
+      "tables": 49,
+      "exactRowsPreserved": true,
+      "normalization": "Nullable contract resolution and volatile MergeOperation lease/read fields only."
+    }
+  },
+  "manualOK": false,
+  "limitations": [
+    "Pilot application/business data/agent outcomes were not modified.",
+    "No real development approval fabricated for the pilot.",
+    "Local approval reuses durable evidence; no new runtime executor or actual deployment acceptance required by this slice.",
+    "Whole-composition readiness remains RA-15; candidate build and QA/HML/PRD promotion not implemented in RA-14.",
+    "Demo personas do not attest corporate authentication."
+  ]
+}

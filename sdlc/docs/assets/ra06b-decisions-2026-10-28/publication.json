@@ -1,0 +1,35 @@
+{
+  "id": "ra06b-decisions-reviewed-20261028-09f21e63",
+  "source": "be01028484e884f9c7be315ec5958d0d8dc0682978a37fc6eb3ac0fc95ced28b",
+  "candidateImage": "sha256:804d8155802516255ba3b3485f8e4ecb8bb6d456fc6e02daed715b9d59bf7485",
+  "verifiedAt": "2026-10-28T19:02:15.238329+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280003_release_branch_plan_decisions"
+  ],
+  "existingTablesChecked": 32,
+  "newTables": [
+    "ReleaseBranchPlanDecision"
+  ],
+  "tablesChecked": 33,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra06b-decisions-reviewed-20261028-09f21e63",
+    "bytes": 183726,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 208,
+    "head": "265959332d0ce0dbb4dd9b451e4013d0a1b63a85dc354267b036fcaa38501c4b",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  },
+  "newDecisionTableRowsAtReadOnlyVerification": 0
+}

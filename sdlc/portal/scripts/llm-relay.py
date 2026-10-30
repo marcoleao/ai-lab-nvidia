@@ -44,7 +44,7 @@ class Handler(BaseHTTPRequestHandler):
                 allowed = {'model', 'messages', 'stream', 'temperature', 'max_tokens', 'response_format', 'reasoning_effort'}
                 if not isinstance(body, dict) or set(body) - allowed or body.get('model') != CONFIG['model'] or body.get('stream') is not False:
                     return self.respond(422, {'error': 'Model or operation denied'})
-                if type(body.get('max_tokens')) is not int or not 1 <= body['max_tokens'] <= 4096:
+                if type(body.get('max_tokens')) is not int or not 1 <= body['max_tokens'] <= 8192:
                     return self.respond(422, {'error': 'Invalid output token limit'})
                 if body.get('reasoning_effort') != 'none':
                     return self.respond(422, {'error': 'Thinking must be disabled'})
@@ -54,6 +54,8 @@ class Handler(BaseHTTPRequestHandler):
                 for message in messages:
                     if not isinstance(message, dict) or set(message) != {'role', 'content'} or message['role'] not in ['user', 'assistant', 'system'] or not isinstance(message['content'], str) or not 0 < len(message['content']) <= 16000:
                         return self.respond(422, {'error': 'Invalid message'})
+                if sum(len(message['content']) for message in messages) > 46000:
+                    return self.respond(422, {'error': 'Input exceeds the fixed SDLC context budget'})
                 response_format = body.get('response_format')
                 if response_format not in [None, {'type': 'json_object'}]:
                     if not isinstance(response_format, dict) or set(response_format) != {'type', 'json_schema'} or response_format['type'] != 'json_schema':
@@ -66,17 +68,28 @@ class Handler(BaseHTTPRequestHandler):
                 acquired = SLOT.acquire(blocking=False)
                 if not acquired:
                     return self.respond(429, {'error': 'Local inference busy'})
-                payload = json.dumps(body).encode()
-            request = urllib.request.Request(CONFIG['upstream'] + self.path, data=payload, headers={'Content-Type': 'application/json'}, method=self.command)
+                # Use Ollama's native request to pin context, output budget and
+                # constrained decoding. No model/global environment is changed.
+                native = {'model': body['model'], 'messages': messages, 'stream': False, 'think': False,
+                          'options': {'num_ctx': 32768, 'num_predict': body['max_tokens'], 'temperature': body.get('temperature', 0.2)}}
+                if response_format:
+                    native['format'] = response_format['json_schema']['schema'] if response_format['type'] == 'json_schema' else 'json'
+                payload = json.dumps(native).encode()
+            request = urllib.request.Request(CONFIG['upstream'] + ('/api/chat' if payload else self.path), data=payload, headers={'Content-Type': 'application/json'}, method=self.command)
             # Disable redirects: the relay must never forward to another host.
             class NoRedirect(urllib.request.HTTPRedirectHandler):
                 def redirect_request(self, *_args, **_kwargs):
                     return None
-            with urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect()).open(request, timeout=240 if payload else 4) as response:
+            with urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect()).open(request, timeout=420 if payload else 4) as response:
                 content = response.read(2 * 1024 * 1024 + 1)
                 if len(content) > 2 * 1024 * 1024:
                     return self.respond(502, {'error': 'Response exceeds limit'})
-                return self.respond(200, json.loads(content))
+                result = json.loads(content)
+                if payload:
+                    if result.get('done') is not True or not isinstance(result.get('message', {}).get('content'), str):
+                        return self.respond(502, {'error': 'Incomplete inference response'})
+                    result = {'model': result.get('model'), 'choices': [{'finish_reason': result.get('done_reason'), 'message': {'role': 'assistant', 'content': result['message']['content']}}]}
+                return self.respond(200, result)
         except (json.JSONDecodeError, ValueError, TypeError):
             return self.respond(422, {'error': 'Invalid request or response'})
         except urllib.error.HTTPError as error:

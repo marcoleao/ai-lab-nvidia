@@ -1,0 +1,43 @@
+{
+  "published": true,
+  "verifiedAt": "2026-10-27T22:36:29.989469+00:00",
+  "apiAndWebImage": "sha256:af2e9cd1d59a108badb800ae981d6a441b0b0f65ed2f04a639cfe65c82d28324",
+  "source": "f4f676a3a2a31a82d270e0fb902ef129bf6cf2e8c64088eb0d45fffff810e19d",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactBusinessTablesPreserved": true,
+  "migrationsApplied": [
+    "202610270003_environment_dev"
+  ],
+  "existingSystemsBackfilled": false,
+  "fixturesCreatedInLive": false,
+  "backup": {
+    "backupId": "ra02-environments-20261027-9b9301ab",
+    "bytes": 169608,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "runtimeContract": {
+    "devAllowed": true,
+    "canInsertEnvironment": true,
+    "canUpdateAudit": false,
+    "canDeleteAudit": false,
+    "canTruncateAudit": false
+  },
+  "audit": {
+    "records": 130,
+    "pendingOperations": []
+  },
+  "validation": {
+    "applicationPassed": 89,
+    "browserPassed": 62,
+    "applicationFailures": 0,
+    "browserFailures": 0
+  }
+}

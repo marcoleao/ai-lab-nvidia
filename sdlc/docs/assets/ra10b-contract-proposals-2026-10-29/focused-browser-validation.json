@@ -1,0 +1,213 @@
+{
+    "target":  "http://127.0.0.1:3390",
+    "database":  "portal_test",
+    "realIntegrations":  false,
+    "derivedFrom":  "browser-validation.json",
+    "stats":  {
+                  "startTime":  "2026-10-29T14:23:22.717Z",
+                  "expected":  24,
+                  "skipped":  0,
+                  "unexpected":  0,
+                  "flaky":  0
+              },
+    "globalErrors":  [
+
+                     ],
+    "suites":  [
+                   "contract-proposals"
+               ],
+    "specs":  [
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "preparation is queued and remains recoverable through Audit and reload at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "architect questions block final review and another preparation preserves the prior definition at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "known local review survives a failed refresh and keeps focus at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "accepted request stays visible while canonical follow-up is unavailable at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "lost acceptance recovers the same persona body and key after the job has completed at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "base change rejects review without discarding human text or approving another commit at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "cancel preparation reports cancellation and preserves the prior proposal at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "failed generation does not replace the previous proposal at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "workspace query failure blocks all local decisions while preserving the review draft at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "human revision and historical query restore focus without replacing the current proposal at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "current proposal remains independent of the second historical page and reload at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "impediments explain persona configuration and unsupported entries beside the action at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "preparation is queued and remains recoverable through Audit and reload at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "architect questions block final review and another preparation preserves the prior definition at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "known local review survives a failed refresh and keeps focus at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "accepted request stays visible while canonical follow-up is unavailable at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "lost acceptance recovers the same persona body and key after the job has completed at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "base change rejects review without discarding human text or approving another commit at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "cancel preparation reports cancellation and preserves the prior proposal at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "failed generation does not replace the previous proposal at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "workspace query failure blocks all local decisions while preserving the review draft at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "human revision and historical query restore focus without replacing the current proposal at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "current proposal remains independent of the second historical page and reload at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-proposals.spec.ts",
+                      "title":  "impediments explain persona configuration and unsupported entries beside the action at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  }
+              ]
+}

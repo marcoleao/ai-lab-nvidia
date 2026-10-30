@@ -1,0 +1,64 @@
+'use client';
+import Link from 'next/link';
+import BranchPlanDecision from './branch-plan-decision';
+import ReleaseBranchPreparation from './release-branch-preparation';
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {usePathname,useRouter,useSearchParams} from 'next/navigation';
+import {ErrorState,FilterPanel,LoadingState,displayDate} from './experience-ui';
+import type {ReleaseBranchPlan as Plan} from '../../../packages/shared/src/release-branch-plan';
+
+export default function ReleaseBranchPlan({releaseId,revision,persona,role,blocked=false,onBlockingChange}:{releaseId:string;revision:number;persona:string;role?:string;blocked?:boolean;onBlockingChange?:(value:boolean)=>void}){
+ const router=useRouter(),pathname=usePathname(),params=useSearchParams();
+ const base=params.get('branchPlan.base')||'',scenario=params.get('branchPlan.scenario')||'undecided',search=params.get('branchPlan.search')||'',page=params.get('branchPlan.page')||'1',asOf=params.get('branchPlan.asOf'),direction=params.get('branchPlan.direction')||'desc',targetBranch=params.get('branchPlan.target');
+ const [open,setOpen]=useState([...params.keys()].some(key=>key.startsWith('branchPlan.'))),[draft,setDraft]=useState({base,scenario,search}),[refresh,setRefresh]=useState(0),[snapshot,setSnapshot]=useState<{key:string;value:Plan}|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(''),[reveal,setReveal]=useState(0),[deciding,setDeciding]=useState(false);
+ const [decisionBusy,setDecisionBusy]=useState(false),[preparationBusy,setPreparationBusy]=useState(false);
+ const notifyDeciding=useCallback((value:boolean)=>{setDecisionBusy(value);if(value)setOpen(true);},[]);
+ const notifyPreparing=useCallback((value:boolean)=>{setPreparationBusy(value);if(value)setOpen(true);},[]);
+ useEffect(()=>{const value=decisionBusy||preparationBusy;setDeciding(value);onBlockingChange?.(value);return()=>onBlockingChange?.(false);},[decisionBusy,preparationBusy,onBlockingChange]);
+ const baseInput=useRef<HTMLInputElement>(null),signature=JSON.stringify({base,scenario,search});
+ useEffect(()=>setDraft({base,scenario,search}),[signature]);
+ useEffect(()=>{if([...params.keys()].some(key=>key.startsWith('branchPlan.')))setOpen(true);},[params]);
+ const query=new URLSearchParams({scenario,page,search,direction,...(targetBranch?{targetBranch}:{}),...(base?{baseSha:base}:{}),...(asOf?{asOf}:{})}),key=`${query}:${revision}:${refresh}`;
+ useEffect(()=>{
+  if(!open)return;const controller=new AbortController();setLoading(true);setError('');
+  fetch(`/api/releases/${releaseId}/branch-plan?${query}`,{cache:'no-store',signal:controller.signal}).then(async response=>{const body=await response.json();if(!response.ok)throw Error(body.error?.message||'Não foi possível consultar o plano.');if(!body.observed?.pagination||body.proposal?.canCreate!==false)throw Error('Consulta do plano indisponível nesta instalação.');return body as Plan;}).then(value=>{if(!controller.signal.aborted)setSnapshot({key,value});}).catch(failure=>{if(!controller.signal.aborted)setError(failure.message);}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
+  return()=>controller.abort();
+ },[releaseId,open,key]);
+ function navigate(values:Record<string,string|undefined>){const next=new URLSearchParams(params.toString());for(const [name,value]of Object.entries(values)){if(value===undefined)next.delete('branchPlan.'+name);else next.set('branchPlan.'+name,value);}router.push(`${pathname}?${next}`,{scroll:false});}
+ function update(){navigate({page:undefined,asOf:undefined,target:undefined});setRefresh(value=>value+1);}
+ const data=snapshot?.value,stale=!!snapshot&&(snapshot.key!==key||loading||!!error),dirty=JSON.stringify(draft)!==signature;
+ const pager=(label:string)=>data&&<nav className="experience-pagination" aria-label={label}><button type="button" disabled={loading||deciding||stale||data.observed.pagination.page<=1} onClick={()=>navigate({page:String(data.observed.pagination.page-1),asOf:data.observed.asOf,target:data.observed.defaultBranch?.name})}>Anterior</button><span>Página {data.observed.pagination.page} · {data.integrations.length} nesta página{data.observed.pagination.total===null?' · total não fornecido pelo GitLab':` · ${data.observed.pagination.total} MRs no recorte`}</span><button type="button" disabled={loading||deciding||stale||!data.observed.pagination.hasNext} onClick={()=>navigate({page:String(data.observed.pagination.page+1),asOf:data.observed.asOf,target:data.observed.defaultBranch?.name})}>Próxima</button></nav>;
+ return <details className="panel release-branch-plan" open={open} onToggle={event=>setOpen(event.currentTarget.open)}><summary>Plano de branches e base{deciding?' · decisão em revisão ou aguardando confirmação':''}</summary><div className="release-composition-content">
+  <p>{(stale||!data||loading||!!error)?'Situação atual do plano não confirmada.':data?.recording?.currentState==='current'?'Decisão registrada para o contexto consultado; alterações de base e política exigem nova revisão.':data?.recording?.current?'Decisão anterior preservada; o contexto exige nova avaliação.':'Consulta e desenho proposto · decisões de base e branches ainda pendentes.'}</p>
+  <button type="button" disabled={loading||deciding} onClick={update}>Atualizar consulta do plano</button>
+  <FilterPanel reveal={reveal} focusRef={baseInput} id="branch-plan-filters" title="Cenário e busca do plano"><form className="release-branch-plan-form" onSubmit={event=>{event.preventDefault();navigate({base:draft.base||undefined,scenario:draft.scenario==='undecided'?undefined:draft.scenario,search:draft.search||undefined,page:undefined,asOf:undefined,target:undefined});setRefresh(value=>value+1);}}>
+   <label>Cenário da base<select value={draft.scenario} onChange={event=>setDraft({...draft,scenario:event.target.value})}><option value="undecided">Origem ainda não definida</option><option value="initial">Primeira release, sem versão em produção</option><option value="production">Analisar base informada como de produção</option></select></label>
+   <label>SHA completo para análise<input ref={baseInput} value={draft.base} pattern="([a-f0-9]{40}|[a-f0-9]{64})" maxLength={64} onChange={event=>setDraft({...draft,base:event.target.value.trim()})}/></label>
+   <label>Buscar título do MR<input type="search" value={draft.search} maxLength={200} onChange={event=>setDraft({...draft,search:event.target.value})}/></label>
+   <button type="submit" disabled={loading||deciding}>Consultar cenário e busca</button>
+   <button type="button" disabled={loading||deciding} onClick={()=>{setDraft({base:'',scenario:'undecided',search:''});navigate({base:undefined,scenario:undefined,search:undefined,page:undefined,asOf:undefined,target:undefined});setRefresh(value=>value+1);}}>Limpar consulta</button>
+  </form>
+  {dirty&&<p role="status" className="experience-filter-draft">Campos alterados. Use Consultar cenário e busca. A consulta não salva ou autoriza a base.</p>}
+  </FilterPanel>
+  {loading&&<LoadingState>Consultando branches e integrações no GitLab…</LoadingState>}{error&&<ErrorState onRetry={()=>setRefresh(value=>value+1)}>{error}</ErrorState>}
+  {stale&&<p role="status" className="sw-alert">Última leitura preservada, de {displayDate(data?.observed.observedAt)}. O cenário ou contexto atual ainda não foi confirmado.</p>}
+  {data&&<>
+   <section aria-label="Observado no repositório"><h3>{stale?'Na última consulta do repositório':'Observado no repositório'}</h3><p>{data.repository.name} · {data.repository.path} · consulta em {displayDate(data.observed.observedAt)}</p>
+    {data.observed.defaultBranch?<><p>Branch padrão: <code>{data.observed.defaultBranch.name}</code> · {data.observed.defaultBranch.protected?'protegida':'sem proteção confirmada'}</p><p>Commit observado: <code>{data.observed.defaultBranch.sha}</code></p><button type="button" disabled={loading||deciding||stale} onClick={()=>{setDraft(value=>({...value,base:data.observed.defaultBranch!.sha}));setReveal(value=>value+1);}}>Usar este SHA na análise</button><p className="hint">O SHA entra apenas no campo de consulta. Não é uma base autorizada e não acompanha mudanças futuras da branch.</p></>:<p>Branch padrão ou commit ainda não disponível. A coleção de integrações não pôde ser consultada.</p>}
+    <p>{data.observed.proposedBranch?<>A branch de nome proposto já existe: <code>{data.observed.proposedBranch.sha}</code>. Sua origem e adoção ainda precisam ser verificadas.</>:'Nenhuma branch com o nome proposto foi encontrada nesta consulta.'}</p>
+   </section>
+   <section aria-label="Desenho proposto"><h3>{data.proposal.approval==='recorded'?'Desenho registrado neste contexto':'Desenho proposto · não aprovado'}</h3><p>Branch de integração da release: <code>{data.proposal.branchName}</code></p><p>Base para análise: {data.proposal.baseSha?<code>{data.proposal.baseSha}</code>:'ainda não definida'}. {data.proposal.baseSha?(data.proposal.approval==='recorded'?'Base de planejamento registrada; origem de produção e inventário de código não confirmados.':'Commit encontrado neste repositório; escolha ainda não registrada.'):''}</p>
+    <p>Proposta: desenvolver Histórias por MRs com base e destino explícitos; montar a release em branch própria a partir de uma base decidida e verificar todo o conteúdo antes de QA. DEV individual continua independente da release.</p><p>Base de produção: não confirmada nesta consulta. O registro da decisão é separado de criação de branch, mudança de MR e confirmação de produção.</p>
+   </section>
+  </>}
+  <BranchPlanDecision releaseId={releaseId} data={data} persona={persona} role={role} stale={!snapshot||stale} blocked={blocked||preparationBusy} analysisPending={draft.base!==base||draft.scenario!==scenario} onRecorded={()=>setRefresh(value=>value+1)} onBlockingChange={notifyDeciding}/>
+  <ReleaseBranchPreparation releaseId={releaseId} revision={revision} decisionId={data?.recording?.current?.id} persona={persona} role={role} blocked={blocked||decisionBusy} planStale={!snapshot||stale||data?.proposal.approval!=='recorded'} analysisPending={draft.base!==base||draft.scenario!==scenario} enabled={open} onBlockingChange={notifyPreparing}/>
+  {data&&<>
+   <section aria-label="Decisões pendentes"><h3>{data.proposal.approval==='recorded'?'Decisões registradas neste contexto':'Decisões pendentes'}</h3><ul>{data.decisions.map(decision=><li key={decision.id}><strong>{decision.id}</strong> · {decision.message}</li>)}</ul></section>
+   <section aria-label="Integrações registradas no GitLab"><h3>Integrações registradas no GitLab</h3><p><strong>Recorte da última leitura:</strong> {data.observed.defaultBranch?.name||'destino não confirmado'} · MRs merged · título: {data.observed.search||'todos'} · criados até {displayDate(data.observed.asOf)} · criação {data.observed.direction==='asc'?'mais antiga':'mais recente'} primeiro.</p><p className="hint">{data.coverage}</p>
+    <label>Ordem de criação dos MRs · consulta solicitada<select value={direction} disabled={loading||deciding} onChange={event=>navigate({direction:event.target.value,page:undefined,asOf:undefined,target:undefined})}><option value="desc">Mais recentes primeiro</option><option value="asc">Mais antigos primeiro</option></select></label>{stale&&direction!==data.observed.direction&&<p role="status">A ordem solicitada ainda não foi confirmada. A lista preserva a ordem {data.observed.direction==='asc'?'mais antiga':'mais recente'} primeiro.</p>}{pager('Paginação de integrações do plano')}<ol className="release-composition-list">{data.integrations.map(row=><li key={row.iid}><strong>MR !{row.iid} · {row.title}</strong><p><code>{row.sourceBranch}</code> → <code>{row.targetBranch}</code> · integração registrada em {displayDate(row.mergedAt)}</p><p>SHA da revisão: <code>{row.sha}</code></p><p>Commit de merge: <code>{row.mergeSha||'não informado'}</code> · squash: <code>{row.squashSha||'não informado'}</code></p>{row.stories.length?row.stories.map(story=><p key={story.id}><Link href={`/stories/${story.id}`}>{story.key} · {story.name}</Link> · {story.inComposition?'na composição consultada':'fora da composição consultada'} · {story.matchesPlannedCode?'SHA coincide com o planejamento':'SHA não confirmado no planejamento'}.</p>):<p>História não identificada pelas referências de execução do portal.</p>}</li>)}</ol>
+    {!stale&&!loading&&!error&&!data.integrations.length&&data.observed.defaultBranch&&<p>{data.observed.pagination.page===1?'Nenhum MR integrado neste recorte. Isso não afirma ausência de código ou commits diretos.':'Esta página não retornou MRs. Use Atualizar consulta do plano para voltar ao início e conferir o recorte atual.'}</p>}{pager('Paginação final de integrações do plano')}
+   </section>
+  </>}
+ </div></details>;
+}

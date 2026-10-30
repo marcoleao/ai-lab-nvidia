@@ -1,20 +1,54 @@
 'use client';
+
 import { useState } from 'react';
-import { ErrorState, LoadingState, Spinner } from './experience-ui';
-export type Repository={id:string;systemId:string;key:string;name:string;runtime:string;gitlabProjectId:number|null;gitlabPath:string|null;gitlabUrl:string|null;state:string;message:string|null;version:number};
-type Call=(path:string,body:unknown,method?:string)=>Promise<unknown>;
-const label=(value:string)=>value.replaceAll('_',' ').toUpperCase();
-export function RepositoryChoices({repositories,value,onChange,disabled=false}:{repositories:Repository[];value:string[];onChange:(ids:string[])=>void;disabled?:boolean}){
- return <fieldset className="repository-choices" disabled={disabled}><legend>Repositórios envolvidos</legend><p className="hint">Selecione os componentes que esta iniciativa irá modificar. Nenhum repositório será criado automaticamente.</p>{repositories.length?repositories.map(repo=><label key={repo.id}><input type="checkbox" checked={value.includes(repo.id)} onChange={e=>onChange(e.target.checked?[...value,repo.id]:value.filter(id=>id!==repo.id))}/><span><strong>{repo.name}</strong> <small>{repo.key} · {repo.runtime}</small></span></label>):<p className="hint">Nenhum repositório disponível neste contexto.</p>}</fieldset>;
+import Link from 'next/link';
+import { ErrorState, Spinner } from './experience-ui';
+import ExecutionContractView from './execution-contract';
+import ApplicationPreparation from './application-preparation';
+
+export type Repository = { id: string; systemId: string; key: string; name: string; runtime: string; gitlabProjectId: number | null; gitlabPath: string | null; gitlabUrl: string | null; state: string; message: string | null; version: number };
+type Call = (path: string, body: unknown, method?: string) => Promise<unknown>;
+const label = (value: string) => value.replaceAll('_', ' ').toUpperCase();
+
+// Compatibility export for consumers outside the Portal. Current Portal forms
+// inherit the System repository and do not offer repository selection.
+export function RepositoryChoices({ repositories, value, onChange, disabled = false }: { repositories: Repository[]; value: string[]; onChange: (ids: string[]) => void; disabled?: boolean }) {
+  return <fieldset className="repository-choices" disabled={disabled}><legend>Repositórios envolvidos</legend>{repositories.map(repo => <label key={repo.id}><input type="checkbox" checked={value.includes(repo.id)} onChange={event => onChange(event.target.checked ? [...value, repo.id] : value.filter(id => id !== repo.id))} /><span><strong>{repo.name}</strong></span></label>)}</fieldset>;
 }
-export default function Repositories({itemId,systemId,repositories,available,version,canPlan,call,onChanged}:{itemId:string;systemId?:string;repositories:Repository[];available:Repository[];version:number;canPlan:boolean;call:Call;onChanged:()=>void}){
- const [mode,setMode]=useState<'create'|'link'|null>(null),[editing,setEditing]=useState(false),[selected,setSelected]=useState<string[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState('');
- const [draft,setDraft]=useState({name:'',key:'',runtime:'node',gitlabProjectId:''});
- async function run(action:()=>Promise<unknown>){setBusy(true);setError('');try{await action();setMode(null);setEditing(false);setDraft({name:'',key:'',runtime:'node',gitlabProjectId:''});onChanged();}catch(e){setError(e instanceof Error?e.message:'Não foi possível salvar.');}finally{setBusy(false);}}
- return <section className="panel" aria-label="Repositórios"><div className="section-heading"><h2>{systemId?'Repositórios do Sistema':'Repositórios envolvidos'}</h2><span className="count">{repositories.length}</span></div><p>{systemId?'O código e seus ambientes pertencem ao Sistema e permanecem disponíveis após o encerramento dos Projetos.':'Este trabalho utiliza os componentes do Sistema selecionados abaixo. O ciclo do Projeto não altera a existência dos repositórios.'}</p>{error&&<ErrorState>{error}</ErrorState>}
- <div className="repository-grid">{repositories.map(repo=><article className="repository-card" key={repo.id}><h3>{repo.name}</h3><p><small>{repo.key} · {repo.runtime}</small> <span className="badge">{label(repo.state)}</span></p>{repo.gitlabPath&&<p className="repository-path">{repo.gitlabPath}</p>}{repo.message&&<p className="hint">{repo.message}</p>}{repo.gitlabUrl&&/^https?:\/\//.test(repo.gitlabUrl)&&<p><a href={repo.gitlabUrl} target="_blank" rel="noreferrer">Abrir repositório no GitLab ↗</a></p>}{systemId&&['failed','not_configured'].includes(repo.state)&&<button disabled={!canPlan||busy} onClick={()=>void run(()=>call(`/repositories/${repo.id}/provision`,{expectedVersion:repo.version},'POST'))}>Tentar novamente</button>}</article>)}</div>{!repositories.length&&<p className="hint">{systemId?'Nenhum repositório cadastrado. Crie um componente ou vincule um repositório GitLab existente.':'Nenhum repositório associado a este trabalho.'}</p>}
- {!mode&&!editing&&<div className="actions">{systemId?<><button disabled={!canPlan||busy} onClick={()=>{setError('');setMode('create');}}>Criar repositório</button><button disabled={!canPlan||busy} onClick={()=>{setError('');setMode('link');}}>Vincular existente</button></>:<button disabled={!canPlan||busy} onClick={()=>{setSelected(repositories.map(r=>r.id));setError('');setEditing(true);}}>Selecionar repositórios</button>}</div>}
- {mode&&<form className="repository-form" onSubmit={e=>{e.preventDefault();void run(()=>call(`/systems/${systemId}/repositories`,{name:draft.name,key:draft.key,runtime:draft.runtime,mode,...(mode==='link'?{gitlabProjectId:Number(draft.gitlabProjectId)}:{})},'POST'));}}><h3>{mode==='create'?'Criar componente do Sistema':'Vincular repositório GitLab existente'}</h3><label>Nome<input autoFocus required maxLength={120} value={draft.name} onChange={e=>setDraft({...draft,name:e.target.value})}/></label><label>Chave<input required minLength={2} maxLength={12} pattern="[A-Z][A-Z0-9]{1,11}" value={draft.key} onChange={e=>setDraft({...draft,key:e.target.value})}/><small>2 a 12 letras maiúsculas ou números; comece com letra.</small></label><label>Runtime<select value={draft.runtime} onChange={e=>setDraft({...draft,runtime:e.target.value})}><option value="node">Node.js</option><option value="python">Python</option></select></label>{mode==='link'&&<label>ID do projeto no GitLab<input type="number" min="1" step="1" required value={draft.gitlabProjectId} onChange={e=>setDraft({...draft,gitlabProjectId:e.target.value})}/><small>Informe o ID numérico exibido no GitLab. O vínculo preserva o código existente.</small></label>}<p className="hint">{mode==='create'?'Será criado um repositório privado com estrutura neutra, sem aplicação de exemplo.':'O SDLC verificará o acesso e a compatibilidade do repositório antes de concluir o vínculo.'}</p><div className="actions"><button className="primary" disabled={busy}>{busy?<><Spinner />Salvando…</>:mode==='create'?'Criar repositório':'Solicitar vínculo'}</button><button type="button" disabled={busy} onClick={()=>setMode(null)}>Cancelar</button></div></form>}
- {editing&&<form className="repository-form" onSubmit={e=>{e.preventDefault();void run(()=>call(`/items/${itemId}/repositories`,{repositoryIds:selected,expectedVersion:version},'PATCH'));}}><RepositoryChoices repositories={available} value={selected} onChange={setSelected} disabled={busy}/><div className="actions"><button className="primary" disabled={busy}>Salvar seleção</button><button type="button" disabled={busy} onClick={()=>setEditing(false)}>Cancelar</button></div></form>}
- </section>;
+
+type Props = { repositories: Repository[]; systemId?: string; systemVersion?:number; systemName?: string; systemActive?: boolean; systemHref?: string; canPlan?: boolean; call?: Call; onChanged?: () => void; readOnly?: boolean; active?:boolean;persona?:string;role?:string };
+
+export default function Repositories({ repositories, systemId, systemVersion=1, systemName, systemActive = false, systemHref, canPlan = false, call, onChanged, readOnly = false, active=true,persona='',role='' }: Props) {
+  const [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
+  const [applicationRevision,setApplicationRevision]=useState(0);
+  const legacy = repositories.length > 1;
+  const canManage = Boolean(systemId && systemActive && canPlan && !readOnly && !legacy && call);
+  const canCreate = canManage && !repositories.length && Boolean(systemName);
+
+  async function run(path: string, body: unknown) {
+    if (!canManage || busy || !call) return;
+    setBusy(true); setError(''); setNotice('');
+    try { await call(path, body, 'POST'); setNotice('Solicitação registrada. O provisionamento será processado em segundo plano.'); onChanged?.(); }
+    catch (failure) { setError(failure instanceof Error ? failure.message : 'Não foi possível solicitar o provisionamento.'); }
+    finally { setBusy(false); }
+  }
+
+  return <section className="panel" aria-label="Repositório do Sistema">
+    <div className="section-heading"><h2>Repositório do Sistema</h2>{legacy && <span className="count">{repositories.length}</span>}</div>
+    <p>{systemId ? 'O repositório é criado automaticamente com o Sistema. Projetos, Histórias e Tarefas utilizam esse mesmo repositório.' : 'Este trabalho utiliza o repositório herdado do Sistema. Não é necessário escolher ou associar repositórios.'}</p>
+    <p className="hint">APIs, frontend, backend, batch e infraestrutura são organizados em pastas conforme a arquitetura.</p>
+    {readOnly && <p className="hint">Consulta do acervo, sem ações de provisionamento.</p>}
+    {legacy && <p className="alert" role="status">Este Sistema possui mais de um repositório legado e precisa de revisão. Todos continuam disponíveis para consulta; nenhum foi escolhido automaticamente.</p>}
+    {error && <ErrorState>{error}</ErrorState>}{notice && <p className="alert success" role="status">{notice}</p>}
+    <div className="repository-grid">{repositories.map(repo => <article className="repository-card" key={repo.id}>
+      <h3>{repo.name}</h3><p><small>{repo.key}{repo.runtime !== 'generic' && <> · {repo.runtime}</>}</small> <span className="badge">{label(repo.state)}</span></p>
+      {systemId && repo.gitlabPath && <p className="repository-path">{repo.gitlabPath}</p>}{repo.message && <p className="hint">{repo.message}</p>}
+      {systemId && repo.gitlabUrl && /^https?:\/\//.test(repo.gitlabUrl) && <p><a href={repo.gitlabUrl} target="_blank" rel="noreferrer">Abrir repositório no GitLab ↗</a></p>}
+      {canManage && ['failed', 'not_configured'].includes(repo.state) && <button type="button" disabled={busy} onClick={() => void run(`/repositories/${repo.id}/provision`, { expectedVersion: repo.version })}>{busy ? <><Spinner />Solicitando…</> : 'Tentar novamente'}</button>}
+    </article>)}</div>
+    {!repositories.length && <p className="hint">O Sistema ainda não possui repositório.{!systemId && ' A criação e o provisionamento são acompanhados na página do Sistema.'}</p>}
+    {canCreate && <div className="actions"><button type="button" className="primary" disabled={busy} onClick={() => void run(`/systems/${systemId}/repositories`, { name: systemName, key: 'app', runtime: 'generic', mode: 'create' })}>{busy ? <><Spinner />Solicitando…</> : 'Criar repositório do Sistema'}</button></div>}
+    {!systemId && systemHref && <p><Link href={systemHref}>Consultar repositório no Sistema →</Link></p>}
+    {systemId&&!readOnly&&!legacy&&<><ApplicationPreparation systemId={systemId} systemVersion={systemVersion} active={active} persona={persona} role={role} blocked={!systemActive||!canPlan||busy} repositoryId={repositories[0]?.id} repositoryVersion={repositories[0]?.version} onRefresh={()=>{setApplicationRevision(value=>value+1);onChanged?.();}}/><ExecutionContractView systemId={systemId} active={active} persona={persona} role={role} blocked={!canPlan||busy} repositoryId={repositories[0]?.id} repositoryVersion={repositories[0]?.version} refreshToken={applicationRevision}/></>}
+  </section>;
 }

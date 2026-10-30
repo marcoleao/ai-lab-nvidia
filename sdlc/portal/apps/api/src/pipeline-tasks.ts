@@ -1,3 +1,4 @@
+import {repositoriesOfSystem} from './system-repository.ts';
 import type {Persona} from '@sdlc/shared';
 import type {Item,Prisma} from '../../../packages/db/generated/client.ts';
 import type {Transaction} from '../../../packages/db/client.ts';
@@ -20,7 +21,7 @@ export const isPipelineTask=(item:{kind?:string;data:unknown})=>pipelineStageOf(
 export async function ensurePipelineTasks(tx:Transaction,story:Item,person:{id:string;name:string},createTask:AssistantHelpers['createItem'],creationAudit:AuditOptions={}){
  if(story.kind!=='story')throw new DomainError('STORY_REQUIRED','O planejamento do pipeline pertence a uma História.',409);
  const children=await tx.item.findMany({where:{parentId:story.id,kind:'task',archived:false},orderBy:[{createdAt:'asc'},{id:'asc'}]});
- const repositories=await tx.itemRepository.findMany({where:{itemId:story.id},select:{repositoryId:true}});
+ const repositories=(await repositoriesOfSystem(tx,story)).map(repository=>({repositoryId:repository.id}));
  const activities=await tx.workActivity.findMany({where:{storyId:story.id,kind:{in:[...pipelineStages]},...(repositories.length===1?{repositoryId:repositories[0].repositoryId}:{})},orderBy:[{createdAt:'asc'},{id:'asc'}]});
  const result:Item[]=[];
  for(const definition of pipelineTasks){
@@ -56,12 +57,12 @@ async function captureDescription(tx:Transaction,item:Item){
 export async function applyPipelineTaskPlan(tx:Transaction,h:AssistantHelpers,task:Item,person:Persona,plan:{title:string;description:string;repositoryIds:string[]},creationAudit:AuditOptions={}){
  if(!isPipelineTask(task))throw new DomainError('PIPELINE_TASK_REQUIRED','Selecione a Tarefa padrão correspondente à etapa.',409);
  const beforeLinks=await tx.itemRepository.findMany({where:{itemId:task.id},select:{repositoryId:true}});
- const desired=[...new Set(plan.repositoryIds)].sort(),previous=beforeLinks.map(link=>link.repositoryId).sort();
+ const previous=beforeLinks.map(link=>link.repositoryId).sort(),desired=previous;
  if(task.name===plan.title&&task.description===plan.description&&JSON.stringify(desired)===JSON.stringify(previous))return task;
  const beforeRevision=await captureDescription(tx,task);
  const changed=await tx.item.update({where:{id:task.id},data:{name:plan.title,description:plan.description,version:{increment:1}}});
- await tx.itemRepository.deleteMany({where:{itemId:task.id}});
- if(desired.length)await tx.itemRepository.createMany({data:desired.map(repositoryId=>({itemId:task.id,repositoryId}))});
+ // Repository ownership is inherited; preserve legacy rows instead of turning
+ // a plan edit into a destination change.
  const afterRevision=await captureDescription(tx,changed);
  const executor=creationAudit.executor??person;
  await h.event(tx,changed,executor,'ITEM_UPDATED','Planejamento aplicado à própria Tarefa do pipeline; identidade da etapa preservada.',{},creationAudit.executor?.type??'human',{...creationAudit,before:{name:task.name,descriptionRevision:beforeRevision,version:task.version,repositoryIds:previous},after:{name:changed.name,descriptionRevision:afterRevision,version:changed.version,repositoryIds:desired}});

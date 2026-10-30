@@ -1,8 +1,9 @@
 import {afterEach,expect,test,vi} from 'vitest';
 import {LocalLLMProvider} from '../apps/api/src/llm.ts';
 import {planOutputSchema} from '../apps/api/src/plan-schema.ts';
+import {createServer} from 'node:http';
 afterEach(()=>vi.unstubAllGlobals());
-const provider=()=>new LocalLLMProvider('http://172.21.0.1:11435','qwen3:14b','private-fixture');
+const provider=()=>new LocalLLMProvider('http://172.21.0.1:11435','qwen3:14b','private-fixture',420000,(url,init)=>fetch(url,init));
 test('local provider refuses cloud endpoints and URL credentials',()=>{
   expect(()=>new LocalLLMProvider('https://example.com','model','token')).toThrow('internal');
   expect(()=>new LocalLLMProvider('http://secret@127.0.0.1','model','token')).toThrow('internal');
@@ -51,4 +52,36 @@ test('unavailability, timeout and caller cancellation are distinct and do not ex
   const controller=new AbortController();controller.abort();
   vi.stubGlobal('fetch',vi.fn().mockRejectedValue(new DOMException('cancel','AbortError')));
   await expect(provider().complete([{role:'user',content:'Test'}],{signal:controller.signal})).rejects.toMatchObject({code:'LLM_CANCELLED'});
+});
+
+test('code output budget is bounded and incomplete larger responses remain rejected',async()=>{
+ const mock=vi.fn().mockResolvedValue(new Response(JSON.stringify({model:'qwen3:14b',choices:[{finish_reason:'length',message:{content:'{"summary":"incomplete"}'}}]})));vi.stubGlobal('fetch',mock);
+ await expect(provider().complete([{role:'user',content:'Complete current code'}],{json:true,maxTokens:8192})).rejects.toMatchObject({code:'LLM_OUTPUT_LIMIT'});
+ expect(JSON.parse(mock.mock.calls[0][1].body).max_tokens).toBe(8192);
+ await expect(provider().complete([{role:'user',content:'Code'}],{maxTokens:8193})).rejects.toThrow();expect(mock).toHaveBeenCalledTimes(1);
+});
+
+test('native relay transport keeps one deadline, bounded bodies and never follows redirects',async()=>{
+ let mode='delayed',requests=0;const received:string[]=[];
+ const server=createServer((req,res)=>{
+  requests++;received.push(String(req.headers['transfer-encoding']??'')+'|'+String(req.headers['content-length']??''));
+  req.resume();
+  if(mode==='redirect'){res.writeHead(302,{Location:'/must-not-follow'});res.end('{}');return;}
+  if(mode==='large'){res.end('x'.repeat(2*1024*1024+1));return;}
+  setTimeout(()=>{if(!res.destroyed)res.end(JSON.stringify({model:'local',choices:[{finish_reason:'stop',message:{content:'{"ok":true}'}}]}));},80);
+ });
+ await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const address=server.address();if(!address||typeof address==='string')throw Error('Fixture address missing');
+ const native=(timeout=1000)=>new LocalLLMProvider('http://127.0.0.1:'+address.port,'local','private-fixture',timeout);
+ try{
+  vi.stubGlobal('fetch',vi.fn(()=>{throw Error('Native inference must not depend on fetch header timeout');}));
+  expect((await native().complete([{role:'user',content:'test'}],{json:true})).content).toBe('{"ok":true}');
+  expect(received[0]).toMatch(/^\|\d+$/);
+  await expect(native(15).complete([{role:'user',content:'test'}])).rejects.toMatchObject({code:'LLM_TIMEOUT'});
+  const caller=new AbortController();caller.abort();
+  await expect(native().complete([{role:'user',content:'test'}],{signal:caller.signal})).rejects.toMatchObject({code:'LLM_CANCELLED'});
+  mode='redirect';const before=requests;
+  await expect(native().complete([{role:'user',content:'test'}])).rejects.toMatchObject({code:'LLM_REQUEST_FAILED'});expect(requests).toBe(before+1);
+  mode='large';await expect(native().complete([{role:'user',content:'test'}])).rejects.toMatchObject({code:'LLM_INVALID_RESPONSE'});
+ }finally{server.closeAllConnections();await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });

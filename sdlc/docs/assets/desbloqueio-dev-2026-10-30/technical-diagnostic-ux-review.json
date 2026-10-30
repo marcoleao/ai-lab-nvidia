@@ -1,0 +1,94 @@
+﻿{
+    "version":  1,
+    "date":  "2026-10-30T14:27:14.3874785-03:00",
+    "scope":  "UX correction of long generation failures and command receipts in the existing shared StoryWorkspace.",
+    "decision":  "approved_with_documented_limits",
+    "sourceFilesChanged":  [
+                               "apps/web/app/story-workspace.tsx",
+                               "apps/web/app/story-workspace.css",
+                               "tests/e2e/validation-retry.spec.ts"
+                           ],
+    "behaviorReviewed":  [
+                             "The terminal refusal identified by its own current generation error gets a business summary and optional issue count; the exact raw message and all 27 issues remain available in native collapsed details.",
+                             "The primary nextAction remains server-defined and precedes the complete diagnostic in document order. Details support keyboard Enter and do not send commands.",
+                             "Long unknown current errors receive a neutral summary. A later timeout does not inherit a validation label or validation issue list from an older snapshot. Short unknown errors remain visible verbatim.",
+                             "The same presentation applies to the Story and Task process panels without changing the shell, confirmations, gates, controls or pending request identity.",
+                             "A command acknowledgment is neutral, records receipt and does not promise future success. When polling observes failed it explicitly refers to the impediment and the next action.",
+                             "Legacy technical retry still recovers its original idempotency key; the diagnostic conversation/new G1 and stale-query recovery cases remain passing."
+                         ],
+    "tests":  {
+                  "run":  "20261030T172531Z-2cf2f4",
+                  "passed":  8,
+                  "failed":  0,
+                  "skipped":  0,
+                  "flaky":  0,
+                  "newCases":  2,
+                  "adjacentCases":  6,
+                  "countByFile":  {
+                                      "validation-retry.spec.ts":  5,
+                                      "discussion.spec.ts":  1,
+                                      "story-execution.spec.ts":  2
+                                  },
+                  "caseIds":  [
+                                  "UI-ea3239493efd",
+                                  "UI-1b2b6e716b89",
+                                  "UI-f5d115db5552",
+                                  "UI-c02efb48b020",
+                                  "UI-b83a44d4fc4c",
+                                  "UI-30d7273ec5b2",
+                                  "UI-80fdd83efc8b",
+                                  "UI-d5c6b76cdaa8"
+                              ],
+                  "sourceStable":  true,
+                  "runtimeHash":  "00a069bccd6f3631daa2e883bc84a4f80dcbd453314391acaac651a1036dfbea",
+                  "testHash":  "9fff6ce487279547e7315d04af22029b645c35316f9ca92b584e50bf7192aa95",
+                  "catalogRun":  "20261030T172459Z-4436e6",
+                  "catalogCases":  567,
+                  "catalogFiles":  54,
+                  "qualification":  "Isolated browser scenarios with simulated HTTP responses. They verify presentation, polling and controlled navigation, not an LLM correction, GitLab integration or a real DEV deployment."
+              },
+    "screenshots":  [
+                        {
+                            "file":  "technical-summary-story-1440.png",
+                            "surface":  "story",
+                            "width":  1440,
+                            "reviewed":  true,
+                            "sha256":  "fa6e53be85c98243615de8b5863eeff56a501ce8d789ece1886a34b1a015f435"
+                        },
+                        {
+                            "file":  "technical-summary-story-390.png",
+                            "surface":  "story",
+                            "width":  390,
+                            "reviewed":  true,
+                            "sha256":  "f2ba76758cca12c08ca5b37da06273145cec5658f56d7919446da75ebd3889d1"
+                        },
+                        {
+                            "file":  "technical-summary-task-1440.png",
+                            "surface":  "task",
+                            "width":  1440,
+                            "reviewed":  true,
+                            "sha256":  "94a286e8a5906f139fa9ab5140b463b07f188b54fbe70d9bb96a58e0cb2c1d8a"
+                        },
+                        {
+                            "file":  "technical-summary-task-390.png",
+                            "surface":  "task",
+                            "width":  390,
+                            "reviewed":  true,
+                            "sha256":  "954749aeeafc209b1c6574a59b5e29f729181c8da81cfec004bb440896735949"
+                        }
+                    ],
+    "sourceHashes":  {
+                         "apps/web/app/story-workspace.tsx":  "4bc6fce5657c3b5ad41bb7cbc5ff967fb697117719375274a7c13e274a07f439",
+                         "apps/web/app/story-workspace.css":  "bb36e44880637b8c84d30afe1c933564f73404df0353af10c17d92444e430a69",
+                         "tests/e2e/validation-retry.spec.ts":  "9df4e9b9ed5d34db9d5230a8f60f0c95dca90016210fb4c6c7520f4a347fdd9a"
+                     },
+    "limitations":  [
+                        "Real acceptance and before/after viewport measurement remain with the parent agent on the published portal. These fixtures are not evidence that JOIASC was deployed.",
+                        "There is no universal first-fold guarantee. The existing shell and context still determine how far mobile users scroll; this change removes integral diagnostics from ahead of the action.",
+                        "Task full-page screenshots retain the existing sticky shell position produced by focusing the details. This review does not claim to redesign or certify that shell.",
+                        "No API, agent, generated application, business data or gate was changed by this UX task. No shared real browser or publication was performed.",
+                        "No metrics, targets or additional telemetry were introduced. The eight selected cases do not constitute complete system regression."
+                    ],
+    "publishedByThisTask":  false,
+    "manualOK":  false
+}

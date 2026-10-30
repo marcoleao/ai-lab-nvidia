@@ -1,0 +1,167 @@
+{
+    "version":  1,
+    "date":  "2026-10-30",
+    "timezone":  "America/Sao_Paulo",
+    "slice":  "RA-14",
+    "reviewProfile":  "UX implementation, browser assertions and visual inspection",
+    "decision":  "approved_with_documented_limits",
+    "scope":  "A local, reviewed Development Finished approval for the owning Story revision. All new browser cases intercept HTTP; no pilot application, business data or agent result was changed.",
+    "navigation":  {
+                       "entry":  "Story or current Task \u003e Execution \u003e DEV \u003e Development Finished, immediately after DEV tests",
+                       "identity":  "Existing Dell/Portal shell, phase/environment rail, tabs, Task navigation and evidence panels retained. The approval is not a new Story status or navigation tab.",
+                       "confirmation":  "Review the named evidence checks, inspect optional technical references, state a reason and explicitly approve the revision. Evidence links focus the existing integration/build/publication/test views without sending another command.",
+                       "recovery":  "One controller per owning Story remains mounted across tabs. Uncertain acknowledgment preserves original body/persona/key and the draft through reload. Return focuses the result after the journey central focus settles."
+                   },
+    "behaviorReviewed":  [
+                             "Real Admin/Product Owner/Architect role, active owning Story/Task context, matching preview, reason and explicit checkbox are required for a new approval. A persona change revokes the checkbox and preserves the reason.",
+                             "The preview shows merge/rastreability, review/security, built artifact, confirmed DEV publication and complete G1 acceptance coverage. Blockers come from the server and lead to the existing evidence panels.",
+                             "MR source, integrated commit and build source are distinct provenance links; the interface does not require all three SHAs to be equal.",
+                             "The command is a local decision with an idempotent receipt, not a worker or deployment. It neither requires a Release nor concludes the Story. The Story remains open until confirmed production entry.",
+                             "The returned receipt never substitutes for current validity. After confirmation or replay, a new reading determines valid/outdated/unconfirmed. A failed current reading preserves a qualified dated receipt and never shows it as a current valid approval.",
+                             "A new cycle/revision or negative evidence of this same Story can make the prior approval outdated without deleting it. Administrative record-version or phase changes do not imply invalidation in the UI.",
+                             "Another Story occupying the shared DEV does not erase this approval. DEV test evidence current:false now states only that it does not attest the currently observed DEV target; it does not infer that the owning Story revision changed.",
+                             "The lifecycle summary in the Story, Task, collection and Release uses the same server approval reading. The two Release presentations explicitly label it as the current Story revision and not validation of a frozen composition or QA candidate; existing PENDING readiness remains unchanged.",
+                             "Old fixtures without the approval reading remain supported with unavailable capability and unconfirmed evidence. Audit action/target labels identify the local approval without inventing worker phases."
+                         ],
+    "tests":  {
+                  "catalogue":  {
+                                    "cases":  557,
+                                    "files":  54,
+                                    "newCases":  24,
+                                    "run":  "20261030T121035Z-bf3b19"
+                                },
+                  "initial":  {
+                                  "run":  "20261030T121334Z-c07652",
+                                  "passed":  95,
+                                  "failed":  0,
+                                  "skipped":  0,
+                                  "flaky":  0,
+                                  "sourceStable":  true,
+                                  "runtimeHash":  "fd131c65019b3120baadb789efc34c3dc14d50cce5ec9a37622402d855ea88b5",
+                                  "testHash":  "5d6e54f4d888c0e130ddb674a49586c1bf5b302eeacecad223af55e469f39bb1",
+                                  "cases":  95,
+                                  "countByFile":  {
+                                                      "development-approval.spec.ts":  24,
+                                                      "development-deployment.spec.ts":  20,
+                                                      "development-test.spec.ts":  24,
+                                                      "release-reading.spec.ts":  5,
+                                                      "releases.spec.ts":  11,
+                                                      "story-workspace.spec.ts":  11
+                                                  },
+                                  "summary":  "initial-browser-summary.json"
+                              },
+                  "final":  {
+                                "run":  "20261030T122253Z-dcb3a6",
+                                "passed":  40,
+                                "failed":  0,
+                                "skipped":  0,
+                                "flaky":  0,
+                                "sourceStable":  true,
+                                "runtimeHash":  "27a706523bf9234010d626bde0e2b64e93fb7c51dbb97b458eb105e67ea4a68f",
+                                "testHash":  "3810d12bb3a6776c09a216b35c11de5e962e2ad530a7472efdc157fde6c6b50b",
+                                "cases":  40,
+                                "countByFile":  {
+                                                    "development-approval.spec.ts":  24,
+                                                    "release-reading.spec.ts":  5,
+                                                    "releases.spec.ts":  11
+                                                },
+                                "summary":  "final-browser-summary.json"
+                            },
+                  "uniqueCases":  95,
+                  "qualification":  "The first selected set passed before the final Release copy refinement. The final set reran all 24 new cases and both Release files after explicitly distinguishing current Story approval from frozen-composition/candidate approval. Technical references were closed again before the default review capture. The 55 other adjacent cases are evidence from the initial stable source; they were not rerun after the Release-only copy/spec refinement. Reexecutions are not added as new cases.",
+                  "providerLimit":  "Browser fixtures simulate every provider and command response. They do not attest real approval persistence, audit rollback, deployments, acceptance execution or QA/HML/PRD promotion; backend evidence belongs to the parent receipt."
+              },
+    "accessibility":  {
+                          "viewports":  [
+                                            1440,
+                                            390
+                                        ],
+                          "assertions":  [
+                                             "Focused preview/result, evidence-source action and return to approval trigger",
+                                             "Labeled reason, explicit checkbox and disabled confirmation for missing role, stale/foreign preview, already-valid approval or incomplete acceptance",
+                                             "No document horizontal overflow in the review state, including distinct long SHAs",
+                                             "Exact request identity preserved across tabs, reload and original-persona recovery"
+                                         ],
+                          "visual":  "Six final viewport captures inspected: complete review, outdated approval and uncertain current reading. Existing shell and rail remain visible, long references wrap when opened, technical details default closed and primary/disabled controls remain recognizable.",
+                          "limits":  [
+                                         "No full screen-reader, keyboard-only, cross-browser or WCAG certification is claimed.",
+                                         "A narrow viewport displays a scrollable confirmation; one screenshot does not show every field and control simultaneously.",
+                                         "No end-to-end business acceptance or human approval is claimed by the synthetic interface fixtures."
+                                     ]
+                      },
+    "sourceHashes":  {
+                         "apps/web/app/development-approval.tsx":  "b37c4f8fb4f6a4f4fb06f5c19f9ddb5f5ac8bffa06891503af97b94d07688261",
+                         "apps/web/app/development-approval.css":  "d573825ae72f58b90465007b801ad864f39f3dca46c6f79b64da808e81061823",
+                         "apps/web/app/story-workspace.tsx":  "e7d060551065ec1e6a1c0d7eda4b740e0d38ac3569b00a3b4cca04f2878c9cb7",
+                         "apps/web/app/story-environment.tsx":  "4c3cb9f9c7c146be9a04e42c5d72e2215059a259586d5fa9ab6e60421a746e97",
+                         "apps/web/app/story-lifecycle-status.tsx":  "12c037aa31f03fc0a62de99e977619294cf532d9de713cfed9b366718850491a",
+                         "apps/web/app/story-lifecycle-status.css":  "79a5c89297c22afdb2e87f38ac56e1c5d2f95ca6040c8bbb2c3fa8f73f765f04",
+                         "apps/web/app/releases.tsx":  "5593d95d62ac43aadba395a957f64a50f4dec1ff31f87788e6630e37a289240b",
+                         "apps/web/app/development-test.tsx":  "c409264de02273286c9048bb2cd9fd9a7bab3ea4987bc9d970ee7be168d6262f",
+                         "apps/web/app/history-collection.tsx":  "21edddb5f571298349ffd1680a802d984cc36b2ed012ae3fbdb190ff1d414d8e",
+                         "tests/e2e/development-approval.spec.ts":  "e1eb2b93900c04709b6a74c663d04920970d3c94d35f712be39639a8d8657a6c",
+                         "tests/e2e/development-test.spec.ts":  "afbfca985bc69e81b5592b79c8d92abf8fc21aeca6ab586e95ebf26e1c5ae2e1",
+                         "tests/e2e/development-deployment.spec.ts":  "241910f12ccbddee74e1b6f40cca5b68c6b8036fbe26fb083a0210c9d80b343d",
+                         "tests/e2e/development-build.spec.ts":  "7233fedbc22b52a86e1b616b05077ed7e17f10cced6e18b0d22719837da62f44",
+                         "tests/e2e/assistant-dev-actions.spec.ts":  "cc511bfa8a4a90d9c399e03f9b3da4053aab28d6e51250e4ac8fe628d5edff6c",
+                         "tests/e2e/story-workspace.spec.ts":  "9043b816be65728ea060984625d6d305bf6ff4b144bcd271a3e7c91b2741e14c"
+                     },
+    "captures":  [
+                     {
+                         "file":  "development-approval-review-1440.png",
+                         "width":  1440,
+                         "state":  "review",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "8ed576af90ba0435c901bed59079a82b40aa9fec76ee0e570aeadb35d96b951f"
+                     },
+                     {
+                         "file":  "development-approval-review-390.png",
+                         "width":  390,
+                         "state":  "review",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "1e460f5104aa9724e923d84d79979170e7a35fdb74c8e2da6838e1ba8332adb2"
+                     },
+                     {
+                         "file":  "development-approval-outdated-1440.png",
+                         "width":  1440,
+                         "state":  "outdated",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "3e46aadd46a662c5ffbf613e87e47a9a510b032ba05e57364660d4f66daee11c"
+                     },
+                     {
+                         "file":  "development-approval-outdated-390.png",
+                         "width":  390,
+                         "state":  "outdated",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "5b5071a14e5b96049ffcd4fa54e10eb87b0dde4759aa361ce8f73b70ae870dcc"
+                     },
+                     {
+                         "file":  "development-approval-stale-1440.png",
+                         "width":  1440,
+                         "state":  "stale",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "7410600be3d6037ade2b395f13a611c998b4d422e5ce8f7afe23f61a4ca24834"
+                     },
+                     {
+                         "file":  "development-approval-stale-390.png",
+                         "width":  390,
+                         "state":  "stale",
+                         "sourceRun":  "20261030T122253Z-dcb3a6",
+                         "visuallyInspected":  true,
+                         "sha256":  "420e43e93043e7ef2683e744989b9215442962219cfae8ac3da5964d60253903"
+                     }
+                 ],
+    "metrics":  "Existing indicators retained; no new indicator or target.",
+    "manualApproval":  "pending-user-review",
+    "outsideScope":  [
+                         "API/shared/schema/migration/service implementation and real domain/audit tests, owned by the parent receipt",
+                         "Automatic development approval, G1 approval, code correction or Story completion",
+                         "Release closing, immutable QA candidate construction, promotion, copying or rollback",
+                         "Changing the pilot application, business records or agent results to demonstrate the Portal"
+                     ]
+}

@@ -1,0 +1,20 @@
+{
+  "reviewer": "ux_ra08b",
+  "scope": "RA-08b novo ciclo na confirmação existente e recuperação da liberação corrente",
+  "viewports": [
+    1440,
+    390
+  ],
+  "screenshots": 8,
+  "materialBlockers": 0,
+  "result": "aprovada no recorte após ajustar recuperação e linguagem do resultado integrado",
+  "observations": [
+    "Confirmação, checkbox e CTA acessíveis por rolagem e identidade preservada.",
+    "Recuperação corrente visível antes de liberar outro ciclo; sem nova escrita remota.",
+    "Tarefa histórica conduz à atividade atual sem apresentar aprovação do ciclo novo."
+  ],
+  "limitations": [
+    "Não constitui validação assistiva integral.",
+    "Recuperação genérica de operações históricas e proveniência completa permanecem RA-09."
+  ]
+}

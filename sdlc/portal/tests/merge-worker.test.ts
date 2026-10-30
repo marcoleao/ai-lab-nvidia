@@ -1,3 +1,4 @@
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,describe,expect,test,vi} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -11,24 +12,76 @@ describe.skipIf(!url)('durable merge operations',()=>{
  const db=database(url!);const sha='c'.repeat(40);
  const opened:MergeInspection={state:'opened',sha,targetSha:'b'.repeat(40),url:'http://gitlab/mr/1',mergedBy:null,mergedAt:null,blocks:[]};
  const merged:MergeInspection={...opened,state:'merged',mergedBy:'sdlc-agent-for-merge',mergedAt:new Date().toISOString()};
- const provider={inspect:vi.fn(async()=>opened),merge:vi.fn(async()=>merged)};
+ const provider={inspect:vi.fn(async()=>opened),merge:vi.fn(async()=>merged),releaseDraft:vi.fn(async()=>({...opened,draft:false}))};
  const llm={model:'isolated-merge-test',models:async()=>['isolated-merge-test'],complete:vi.fn(async()=>({model:'isolated-merge-test',content:'Consulte a aba Pipelines para identificar o estado. A conta de merge não configura CI.'}))};
  const runtime=createApp({db,demoMode:true,merge:provider,llm});
  afterAll(async()=>{await runtime.app.close();await db.$disconnect();});
+ test('restricted runtime role can read and update preparation but cannot delete it or bypass immutable audit',async()=>{
+  const s=await draftScope();expect((await s.prepare()).statusCode).toBe(200);
+  await db.$transaction(async tx=>{await tx.$executeRawUnsafe('SET LOCAL ROLE sdlc_portal_app');expect(await tx.mergePreparation.count({where:{operationId:s.job.id}})).toBe(1);await tx.mergePreparation.updateMany({where:{operationId:s.job.id},data:{message:'Restricted runtime verification'}});});
+  await expect(db.$transaction(async tx=>{await tx.$executeRawUnsafe('SET LOCAL ROLE sdlc_portal_app');await tx.mergePreparation.deleteMany({where:{operationId:s.job.id}});})).rejects.toThrow();
+  await runtime.processMergeJobs();
+ });
+ async function draftScope(){
+  const s=await scope(),draft={...opened,draft:true,blocks:[{category:'draft',message:'Draft'},{category:'checks',message:'draft_status'}]};
+  await db.mergeOperation.update({where:{id:s.job.id},data:{state:'blocked',blocks:draft.blocks}});
+  provider.inspect.mockResolvedValue(draft);
+  provider.releaseDraft.mockImplementation(async()=>{provider.inspect.mockResolvedValue({...opened,draft:false});return {...opened,draft:false};});
+  const prepare=(payload={expectedSha:sha,expectedVersion:s.story.version,confirmed:true},persona='admin',key=randomUUID())=>runtime.app.inject({method:'POST',url:`/api/executions/${s.run.id}/merge/prepare`,headers:{'x-persona':persona,'idempotency-key':key},payload});
+  return {...s,prepare};
+ }
+ test('Draft release is durable, idempotent and separate from merge, with human and agent audit authorship',async()=>{
+  const s=await draftScope(),key=randomUUID();
+  const view=(await runtime.app.inject({url:`/api/items/${s.story.id}/journey`,headers:{'x-persona':'admin'}})).json();expect(view.nextAction.id).toBe('release_draft');
+  const first=await s.prepare(undefined,'admin',key);expect(first.statusCode,first.body).toBe(200);expect((await s.prepare(undefined,'admin',key)).json()).toEqual(first.json());
+  await runtime.processMergeJobs();expect(provider.releaseDraft).toHaveBeenCalledOnce();expect(provider.merge).not.toHaveBeenCalled();
+  expect(await db.mergePreparation.findUnique({where:{operationId:s.job.id}})).toMatchObject({state:'succeeded',actorId:'admin'});
+  expect((await db.item.findUniqueOrThrow({where:{id:s.story.id}})).status).toBe(s.story.status);
+  const events=await db.historyEvent.findMany({where:{itemId:s.story.id,action:{startsWith:'MERGE_PREPARATION'}}});expect(events.map(e=>e.action)).toContain('MERGE_PREPARATION_COMPLETED');expect(events.every(e=>e.schemaVersion===2&&e.operationId)).toBe(true);
+  const after=(await runtime.app.inject({url:`/api/items/${s.story.id}/journey`,headers:{'x-persona':'admin'}})).json();expect(after.nextAction.id).toBe('merge');
+ });
+ test('Draft release rejects missing confirmation, stale revision and read-only persona before writing',async()=>{
+  const s=await draftScope();expect((await s.prepare({expectedSha:sha,expectedVersion:s.story.version,confirmed:false})).statusCode).toBe(422);
+  expect((await s.prepare(undefined,'carla')).statusCode).toBe(403);expect((await s.prepare({expectedSha:'d'.repeat(40),expectedVersion:s.story.version,confirmed:true})).statusCode).toBe(409);
+  expect(provider.releaseDraft).not.toHaveBeenCalled();expect(await db.mergePreparation.count({where:{operationId:s.job.id}})).toBe(0);
+ });
+ test('Draft release rechecks real target base and quality before the external write',async()=>{
+  const s=await draftScope();provider.inspect.mockResolvedValue({...opened,draft:true,targetSha:'d'.repeat(40),blocks:[{category:'draft',message:'Draft'}]});
+  expect((await s.prepare()).statusCode).toBe(200);await runtime.processMergeJobs();expect(provider.releaseDraft).not.toHaveBeenCalled();expect(await db.mergePreparation.findUnique({where:{operationId:s.job.id}})).toMatchObject({state:'blocked'});
+ });
+ test('lost Draft acknowledgement reconciles the real result without another write or merge',async()=>{
+  const s=await draftScope();provider.releaseDraft.mockImplementationOnce(async()=>{provider.inspect.mockResolvedValue({...opened,draft:false});throw Error('Lost response');});
+  expect((await s.prepare()).statusCode).toBe(200);await runtime.processMergeJobs();expect(await db.mergePreparation.findUnique({where:{operationId:s.job.id}})).toMatchObject({state:'failed'});
+  expect((await s.post()).statusCode).toBe(409);expect((await s.prepare()).statusCode).toBe(200);await runtime.processMergeJobs();expect(provider.releaseDraft).toHaveBeenCalledOnce();expect(provider.merge).not.toHaveBeenCalled();expect(await db.mergePreparation.findUnique({where:{operationId:s.job.id}})).toMatchObject({state:'succeeded'});
+ });
+ test('architect diagnosis is a recorded specialist turn and never releases Draft or merges',async()=>{
+  const s=await draftScope(),r=await runtime.app.inject({method:'POST',url:`/api/executions/${s.run.id}/merge/discussion`,headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{message:'Proponha uma solução para este impedimento.',expectedVersion:0,specialist:'architecture'}});expect(r.statusCode,r.body).toBe(200);
+  await runtime.processMergeDiscussionJobs();expect(llm.complete).toHaveBeenCalledOnce();expect(JSON.stringify(llm.complete.mock.calls[0])).toContain('Arquiteto de software');expect(provider.releaseDraft).not.toHaveBeenCalled();expect(provider.merge).not.toHaveBeenCalled();
+  const events=await db.historyEvent.findMany({where:{itemId:s.story.id,action:'MERGE_DISCUSSION_REPLIED'}});expect(events[0].actorId).toBe('agent:architect');
+ });
+ test('audit failure rolls back Draft authorization; retry uses the same permitted command',async()=>{
+  const s=await draftScope();
+  await db.$executeRawUnsafe(`CREATE FUNCTION reject_merge_preparation_audit() RETURNS trigger AS $$ BEGIN IF NEW.action='MERGE_PREPARATION_REQUESTED' THEN RAISE EXCEPTION 'isolated audit failure'; END IF; RETURN NEW; END; $$ LANGUAGE plpgsql`);
+  await db.$executeRawUnsafe(`CREATE TRIGGER reject_merge_preparation_audit BEFORE INSERT ON "HistoryEvent" FOR EACH ROW EXECUTE FUNCTION reject_merge_preparation_audit()`);
+  try{expect((await s.prepare()).statusCode).toBe(500);expect(await db.mergePreparation.count({where:{operationId:s.job.id}})).toBe(0);expect(provider.releaseDraft).not.toHaveBeenCalled();}
+  finally{await db.$executeRawUnsafe('DROP TRIGGER reject_merge_preparation_audit ON "HistoryEvent"');await db.$executeRawUnsafe('DROP FUNCTION reject_merge_preparation_audit()');}
+  expect((await s.prepare()).statusCode).toBe(200);await runtime.processMergeJobs();
+ });
  async function scope(){
   provider.inspect.mockReset().mockResolvedValue(opened);provider.merge.mockReset().mockResolvedValue(merged);
-  llm.complete.mockClear();
+  provider.releaseDraft.mockReset().mockResolvedValue({...opened,draft:false}); llm.complete.mockClear();
   const create=async(kind:'system'|'project'|'epic'|'story',parentId?:string,parentKind?:'system'|'project'|'epic')=>db.item.create({data:{kind,key:'M-'+randomUUID(),name:'Merge isolated test',status:kind==='system'?'active':kind==='project'?'approved':kind==='epic'?'approved':'coding',...(kind==='project'?{projectLifecycle:'active'}:{}),data:kind==='story'?{acceptanceCriteria:['Preserve the approved isolated Story result.']}:{},parentId,parentKind}});
   const system=await create('system'),project=await create('project',system.id,'system'),epic=await create('epic',project.id,'project'),story=await create('story',epic.id,'epic');
-  const repo=await db.repository.create({data:{systemId:system.id,key:'REPO-'+randomUUID(),name:'Disposable repo',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1000000000)+10000}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
+  const repo=await repositoryFixture(db,{data:{systemId:system.id,key:'REPO-'+randomUUID(),name:'Disposable repo',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1000000000)+10000}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
   const snapshot=await db.$transaction(tx=>approvedSnapshot(tx,story.id,{codeContext:{sha:'b'.repeat(40),targetBranch:'main',files:[]}}));
   const run=await db.storyExecution.create({data:{storyId:story.id,repositoryId:repo.id,storyVersion:story.version,state:'succeeded',stage:'completed',snapshot,actorId:'admin',actorName:'Admin',commitSha:sha,branch:'sdlc/merge-test',mergeRequestUrl:'http://gitlab/mr/1'}});
   const job=await db.mergeOperation.create({data:{executionId:run.id,storyId:story.id,projectId:7,iid:1,sourceBranch:run.branch!,targetBranch:'main',sha,checkedAt:new Date()}});
   for(const kind of ['code_review','security_scan'])await db.qualityCheck.create({data:{executionId:run.id,storyId:story.id,kind,sha,baseSha:'b'.repeat(40),policyVersion:qualityPolicy,state:'passed',actorId:'admin',actorName:'Admin',evidence:{digest:'d'.repeat(64)}}});
-  const post=(payload={expectedSha:sha,expectedVersion:story.version},persona='admin',key=randomUUID())=>runtime.app.inject({method:'POST',url:`/api/executions/${run.id}/merge`,headers:{'x-persona':persona,'idempotency-key':key},payload});
+  const requests=new Map<string,{expectedSha:string;expectedVersion:number}>();
+  const post=async(payload?:{expectedSha:string;expectedVersion:number},persona='admin',key=randomUUID())=>{const body=payload??requests.get(key)??{expectedSha:sha,expectedVersion:(await db.item.findUniqueOrThrow({where:{id:story.id}})).version};requests.set(key,body);return runtime.app.inject({method:'POST',url:`/api/executions/${run.id}/merge`,headers:{'x-persona':persona,'idempotency-key':key},payload:body});};
   return {story,run,job,post};
  }
- test('authorized request is idempotent, completes exactly once and never advances Story status',async()=>{const s=await scope(),key=randomUUID();const first=await s.post(undefined,'admin',key);expect(first.statusCode,first.body).toBe(200);expect((await s.post(undefined,'admin',key)).json()).toEqual(first.json());await runtime.processMergeJobs();expect(provider.merge).toHaveBeenCalledTimes(1);expect((await db.mergeOperation.findUniqueOrThrow({where:{id:s.job.id}})).state).toBe('succeeded');expect((await db.item.findUniqueOrThrow({where:{id:s.story.id}})).status).toBe('coding');expect(await db.historyEvent.count({where:{itemId:s.story.id,action:'MERGE_REQUESTED'}})).toBe(1);expect(await db.historyEvent.count({where:{itemId:s.story.id,action:'MERGE_COMPLETED'}})).toBe(1);});
+ test('authorized request is idempotent, completes exactly once and enters Merge Request without concluding the Story',async()=>{const s=await scope(),key=randomUUID();const first=await s.post(undefined,'admin',key);expect(first.statusCode,first.body).toBe(200);expect((await s.post(undefined,'admin',key)).json()).toEqual(first.json());await runtime.processMergeJobs();expect(provider.merge).toHaveBeenCalledTimes(1);expect((await db.mergeOperation.findUniqueOrThrow({where:{id:s.job.id}})).state).toBe('succeeded');expect((await db.item.findUniqueOrThrow({where:{id:s.story.id}})).status).toBe('merge_request');expect(await db.historyEvent.count({where:{itemId:s.story.id,action:'MERGE_REQUESTED'}})).toBe(1);expect(await db.historyEvent.count({where:{itemId:s.story.id,action:'MERGE_COMPLETED'}})).toBe(1);});
  test('a successful GitLab pipeline cannot bypass missing quality phases, stale SHA or revoked approval',async()=>{
   const s=await scope();await db.qualityCheck.deleteMany({where:{executionId:s.run.id}});const response=await s.post();expect(response.statusCode).toBe(409);expect(response.json().error.code).toBe('QUALITY_PHASES_REQUIRED');expect(provider.merge).not.toHaveBeenCalled();
   for(const kind of ['code_review','security_scan'])await db.qualityCheck.create({data:{executionId:s.run.id,storyId:s.story.id,kind,sha:'e'.repeat(40),baseSha:'b'.repeat(40),policyVersion:qualityPolicy,state:'passed',actorId:'admin',actorName:'Admin',evidence:{digest:'d'.repeat(64)}}});
@@ -54,7 +107,7 @@ describe.skipIf(!url)('durable merge operations',()=>{
   expect((await send('Você consegue configurar por mim?',discussion.version)).statusCode).toBe(200);await runtime.processMergeDiscussionJobs();
   discussion=(await runtime.app.inject({url:endpoint})).json();expect(discussion.turns).toHaveLength(2);
   expect(llm.complete.mock.calls[1][0]).toEqual(expect.arrayContaining([expect.objectContaining({role:'user',content:'Não há pipeline'})]));
-  expect(provider.merge).not.toHaveBeenCalled();expect((await db.storyExecution.findUniqueOrThrow({where:{id:s.run.id}})).state).toBe('succeeded');expect((await db.item.findUniqueOrThrow({where:{id:s.story.id}})).status).toBe('coding');expect((await db.mergeOperation.findUniqueOrThrow({where:{id:s.job.id}})).state).toBe('blocked');
+  expect(provider.merge).not.toHaveBeenCalled();expect((await db.storyExecution.findUniqueOrThrow({where:{id:s.run.id}})).state).toBe('succeeded');expect((await db.item.findUniqueOrThrow({where:{id:s.story.id}})).status).toBe('merge_request');expect((await db.mergeOperation.findUniqueOrThrow({where:{id:s.job.id}})).state).toBe('blocked');
   expect(await db.historyEvent.count({where:{itemId:s.story.id,action:'MERGE_DISCUSSION_SENT'}})).toBe(2);
  });
  test('conversation failure preserves the input and allows a fresh round without another merge request',async()=>{

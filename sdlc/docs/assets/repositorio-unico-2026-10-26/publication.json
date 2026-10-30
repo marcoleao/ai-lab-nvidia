@@ -1,0 +1,59 @@
+{
+  "published": true,
+  "url": "http://localhost:3310",
+  "verifiedAt": "2026-10-26T20:44:32.323474+00:00",
+  "adoptionAt": "2026-10-26T20:45:46.008850+00:00",
+  "image": "sha256:5f693f72bad13bd34292be4833c4bd520cdf951e1fd0301a2c74a8d457e55937",
+  "source": "ec502f55d88c1f11b5f1347e7c090803a339145fa12955cf325dac316d87735c",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migration": "202610260001_system_repository",
+  "tablesChecked": 30,
+  "priorRowsPreserved": true,
+  "backup": {
+    "backupId": "system-repository-20261026-30d0dbb8",
+    "bytes": 128279,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "adoption": {
+    "policy": "one-repository-per-system-v1",
+    "created": 1,
+    "unchanged": 0,
+    "ready": 1,
+    "priorRowsPreserved": true,
+    "tablesChecked": 30
+  },
+  "repository": {
+    "state": "ready",
+    "url": "http://127.0.0.1:3180/sdlc/vidloc/app",
+    "runtime": "generic"
+  },
+  "rollbackImages": {
+    "web": "sdlc-portal:before-system-repository-20261026-30d0dbb8-web",
+    "api": "sdlc-portal:before-system-repository-20261026-30d0dbb8-api"
+  },
+  "readOnlyBrowser": {
+    "sameRepositoryThroughHierarchy": true,
+    "selectorsAbsent": true,
+    "persona": "ana",
+    "nextAction": "prepare",
+    "preparationEnabled": true,
+    "reason": null,
+    "attemptedWrites": 0,
+    "pageErrors": 0
+  },
+  "validation": {
+    "applicationTests": 317,
+    "externalOptInSkipped": 4,
+    "browserScenarios": 88,
+    "browserFailures": 0,
+    "buildAndTypes": true
+  },
+  "storyAgentStarted": false
+}

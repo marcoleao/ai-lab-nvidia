@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "date": "2026-10-30T10:31:47.998805-03:00",
+  "reviewProfile": "UX implementation, browser assertions and direct visual inspection",
+  "decision": "approved_with_documented_limits",
+  "scope": "Correction of observed UI blockers on the existing portal; no new shell, navigation section or business metric.",
+  "implementation": [
+    "Current open questions appear as an explicit list at the end of the chat, independent of the consulted message page and including when a proposal already exists. The action focuses the composer without overwriting its draft.",
+    "Failed/nonvalidated chat output remains stored but is collapsed as nonvalidated evidence instead of appearing as a normal reply. Recovery uses the original message and preserves uncertainty about actual business effects.",
+    "Blocked preparation with no external-effect marker offers reviewed resume of the same intent via the existing endpoint, preserving original source/version. A nonexistent effect is not offered for reconciliation. Operations with actual effect/uncertainty retain reconciliation.",
+    "Preparation presents a concrete next step and preserves actor, version, recovery, reason and evidence; wording is generic to the System instead of referring to courses/orders.",
+    "Dependency consent is requested only with a prepared decision and explains that it concerns software libraries/packages. A preliminary conversation does not demand consent; the user is told to ask for necessity and impact if not explicit.",
+    "DEV states the dependency on the current revision merge before construction/publication and provides the sequence of subsequent controls without asserting execution or deployment."
+  ],
+  "contractAlignment": {
+    "backendOwnedByParent": true,
+    "resumeContract": "Same /resume endpoint, expectedVersion and confirmed; backend must revalidate before any effect. Blocked with no write marker is now allowed alongside paused.",
+    "noPermissionRelaxation": true,
+    "existingMetricsRetained": true
+  },
+  "tests": {
+    "run": "20261030T132733Z-f3d6b8",
+    "passed": 99,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "newCases": 6,
+    "sourceStable": true,
+    "runtimeHash": "8d7f1cba6380790d5e2ad256c5bcb545dccd66014b4b07d5ffd9799a6b0ecb1c",
+    "testHash": "98771e0ecebf72a248bb61ac5cc0059bbe2633d8ad34f30858bc1a09ad24ada0",
+    "countByFile": {
+      "application-preparation.spec.ts": 26,
+      "assistant-application-preparation.spec.ts": 20,
+      "assistant-chat.spec.ts": 12,
+      "development-build.spec.ts": 20,
+      "development-deployment.spec.ts": 20,
+      "discussion.spec.ts": 1
+    },
+    "qualification": "Isolated portal_test with HTTP-intercepted scenarios. Validates UI behavior/recovery and does not attest real agents, GitLab, image build or DEV deployment.",
+    "previousAttempt": {
+      "run": "20261030T132551Z-0d1d69",
+      "result": "Stopped before browser tests because catalog needed update. No failed browser scenario was hidden.",
+      "summary": "catalog-blocked-summary.json"
+    },
+    "catalog": {
+      "run": "20261030T132624Z-d3e12b",
+      "cases": 563,
+      "files": 54,
+      "newCases": 6
+    }
+  },
+  "sourceHashes": {
+    "apps/web/app/assistant-chat.tsx": "0dd127517d468246ca17ee2b5304fa689c1b262b264338d5377a00e26731265c",
+    "apps/web/app/assistant-chat.css": "de00d530976fcb6c6e208655d58c311a6d950cc52087e15b5486b3aea63d099f",
+    "apps/web/app/assistant.tsx": "eb01e831734477cb333c377e3d64fe4d31b413a484159c437922b5f550ce10be",
+    "apps/web/app/application-preparation.tsx": "d628b9c088efc8f5f213a6b200235c3edb8435af9fa5f8787cd32374e77bb9ec",
+    "apps/web/app/execution-discussion.tsx": "d4dd683da981428ef7a71018fcc70f0c0503e899421f7a74d7efa8f693ef961a",
+    "apps/web/app/story-environment.tsx": "ac53481c4374927c6e174628c24411a03c18aca9510e213ac8327541911f513c",
+    "tests/e2e/assistant-chat.spec.ts": "e0c92a183d4067db30ae4fbe100598f4dc55130fc1bc5f3cfdc2323e6974b9ac",
+    "tests/e2e/application-preparation.spec.ts": "f82de8d8f96e721f608ded4f6d20e351c175bc9c63e5dfd01307b0a257d33d25",
+    "tests/e2e/discussion.spec.ts": "d2139b6f51aa0c4f3b74657ee8839bf5c56ef384f6c807b026d582dbc1963791"
+  },
+  "screenshots": [
+    {
+      "file": "dev-unblocking-questions-1440.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 1440,
+      "reviewed": true,
+      "sha256": "53ae5155aceeb8bbfcb25a36eabb6954e44645e0f68a688cd57824f69a58ef66"
+    },
+    {
+      "file": "dev-unblocking-questions-390.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 390,
+      "reviewed": true,
+      "sha256": "af65891930f2a8ee76324beae73fb344bc03d855507ae58e613ec056908b2be4"
+    },
+    {
+      "file": "dev-unblocking-invalid-response-1440.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 1440,
+      "reviewed": true,
+      "sha256": "76076756a9c1a0d502d8b5157bff81eeaa44ffa6fc7a8b1f67f115f2ec60c8b0"
+    },
+    {
+      "file": "dev-unblocking-invalid-response-390.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 390,
+      "reviewed": true,
+      "sha256": "9b5439aa9876daef889b00d8a15ba97d5f4d0f47ea9f39210d53699b708e992d"
+    },
+    {
+      "file": "dev-unblocking-blocked-preparation-1440.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 1440,
+      "reviewed": true,
+      "sha256": "c5c34a2e5e21ddb7be72c2f752b390751d905d8140cd957083ab50e315149c2b"
+    },
+    {
+      "file": "dev-unblocking-blocked-preparation-390.png",
+      "sourceRun": "20261030T132733Z-f3d6b8",
+      "width": 390,
+      "reviewed": true,
+      "sha256": "96b5ddd057ea40b9c45759e8b11ba0fd5c01a1695cb2d79435ccb2c3b99b1974"
+    }
+  ],
+  "limitations": [
+    "Publication and end-to-end jewelry acceptance belong to the parent real-browser journey.",
+    "UI change does not repair executor/profile or context-budget defects by itself.",
+    "Does not certify complete accessibility, all browsers or the whole portal.",
+    "Does not rewrite failed outputs, agent results, old audit or business data.",
+    "Does not create new approval or automatic software dependency authorization."
+  ],
+  "operationalDataChanged": false,
+  "published": false,
+  "manualOK": false
+}

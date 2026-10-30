@@ -1,0 +1,45 @@
+{
+  "readOnly": true,
+  "currentState": "blocked",
+  "mergeRequestUrl": "http://127.0.0.1:3180/sdlc/vidloc/app/-/merge_requests/1",
+  "categories": [
+    "draft",
+    "checks"
+  ],
+  "checks": [
+    {
+      "kind": "story",
+      "width": 1440,
+      "diagnosisVisible": true,
+      "resolutionVisible": true,
+      "diagnosisBeforeRetry": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "task",
+      "width": 1440,
+      "diagnosisVisible": true,
+      "resolutionVisible": true,
+      "diagnosisBeforeRetry": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "story",
+      "width": 390,
+      "diagnosisVisible": true,
+      "resolutionVisible": true,
+      "diagnosisBeforeRetry": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "task",
+      "width": 390,
+      "diagnosisVisible": true,
+      "resolutionVisible": true,
+      "diagnosisBeforeRetry": true,
+      "pageOverflow": false
+    }
+  ],
+  "writesAttempted": 0,
+  "pageErrors": 0
+}

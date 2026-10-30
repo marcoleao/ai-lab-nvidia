@@ -1,0 +1,1168 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "businessPortalTestedByMutation": false,
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-26T20:11:45.563Z",
+    "duration": 95094.025,
+    "expected": 76,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "story-flow",
+    "story-workspace",
+    "story-task-planning",
+    "story-execution",
+    "story-experience",
+    "planning-lifecycle",
+    "conversation-history",
+    "releases",
+    "hierarchy",
+    "stabilization"
+  ],
+  "specs": [
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "conversations preserve pagination, filters, direct links and the last confirmed result after a query failure",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "relating an original message searches and pages stories, requires confirmation and reconciles the same request after reload",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "story and task use the same contextual consultation without project plan actions or implicit execution",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "the first association of a saved plan revision is available before any references exist",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "a running turn outside the consulted page still blocks new messages, and archived conversations stay read only",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "registered plan revisions remain distinct from the original model response and the view fits desktop and mobile",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "conversation-history.spec.ts",
+      "title": "failed messages show a red failure signal and only the cause captured by their own source",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "user creates an active hierarchy, preserves repository scope and records a manual Task result",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "context tabs preserve an editing draft and real persona permissions; confirmations stay beside the breadcrumb",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "System planning preserves roles, loading, conflict recovery, audit headers and current versions",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project groups work with four lifecycle states, no approval and explicit self-reactivation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project reopening requires justification, preserves it after failure and disables edits for readonly roles",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic starts ACTIVE without a planning gate and preserves the assistant ancestor scope",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic transitions preserve permission, versions, errors and reopening justification",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic planning explains closed Project and blocks changes until its reopening",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Inactive ancestor keeps an active Epic queryable and blocks lifecycle and child editing",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted DRAFT and leaves composition for another person",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real stage counts and newest-first pages of twenty on desktop and mobile",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "stabilization.spec.ts",
+      "title": "Project key uses the System six-letter rule in the form and persistence",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "stabilization.spec.ts",
+      "title": "manual Story creates the six Tasks and supports draft, manual technical plan and historical consultation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "stabilization.spec.ts",
+      "title": "an uncertain draft command survives reload and reuses the same idempotency key",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "stabilization.spec.ts",
+      "title": "inactive ancestors freeze editing and explicit Story reopening preserves cancelled Tasks",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-execution.spec.ts",
+      "title": "story execution prepares specification, requires G1, recovers uncertain requests and links the MR",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-execution.spec.ts",
+      "title": "processing visibility preserves the confirmed execution during a lost update and recovers without resending",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a new Story without Tasks loads empty, filters and clears without submitting an empty status",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "45 real-portal Task fixtures use complete server queries, collapsed filters, URL and preserved drafts between tabs",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "27 complete linked attempts paginate independently of the current phase and historical evidence cannot invoke current commands",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "current queued/running processing rotates, human wait and stale heartbeat remain static, and reduced motion is respected",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a failed Task query preserves the previous page, shows a red error with retry, and never reports an empty successful result",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "desktop and mobile keep collapsed queries, complete count and a visible current phase without horizontal overflow",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "coding activity keeps its own spinner while a previous conversation stays static; discussion animates only in its confirmed stage",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "História preserva shell, cinco abas e entrada em Tarefas; Execução concentra a decisão",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway usa confirmação inline com foco e preserva o comando, corpo e autoria originais",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "mudança de versão durante a confirmação exige revisar a decisão nova",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "editar mantém formulário e rascunho centrais, sem decisão concorrente ou escrita ao cancelar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "queued mostra a situação observada sem botão fictício de continuar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "running mostra a situação observada sem botão fictício de continuar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "persona de consulta e tentativa histórica não liberam aprovação por caminhos secundários",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway permanece no shell e acessível por teclado em celular e altura reduzida",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Componentes legado abre destino sem URL GitLab e conserva filtro, seleção e gestão no Sistema",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "seleção de destino preserva o rascunho e exige revisar a versão concorrente antes de salvar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "pedido incerto bloqueia a alteração do destino até reconciliar a intenção original",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "confirmação incerta reconcilia a mesma intenção após recarga sem repetir o efeito",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "nome Gateway não reescreve conteúdo de plano registrado pelo agente",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "acervo conserva o estado registrado e o destino em consulta sem ações operacionais",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Ana recebe uma pendência acionável de destino e chega ao cadastro no Sistema sem preparar execução",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Projeto existente define seu escopo e a História escolhe um destino sem iniciar agente",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "perder permissão durante a seleção do Projeto preserva o rascunho e bloqueia Salvar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Story execution preserves actual phase, contextual decisions and detail access without status writes",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Manual Task planning uses the central process for transitions and justified reopening",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Managed Task planning keeps status controlled by process and exposes no manual status action",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "story preserves history query and current phase in its own audit navigation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "task preserves history query and current phase in its own audit navigation",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Story uses five tabs, preserves filters and resolves former Summary, delivery and repository links",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task editing uses a central mobile form and unique header actions, and Cancel restores its prior central process section",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Task edit preserves its draft across tabs, permission changes and a rejected save before confirming the versioned PATCH",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task edit acknowledgement retries the original PATCH identity without applying the update twice",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story creates a Task in the central form with one Save and Cancel in the header and preserves a cancelled draft across tabs",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task creation acknowledgement keeps its draft and retries the same idempotency identity",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Story editing retains a rejected draft across persona and tab changes and can be confirmed from the header",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story remains macro and task drill down keeps phase and one place for interaction",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "the Specification Gateway requires review and confirmation, and an uncertain G1 request reuses its identity after reload",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "historical evidence and other tasks cannot execute the current review",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost correction confirmation can be reconciled with its original identity after the current task changes",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "processing distinguishes screen connection, executor heartbeat and last real tool event",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "planned work binding has explicit scope and a completion criterion without silently completing tasks",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "existing results remain readable without creating artificial process tasks",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a binding draft keeps its original concurrency token until the user reviews a newer selection",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a newer assistant conversation never replaces the canonical blocked merge attempt",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "manual task status updates preserve the active central planning section from DOING through DONE",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "refreshing the same item preserves edit and binding drafts and the interaction section",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "desktop and mobile keep both Story and Task processes central without any interaction sidebar",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "legacy Task interaction URLs normalize to central process views and survive reload without writes",
+      "ok": true,
+      "tests": [
+        {
+          "status": "expected",
+          "results": [
+            {
+              "status": "passed"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@ async function fixture(page:Page,options:{hold?:boolean;count?:number}={}){
  const system={id:'chat-system',kind:'system',key:'CHATUI',name:'Sistema de Serviços',status:'active',archived:false,version:1,parentId:null};
  const project={id:'chat-project',kind:'project',key:'PROJET',name:'Projeto Atendimento',status:'active',projectLifecycle:'active',version:1,parentId:system.id,archived:false};
  await mockPersonas(page);await assistantContext(page,system,[project]);
- const state={turns:Array.from({length:options.count??65},(_,i)=>turn(i+1)),version:1,writes:[] as string[],queries:[] as URL[],failOlder:false,hold:options.hold??false,release:()=>{},readOnly:false};
+ const state={turns:Array.from({length:options.count??65},(_,i)=>turn(i+1)),version:1,writes:[] as string[],queries:[] as URL[],failOlder:false,hold:options.hold??false,release:()=>{},readOnly:false,brief:null as null|{summary:string;confirmedFacts:string[];openQuestions:string[]}};
  await page.route('**/api/assistant**',async route=>{
   const request=route.request(),url=new URL(request.url());
   if(request.method()!=='GET'){state.writes.push(url.pathname);return route.fulfill({status:400,json:{error:{message:'Este cenário é somente de consulta.'}}});}
@@ -20,7 +20,7 @@ async function fixture(page:Page,options:{hold?:boolean;count?:number}={}){
    return route.fulfill({json:result});
   }
   const latest=state.turns.at(-1)||null,active=state.turns.find(turn=>['queued','running','paused'].includes(turn.status))||null;
-  return route.fulfill({json:{context:project,session:{id:'chat-session',version:state.version},turns:state.turns.slice(-20),latestTurn:latest,activeTurn:active,proposals:[],currentProposal:null,configured:true,model:'isolated',readOnly:state.readOnly,hasSuccessfulInterview:true,brief:null,availableRepositories:[],capabilities:{canMessage:!state.readOnly&&!active,canGeneratePlan:!state.readOnly&&!active,canComplete:!state.readOnly&&!active,canApplyPlan:!state.readOnly,canEditPlan:!state.readOnly,canCancelTurn:!state.readOnly},turnsPage:{page:1,pageSize:20,total:state.turns.length,totalPages:Math.ceil(state.turns.length/20),hasMore:state.turns.length>20},proposalsPage:{page:1,pageSize:20,total:0,totalPages:1,hasMore:false}}});
+  return route.fulfill({json:{context:project,session:{id:'chat-session',version:state.version},turns:state.turns.slice(-20),latestTurn:latest,activeTurn:active,proposals:[],currentProposal:null,configured:true,model:'isolated',readOnly:state.readOnly,hasSuccessfulInterview:true,brief:state.brief,availableRepositories:[],capabilities:{canMessage:!state.readOnly&&!active,canGeneratePlan:!state.readOnly&&!active,canComplete:!state.readOnly&&!active,canApplyPlan:!state.readOnly,canEditPlan:!state.readOnly,canCancelTurn:!state.readOnly},turnsPage:{page:1,pageSize:20,total:state.turns.length,totalPages:Math.ceil(state.turns.length/20),hasMore:state.turns.length>20},proposalsPage:{page:1,pageSize:20,total:0,totalPages:1,hasMore:false}}});
  });
  await page.goto('/assistant?system=chat-system&project=chat-project');
  await page.getByRole('combobox',{name:/Persona/}).selectOption('admin');
@@ -82,3 +82,22 @@ test('an empty historical slice does not pretend the existing conversation has n
  const {panel,state}=await fixture(page);await page.goto('/assistant?system=chat-system&project=chat-project&assistant.before=1');await expect(panel.locator('.assistant-chat-coverage')).toContainText('0 de 65');await expect(panel.getByRole('heading',{name:'O que você quer construir?',exact:true})).toHaveCount(0);
  await expect(panel.getByText('Nenhuma interação nesta posição da conversa.',{exact:false})).toBeVisible();await panel.getByRole('button',{name:'Carregar interações seguintes',exact:true}).click();await expect(panel.locator('[data-chat-turn]')).toHaveCount(20);expect(await panel.locator('[data-chat-turn]').first().getAttribute('data-chat-turn')).toBe('chat-1');expect(state.writes).toHaveLength(0);
 });
+
+for(const width of [1440,390]){
+ test(`current interview questions remain visible beside a historical chat without opening Summary at ${width}px`,async({page})=>{
+  const {state,panel,scroll}=await fixture(page);await page.setViewportSize({width,height:1000});
+  state.brief={summary:'Catálogo interno.',confirmedFacts:['Persistência local no navegador.'],openQuestions:['Quais filtros o catálogo deve combinar?','Onde informar o alcance da persistência local?']};state.version++;await refresh(page);
+  const questions=panel.getByRole('region',{name:'Perguntas atuais da entrevista'});await expect(questions).toContainText('Quais filtros o catálogo deve combinar?');await expect(questions).toContainText('resumo atual, independentemente das mensagens consultadas');await expect(page.getByRole('dialog',{name:'Resumo da necessidade'})).not.toBeVisible();
+  await panel.getByRole('textbox',{name:'Sua mensagem',exact:true}).fill('Rascunho preservado enquanto consulto as perguntas.');await questions.getByRole('button',{name:'Responder às perguntas',exact:true}).click();await expect(panel.getByRole('textbox',{name:'Sua mensagem',exact:true})).toBeFocused();await expect(panel.getByRole('textbox',{name:'Sua mensagem',exact:true})).toHaveValue('Rascunho preservado enquanto consulto as perguntas.');
+  await scroll.evaluate(el=>el.scrollTop=0);await panel.getByRole('button',{name:'Carregar interações anteriores',exact:true}).click();await expect(panel.locator('[data-chat-turn]')).toHaveCount(40);await expect(questions).toContainText('Onde informar o alcance da persistência local?');await questions.scrollIntoViewIfNeeded();
+  if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/dev-unblocking-questions-${width}.png`});}
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(state.writes).toEqual([]);
+ });
+ test(`invalid assistant output stays qualified and collapsed while its message can be recovered at ${width}px`,async({page})=>{
+  const {state,panel,scroll}=await fixture(page,{count:1});await page.setViewportSize({width,height:1000});state.turns[0].status='failed';state.turns[0].output='{"reply":"PRIVATE_INVALID_REPLY","brief":{"openQuestions":[]}}';state.turns[0].error='O modelo não consolidou a resposta no formato esperado.';state.turns[0].updatedAt='2026-10-30T14:00:00Z';state.version++;await refresh(page);
+  await expect(panel).toContainText('A resposta desta rodada não foi validada');const details=panel.locator('.assistant-chat-content details');await expect(details).not.toHaveAttribute('open','');await expect(details.locator('pre')).not.toBeVisible();
+  await details.getByText('Consultar resposta não validada',{exact:true}).click();await expect(details.locator('pre')).toContainText('PRIVATE_INVALID_REPLY');await details.getByText('Consultar resposta não validada',{exact:true}).click();await panel.getByRole('button',{name:'Recuperar mensagem no rascunho',exact:true}).click();await expect(panel.getByRole('textbox',{name:'Sua mensagem',exact:true})).toHaveValue(state.turns[0].input);await scroll.evaluate(el=>el.scrollTop=el.scrollHeight);
+  if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/dev-unblocking-invalid-response-${width}.png`});}
+  expect(state.writes).toEqual([]);
+ });
+}

@@ -5,6 +5,7 @@ import type {Database,Transaction} from '../../../packages/db/client.ts';
 import {Prisma,type Item,type HistoryEvent} from '../../../packages/db/generated/client.ts';
 import {DomainError} from './errors.ts';
 import {safePublicAudit} from './audit.ts';
+import {storyLifecycleViews} from './story-lifecycle-reading.ts';
 
 const pageSize=20;
 const booleanQuery=z.enum(['true','false']).default('false');
@@ -74,7 +75,7 @@ const eventResult=Prisma.sql`CASE
   WHEN jsonb_typeof(h.payload->'state') = 'string' THEN NULLIF(h.payload->>'state','')
   ELSE NULL END`;
 const correlationKeys=['correlationId','requestId','executionId','runId','activityId','attemptId','operationId','turnId','messageId','proposalId','checkId','releaseId','commitSha','sha','linkId','sourceId','planProposalId','sourceTurnId'] as const;
-const detailKeys=[...correlationKeys,'sourceType','sourceVersion','planRevision','previousRunId','fromReleaseId','toReleaseId','releaseKey','gate','stage','kind','policyVersion','errorCode','revision','version','releaseVersion','plannedStoryVersion','expectedVersion','status','from','to','projectLifecycle','result','outcome','state','durationMs','key','repositoryId','gitlabProjectId','gitlabGroupId','gitlabGroupPath','gitlabPath','gitlabUrl'] as const;
+const detailKeys=[...correlationKeys,'branchPlanId','branchPlanNumber','baseScenario','baseSha','defaultBranch','branchName','policyDigest','decisionDigest','compositionRevisionId','compositionRevisionNumber','compositionDigest','fromCompositionRevisionId','sourceType','sourceVersion','planRevision','previousRunId','fromReleaseId','toReleaseId','releaseKey','gate','stage','compositionStatus','flowEnvironment','canceledAt','canceledById','canceledByName','cancellationReasonDigest','kind','policyVersion','errorCode','revision','version','releaseVersion','plannedStoryVersion','expectedVersion','status','from','to','projectLifecycle','result','outcome','state','durationMs','key','repositoryId','gitlabProjectId','gitlabGroupId','gitlabGroupPath','gitlabPath','gitlabUrl'] as const;
 function safeReleaseMembers(value:Prisma.JsonValue|undefined):Prisma.JsonValue[]|undefined{
   // Preserve the complete recorded membership, never a truncated/filtered list.
   // Only immutable story references and their planned revisions are public.
@@ -158,7 +159,8 @@ export function registerCollections(app:FastifyInstance,db:Database,authorizeGlo
       const columns={name:Prisma.sql`i.name`,createdAt:Prisma.sql`i."createdAt"`,updatedAt:Prisma.sql`i."updatedAt"`,status:domainOrder(stateColumn,statuses[query.kind]),projectLifecycle:domainOrder(Prisma.sql`i."projectLifecycle"`,lifecycle)};
       const order=direction==='asc'?Prisma.sql`ASC`:Prisma.sql`DESC`;
       const items=await tx.$queryRaw<Item[]>`SELECT i.* FROM "Item" i WHERE ${and(filters)} ORDER BY ${columns[sort]} ${order}, i.id ${order} LIMIT ${pageSize} OFFSET ${(meta.page-1)*pageSize}`;
-      return {items,...meta,extraCount,query:{...query,sort,direction,page:meta.page,includeArchived,includeInactive:query.includeInactive==='true'||archiveContext}};
+      const storyReadings=await storyLifecycleViews(tx,items);
+      return {items:items.map(item=>storyReadings.has(item.id)?{...item,storyLifecycle:storyReadings.get(item.id)}:item),...meta,extraCount,query:{...query,sort,direction,page:meta.page,includeArchived,includeInactive:query.includeInactive==='true'||archiveContext}};
     },{isolationLevel:'RepeatableRead'});
   });
 

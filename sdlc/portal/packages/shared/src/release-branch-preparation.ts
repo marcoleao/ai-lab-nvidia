@@ -1,0 +1,4 @@
+export type ReleaseBranchReference={projectId:number;branchName:string;baseSha:string;defaultBranch:string};
+export type BranchPreparationInspection={branchSha:string|null;protectionReady:boolean;blockers:string[];observedAt:string};
+export type BranchPreparationOperation={id:string;number:number;decisionId:string;state:'queued'|'running'|'succeeded'|'blocked'|'unknown';message:string;branchName:string;baseSha:string;observedSha:string|null;protectionReady:boolean;actorName:string;createdAt:string;checkedAt:string|null};
+export type BranchPreparationReading={releaseId:string;releaseKey:string;releaseVersion:number;repositoryName:string|null;decision:{id:string;number:number;compositionNumber:number;branchName:string;baseSha:string}|null;blockers:string[];contextToken:string|null;operation:BranchPreparationOperation|null;asOf:string};

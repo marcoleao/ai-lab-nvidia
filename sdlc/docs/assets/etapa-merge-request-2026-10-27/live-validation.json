@@ -1,0 +1,39 @@
+{
+  "readOnly": true,
+  "checks": [
+    {
+      "kind": "story",
+      "width": 1440,
+      "phase": "MERGE REQUEST",
+      "cycleVisible": true,
+      "currentInViewport": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "task",
+      "width": 1440,
+      "phase": "MERGE REQUEST",
+      "cycleVisible": true,
+      "currentInViewport": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "story",
+      "width": 390,
+      "phase": "MERGE REQUEST",
+      "cycleVisible": true,
+      "currentInViewport": true,
+      "pageOverflow": false
+    },
+    {
+      "kind": "task",
+      "width": 390,
+      "phase": "MERGE REQUEST",
+      "cycleVisible": true,
+      "currentInViewport": true,
+      "pageOverflow": false
+    }
+  ],
+  "writesAttempted": 0,
+  "pageErrors": []
+}

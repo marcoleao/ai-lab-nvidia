@@ -1,0 +1,542 @@
+{
+    "version": 1,
+    "scope": "Portal browser regression; external deployment acceptance is separate",
+    "browser": [
+        {
+            "id": "UIFILE-assistant-chat",
+            "file": "assistant-chat.spec.ts",
+            "area": "assistant",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant-plan-review",
+            "file": "assistant-plan-review.spec.ts",
+            "area": "assistant",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant-workflow",
+            "file": "assistant-workflow.spec.ts",
+            "area": "assistant",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant-workspace",
+            "file": "assistant-workspace.spec.ts",
+            "area": "assistant",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant",
+            "file": "assistant.spec.ts",
+            "area": "assistant",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-audit-history",
+            "file": "audit-history.spec.ts",
+            "area": "audit",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-branch-plan-decisions",
+            "file": "branch-plan-decisions.spec.ts",
+            "area": "branch",
+            "requirements": [
+                "RA-06b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-code-destination",
+            "file": "code-destination.spec.ts",
+            "area": "code",
+            "requirements": [
+                "RA-08a"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-completion",
+            "file": "completion.spec.ts",
+            "area": "completion",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-composition-code-traceability",
+            "file": "composition-code-traceability.spec.ts",
+            "area": "composition",
+            "requirements": [
+                "RA-09f"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-contract-proposals",
+            "file": "contract-proposals.spec.ts",
+            "area": "contract",
+            "requirements": [
+                "RA-10b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-contract-publications",
+            "file": "contract-publications.spec.ts",
+            "area": "contract",
+            "requirements": [
+                "RA-10c"
+            ],
+            "isolation": "scoped-fixtures",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-conversation-history",
+            "file": "conversation-history.spec.ts",
+            "area": "conversation",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-dashboard",
+            "file": "dashboard.spec.ts",
+            "area": "dashboard",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-development-cycle",
+            "file": "development-cycle.spec.ts",
+            "area": "development",
+            "requirements": [
+                "RA-08b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-discussion",
+            "file": "discussion.spec.ts",
+            "area": "discussion",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-epic-execution",
+            "file": "epic-execution.spec.ts",
+            "area": "epic",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-execution-contract",
+            "file": "execution-contract.spec.ts",
+            "area": "execution",
+            "requirements": [
+                "RA-10a"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-experience-standards",
+            "file": "experience-standards.spec.ts",
+            "area": "experience",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-hierarchy",
+            "file": "hierarchy.spec.ts",
+            "area": "hierarchy",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge-history-closure",
+            "file": "merge-history-closure.spec.ts",
+            "area": "merge",
+            "requirements": [
+                "RA-09d"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge-history-reconciliation",
+            "file": "merge-history-reconciliation.spec.ts",
+            "area": "merge",
+            "requirements": [
+                "RA-09c"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge-history-remote-close",
+            "file": "merge-history-remote-close.spec.ts",
+            "area": "merge",
+            "requirements": [
+                "RA-09e"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge-integration-reference",
+            "file": "merge-integration-reference.spec.ts",
+            "area": "merge",
+            "requirements": [
+                "RA-09a"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge-reference-capture",
+            "file": "merge-reference-capture.spec.ts",
+            "area": "merge",
+            "requirements": [
+                "RA-09b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-merge",
+            "file": "merge.spec.ts",
+            "area": "merge",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-planning-lifecycle",
+            "file": "planning-lifecycle.spec.ts",
+            "area": "planning",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-planning-references",
+            "file": "planning-references.spec.ts",
+            "area": "planning",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-plans",
+            "file": "plans.spec.ts",
+            "area": "plans",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-quality",
+            "file": "quality.spec.ts",
+            "area": "quality",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-branch-plan",
+            "file": "release-branch-plan.spec.ts",
+            "area": "release",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-branch-preparation",
+            "file": "release-branch-preparation.spec.ts",
+            "area": "release",
+            "requirements": [
+                "RA-07"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-cancellation",
+            "file": "release-cancellation.spec.ts",
+            "area": "release",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-compositions",
+            "file": "release-compositions.spec.ts",
+            "area": "release",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-metrics",
+            "file": "release-metrics.spec.ts",
+            "area": "release",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-release-reading",
+            "file": "release-reading.spec.ts",
+            "area": "release",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-releases",
+            "file": "releases.spec.ts",
+            "area": "releases",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-stabilization",
+            "file": "stabilization.spec.ts",
+            "area": "stabilization",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-story-execution",
+            "file": "story-execution.spec.ts",
+            "area": "story",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-story-experience",
+            "file": "story-experience.spec.ts",
+            "area": "story",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-story-flow",
+            "file": "story-flow.spec.ts",
+            "area": "story",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-story-task-planning",
+            "file": "story-task-planning.spec.ts",
+            "area": "story",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-story-workspace",
+            "file": "story-workspace.spec.ts",
+            "area": "story",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-system-environments",
+            "file": "system-environments.spec.ts",
+            "area": "system",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-validation-retry",
+            "file": "validation-retry.spec.ts",
+            "area": "validation",
+            "requirements": [],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-contract-integrations",
+            "file": "contract-integrations.spec.ts",
+            "area": "systems",
+            "requirements": [
+                "RA-10d"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-development-build",
+            "file": "development-build.spec.ts",
+            "area": "development-build",
+            "requirements": [
+                "RA-11"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-application-preparation",
+            "file": "application-preparation.spec.ts",
+            "area": "application-preparation",
+            "requirements": [
+                "RA-11b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant-application-preparation",
+            "file": "assistant-application-preparation.spec.ts",
+            "area": "assistant-application-preparation",
+            "requirements": [
+                "RA-11c"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-environment-target-preparation",
+            "file": "environment-target-preparation.spec.ts",
+            "area": "environment-target",
+            "requirements": [
+                "RA-12a"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-development-deployment",
+            "file": "development-deployment.spec.ts",
+            "area": "development-deployment",
+            "requirements": [
+                "RA-12b"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-assistant-dev-actions",
+            "file": "assistant-dev-actions.spec.ts",
+            "area": "assistant-dev",
+            "requirements": [
+                "RA-12c"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-development-test",
+            "file": "development-test.spec.ts",
+            "area": "development-tests",
+            "requirements": [
+                "RA-13"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-development-approval",
+            "file": "development-approval.spec.ts",
+            "area": "development-approval",
+            "requirements": [
+                "RA-14"
+            ],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        }
+    ],
+    "smoke": {
+        "files": [
+            "contract-publications.spec.ts"
+        ],
+        "grep": "unreviewed proposal|confirmed MR remains separate"
+    }
+}

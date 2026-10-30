@@ -1,0 +1,397 @@
+{
+  "slice": "RA-13",
+  "date": "2026-10-30",
+  "published": true,
+  "source": "d404efc70dbbfa3547b7ede06024082a9a91bf22e6eb6d7b8fa31eb668d58a7d",
+  "image": "sha256:bcc1e78ff96d6ae058b49297e5ee19f92b474585a1e39427ae41ec19eba234de",
+  "backend": {
+    "uniqueSelected": 149,
+    "files": {
+      "application-preparation-provider.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 13,
+        "failed": 0
+      },
+      "application-preparations.test.ts": {
+        "run": "20261030T054229Z-7b99d8",
+        "passed": 20,
+        "failed": 0
+      },
+      "audit-guard.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 2,
+        "failed": 0
+      },
+      "development-builds.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 14,
+        "failed": 0
+      },
+      "development-cycle.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 14,
+        "failed": 0
+      },
+      "development-deployments.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 12,
+        "failed": 0
+      },
+      "development-tests.test.ts": {
+        "run": "20261030T054229Z-7b99d8",
+        "passed": 17,
+        "failed": 0
+      },
+      "environment-targets.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 10,
+        "failed": 0
+      },
+      "lifecycle-contract.test.ts": {
+        "run": "20261030T053902Z-518b04",
+        "passed": 11,
+        "failed": 0
+      },
+      "audit.test.ts": {
+        "run": "20261030T054658Z-dbf7f8",
+        "passed": 6,
+        "failed": 0
+      },
+      "journey.test.ts": {
+        "run": "20261030T054658Z-dbf7f8",
+        "passed": 22,
+        "failed": 0
+      },
+      "story-delivery.test.ts": {
+        "run": "20261030T054658Z-dbf7f8",
+        "passed": 8,
+        "failed": 0
+      }
+    },
+    "qualification": "Latest successful result per file across three explicit source snapshots. No duplicate executions are added; not a full final-source system regression."
+  },
+  "browser": {
+    "run": "20261030T053906Z-a89d54",
+    "passed": 89,
+    "newCases": 24,
+    "adjacent": 65,
+    "sourceStable": true,
+    "failedRunPreserved": "20261030T053328Z-725aee",
+    "qualification": "The UI sources remain frozen from this run; later changes concern HTTP capability negotiation, backend historical projection and test infrastructure and have their own checks."
+  },
+  "python": {
+    "runtime": 5,
+    "httpTests": 7,
+    "controller": 3
+  },
+  "catalog": {
+    "run": "20261030T055346Z-b21472",
+    "cases": 533,
+    "files": 53
+  },
+  "fastSmoke": {
+    "run": "20261030T055438Z-f6dab3",
+    "ok": true,
+    "qualification": "Owned automation database refreshed once to consolidate a still-unpublished migration; lab3310 and business data unchanged. Warm lane remains running for subsequent automation."
+  },
+  "actualExecutor": {
+    "passed": true,
+    "operationId": "7a7cd066-4b60-4024-8d73-f3104ac1a92a",
+    "checks": [
+      "built-image-deployed-and-healthy",
+      "bounded-nonroot-readonly-loopback-runtime",
+      "replay-and-retarget-protection",
+      "actual-http-suite-passed-and-replay-did-not-repeat-post",
+      "actual-functional-rejection-with-healthy-deployment",
+      "unhealthy-candidate-preserves-previous",
+      "healthy-replacement-stable-url",
+      "old-deployment-cannot-be-tested-after-replacement",
+      "typed-node-client-real-unix-socket-proof-and-plan",
+      "lost-receipt-read-only-reconciliation"
+    ],
+    "first": {
+      "id": "test-live-fa27b4f5-deploy1",
+      "proof": {
+        "archiveDigest": "90958502e50311416bb3651f787782fc56a8d1b91b7b8c6e28851ab1621a77f1",
+        "buildId": "test-live-fa27b4f5-build1",
+        "configDigest": "82cdde77d95bb6e30a657fc948095d0d6f6ad1320b2c234146e102e97d4f5e6a",
+        "containerId": "8a7a16b334feb64a27d95ee07490fd94a0b90d12b91160e690ff28388337e3bc",
+        "healthAt": "2026-10-30T05:47:44.911755+00:00",
+        "imageId": "sha256:af52361832d2de56c9c2f58213058d26110f0494284c549c717b8973529213a8",
+        "resourceId": "ff524a0c72a6674ca08d9c0ff04276772c101f1995f950dcc7f570c242dc8815",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "http://localhost:36269"
+      },
+      "state": "succeeded"
+    },
+    "replacement": {
+      "id": "test-live-fa27b4f5-deploy3",
+      "proof": {
+        "archiveDigest": "a4d46c4d8054b3e116039e21b8c5b26a2a5637523807254411bab5d663085979",
+        "buildId": "test-live-fa27b4f5-build3",
+        "configDigest": "82cdde77d95bb6e30a657fc948095d0d6f6ad1320b2c234146e102e97d4f5e6a",
+        "containerId": "85250041bddf64a464341343716068e87965e9e6e1a6a203b11554f312e128f3",
+        "healthAt": "2026-10-30T05:48:14.881812+00:00",
+        "imageId": "sha256:4547aba41707461ce6d40130e44c4ec93a38f7d0be92519ecea2ad8ac8bc8c82",
+        "resourceId": "ff524a0c72a6674ca08d9c0ff04276772c101f1995f950dcc7f570c242dc8815",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "http://localhost:36269"
+      },
+      "state": "succeeded"
+    },
+    "tests": {
+      "passed": {
+        "id": "test-live-fa27b4f5-tests1",
+        "proof": {
+          "archiveDigest": "90958502e50311416bb3651f787782fc56a8d1b91b7b8c6e28851ab1621a77f1",
+          "buildId": "test-live-fa27b4f5-build1",
+          "cases": [
+            {
+              "actualStatus": 201,
+              "code": "PASSED",
+              "criterionIndices": [
+                0
+              ],
+              "durationMs": 1,
+              "expectedStatus": 201,
+              "id": "own-order",
+              "name": "Requisição de fixture isolada",
+              "passed": true
+            },
+            {
+              "actualStatus": 200,
+              "code": "PASSED",
+              "criterionIndices": [
+                0
+              ],
+              "durationMs": 1,
+              "expectedStatus": 200,
+              "id": "expected-state",
+              "name": "Estado esperado da fixture",
+              "passed": true
+            }
+          ],
+          "deploymentId": "test-live-fa27b4f5-deploy1",
+          "finishedAt": "2026-10-30T05:47:50.050913+00:00",
+          "imageId": "sha256:af52361832d2de56c9c2f58213058d26110f0494284c549c717b8973529213a8",
+          "policyVersion": "dev-http-v1",
+          "scope": "acceptance",
+          "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "startedAt": "2026-10-30T05:47:50.048956+00:00",
+          "suiteDigest": "66feba32e53a12e8c9fcaab6b67faabba70b1b59f0c7a29852705ff2ba0139b6"
+        },
+        "state": "succeeded"
+      },
+      "failed": {
+        "id": "test-live-fa27b4f5-tests2",
+        "proof": {
+          "archiveDigest": "90958502e50311416bb3651f787782fc56a8d1b91b7b8c6e28851ab1621a77f1",
+          "buildId": "test-live-fa27b4f5-build1",
+          "cases": [
+            {
+              "actualStatus": 201,
+              "code": "PASSED",
+              "criterionIndices": [
+                0
+              ],
+              "durationMs": 1,
+              "expectedStatus": 201,
+              "id": "own-order",
+              "name": "Requisição de fixture isolada",
+              "passed": true
+            },
+            {
+              "actualStatus": 409,
+              "code": "STATUS_MISMATCH",
+              "criterionIndices": [
+                0
+              ],
+              "durationMs": 1,
+              "expectedStatus": 200,
+              "id": "expected-state",
+              "name": "Estado esperado da fixture",
+              "passed": false
+            }
+          ],
+          "deploymentId": "test-live-fa27b4f5-deploy1",
+          "finishedAt": "2026-10-30T05:47:52.689710+00:00",
+          "imageId": "sha256:af52361832d2de56c9c2f58213058d26110f0494284c549c717b8973529213a8",
+          "policyVersion": "dev-http-v1",
+          "scope": "acceptance",
+          "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "startedAt": "2026-10-30T05:47:52.688392+00:00",
+          "suiteDigest": "66feba32e53a12e8c9fcaab6b67faabba70b1b59f0c7a29852705ff2ba0139b6"
+        },
+        "state": "failed"
+      },
+      "failedIntent": {
+        "id": "test-live-fa27b4f5-tests2",
+        "kind": "test",
+        "systemId": "test-live-fa27b4f5-system",
+        "environmentId": "test-live-fa27b4f5-environment",
+        "repositoryId": "test-live-fa27b4f5-repository",
+        "profile": "node24-http-v1",
+        "unitId": "web",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "contractDigest": "64945d4bf39b3190581fc2fda9af320f66f24d04af67dd9c8edd69bef6371372",
+        "configDigest": "82cdde77d95bb6e30a657fc948095d0d6f6ad1320b2c234146e102e97d4f5e6a",
+        "storyId": "test-live-fa27b4f5-story",
+        "buildId": "test-live-fa27b4f5-build1",
+        "projectId": 1,
+        "imageId": "sha256:af52361832d2de56c9c2f58213058d26110f0494284c549c717b8973529213a8",
+        "archiveDigest": "90958502e50311416bb3651f787782fc56a8d1b91b7b8c6e28851ab1621a77f1",
+        "artifactSize": 92084224,
+        "expectedDeploymentId": null,
+        "deploymentId": "test-live-fa27b4f5-deploy1",
+        "suiteDigest": "66feba32e53a12e8c9fcaab6b67faabba70b1b59f0c7a29852705ff2ba0139b6",
+        "policyVersion": "dev-http-v1"
+      },
+      "nodeSocket": {
+        "typedNodeSocketClient": true,
+        "failedCases": 1,
+        "planCases": 2
+      }
+    },
+    "scope": "actual owned Docker builds, deployments and optional HTTP tests; no portal database, GitLab fetch, business data or pilot source changed",
+    "ownedResourcesRemoved": true
+  },
+  "runtimeSourceDigest": "4cf1763c49042bffac7eaf2bb2c89a58f9007f94b53d676f00bfec86de506f72",
+  "publication": {
+    "backup": {
+      "backupId": "ra13-development-tests-verified-20261030-1c13994c",
+      "bytes": 347281,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "oldTables": 47,
+    "newTables": [
+      "DevelopmentTest"
+    ],
+    "tables": 48,
+    "exactRowsPreserved": true,
+    "migrations": [
+      "202610300003_development_test"
+    ],
+    "audit": {
+      "records": 382,
+      "head": "120ec3bf8b1206ff930074185aa61d08bb13b609d254601d4df6228075c1856f",
+      "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+      "pendingOperations": []
+    }
+  },
+  "manualApproval": "pending-user-OK-RA-13",
+  "limitations": [
+    "First profile executes versioned HTTP cases; browser, arbitrary scripts, dynamic authentication and extraction are not executed by this application-test worker.",
+    "Technical suite does not complete functional Task acceptance.",
+    "Writes from declared cases are not automatically rolled back; unknown results never authorize replay.",
+    "The real pilot was queried only; no application code, business data, pipeline gate or agent result was changed for demonstration.",
+    "General recovery of irretrievably lost proof and automated retention remain separate capabilities."
+  ],
+  "publishedReadOnly": {
+    "run": "ra13-live-readonly-1f4eee58",
+    "browser": {
+      "ok": true,
+      "mode": "GET/HEAD-only",
+      "blockedWrites": 0,
+      "results": [
+        {
+          "width": 1440,
+          "targetPanel": true,
+          "assistantUsesTargetPanel": true,
+          "buildDeploymentTestsMounted": true,
+          "realMissingDeploymentBlocked": true,
+          "confirmationDisabled": true,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "targetPanel": true,
+          "assistantUsesTargetPanel": true,
+          "buildDeploymentTestsMounted": true,
+          "realMissingDeploymentBlocked": true,
+          "confirmationDisabled": true,
+          "overflow": false
+        }
+      ]
+    },
+    "database": {
+      "ok": true,
+      "tables": 48,
+      "exactRowsPreserved": true,
+      "normalization": "Nullable contract resolution and volatile MergeOperation lease/read fields only."
+    },
+    "runtime": {
+      "ok": true,
+      "mode": "read-only",
+      "uid": 1000,
+      "dockerSocketExposed": false,
+      "testsExecutorReady": true,
+      "role": {
+        "role": "sdlc_portal_app",
+        "insert_test": true,
+        "delete_test": false
+      },
+      "counts": {
+        "targets": 0,
+        "deployments": 0,
+        "tests": 0,
+        "events": 161
+      }
+    },
+    "captures": [
+      {
+        "path": "live-assistant-1440.png",
+        "sha256": "4c1c33316d8413fc3db29439b8f206d9b6151504b8d504b0b9df59a263a5440d"
+      },
+      {
+        "path": "live-assistant-390.png",
+        "sha256": "196eae30e1ea194a9e027ef69797cad004b5fae632dbf740f10702a190f6b23d"
+      },
+      {
+        "path": "live-target-1440.png",
+        "sha256": "12df389ac631c670408ecaa2e00f5d34665e3ab5e01c825a4ae200c03d73bf2b"
+      },
+      {
+        "path": "live-target-390.png",
+        "sha256": "c4e375fdce15c0328ad37f4ea8b27d4a10ef50c744b53b0b6a52ec0a3d542d0e"
+      },
+      {
+        "path": "live-tests-1440.png",
+        "sha256": "b46bc158bd11e7a3af572c14f95072746d3d50e94ab13d16f8fcb405cfe53f86"
+      },
+      {
+        "path": "live-tests-390.png",
+        "sha256": "d7f7ab3a4857159beee4c6c45aa5df666ebf68298ca2028211b9c7034f4173d1"
+      },
+      {
+        "path": "live-tests-viewport-1440.png",
+        "sha256": "9086f34fffbf815a7dd7a3d4430a9d92bff2dfe4d629847224ae2940f86aa14c"
+      },
+      {
+        "path": "live-tests-viewport-390.png",
+        "sha256": "d0826901e8d6f704ff3b8144072ba034c65634dd17d9b83c2cefc082e52dd752"
+      }
+    ],
+    "visualReview": {
+      "reviewed": [
+        "live-tests-viewport-390.png",
+        "live-tests-viewport-1440.png",
+        "live-assistant-390.png"
+      ],
+      "finding": "Existing portal identity and navigation retained; the confirmation remains below the fixed rail and the System dialog fits390px. Full-page screenshots contain fixed-position capture artifacts; the viewport captures were inspected separately."
+    },
+    "qualification": "Real pilot queried with GET/HEAD only. No pipeline, application, business data or agent output was changed."
+  },
+  "finalAdministrativeAudit": {
+    "records": 384,
+    "head": "3d25661b3971e5907a08bdca3780e0463e43d6496ab7571dbe029b6b4c6880e7",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  },
+  "testLanes": {
+    "fast": "running; exclusive automation; fresh final migration baseline; smoke passed",
+    "ui": "owned resources removed after reports saved",
+    "verify": "owned resources removed after reports saved"
+  }
+}

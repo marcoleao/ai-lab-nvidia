@@ -1,0 +1,42 @@
+{
+  "published": true,
+  "url": "http://localhost:3310",
+  "verifiedAt": "2026-10-26T20:14:37.087948+00:00",
+  "image": "sha256:5e3a207f9491f76d956544a03498cbe836c32c16eeb88a55817f4fc16f286258",
+  "source": "4403c1f65fbbdbc751b8b8a34b64f0245175c2d037f4a25c931f6e68df530430",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "apiUnchanged": true,
+  "tablesChecked": 30,
+  "exactTablesPreserved": true,
+  "backup": {
+    "backupId": "story-destination-20261026-15309c79",
+    "bytes": 128279,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "rollbackImage": "sdlc-portal:before-story-destination-20261026-15309c79-web",
+  "readOnlyBrowser": {
+    "persona": "ana",
+    "missingDestinationStillBlocksPreparation": true,
+    "projectConfigurationAvailable": true,
+    "systemRegistrationAvailable": true,
+    "storyReturnPreserved": true,
+    "attemptedWrites": 0,
+    "pageErrors": 0
+  },
+  "validation": {
+    "browserScenarios": 76,
+    "browserFailures": 0,
+    "auditTests": 8,
+    "buildAndTypes": true
+  },
+  "businessRepositoryCreated": false,
+  "businessRepositoryLinked": false,
+  "agentStarted": false
+}

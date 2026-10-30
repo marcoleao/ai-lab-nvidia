@@ -1,0 +1,33 @@
+{
+  "id": "ra03-lifecycle-reading-20261028-869c83eb-retry",
+  "source": "2518c509e3e46035277394de0838ef1e1e65ef2b2e5b0304cefe720c9959496e",
+  "candidateImage": "sha256:260af81479e6a6e9d2de2226e9246e4d5878021256248a8d6642eb8a1e68ef2f",
+  "verifiedAt": "2026-10-28T14:32:17.475009+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true,
+  "backupSha256": "d7eee271cfa0614b1d7b91ff4b44a48abc0ed00cb495d00c0d5b7cb7b1950f19",
+  "backupVerification": {
+    "backupId": "ra03-lifecycle-reading-20261028-869c83eb-retry",
+    "bytes": 172850,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 176,
+    "head": "d67080a293f6f5c5c2a6118333aef407d0fe50fe87519a9b54f98483c98eba52",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  },
+  "firstAttempt": {
+    "outcome": "rolled_back",
+    "reason": "Publication verifier searched API-provided labels in JavaScript bundles; assertion corrected before retry.",
+    "candidateSourceUnchanged": true
+  }
+}

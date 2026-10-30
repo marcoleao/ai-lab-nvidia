@@ -1,0 +1,44 @@
+{
+  "evidencePreserved": {
+    "execution": true,
+    "quality": true,
+    "merge": true,
+    "storyContent": true
+  },
+  "administrativeAction": "PORTAL_DOMAIN_RECONCILIATION",
+  "syntheticExecutionEvidenceCreated": false,
+  "reviewedScope": {
+    "stories": [
+      {
+        "id": "cmvpasfnn001901ngsax5ngj3",
+        "expectedVersion": 17,
+        "executionId": "cmvpr9rig000201qsry08a5zu"
+      }
+    ],
+    "systems": [
+      {
+        "id": "cmvo2o3yv000001mbsl8typ38",
+        "expectedVersion": 1,
+        "repositoryId": "cmvpq7gya00008jqsigdboxl9"
+      }
+    ]
+  },
+  "result": {
+    "phases": {
+      "updated": [
+        "cmvpasfnn001901ngsax5ngj3"
+      ],
+      "unchanged": []
+    },
+    "environments": [
+      {
+        "createdCodes": [
+          "DEV"
+        ],
+        "outcome": "SUCCEEDED"
+      }
+    ]
+  },
+  "sourceFacts": "confirmed merge or current quality gates; existing System repository",
+  "generatedApplicationCodeChanged": false
+}

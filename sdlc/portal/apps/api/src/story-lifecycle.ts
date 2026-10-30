@@ -45,7 +45,7 @@ export function registerStoryLifecycle(app:FastifyInstance,h:Helpers){
       if(story.status==='cancelled')throw new DomainError('STORY_ALREADY_CANCELLED','O cancelamento da História já foi confirmado.',409);
       if(data(story).cancellationRequested)throw new DomainError('STORY_CANCELLATION_PENDING','O cancelamento já foi solicitado. Consulte a confirmação da mesma operação.',409);
       // Later pipeline stages retain their independent effect reconciliation.
-      if(await tx.mergeOperation.count({where:{storyId:story.id,state:'running'}}))throw new DomainError('MERGE_IN_PROGRESS','Aguarde a confirmação da integração em andamento antes de cancelar a História.',409);
+      if(await tx.mergePreparation.count({where:{storyId:story.id,state:'running'}})||await tx.mergeOperation.count({where:{storyId:story.id,state:'running'}})||await tx.mergeHistoryCloseOperation.count({where:{storyId:story.id,state:'running'}}))throw new DomainError('MERGE_IN_PROGRESS','Aguarde a confirmação da operação em andamento antes de cancelar a História.',409);
       const operationId=currentAuditContext()?.operationId??`story-cancel:${story.id}:${story.version}`;
       const cancellationRequested={actorId:person.id,actorName:person.name,operationId,requestedAt:new Date().toISOString(),...(body.comment?{comment:body.comment}:{})};
       const marked=await tx.item.update({where:{id:story.id},data:{version:{increment:1},data:json({...data(story),cancellationRequested})}});
@@ -58,6 +58,9 @@ export function registerStoryLifecycle(app:FastifyInstance,h:Helpers){
       await tx.chatTurn.updateMany({where:{session:{contextId:story.id},status:{in:['queued','running','paused']}},data:{status:'cancelled'}});
       await tx.qualityCheck.updateMany({where:{storyId:story.id,state:{in:['queued','running','paused']}},data:{state:'cancelled',finishedAt:new Date()}});
       await tx.mergeOperation.updateMany({where:{storyId:story.id,state:{in:['queued','paused']}},data:{state:'cancelled',finishedAt:new Date()}});
+      await tx.mergePreparation.updateMany({where:{storyId:story.id,state:{in:['queued','paused']}},data:{state:'cancelled'}});
+      await tx.mergeHistoryCloseOperation.updateMany({where:{storyId:story.id,state:{in:['queued','paused']},writeStartedAt:null,reconcileOnly:false},data:{state:'cancelled',version:{increment:1},message:'Pedido interrompido com a História antes de escrita remota.'}});
+      await tx.mergeHistoryCloseOperation.updateMany({where:{storyId:story.id,state:{in:['queued','paused']},OR:[{writeStartedAt:{not:null}},{reconcileOnly:true}]},data:{state:'unknown',version:{increment:1},message:'História cancelada; o resultado do fechamento permanece disponível para consulta.'}});
       await tx.mergeDiscussionTurn.updateMany({where:{operation:{storyId:story.id},state:{in:['queued','running','paused']}},data:{state:'cancelled'}});
       await h.event(tx,marked,person,'STORY_CANCELLATION_REQUESTED','Cancelamento solicitado; novas operações bloqueadas e publicação em andamento sujeita a confirmação.',{storyId:story.id,operationId},'human',{before:{state:'active',version:story.version},after:{state:'cancel_pending',version:marked.version},operationId});
       return finalizeStoryCancellation(tx,h,story.id);

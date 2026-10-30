@@ -1,0 +1,36 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "existingReferenceCodes": [
+    "QA",
+    "HML",
+    "PRD"
+  ],
+  "missingCodes": [
+    "DEV"
+  ],
+  "existingReferencesUnchanged": true,
+  "systemVersionUnchanged": true,
+  "checks": [
+    {
+      "width": 1440,
+      "activeTabVisible": true,
+      "standardDestinationsVisible": true,
+      "missingCodesReviewedWithoutSaving": [
+        "DEV"
+      ],
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "activeTabVisible": true,
+      "standardDestinationsVisible": true,
+      "missingCodesReviewedWithoutSaving": [
+        "DEV"
+      ],
+      "pageOverflow": false
+    }
+  ]
+}

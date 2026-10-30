@@ -1,0 +1,36 @@
+﻿{
+    "published":  true,
+    "verifiedAt":  "2026-10-27T15:05:10.159886+00:00",
+    "image":  "sha256:25bf7f6745279bcfbc719e6528b04ebde7f95961ed1b135a4f8f1a90d2a01152",
+    "source":  "65e95e428a5ebf0bc0b5ab89e52cd1d97841c76a67b26c0f9aac07425b6b0171",
+    "apiUnchanged":  true,
+    "apiImage":  "sha256:ccfb4b47b7769d3559a1d396943d9f2174bd411d9b7a86e5d208d8c7aa43649b",
+    "verification":  {
+                         "health":  {
+                                        "status":  "ready",
+                                        "scope":  "portal-foundation",
+                                        "demoMode":  true,
+                                        "databaseMode":  "preview"
+                                    },
+                         "apiUnchanged":  true,
+                         "servedFlowVerified":  true
+                     },
+    "tablesChecked":  30,
+    "exactTablesPreserved":  true,
+    "backup":  {
+                   "backupId":  "story-merge-step-20261027-175501f5",
+                   "bytes":  160624,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "audit":  {
+                  "records":  102,
+                  "pendingOperations":  [
+
+                                        ]
+              },
+    "browserScenariosPassed":  41,
+    "failures":  0,
+    "migrationsApplied":  false
+}

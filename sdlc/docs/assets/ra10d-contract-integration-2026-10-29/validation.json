@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "slice": "RA-10d",
+  "scope": "Contract configuration integration only; no application build/deploy gate is approved",
+  "coverageAfterExplicitRepairs": {
+    "backend": {
+      "passed": 806,
+      "failed": 0,
+      "skipped": 4,
+      "files": 76
+    },
+    "browser": {
+      "registered": 385,
+      "passed": 385,
+      "failed": 0,
+      "files": 46
+    },
+    "method": "Case results from the broad run plus explicit passing follow-up runs; this is not a claim that the original full command was green. Backend identity uses file, full test name and occurrence within that suite for repeated parameterized names; UI uses registered stable IDs. Reexecuted cases are not added twice.",
+    "sourceUniformity": "The broad run captured the pre-copy-fix runtime; later focused UI runs validated the copy fix, and backend follow-up fixed migration-fixture dependency order."
+  },
+  "broadRun": {
+    "id": "20261029T184148Z-819fd8",
+    "ok": false,
+    "runtimeHash": "38def92daa35da6ff5f2d96b1c5fced71ca9c1f54d7b6d04dfe4d80ede0cf64a",
+    "testHash": "d71769a60c49905815e1b4c33acea09fec033a6d350e76d6062c7caa6a83510e",
+    "backendInitial": {
+      "passed": 805,
+      "failed": 1,
+      "skipped": 4
+    },
+    "browserInitial": {
+      "startTime": "2026-10-29T18:45:50.409Z",
+      "duration": 766789.736,
+      "expected": 383,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "failuresRepaired": [
+      "contract-proposals.test.ts: rollback must remove the later integration migration first",
+      "execution-contract.spec.ts: two viewports still asserted integration was unavailable in a future slice"
+    ],
+    "rawSummaryUnmodified": true
+  },
+  "backendFollowUp": {
+    "id": "20261029T185640Z-e4564f",
+    "passed": 72,
+    "failed": 0,
+    "files": [
+      "audit-guard.test.ts",
+      "audit.test.ts",
+      "contract-integration-provider.test.ts",
+      "contract-integrations.test.ts",
+      "contract-proposals.test.ts",
+      "contract-publications.test.ts"
+    ]
+  },
+  "newBrowserCoverage": {
+    "id": "20261029T183054Z-e0f18d",
+    "passed": 22,
+    "failed": 0,
+    "viewports": [
+      1440,
+      390
+    ]
+  },
+  "copyAndCapabilityFollowUp": [
+    {
+      "id": "20261029T184816Z-bfa684",
+      "passed": 6
+    },
+    {
+      "id": "20261029T185423Z-b3d566",
+      "passed": 4
+    }
+  ],
+  "realProvider": {
+    "scope": "own-temporary-GitLab-project",
+    "name": "regression-contract-8de9530e-61e7-4284-a2e2-cd27b3ad020e",
+    "passed": true,
+    "removed": true,
+    "checks": [
+      "exclusive-contract-commit-and-draft-MR",
+      "separate-Draft-release",
+      "fixed-SHA-merge-protected-main-exact-bytes-and-ancestry",
+      "read-only-reconciliation"
+    ],
+    "projectId": 8,
+    "markers": [
+      "commit",
+      "merge_request",
+      "release_draft",
+      "merge"
+    ],
+    "integrationSha": "0924721947282de18b18e74066b29709a4abe2ac"
+  },
+  "previousOwnedProjectCleanup": {
+    "scope": "own-temporary-GitLab-project",
+    "name": "regression-contract-8704ecb1-2432-4c4c-8767-12c30a5d0a23",
+    "passed": true,
+    "removed": true,
+    "checks": [
+      "cleanup-own-previous-test-project"
+    ],
+    "projectId": 7
+  },
+  "publication": {
+    "image": "sha256:5ced6514a0abce6fa13a68b11d22ab06ffb893b534767763ffb0181b16de51bd",
+    "source": "f2507691656fc6eca29a2f1613ef8fad985886a0533d09f3defd798812b6c9ed",
+    "existingTablesChecked": 41,
+    "tablesChecked": 42,
+    "newTables": [
+      "ExecutionContractIntegration"
+    ],
+    "exactTablesPreserved": true,
+    "normalization": "Only new nullable publication-resolution columns and existing volatile MergeOperation lease/read fields are excluded from before/after comparison.",
+    "backup": {
+      "backupId": "ra10d-contract-integration-verified-20261029-58375420",
+      "bytes": 269438,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "verifiedAt": "2026-10-29T19:01:03.499071+00:00",
+    "administrativeEpoch": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "administrativeRecords": 322,
+    "pendingAdministrativeOperations": 0
+  },
+  "readOnlyLive": {
+    "runtime": {
+      "ok": true,
+      "integrationCount": 0,
+      "resolvedCount": 0,
+      "mergeIdentity": "sdlc-agent-for-merge",
+      "active": true,
+      "admin": false,
+      "health": "ready"
+    },
+    "browser": {
+      "ok": true,
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "blockedWrites": 0,
+      "viewports": [
+        1440,
+        390
+      ],
+      "systemOverflow": false,
+      "storyPhase": "MERGE REQUEST"
+    },
+    "preservationAfterReads": {
+      "existingTablesChecked": 41,
+      "unchangedUnderDeclaredNormalization": true,
+      "newIntegrationTableEmpty": true
+    }
+  },
+  "limitations": [
+    "The broad full command remains recorded as failed; the three obsolete assertions/fixtures were fixed and reexecuted explicitly. No report was rewritten to green.",
+    "Four opt-in real GitLab suites were not executed by the simulated full run. The new contract provider was validated separately against an owned temporary real project.",
+    "The application pilot is not deployed; DE-04/06 and RA-11 onward remain separate.",
+    "No full screen-reader/native keyboard certification. FullPage captures have documented fixed-header/skip-link limitations.",
+    "No remote CI execution is claimed.",
+    "No operational contract or agent result was fabricated to demonstrate this slice."
+  ],
+  "manualApproval": "pending-user-OK-RA-10d",
+  "finalSmoke": {
+    "id": "20261029T190917Z-e2299c",
+    "passed": 4,
+    "failed": 0,
+    "persistentEnvironment": "fast"
+  }
+}

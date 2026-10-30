@@ -23,7 +23,8 @@ async function setup(page:Page){
     {...base,id:'legacy-explicit',schemaVersion:1,action:'ITEM_UPDATED',result:'passed',payload:{state:'passed'}},
     ...Array.from({length:21},(_,index)=>({...base,id:`legacy-${index}`,schemaVersion:1,action:'ITEM_CREATED',result:null,payload:{key:'AUDITA',status:'active'}})),
   ];
-  const writes:string[]=[],queries:URLSearchParams[]=[],errors:string[]=[];let fail=false;
+  const preparationEvent={...base,id:'application-preparation-event',schemaVersion:2,action:'APPLICATION_PREPARATION_INTEGRATED',result:'SUCCEEDED',phase:'COMPLETED',decision:'NOT_APPLICABLE',operationId:'operation-preparation',subjectType:'application_preparation',subjectId:'preparation-isolated',audit:{...envelope,executor:{id:'system:application-preparation',name:'Preparação da aplicação',type:'system',authentication:'service'},target:{type:'application_preparation',id:'preparation-isolated',name:'Estrutura executável revisada'},changes:[],changeCoverage:'not_applicable'}};
+  const writes:string[]=[],queries:URLSearchParams[]=[],errors:string[]=[];let fail=false,applicationOnly=false;
   page.on('request',request=>{if(request.url().includes('/api/')&&!['GET','HEAD'].includes(request.method()))writes.push(request.url());});
   page.on('pageerror',error=>errors.push(error.message));
   await page.route('**/api/**',async route=>{
@@ -34,7 +35,7 @@ async function setup(page:Page){
     if(path.endsWith('/history')){
       queries.push(new URLSearchParams(params));
       if(fail)return send({error:'Auditoria temporariamente indisponível.'},503);
-      let rows=events.filter(event=>!params.get('q')||event.id.includes(params.get('q')!));
+      let rows=(applicationOnly?[preparationEvent]:events).filter(event=>!params.get('q')||event.id.includes(params.get('q')!));
       if(params.get('result'))rows=rows.filter(event=>params.get('result')==='__missing__'?event.result===null:event.result===params.get('result'));
       if(params.get('operation'))rows=rows.filter(event=>'operationId' in event&&event.operationId===params.get('operation'));
       if(params.get('phase'))rows=rows.filter(event=>'phase' in event&&event.phase===params.get('phase'));
@@ -48,7 +49,7 @@ async function setup(page:Page){
     if(path.startsWith('/api/items/'))return send({item:system,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]});
     return send({});
   });
-  return {writes,queries,errors,setFail:(value:boolean)=>{fail=value;}};
+  return {writes,queries,errors,setFail:(value:boolean)=>{fail=value;},showPreparation:()=>{applicationOnly=true;}};
 }
 const history=(page:Page)=>page.getByRole('region',{name:'Histórico e rastreabilidade',exact:true});
 
@@ -66,6 +67,7 @@ test('audit separates execution outcome and domain decision, displays typed chan
   await expect(region.locator('[data-audit-event="legacy-provisioned"]')).toContainText('Recurso GitLab provisionado');await expect(region.locator('[data-audit-event="legacy-provisioned"]')).toContainText('Legado: resultado não capturado');
   await expect(region.locator('[data-audit-event="legacy-explicit"]')).toContainText('passed');await expect(region.locator('[data-audit-event="legacy-explicit"]')).not.toContainText('resultado não capturado');
   await row.getByRole('link',{name:'Consultar ocorrências desta operação'}).click();await expect(page).toHaveURL(/history.operation=operation-audit/);await expect(region.locator('[data-audit-event]')).toHaveCount(2);await page.reload();await expect(region.locator('[data-audit-event]')).toHaveCount(2);
+  observed.showPreparation();await page.goto('/systems/audit-system?tab=activity&history.operation=operation-preparation');const preparation=region.locator('[data-audit-event="application-preparation-event"]');await expect(preparation).toContainText('Preparação da aplicação integrada');await expect(preparation).toContainText('Preparação da aplicação: Estrutura executável revisada');await expect(preparation.getByText('Concluída',{exact:true})).toBeVisible();await expect(preparation.locator('.audit-decision')).toContainText('Não se aplica');
   expect(observed.writes).toEqual([]);expect(observed.errors).toEqual([]);
 });
 

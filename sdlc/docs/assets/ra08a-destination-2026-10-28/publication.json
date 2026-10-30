@@ -1,0 +1,30 @@
+{
+  "id": "ra08a-destination-ready-20261028-bf3f213c",
+  "source": "007759523b810d42b99201de276ccc62d715c5c9ceefb569345e7597f2955119",
+  "candidateImage": "sha256:eb7bcae123aa4deb545d931721d899157a10f90266a8144075b4cea5da02b010",
+  "verifiedAt": "2026-10-28T21:31:55.652716+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [],
+  "existingTablesChecked": 34,
+  "newTables": [],
+  "tablesChecked": 34,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra08a-destination-ready-20261028-bf3f213c",
+    "bytes": 204739,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 232,
+    "head": "fff324e7ed33072c29d9c63567c20abf2509d075e446db4aa40072bbf5b93eb1",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "slice": "RA-12a",
+  "date": "2026-10-30",
+  "published": true,
+  "source": "8f63fe8b8298a2038231278f87795e8204551f825da0e8307590eb512f9cc6f2",
+  "image": "sha256:ec6510653944cd3402e600bb2e6fb42e4cb6e77d03b7ae9422217375bf0554d7",
+  "backend": {
+    "run": "20261030T040509Z-1533e1",
+    "passed": 39,
+    "files": 5
+  },
+  "browser": {
+    "run": "20261030T040943Z-777778",
+    "passed": 20,
+    "sourceStable": true,
+    "baselineRun": "20261030T035953Z-0b0dbe",
+    "baselineQualification": "26 cases before primary-action ordering refinement; six existing reference cases are evidence of that source, not a full final-source rerun."
+  },
+  "runtimePythonTests": 5,
+  "realExecutor": {
+    "ok": true,
+    "proof": {
+      "resourceId": "063d98a159af8daa66b55bcde90cefdc9f6f6cb8384a8116562bd139f365c28f",
+      "resourceName": "sdlc-dev-59e6738e590f114440a1e597",
+      "configDigest": "4cb94715bc03b6d6358724b20ec80825ef8583e23b4bcedd1121c26e72d4be5a",
+      "unitId": "web",
+      "profile": "node24-http-v1"
+    },
+    "replaySameResource": true,
+    "retargetRejected": true,
+    "reconciledOwnEffect": true,
+    "networkInternal": true,
+    "noApplicationDeployment": true,
+    "operationId": "facf3520-8dd6-4c43-909d-3a2db4c596fe",
+    "removedOwnNetworksAndContainer": true
+  },
+  "liveReadOnly": {
+    "ok": true,
+    "mode": "GET/HEAD-only",
+    "blockedWrites": 0,
+    "results": [
+      {
+        "width": 1440,
+        "currentTargetPanel": true,
+        "explicitConfirmation": true,
+        "allowed": false,
+        "blockers": [
+          "Prepare e integre um contrato de execução válido no Sistema antes de construir.",
+          "O primeiro executor aceita uma unidade HTTP Node 24 sem migração de dados.",
+          "Prepare e integre o contrato de execução Node 24/React no repositório do Sistema."
+        ],
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "currentTargetPanel": true,
+        "explicitConfirmation": true,
+        "allowed": false,
+        "blockers": [
+          "Prepare e integre um contrato de execução válido no Sistema antes de construir.",
+          "O primeiro executor aceita uma unidade HTTP Node 24 sem migração de dados.",
+          "Prepare e integre o contrato de execução Node 24/React no repositório do Sistema."
+        ],
+        "overflow": false
+      }
+    ]
+  },
+  "runtimeReadOnly": {
+    "ok": true,
+    "mode": "read-only",
+    "before": {
+      "operations": 0,
+      "targets": 0,
+      "events": 161
+    },
+    "after": {
+      "operations": 0,
+      "targets": 0,
+      "events": 161
+    },
+    "role": {
+      "role": "sdlc_portal_app",
+      "update_target": false,
+      "delete_operation": false
+    },
+    "uid": 1000,
+    "dockerSocketExposed": false,
+    "runtimeReady": true
+  },
+  "publication": {
+    "backup": {
+      "backupId": "ra12a-environment-target-verified-20261030-44e0fe02",
+      "bytes": 316230,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "existingTablesChecked": 44,
+    "tablesChecked": 46,
+    "newTables": [
+      "EnvironmentOperation",
+      "EnvironmentTarget"
+    ],
+    "migrations": [
+      "202610300001_environment_target"
+    ],
+    "normalization": "Nullable contract resolution fields and volatile MergeOperation lease/read fields only.",
+    "audit": {
+      "records": 362,
+      "head": "0cae3fc80eeaf3b24295f7705e11fac8f51d7daa44eed181613c5bd8363ef0f3",
+      "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+      "pendingOperations": []
+    }
+  },
+  "manualApproval": "pending-user-OK-RA-12a",
+  "limitations": [
+    "Target preparation is not an application deployment.",
+    "The pilot was queried only; no target, application code, deployment or agent result was created to demonstrate this capability.",
+    "Directed tests, not a complete system regression.",
+    "A first production build caught an optional role type at the mount. Restrictive empty-role fallback corrected it; successful build and final20 browser cases followed.",
+    "General administrative uncertain-job resolution and resource retention remain separate capabilities."
+  ]
+}

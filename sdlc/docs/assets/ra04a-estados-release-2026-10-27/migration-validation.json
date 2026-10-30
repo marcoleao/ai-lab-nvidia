@@ -1,0 +1,11 @@
+{
+  "database": "portal_test",
+  "isolatedSchema": true,
+  "mappedAllThreeStates": true,
+  "unknownHistoricalFlowPreserved": true,
+  "auditPayloadsPreserved": true,
+  "runtimeDefaultsOPEN_DEV": true,
+  "runtimePrivilegesAndGuards": true,
+  "upDownUpPreservedRows": true,
+  "rollbackRejectsUnrepresentableFlow": true
+}

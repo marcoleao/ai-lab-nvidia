@@ -1,3 +1,4 @@
+import {repositoryFixture} from './repository-fixture';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {afterEach,expect,test,vi} from 'vitest';
 import {GitLabProvider} from '../apps/api/src/gitlab.ts';
@@ -56,7 +57,7 @@ test.skipIf(!process.env.TEST_GITLAB_ISOLATED)('real local model prepares G1 and
     const system=(await post('/items',{kind:'system',key:'REALCODE',name:'Ensaio isolado de codificação'})).item;
     const project=(await post('/items',{kind:'project',parentId:system.id,key:'INITIA',name:'Iniciativa técnica descartável'})).item;await post(`/items/${project.id}/approve`,{expectedVersion:project.version});
     const epic=(await post('/items',{kind:'epic',parentId:project.id,name:'Verificação técnica'})).item;
-    const repository=await db.repository.create({data:{systemId:system.id,key:'PROBE',name:'Repositório técnico descartável',runtime:'python',state:'ready',gitlabProjectId:remote.id}});
+    const repository=await repositoryFixture(db,{data:{systemId:system.id,key:'PROBE',name:'Repositório técnico descartável',runtime:'python',state:'ready',gitlabProjectId:remote.id}});
     await db.itemRepository.create({data:{itemId:project.id,repositoryId:repository.id}});
     const story=(await post('/items',{kind:'story',parentId:epic.id,name:'Adicionar uma função de soma pura',description:'No arquivo arithmetic.py, adicionar sum_numbers(a,b), que retorna a soma dos argumentos. Incluir teste unittest para 2+3=5. Usar somente biblioteca padrão Python e preservar servidor existente.',repositoryIds:[repository.id]})).item;
     await db.item.update({where:{id:story.id},data:{data:{acceptanceCriteria:['sum_numbers(2,3) retorna 5.']}}});

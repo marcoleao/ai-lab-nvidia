@@ -1,0 +1,421 @@
+{
+  "readOnly": true,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "item": {
+    "id": "cmvpasfk2000l01ng1n5dtsuu",
+    "name": "Gestão de Títulos de Filme",
+    "status": "active",
+    "version": 1
+  },
+  "ancestors": [
+    {
+      "id": "cmvo2o3yv000001mbsl8typ38",
+      "kind": "system",
+      "name": "Gestão de Video Locadora",
+      "status": "active",
+      "projectLifecycle": null
+    },
+    {
+      "id": "cmvo2omw8000401mbo490mpu0",
+      "kind": "project",
+      "name": "Prototipo Funcional",
+      "status": "active",
+      "projectLifecycle": "active"
+    }
+  ],
+  "visibleChildren": [
+    {
+      "id": "cmvpasfkc000n01ngfcd9qwm2",
+      "name": "Listagem de Filmes com Filtros",
+      "status": "specification"
+    },
+    {
+      "id": "cmvpasfnn001901ngsax5ngj3",
+      "name": "Formulário de Criação e Edição de Filmes",
+      "status": "merge_request"
+    }
+  ],
+  "views": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Gestão de Títulos de Filme",
+          "x": 264,
+          "y": 243.1875,
+          "width": 353.421875,
+          "height": 36.25,
+          "display": "block",
+          "fontSize": "29px"
+        },
+        {
+          "tag": "H2",
+          "text": "Excecução com Assistente de I.A.",
+          "x": 288,
+          "y": 427.9375,
+          "width": 1092,
+          "height": 27,
+          "display": "block",
+          "fontSize": "18px"
+        },
+        {
+          "tag": "H2",
+          "text": "Ciclo do Épico",
+          "x": 288,
+          "y": 769.4375,
+          "width": 1092,
+          "height": 27,
+          "display": "block",
+          "fontSize": "18px"
+        }
+      ],
+      "panels": [
+        {
+          "tag": "SECTION",
+          "text": "Excecução com Assistente de I.A.A assistente trabalha no contexto de Prototipo Funcional. Acesse o menu Assistente para conversar, detalhar os requisitos e revisar uma proposta ant",
+          "x": 264,
+          "y": 403.9375,
+          "width": 1140,
+          "height": 321.5,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        {
+          "tag": "SECTION",
+          "text": "Ciclo do ÉpicoÉpico organiza o trabalho. INACTIVE é uma pausa; conclusão e cancelamento exigem ausência de filhos abertos.Momento atual: ACTIVEACTIVEINACTIVECOMPLETEDCANCELLEDJusti",
+          "x": 264,
+          "y": 745.4375,
+          "width": 1140,
+          "height": 409.5,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        {
+          "tag": "DETAILS",
+          "text": "Retomar trabalhos pausadosA retomada recoloca na fila os trabalhos pausados deste agrupador e dos descendentes ativos. Reativar o agrupador, por si só, não inicia agentes.Confirmo ",
+          "x": 264,
+          "y": 1174.9375,
+          "width": 1140,
+          "height": 70.5,
+          "display": "block",
+          "fontSize": "15px"
+        }
+      ],
+      "cycle": {
+        "bounds": {
+          "tag": "SECTION",
+          "text": "Ciclo do ÉpicoÉpico organiza o trabalho. INACTIVE é uma pausa; conclusão e cancelamento exigem ausência de filhos abertos.Momento atual: ACTIVEACTIVEINACTIVECOMPLETEDCANCELLEDJusti",
+          "x": 264,
+          "y": 745.4375,
+          "width": 1140,
+          "height": 409.5,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        "stages": [
+          {
+            "tag": "LI",
+            "text": "ACTIVE",
+            "x": 288,
+            "y": 891.9375,
+            "width": 72.015625,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": "step"
+          },
+          {
+            "tag": "LI",
+            "text": "INACTIVE",
+            "x": 368.015625,
+            "y": 891.9375,
+            "width": 83.34375,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          },
+          {
+            "tag": "LI",
+            "text": "COMPLETED",
+            "x": 459.359375,
+            "y": 891.9375,
+            "width": 102.6875,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          },
+          {
+            "tag": "LI",
+            "text": "CANCELLED",
+            "x": 570.046875,
+            "y": 891.9375,
+            "width": 100.03125,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          }
+        ],
+        "label": {
+          "tag": "LABEL",
+          "text": "JustificativaObrigatória, com ao menos 10 caracteres, para concluir, cancelar ou reabrir um encerrado.",
+          "x": 288,
+          "y": 996.9375,
+          "width": 819.6875,
+          "height": 17,
+          "display": "inline",
+          "fontSize": "15px"
+        },
+        "textarea": {
+          "tag": "TEXTAREA",
+          "text": "",
+          "x": 365.53125,
+          "y": 945.9375,
+          "width": 219,
+          "height": 65,
+          "display": "inline-block",
+          "fontSize": "15px"
+        },
+        "buttons": [
+          {
+            "tag": "BUTTON",
+            "text": "Inativar · INACTIVE",
+            "x": 288,
+            "y": 1017.4375,
+            "width": 165.875,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": false
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Concluir · COMPLETED",
+            "x": 462.875,
+            "y": 1017.4375,
+            "width": 197.515625,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": true
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Cancelar · CANCELLED",
+            "x": 669.390625,
+            "y": 1017.4375,
+            "width": 198.375,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": true
+          }
+        ]
+      },
+      "assistantLinks": [
+        {
+          "text": "Abrir Assistente neste contexto →",
+          "href": "/assistant?system=cmvo2o3yv000001mbsl8typ38&project=cmvo2omw8000401mbo490mpu0"
+        }
+      ],
+      "resumeVisible": [
+        "Retomar trabalhos pausados"
+      ]
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Gestão de Títulos de Filme",
+          "x": 15,
+          "y": 420.6875,
+          "width": 302.515625,
+          "height": 31.25,
+          "display": "block",
+          "fontSize": "25px"
+        },
+        {
+          "tag": "H2",
+          "text": "Excecução com Assistente de I.A.",
+          "x": 34,
+          "y": 585.9375,
+          "width": 322,
+          "height": 27,
+          "display": "block",
+          "fontSize": "18px"
+        },
+        {
+          "tag": "H2",
+          "text": "Ciclo do Épico",
+          "x": 34,
+          "y": 1040.4375,
+          "width": 322,
+          "height": 27,
+          "display": "block",
+          "fontSize": "18px"
+        }
+      ],
+      "panels": [
+        {
+          "tag": "SECTION",
+          "text": "Excecução com Assistente de I.A.A assistente trabalha no contexto de Prototipo Funcional. Acesse o menu Assistente para conversar, detalhar os requisitos e revisar uma proposta ant",
+          "x": 15,
+          "y": 566.9375,
+          "width": 360,
+          "height": 434.5,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        {
+          "tag": "SECTION",
+          "text": "Ciclo do ÉpicoÉpico organiza o trabalho. INACTIVE é uma pausa; conclusão e cancelamento exigem ausência de filhos abertos.Momento atual: ACTIVEACTIVEINACTIVECOMPLETEDCANCELLEDJusti",
+          "x": 15,
+          "y": 1021.4375,
+          "width": 360,
+          "height": 695,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        {
+          "tag": "DETAILS",
+          "text": "Retomar trabalhos pausadosA retomada recoloca na fila os trabalhos pausados deste agrupador e dos descendentes ativos. Reativar o agrupador, por si só, não inicia agentes.Confirmo ",
+          "x": 15,
+          "y": 1736.4375,
+          "width": 360,
+          "height": 60.5,
+          "display": "block",
+          "fontSize": "15px"
+        }
+      ],
+      "cycle": {
+        "bounds": {
+          "tag": "SECTION",
+          "text": "Ciclo do ÉpicoÉpico organiza o trabalho. INACTIVE é uma pausa; conclusão e cancelamento exigem ausência de filhos abertos.Momento atual: ACTIVEACTIVEINACTIVECOMPLETEDCANCELLEDJusti",
+          "x": 15,
+          "y": 1021.4375,
+          "width": 360,
+          "height": 695,
+          "display": "block",
+          "fontSize": "15px"
+        },
+        "stages": [
+          {
+            "tag": "LI",
+            "text": "ACTIVE",
+            "x": 34,
+            "y": 1207.9375,
+            "width": 72.015625,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": "step"
+          },
+          {
+            "tag": "LI",
+            "text": "INACTIVE",
+            "x": 114.015625,
+            "y": 1207.9375,
+            "width": 83.34375,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          },
+          {
+            "tag": "LI",
+            "text": "COMPLETED",
+            "x": 205.359375,
+            "y": 1207.9375,
+            "width": 102.6875,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          },
+          {
+            "tag": "LI",
+            "text": "CANCELLED",
+            "x": 34,
+            "y": 1251.9375,
+            "width": 100.03125,
+            "height": 36,
+            "display": "list-item",
+            "fontSize": "12px",
+            "current": null
+          }
+        ],
+        "label": {
+          "tag": "LABEL",
+          "text": "JustificativaObrigatória, com ao menos 10 caracteres, para concluir, cancelar ou reabrir um encerrado.",
+          "x": 34,
+          "y": 1356.9375,
+          "width": 296.53125,
+          "height": 62,
+          "display": "inline",
+          "fontSize": "15px"
+        },
+        "textarea": {
+          "tag": "TEXTAREA",
+          "text": "",
+          "x": 111.53125,
+          "y": 1305.9375,
+          "width": 219,
+          "height": 65,
+          "display": "inline-block",
+          "fontSize": "15px"
+        },
+        "buttons": [
+          {
+            "tag": "BUTTON",
+            "text": "Inativar · INACTIVE",
+            "x": 34,
+            "y": 1422.4375,
+            "width": 165.875,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": false
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Concluir · COMPLETED",
+            "x": 34,
+            "y": 1473.9375,
+            "width": 197.515625,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": true
+          },
+          {
+            "tag": "BUTTON",
+            "text": "Cancelar · CANCELLED",
+            "x": 34,
+            "y": 1525.4375,
+            "width": 198.375,
+            "height": 42.5,
+            "display": "flex",
+            "fontSize": "15px",
+            "disabled": true
+          }
+        ]
+      },
+      "assistantLinks": [
+        {
+          "text": "Abrir Assistente neste contexto →",
+          "href": "/assistant?system=cmvo2o3yv000001mbsl8typ38&project=cmvo2omw8000401mbo490mpu0"
+        }
+      ],
+      "resumeVisible": [
+        "Retomar trabalhos pausados"
+      ]
+    }
+  ]
+}

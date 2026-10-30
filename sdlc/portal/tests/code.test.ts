@@ -38,9 +38,9 @@ test('GitLab publication reconciles an existing execution branch and MR without 
 });
 test('GitLab publishes into a dedicated branch from pinned base and creates a draft MR',async()=>{
   const base='b'.repeat(40),sha='a'.repeat(40);
-  const mock=vi.fn().mockResolvedValueOnce(new Response('',{status:404})).mockResolvedValueOnce(new Response(JSON.stringify({commit:{id:base}}))).mockResolvedValueOnce(new Response(JSON.stringify({id:sha}))).mockResolvedValueOnce(new Response('[]')).mockResolvedValueOnce(new Response(JSON.stringify({web_url:'http://gitlab/mr/1'})));
+  const mock=vi.fn().mockResolvedValueOnce(new Response('',{status:404})).mockResolvedValueOnce(new Response(JSON.stringify({commit:{id:base}}))).mockResolvedValueOnce(new Response('',{status:404})).mockResolvedValueOnce(new Response(JSON.stringify({commit:{id:base}}))).mockResolvedValueOnce(new Response(JSON.stringify({id:sha}))).mockResolvedValueOnce(new Response('[]')).mockResolvedValueOnce(new Response(JSON.stringify({web_url:'http://gitlab/mr/1'})));
   vi.stubGlobal('fetch',mock);
   await new GitLabProvider('http://gitlab','fixture').publishCode(1,'cmvhexecutiontest00001',{sha:base,targetBranch:'main',files:[]},{summary:'Summary',files:[{path:'src/a.py',content:'x=1'}]},'Story');
-  const commit=JSON.parse(mock.mock.calls[2][1].body),mr=JSON.parse(mock.mock.calls[4][1].body);
+  const commit=JSON.parse(mock.mock.calls.find(c=>c[1].method==='POST'&&String(c[0]).endsWith('/repository/commits'))![1].body),mr=JSON.parse(mock.mock.calls.find(c=>c[1].method==='POST'&&String(c[0]).endsWith('/merge_requests'))![1].body);
   expect(commit).toMatchObject({start_sha:base,commit_message:expect.stringContaining('[skip ci]')});expect(commit.branch).not.toBe('main');expect(commit.force).toBeUndefined();expect(mr.title).toMatch(/^Draft:/);
 });

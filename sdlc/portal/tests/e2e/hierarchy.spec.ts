@@ -7,15 +7,11 @@ if(!process.env.TEST_DATABASE_URL?.endsWith('/portal_test'))throw new Error('Bro
 
 test.beforeEach(async({request})=>{
   expect((await (await request.get('/api/health')).json()).databaseMode).toBe('test');
-  const {items}=await (await request.get('/api/items?kind=system')).json();
-  for(const item of items){
-    const current=(await (await request.get(`/api/items/${item.id}`)).json()).item;
-    const result=await request.delete(`/api/items/${item.id}`,{headers:{'X-Persona':'admin','Idempotency-Key':crypto.randomUUID()},data:{expectedVersion:current.version}});
-    expect(result.ok()).toBe(true);
-  }
+  // Each acceptance test owns its isolated records. Do not archive unrelated
+  // Systems or bypass their lifecycle just to obtain an empty list.
 });
 
-test('user creates their own hierarchy, navigates context, approves planning and updates a task',async({page})=>{
+test('user creates an active hierarchy, inherits its System repository and records a manual Task result',async({page})=>{
   const screenshotDir=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(screenshotDir,{recursive:true});
   await page.goto('/systems');
   await expect(page.getByRole('heading',{name:/^(Sistemas|Seu SDLC começa com um Sistema)$/,level:1})).toBeVisible();
@@ -26,8 +22,9 @@ test('user creates their own hierarchy, navigates context, approves planning and
     await form.getByRole('textbox',{name:/Nome ou título/}).fill(name);
     if(key){const input=form.getByRole('textbox',{name:/Sigla|Chave/});await input.fill(key);await expect(input).toHaveValue(key.toUpperCase());}
     await form.getByRole('textbox',{name:'Descrição',exact:true}).fill('Criado pelo usuário no ensaio isolado de navegação.');
-    const repository= form.getByRole('checkbox').first();
-    if(await repository.count())await repository.check();
+    await expect(form.getByRole('group',{name:'Repositórios envolvidos',exact:true})).toHaveCount(0);
+    await expect(form.getByRole('checkbox')).toHaveCount(0);
+    await expect(form.getByRole('combobox',{name:/Runtime|Repositório/i})).toHaveCount(0);
     await page.getByRole('button',{name:'Salvar',exact:true}).click();
     await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
     await expect(page.getByRole('combobox',{name:/Persona/})).toHaveValue('admin');
@@ -36,28 +33,35 @@ test('user creates their own hierarchy, navigates context, approves planning and
   await create('Sistema do ensaio',systemSigla.toLowerCase());
   const persistedSystem=await (await page.request.get(`/api/items/${new URL(page.url()).pathname.split('/')[2]}`)).json();
   expect(persistedSystem.item.key).toBe(systemSigla);
-  await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Componentes',exact:true}).click();
+  expect(persistedSystem.repositories).toHaveLength(1);
+  const systemRepository=persistedSystem.repositories[0];
+  expect(systemRepository.id).toBeTruthy();
+  expect(systemRepository.systemId).toBe(persistedSystem.item.id);
+  await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Repositório do Sistema',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Integração GitLab do Sistema',exact:true})).toBeVisible();
-  await expect(page.getByRole('region',{name:'Repositórios',exact:true})).toHaveCount(0);
-  // Isolated setup for the subsequent Project scope; Systems no longer expose
-  // repository management in their Components tab.
-  const component=await page.request.post(`/api/systems/${persistedSystem.item.id}/repositories`,{headers:{'X-Persona':'admin','Idempotency-Key':crypto.randomUUID()},data:{name:'Componente do ensaio',key:'API',runtime:'node',mode:'create'}});
-  expect(component.ok(),await component.text()).toBe(true);
-  await page.reload();
+  const repositories=page.getByRole('region',{name:'Repositório do Sistema',exact:true});
+  await expect(repositories).toBeVisible();
+  await expect(repositories.getByRole('heading',{name:'Repositório do Sistema',exact:true})).toBeVisible();
+  await expect(repositories).toContainText(systemRepository.name);
+  await expect(repositories.getByRole('button',{name:/Criar repositório|Vincular|Selecionar/})).toHaveCount(0);
+  await expect(repositories.getByRole('combobox',{name:/Runtime|Repositório/i})).toHaveCount(0);
+  await expect(repositories.getByRole('checkbox')).toHaveCount(0);
   await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Ambientes',exact:true}).click();
-  await expect(page.getByText('NOT DEPLOYED',{exact:true})).toHaveCount(3);
+  await expect(page.getByText('Sem evidência de implantação disponível.',{exact:true})).toHaveCount(4);
   await create('Projeto do ensaio','UXTEST');
-  await expect(page.locator('.page-heading .badge')).toContainText('AWAITING APPROVAL');
+  await expect(page.locator('.page-heading .badge')).toHaveText('ACTIVE');
+  await expect(page.getByRole('button',{name:'Aprovar projeto',exact:true})).toHaveCount(0);
   await expect(page.getByText('NOT DEPLOYED',{exact:true})).toHaveCount(0);
   await expect(page.getByRole('navigation',{name:'Seções de Projeto'}).getByRole('link',{name:'Componentes',exact:true})).toHaveCount(0);
   const projectScope=await (await page.request.get(`/api/items/${new URL(page.url()).pathname.split('/')[2]}`)).json();
+  expect(projectScope.item.status).toBe('active');
   expect(projectScope.item.projectLifecycle).toBe('active');
-  expect(projectScope.repositories.some((repository:{name:string})=>repository.name==='Componente do ensaio')).toBe(true);
-  await page.getByRole('button',{name:'Aprovar projeto',exact:true}).click();
-  await expect(page.locator('.page-heading .badge')).toContainText('APPROVED');
+  expect(projectScope.repositories.map((repository:{id:string})=>repository.id)).toEqual([systemRepository.id]);
   await create('Épico do ensaio');
-  await expect(page.locator('.page-heading .badge')).toHaveText('TO DO');
+  await expect(page.locator('.page-heading .badge')).toHaveText('ACTIVE');
   const epicUrl=page.url();
+  const epicScope=await (await page.request.get(`/api/items/${new URL(epicUrl).pathname.split('/')[2]}`)).json();
+  expect(epicScope.repositories.map((repository:{id:string})=>repository.id)).toEqual([systemRepository.id]);
   await page.getByRole('navigation',{name:'Localização'}).getByRole('link',{name:'Projeto: Projeto do ensaio',exact:true}).click();
   const epicLink=page.getByTestId('children-list').getByRole('link',{name:/Épico do ensaio/});
   await expect(epicLink).toBeVisible();
@@ -68,12 +72,22 @@ test('user creates their own hierarchy, navigates context, approves planning and
   await expect(page.getByRole('button',{name:'Aprovar épico',exact:true})).toHaveCount(0);
   await create('História do ensaio');
   const storyUrl=page.url();
+  const storyId=new URL(storyUrl).pathname.split('/')[2];
+  const storyDetail=await (await page.request.get(`/api/items/${storyId}`)).json();
+  expect(storyDetail.item.status).toBe('specification');
+  expect(storyDetail.repositories.map((repository:{id:string})=>repository.id)).toEqual([systemRepository.id]);
+  const pipelineTasks=storyDetail.children.filter((item:{kind:string})=>item.kind==='task');
+  expect(pipelineTasks.map((task:{name:string})=>task.name).sort()).toEqual(['Codificação','Teste','Revisão de Código','Revisão de Segurança','Teste Final','Merge de Código'].sort());
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();
+  await expect(page.getByTestId('story-process')).toBeVisible();
   await expect(page.getByRole('list',{name:'Ciclo da História'})).toBeVisible();
-  for(const status of ['CODE REVIEW','SECURITY SCAN','TESTING','UAT','PRODUCTION'])await expect(page.locator('.sw-cycle').getByText(status,{exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Ciclo da História',exact:true})).toHaveCount(0);
+  await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');
+  await expect(page.getByTestId('story-process').getByRole('button',{name:'Preparar especificação',exact:true})).toBeDisabled();
   await expect(page.getByTestId('story-journey-header').getByRole('status')).toHaveText('Aguardando início');
   await page.screenshot({path:join(screenshotDir,'story-desktop.png'),fullPage:true});
   await create('Tarefa do ensaio');
+  const taskId=new URL(page.url()).pathname.split('/')[2];
   await expect(page.getByRole('navigation',{name:'Localização'})).toContainText('História: História do ensaio');
   const taskPanel=await openWorkPanel(page);await taskPanel.getByRole('button',{name:'Planejamento',exact:true}).click();
   await taskPanel.getByRole('button',{name:'DOING',exact:true}).click();
@@ -82,9 +96,18 @@ test('user creates their own hierarchy, navigates context, approves planning and
   await openWorkPanel(page);
   await taskPanel.getByRole('button',{name:'Planejamento',exact:true}).click();
   await expect(taskPanel.getByRole('button',{name:'Planejamento',exact:true})).toHaveAttribute('aria-pressed','true');
-  await taskPanel.getByRole('button',{name:'DONE',exact:true}).click();
+  const done=taskPanel.getByRole('button',{name:'DONE',exact:true});
+  await expect(done).toBeDisabled();
+  const result='Tarefa adicional concluída com o resultado verificado no ensaio isolado.';
+  await taskPanel.getByRole('textbox',{name:/^Resultado do trabalho/}).fill(result);
+  await taskPanel.getByRole('textbox',{name:/^Evidências ou referências/}).fill('https://example.test/hierarchy/resultado');
+  await done.click();
   await page.getByRole('navigation',{name:'Seções de Tarefa'}).getByRole('link',{name:'Resumo',exact:true}).click();
   await expect(page.locator('.sw-section-heading .sw-badge')).toHaveText('DONE');
+  const completedTask=await (await page.request.get(`/api/items/${taskId}`)).json();
+  expect(completedTask.repositories.map((repository:{id:string})=>repository.id)).toEqual([systemRepository.id]);
+  expect(completedTask.item.data.taskResult.summary).toBe(result);
+  expect(completedTask.item.data.taskResult.evidence).toEqual(['https://example.test/hierarchy/resultado']);
   await page.getByRole('navigation',{name:'Localização'}).getByRole('link',{name:'História: História do ensaio'}).click();
   await expect(page).toHaveURL(storyUrl);
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:/^Tarefas/}).click();
@@ -97,7 +120,9 @@ test('user creates their own hierarchy, navigates context, approves planning and
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.screenshot({path:join(screenshotDir,'story-tablet.png'),fullPage:true});
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();
-  for(const status of ['CODE REVIEW','SECURITY SCAN','TESTING','UAT','PRODUCTION','COMPLETED'])expect(await page.locator('.sw-cycle').getByText(status,{exact:true}).isVisible()).toBe(true);
+  await expect(page.getByTestId('story-process')).toBeVisible();
+  await expect(page.getByRole('navigation',{name:'Detalhes da execução'})).toBeVisible();
+  await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');
   await page.reload();await expect(page.getByRole('heading',{name:'História do ensaio',exact:true})).toBeVisible();
   await createTask.focus();
   await expect(createTask).toBeFocused();
@@ -105,17 +130,32 @@ test('user creates their own hierarchy, navigates context, approves planning and
   await expect(page.getByRole('form',{name:'Formulário do item'})).toBeVisible();
   await page.getByRole('button',{name:'Cancelar',exact:true}).click();
   await page.setViewportSize({width:1440,height:1000});
-  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Mais',exact:true}).click();
-  await page.getByRole('navigation',{name:'Informações complementares'}).getByRole('link',{name:'Configuração',exact:true}).click();
-  await page.getByRole('button',{name:'Arquivar história',exact:true}).click();
+  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Configurações',exact:true}).click();
+  const archive=page.getByRole('button',{name:'Arquivar história',exact:true});
+  await expect(archive).toBeDisabled();
+  // Explicit terminal fixture through the real command in portal_test. Cancelling
+  // the open planning tasks must preserve the additional Task already DONE.
+  const currentStory=await (await page.request.get(`/api/items/${storyId}`)).json();
+  const cancelled=await page.request.post(`/api/items/${storyId}/cancel`,{headers:{'X-Persona':'admin','Idempotency-Key':crypto.randomUUID()},data:{expectedVersion:currentStory.item.version,comment:'Encerrar o planejamento criado apenas para validar a confirmação de arquivamento.'}});
+  expect(cancelled.ok(),await cancelled.text()).toBe(true);
+  const terminal=await (await page.request.get(`/api/items/${storyId}`)).json();
+  expect(terminal.item.status).toBe('cancelled');
+  expect(terminal.children.find((task:{id:string})=>task.id===taskId).status).toBe('done');
+  expect(terminal.children.find((task:{id:string})=>task.id===taskId).data.taskResult.summary).toBe(result);
+  expect(terminal.children.filter((task:{id:string})=>task.id!==taskId).map((task:{status:string})=>task.status)).toEqual(Array(6).fill('cancelled'));
+  await page.reload();
+  await expect(archive).toBeEnabled();
+  await archive.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('dialog').getByRole('button',{name:'Cancelar',exact:true})).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).not.toBeVisible();
+  expect((await (await page.request.get(`/api/items/${storyId}`)).json()).item.archived).toBe(false);
 });
 
 test('context tabs preserve an editing draft and real persona permissions; confirmations stay beside the breadcrumb',async({page})=>{
   const system={id:'navigation-ui-only',kind:'system',key:'NAV',name:'Contexto de navegação isolado',description:'Contexto original',status:'active',version:1,archived:false,parentId:null,data:{gitlabState:'not_configured'},createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  const repository={id:'navigation-repository-ui-only',systemId:system.id,key:'navigation',name:'Repositório automático do contexto',runtime:'node',gitlabProjectId:null,gitlabPath:null,gitlabUrl:null,state:'pending',message:null,version:1};
   let changes=0;
   await page.route(url=>url.pathname==='/api/items/navigation-ui-only',async route=>{
     if(route.request().method()==='PATCH'){
@@ -126,7 +166,7 @@ test('context tabs preserve an editing draft and real persona permissions; confi
       Object.assign(system,{name:body.name,description:body.description,version:2});
       return route.fulfill({json:{item:system}});
     }
-    return route.fulfill({json:{item:system,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]}});
+    return route.fulfill({json:{item:system,ancestors:[],children:[],repositories:[repository],availableRepositories:[repository],environments:[],history:[]}});
   });
   await page.goto('/systems/navigation-ui-only');
   const actions=page.getByRole('region',{name:'Situação e próxima ação'});
@@ -136,7 +176,7 @@ test('context tabs preserve an editing draft and real persona permissions; confi
   await page.getByTestId('edit-item').click();
   const form=page.getByRole('form',{name:'Formulário do item'});
   await form.getByRole('textbox',{name:/Nome ou título/}).fill('Nome preservado entre abas');
-  await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Componentes',exact:true}).click();
+  await page.getByRole('navigation',{name:'Seções de Sistema'}).getByRole('link',{name:'Repositório do Sistema',exact:true}).click();
   await expect(page).toHaveURL(/\?tab=components$/);
   await expect(form.getByRole('textbox',{name:/Nome ou título/})).toHaveValue('Nome preservado entre abas');
   await page.getByRole('combobox',{name:/Persona/}).selectOption('carla');

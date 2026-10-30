@@ -1,0 +1,41 @@
+{
+  "published": true,
+  "verifiedAt": "2026-10-28T00:31:08.568926+00:00",
+  "image": "sha256:41d7d081714b7c56e044c6acd5cbfed30e3eeeb56de1287afbb0f9fa6540c057",
+  "source": "3714a75cd4fe2536dece69d672d83717bef5ad445b992e36619e4694a1f957a9",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsApplied": [
+    "202610270004_release_composition_story_phase"
+  ],
+  "businessTablesPreservedDuringPublication": true,
+  "tablesChecked": 31,
+  "comparison": "Release.stage normalized to compositionStatus during schema rename",
+  "backupBeforeModelRevision": {
+    "backupId": "lab-domain-correction-20261027-1dda6208",
+    "bytes": 169725,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "backupBeforeCommandFix": {
+    "backupId": "lab-domain-correction-20261027-39047c42",
+    "bytes": 170027,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 146,
+    "pendingOperations": []
+  },
+  "validation": {
+    "applicationPassed": 110,
+    "browserPassed": 66,
+    "failures": 0
+  }
+}

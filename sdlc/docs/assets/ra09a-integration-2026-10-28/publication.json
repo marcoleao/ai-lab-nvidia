@@ -1,0 +1,34 @@
+{
+  "id": "ra09a-integration-ready-20261028-ffed364f",
+  "source": "773322f0ad5084efdfbf24f90cac3143f2d051137c2c91fb5655c6059a9e189a",
+  "candidateImage": "sha256:a03c0226818c98744338b0f2f0cef92290eb678af0754288f6bcc1d7ecb453cc",
+  "verifiedAt": "2026-10-28T22:41:28.113563+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280005_merge_integration_reference"
+  ],
+  "existingTablesChecked": 34,
+  "newTables": [
+    "MergeIntegrationReference"
+  ],
+  "tablesChecked": 35,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra09a-integration-ready-20261028-ffed364f",
+    "bytes": 204739,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 252,
+    "head": "3ba7a322ba8cd1156ce877536f675759a1efe59fa016c8d51739b9c00bedb2d9",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

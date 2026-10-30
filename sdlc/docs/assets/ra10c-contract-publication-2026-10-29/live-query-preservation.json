@@ -1,0 +1,20 @@
+{
+  "readOnly": true,
+  "tablesChecked": 41,
+  "allRowsPreserved": true,
+  "newBusinessRows": 0,
+  "sourceCounts": {
+    "ExecutionContractRequest": 0,
+    "ExecutionContractProposal": 0,
+    "ExecutionContractReview": 0,
+    "ExecutionContractPublication": 0
+  },
+  "volatileExclusions": {
+    "MergeOperation": [
+      "leaseId",
+      "leaseUntil",
+      "checkedAt",
+      "updatedAt"
+    ]
+  }
+}

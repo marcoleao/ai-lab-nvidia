@@ -1,0 +1,28 @@
+BEGIN;
+ALTER TABLE "ApplicationPreparation" DROP CONSTRAINT "ApplicationPreparation_templateVersion_check",DROP CONSTRAINT "ApplicationPreparation_files_check";
+ALTER TABLE "ApplicationPreparation" ADD CONSTRAINT "ApplicationPreparation_template_files_check" CHECK(jsonb_typeof(files)='array' AND ("templateVersion"='node24-react-starter-v1' AND jsonb_array_length(files)=9 OR "templateVersion"='node24-react-starter-v2' AND jsonb_array_length(files)=10));
+CREATE TABLE "DevelopmentTest" (
+ id TEXT PRIMARY KEY,"storyId" TEXT NOT NULL REFERENCES "Item"(id) ON DELETE RESTRICT,"taskId" TEXT NOT NULL REFERENCES "Item"(id) ON DELETE RESTRICT,"priorTaskStatus" TEXT NOT NULL,"systemId" TEXT NOT NULL REFERENCES "Item"(id) ON DELETE RESTRICT,"environmentId" TEXT NOT NULL REFERENCES "Environment"(id) ON DELETE RESTRICT,"executionId" TEXT NOT NULL REFERENCES "StoryExecution"(id) ON DELETE RESTRICT,"deploymentId" TEXT NOT NULL REFERENCES "DevelopmentDeployment"(id) ON DELETE RESTRICT,"buildId" TEXT NOT NULL,
+ "sourceSha" TEXT NOT NULL,"imageId" TEXT NOT NULL,"archiveDigest" TEXT NOT NULL,"suiteDigest" TEXT NOT NULL,"suiteScope" TEXT NOT NULL CHECK("suiteScope" IN ('technical','acceptance')),"scopeDigest" TEXT NOT NULL,"caseCount" INTEGER NOT NULL CHECK("caseCount" BETWEEN 1 AND 20),"casePlan" JSONB NOT NULL CHECK(jsonb_typeof("casePlan")='array'),"mutatesData" BOOLEAN NOT NULL,coverage JSONB NOT NULL CHECK(jsonb_typeof(coverage)='array'),"policyVersion" TEXT NOT NULL CHECK("policyVersion"='dev-http-v1'),number INTEGER NOT NULL,version INTEGER NOT NULL DEFAULT 1,state TEXT NOT NULL DEFAULT 'queued' CHECK(state IN ('queued','running','paused','blocked','failed','unknown','succeeded','cancelled')),message TEXT NOT NULL,"actorId" TEXT NOT NULL,"actorName" TEXT NOT NULL,reason TEXT NOT NULL,
+ "leaseId" TEXT,"leaseUntil" TIMESTAMP(3),"dispatchStartedAt" TIMESTAMP(3),"startedAt" TIMESTAMP(3),"finishedAt" TIMESTAMP(3),result TEXT CHECK(result IN ('passed','failed')),proof JSONB,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE("storyId",number),CHECK((result IS NULL AND proof IS NULL AND state<>'succeeded') OR (result IS NOT NULL AND proof IS NOT NULL AND "dispatchStartedAt" IS NOT NULL AND "finishedAt" IS NOT NULL AND jsonb_typeof(proof)='object' AND coalesce(proof->>'deploymentId'="deploymentId",false) AND coalesce(proof->>'sourceSha'="sourceSha",false) AND coalesce(proof->>'imageId'="imageId",false) AND coalesce(proof->>'suiteDigest'="suiteDigest",false) AND coalesce(proof->>'scope'="suiteScope",false) AND coalesce(jsonb_typeof(proof->'cases')='array',false) AND coalesce(jsonb_array_length(proof->'cases')="caseCount",false) AND (result='passed' AND state='succeeded' OR result='failed' AND state='failed')))
+);
+CREATE INDEX "DevelopmentTest_state_createdAt_idx" ON "DevelopmentTest"(state,"createdAt");CREATE INDEX "DevelopmentTest_environmentId_createdAt_idx" ON "DevelopmentTest"("environmentId","createdAt");
+CREATE UNIQUE INDEX "DevelopmentTest_one_pending_environment" ON "DevelopmentTest"("environmentId") WHERE state IN ('queued','running','paused','unknown');
+CREATE FUNCTION validate_development_test() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE deployment "DevelopmentDeployment";task "Item";
+BEGIN
+ IF TG_OP='INSERT' THEN
+  SELECT * INTO deployment FROM "DevelopmentDeployment" WHERE id=NEW."deploymentId";SELECT * INTO task FROM "Item" WHERE id=NEW."taskId";
+  IF NEW.state<>'queued' OR NEW.proof IS NOT NULL OR NEW.result IS NOT NULL OR NEW."dispatchStartedAt" IS NOT NULL OR deployment.id IS NULL OR deployment.state<>'succeeded' OR deployment."storyId"<>NEW."storyId" OR deployment."executionId"<>NEW."executionId" OR deployment."systemId"<>NEW."systemId" OR deployment."environmentId"<>NEW."environmentId" OR deployment."buildId"<>NEW."buildId" OR deployment."sourceSha"<>NEW."sourceSha" OR deployment."imageId"<>NEW."imageId" OR deployment."archiveDigest"<>NEW."archiveDigest" OR task.id IS NULL OR task.kind<>'task' OR task."parentId"<>NEW."storyId" OR task.archived OR task.data->>'pipelineStage' IS DISTINCT FROM 'test' OR NEW.number<>coalesce((SELECT max(number)+1 FROM "DevelopmentTest" WHERE "storyId"=NEW."storyId"),1) THEN RAISE EXCEPTION 'Exact deployment and planned Test Task required';END IF;
+  RETURN NEW;
+ END IF;
+ IF TG_OP<>'UPDATE' THEN RAISE EXCEPTION 'Retain DEV test evidence';END IF;
+ IF (to_jsonb(OLD)-ARRAY['state','version','message','leaseId','leaseUntil','dispatchStartedAt','startedAt','finishedAt','result','proof','updatedAt']::text[]) IS DISTINCT FROM (to_jsonb(NEW)-ARRAY['state','version','message','leaseId','leaseUntil','dispatchStartedAt','startedAt','finishedAt','result','proof','updatedAt']::text[]) OR NEW.version<>OLD.version+1 OR OLD."dispatchStartedAt" IS NOT NULL AND NEW."dispatchStartedAt" IS DISTINCT FROM OLD."dispatchStartedAt" OR OLD.result IS NOT NULL OR OLD.proof IS NOT NULL THEN RAISE EXCEPTION 'DEV test intent and completed evidence are immutable';END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER validate_development_test BEFORE INSERT OR UPDATE OR DELETE ON "DevelopmentTest" FOR EACH ROW EXECUTE FUNCTION validate_development_test();
+CREATE FUNCTION retain_development_tests() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Retain DEV test evidence';END $$;
+CREATE TRIGGER retain_development_tests BEFORE TRUNCATE ON "DevelopmentTest" FOR EACH STATEMENT EXECUTE FUNCTION retain_development_tests();
+DO $$ BEGIN IF EXISTS(SELECT 1 FROM pg_roles WHERE rolname='sdlc_portal_app') THEN GRANT SELECT,INSERT,UPDATE ON "DevelopmentTest" TO sdlc_portal_app;END IF;END $$;
+COMMIT;

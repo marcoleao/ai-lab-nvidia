@@ -1,0 +1,277 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T17:19:36.238Z",
+    "duration": 50370.938,
+    "expected": 42,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "releases",
+    "release-cancellation",
+    "release-reading",
+    "release-metrics",
+    "audit-history",
+    "release-compositions",
+    "planning-references",
+    "release-branch-plan"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "code-only drift blocks composition save until review and retains choices outside the changed reference",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release indicators inherit combined dashboard filters and hide the old scope while a new scope loads",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "a dashboard response without release measurements states the limitation without invented totals",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "persisted releases feed the dashboard with empty drafts and actual Project and participation scopes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 OPEN keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CLOSED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CANCELED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 mobile composition refresh failure preserves the last confirmed reading and never replaces it with a successful result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "unknown release state and destination stay unconfirmed, without OPEN or DEV fallback",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Releases shows DEV and the other System destinations separately from composition, including read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real compositionStatus counts and newest-first pages of twenty on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "quick views preserve applied scope and pending Project and Epic fields",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "refresh reviews changed selected Stories outside the filter and preserves choices on a read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "release list shortcuts preserve the applied System and pending System selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "an unavailable selected Story is reported and never silently removed on refresh",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

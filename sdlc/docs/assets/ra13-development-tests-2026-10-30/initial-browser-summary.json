@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-10-30T05:33:38.116Z",
+  "runtimeHash": "7ab1333ee3235ca6e10b68acabc01453a84bc0c53d972053e96c7ab5a50fc652",
+  "testHash": "9d0372fe244ec65419bacb0282d87df0db5839ed3b052ab200329c848b34922b",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 1394
+    },
+    {
+      "name": "browser",
+      "exitCode": 1,
+      "durationMs": 158532
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-30T05:33:40.742Z",
+      "duration": 157662.596,
+      "expected": 85,
+      "skipped": 0,
+      "unexpected": 4,
+      "flaky": 0
+    },
+    "total": 89,
+    "failed": [
+      {
+        "id": "UI-4adeb9c22ecc",
+        "file": "development-test.spec.ts",
+        "title": "DEV tests reconcile uncertain result without repeating data writes at 1440px"
+      },
+      {
+        "id": "UI-7311eac1467b",
+        "file": "development-test.spec.ts",
+        "title": "DEV tests lost acknowledgment recovers original identity across tabs persona and reload at 1440px"
+      },
+      {
+        "id": "UI-7f833f194472",
+        "file": "development-test.spec.ts",
+        "title": "DEV tests reconcile uncertain result without repeating data writes at 390px"
+      },
+      {
+        "id": "UI-ca4b69585318",
+        "file": "development-test.spec.ts",
+        "title": "DEV tests lost acknowledgment recovers original identity across tabs persona and reload at 390px"
+      }
+    ],
+    "errors": [],
+    "scope": "selected"
+  },
+  "finishedAt": "2026-10-30T05:36:06.577Z",
+  "sourceStable": true,
+  "ok": false
+}

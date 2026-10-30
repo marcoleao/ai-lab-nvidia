@@ -1,12 +1,36 @@
 {
-  "name": "sdlc-portal", "private": true, "type": "module",
+  "name": "sdlc-portal",
+  "private": true,
+  "type": "module",
   "packageManager": "pnpm@12.14.0",
   "scripts": {
-    "db:generate": "prisma generate", "db:setup": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:setup": "prisma migrate deploy",
     "dev": "node scripts/dev.mjs",
     "build": "pnpm db:generate && pnpm --filter @sdlc/api build && pnpm --filter @sdlc/web build",
-    "test": "node scripts/test-isolated.mjs", "audit:check": "node node_modules/vitest/vitest.mjs run tests/audit.test.ts tests/audit-guard.test.ts", "test:e2e": "playwright test", "typecheck": "pnpm --filter @sdlc/api build && pnpm --filter @sdlc/web typecheck"
+    "test": "node scripts/test-isolated.mjs",
+    "audit:check": "node node_modules/vitest/vitest.mjs run tests/audit.test.ts tests/audit-guard.test.ts",
+    "test:e2e": "playwright test",
+    "typecheck": "pnpm --filter @sdlc/api build && pnpm --filter @sdlc/web typecheck",
+    "regression:ci": "node scripts/regression.mjs ci",
+    "regression:catalog": "node scripts/regression.mjs catalog",
+    "regression:backend": "node scripts/regression.mjs backend",
+    "regression:browser": "node scripts/regression.mjs browser"
   },
-  "dependencies": {"@sdlc/shared":"workspace:*", "@sdlc/templates":"workspace:*", "@prisma/client": "7.10.1", "@prisma/adapter-pg": "7.10.1", "pg": "8.20.0"},
-  "devDependencies": {"prisma": "7.10.1", "typescript": "5.9.3", "tsx": "4.23.15", "vitest": "5.0.5", "@playwright/test": "1.64.1", "@types/node": "24.10.0", "@types/pg": "8.16.0"}
+  "dependencies": {
+    "@sdlc/shared": "workspace:*",
+    "@sdlc/templates": "workspace:*",
+    "@prisma/client": "7.10.1",
+    "@prisma/adapter-pg": "7.10.1",
+    "pg": "8.20.0"
+  },
+  "devDependencies": {
+    "prisma": "7.10.1",
+    "typescript": "5.9.3",
+    "tsx": "4.23.15",
+    "vitest": "5.0.5",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.10.0",
+    "@types/pg": "8.16.0"
+  }
 }

@@ -55,7 +55,7 @@ model Environment {
 }
 model Repository {
   id String @id @default(cuid())
-  systemId String
+  systemId String @unique
   system Item @relation(fields: [systemId], references: [id], onDelete: Restrict)
   key String
   name String
@@ -72,6 +72,7 @@ model Repository {
   updatedAt DateTime @updatedAt
   links ItemRepository[]
   environments Environment[]
+  branchPlanDecisions ReleaseBranchPlanDecision[]
   @@unique([systemId, key])
 }
 model ItemRepository {
@@ -127,6 +128,134 @@ model RequestKey {
   requestHash String
   result Json
   createdAt DateTime @default(now())
+}
+
+model ExecutionContractPublication {
+ id String @id @default(cuid())
+ systemId String
+ number Int
+ proposalId String
+ proposalNumber Int
+ reviewId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ branch String
+ targetBranch String
+ baseSha String
+ baseContentDigest String?
+ contextDigest String
+ content String
+ contentDigest String
+ reason String
+ actorId String
+ actorName String
+ state String @default("queued")
+ version Int @default(1)
+ message String
+ leaseId String?
+ leaseUntil DateTime?
+ commitWriteStartedAt DateTime?
+ mrWriteStartedAt DateTime?
+ commitSha String?
+ iid Int?
+ url String?
+ mrState String?
+ confirmedAt DateTime?
+ checkedAt DateTime?
+ resolvedAt DateTime?
+ resolvedById String?
+ resolvedByName String?
+ resolutionReason String?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([systemId,number])
+ @@index([state,leaseUntil])
+ @@index([systemId,createdAt,id])
+}
+
+model ExecutionContractIntegration {
+ id String @id @default(cuid())
+ publicationId String
+ systemId String
+ number Int
+ kind String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ sourceSha String
+ targetSha String
+ remoteToken String
+ reason String
+ actorId String
+ actorName String
+ state String @default("queued")
+ version Int @default(1)
+ message String
+ leaseId String?
+ leaseUntil DateTime?
+ writeStartedAt DateTime?
+ checkedAt DateTime?
+ confirmedAt DateTime?
+ integrationSha String?
+ mergedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([publicationId,number])
+ @@index([state,leaseUntil])
+}
+
+model ExecutionContractRequest {
+ id String @id @default(cuid())
+ turnId String @unique
+ systemId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ baseSha String
+ branch String
+ contextDigest String
+ context Json
+ expectedProposalId String?
+ actorId String
+ actorName String
+ createdAt DateTime @default(now())
+ @@index([systemId,createdAt,id])
+}
+model ExecutionContractProposal {
+ id String @id @default(cuid())
+ systemId String
+ number Int
+ requestId String? @unique
+ parentId String?
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ baseSha String
+ branch String
+ contextDigest String
+ content Json?
+ summary String
+ questions Json
+ pendingEntries Json
+ digest String
+ source String
+ actorId String
+ actorName String
+ createdAt DateTime @default(now())
+ @@unique([systemId,number])
+ @@index([systemId,createdAt,id])
+}
+model ExecutionContractReview {
+ id String @id @default(cuid())
+ proposalId String @unique
+ systemId String
+ contextDigest String
+ reason String
+ actorId String
+ actorName String
+ createdAt DateTime @default(now())
+ @@index([systemId,createdAt,id])
 }
 model Counter {
   scope String @id
@@ -223,6 +352,96 @@ model PlanRevision {
   @@id([proposalId,version])
 }
 
+model ApplicationPreparation {
+ id String @id @default(cuid())
+ parentId String?
+ systemId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ number Int
+ kind String
+ templateVersion String
+ contentDigest String
+ files Json
+ baseSha String
+ branch String
+ targetBranch String
+ remoteToken String?
+ buildBaseImageId String?
+ buildWriteStartedAt DateTime?
+ statusWriteStartedAt DateTime?
+ validationImageId String?
+ validationArchiveDigest String?
+ validationSize Int?
+ technicalTestPassed Boolean @default(false)
+ pipelineId Int?
+ statusId Int?
+ actorId String
+ actorName String
+ reason String
+ state String @default("queued")
+ version Int @default(1)
+ message String
+ leaseId String?
+ leaseUntil DateTime?
+ commitWriteStartedAt DateTime?
+ mrWriteStartedAt DateTime?
+ writeStartedAt DateTime?
+ commitSha String?
+ iid Int?
+ url String?
+ mrState String?
+ confirmedAt DateTime?
+ integrationSha String?
+ mergedAt DateTime?
+ resolvedAt DateTime?
+ resolvedById String?
+ resolvedByName String?
+ resolutionReason String?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([systemId,number])
+ @@index([state,createdAt])
+ @@index([parentId,number])
+}
+
+model DevelopmentBuild {
+ id String @id @default(cuid())
+ storyId String
+ systemId String
+ executionId String
+ integrationReferenceId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ number Int
+ sourceSha String
+ targetBranch String
+ contractDigest String
+ unitId String
+ baseImageId String
+ policyVersion String
+ reason String
+ actorId String
+ actorName String
+ state String @default("queued")
+ version Int @default(1)
+ message String
+ leaseId String?
+ leaseUntil DateTime?
+ dispatchStartedAt DateTime?
+ startedAt DateTime?
+ finishedAt DateTime?
+ imageId String?
+ archiveDigest String?
+ artifactSize Int?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([storyId,number])
+ @@index([state,createdAt])
+}
+
 model StoryExecution {
   id String @id @default(cuid())
   storyId String
@@ -304,12 +523,10 @@ model ExecutionMessage {
   @@unique([executionId,sequence])
 }
 
-enum ReleaseStage {
-  DRAFT
-  QA
-  HML
-  PRODUCTION
-  REJECTED
+enum ReleaseCompositionState {
+  OPEN
+  CLOSED
+  CANCELED
 }
 
 model MergeOperation {
@@ -340,12 +557,87 @@ model MergeOperation {
   @@index([state, checkedAt])
 }
 
+model MergeIntegrationReference {
+  id String @id @default(cuid())
+  operationId String @unique
+  executionId String
+  storyId String
+  repositoryId String
+  repositoryVersion Int
+  projectId Int
+  iid Int
+  sourceBranch String
+  targetBranch String
+  sourceSha String
+  mergeCommitSha String?
+  squashCommitSha String?
+  integrationSha String?
+  mergedAt DateTime?
+  mergedBy String?
+  policyVersion String
+  observedAt DateTime @default(now())
+  @@index([storyId, observedAt, id])
+}
+
+model MergeHistoryCloseOperation {
+  id String @id @default(cuid())
+  mergeOperationId String
+  executionId String
+  storyId String
+  projectId Int
+  iid Int
+  sourceBranch String
+  targetBranch String
+  sha String
+  remoteUpdatedAt String
+  contextDigest String
+  reason String
+  actorId String
+  actorName String
+  state String @default("queued")
+  version Int @default(1)
+  message String
+  leaseId String?
+  leaseUntil DateTime?
+  writeStartedAt DateTime?
+  reconcileOnly Boolean @default(false)
+  checkedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([mergeOperationId, createdAt, id])
+  @@index([state, leaseUntil])
+  @@index([storyId, state])
+}
+
+model MergeHistoryResolution {
+  id String @id @default(cuid())
+  operationId String @unique
+  executionId String
+  storyId String
+  repositoryId String
+  repositoryVersion Int
+  projectId Int
+  iid Int
+  sourceBranch String
+  targetBranch String
+  sourceSha String
+  observedState String
+  observedAt DateTime
+  decidedAt DateTime @default(now())
+  actorId String
+  actorName String
+  reason String
+  policyVersion String
+  @@index([storyId, decidedAt, id])
+}
+
 model MergeDiscussionTurn {
   id String @id @default(cuid())
   operationId String
   operation MergeOperation @relation(fields:[operationId],references:[id],onDelete:Restrict)
   sequence Int
   input String
+  specialist String @default("merge")
   output String?
   state String @default("queued")
   error String?
@@ -357,6 +649,27 @@ model MergeDiscussionTurn {
   updatedAt DateTime @updatedAt
   @@unique([operationId,sequence])
   @@index([state,createdAt])
+}
+
+// Authorizes only removal of Draft, never merge, deployment or task completion.
+model MergePreparation {
+  id String @id @default(cuid())
+  operationId String @unique
+  executionId String
+  storyId String
+  sha String
+  storyVersion Int
+  state String @default("queued")
+  actorId String
+  actorName String
+  message String?
+  leaseId String?
+  leaseUntil DateTime?
+  writeStartedAt DateTime?
+  reconcileOnly Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([state,updatedAt])
 }
 
 // Planning is independent from immutable candidate manifests and deployments.
@@ -462,15 +775,47 @@ model Release {
   systemId String
   systemKind ItemKind @default(system)
   system Item @relation("SystemReleases", fields: [systemId, systemKind], references: [id, kind], onDelete: Restrict)
-  stage ReleaseStage @default(DRAFT)
+  compositionStatus ReleaseCompositionState @default(OPEN)
+  flowEnvironment String? @default("DEV")
+  canceledAt DateTime?
+  canceledById String?
+  canceledByName String?
+  cancellationReason String?
   version Int @default(1)
   createdById String
   createdByName String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   stories ReleaseStory[]
+  compositionRevisions ReleaseCompositionRevision[]
+  branchPlanDecisions ReleaseBranchPlanDecision[]
   @@index([systemId, createdAt, id])
-  @@index([stage, createdAt, id])
+  @@index([compositionStatus, createdAt, id])
+}
+
+// Immutable complete compositions. ReleaseStory is the current planning link;
+// it is not the retained source of earlier or future frozen compositions.
+model ReleaseCompositionRevision {
+  id String @id @default(cuid())
+  releaseId String
+  release Release @relation(fields: [releaseId], references: [id], onDelete: Restrict)
+  branchPlanDecisions ReleaseBranchPlanDecision[]
+  number Int
+  releaseRecordVersion Int
+  compositionStatus ReleaseCompositionState
+  flowEnvironment String?
+  source String
+  storyCount Int
+  stories Json
+  digest String?
+  actorId String?
+  actorName String?
+  operationId String?
+  createdAt DateTime @default(now())
+  @@unique([releaseId, number])
+  @@index([releaseId, createdAt, id])
+  @@index([createdAt, id])
+  @@index([stories(ops: JsonbPathOps)], type: Gin)
 }
 
 model ReleaseStory {
@@ -484,4 +829,231 @@ model ReleaseStory {
   updatedAt DateTime @updatedAt
   @@unique([storyId, storyKind])
   @@index([releaseId])
+}
+
+// Local planning decisions are immutable. They are not branch executions or
+// evidence of production, code adoption, package content or development approval.
+model ReleaseBranchPreparation {
+ id String @id @default(cuid())
+ releaseId String
+ number Int
+ decisionId String
+ releaseRecordVersion Int
+ compositionRevisionId String
+ repositoryId String
+ repositoryRecordVersion Int
+ gitlabProjectId Int
+ branchName String
+ defaultBranch String
+ baseSha String
+ state String @default("queued")
+ message String
+ actorId String
+ actorName String
+ leaseId String?
+ leaseUntil DateTime?
+ writeStartedAt DateTime?
+ reconcileOnly Boolean @default(false)
+ observedSha String?
+ protectionReady Boolean @default(false)
+ confirmedAt DateTime?
+ checkedAt DateTime?
+ errorCode String?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([releaseId,number])
+ @@index([state,updatedAt])
+}
+
+model ReleaseBranchPlanDecision {
+ id String @id @default(cuid())
+ releaseId String
+ release Release @relation(fields:[releaseId],references:[id],onDelete:Restrict)
+ number Int
+ releaseRecordVersion Int
+ compositionRevisionId String
+ composition ReleaseCompositionRevision @relation(fields:[compositionRevisionId],references:[id],onDelete:Restrict)
+ compositionNumber Int
+ repositoryId String
+ repository Repository @relation(fields:[repositoryId],references:[id],onDelete:Restrict)
+ repositoryRecordVersion Int
+ gitlabProjectId Int
+ branchName String
+ defaultBranch String
+ defaultBranchSha String
+ observedBranchSha String?
+ baseSha String
+ scenario String
+ policyVersion String
+ policy Json
+ policyDigest String
+ contextDigest String
+ decisionDigest String
+ reason String
+ actorId String
+ actorName String
+ operationId String
+ observedAt DateTime
+ createdAt DateTime @default(now())
+ @@unique([releaseId,number])
+ @@index([releaseId,createdAt,id])
+}
+
+model EnvironmentTarget {
+ id String @id @default(cuid())
+ environmentId String @unique
+ systemId String
+ repositoryId String
+ operationId String @unique
+ unitId String
+ profile String
+ configDigest String
+ resourceId String
+ resourceName String
+ confirmedAt DateTime @default(now())
+}
+model EnvironmentOperation {
+ id String @id @default(cuid())
+ systemId String
+ environmentId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ number Int
+ kind String @default("prepare")
+ version Int @default(1)
+ state String @default("queued")
+ message String @default("")
+ actorId String
+ actorName String
+ reason String
+ sourceSha String
+ contractDigest String
+ unitId String
+ profile String
+ configDigest String
+ leaseId String?
+ leaseUntil DateTime?
+ dispatchStartedAt DateTime?
+ startedAt DateTime?
+ finishedAt DateTime?
+ proof Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([environmentId,number])
+ @@index([state,createdAt])
+}
+
+model StoryDevelopmentApproval {
+ id String @id @default(cuid())
+ storyId String
+ number Int
+ policyVersion String
+ referenceDigest String
+ specificationId String
+ executionId String
+ repositoryId String
+ repositoryVersion Int
+ sourceSha String
+ integrationReferenceId String
+ integrationSha String
+ buildId String
+ buildSourceSha String
+ imageId String
+ archiveDigest String
+ deploymentId String
+ testId String
+ suiteDigest String
+ reviewId String
+ securityId String
+ qualityPolicy String
+ actorId String
+ actorName String
+ reason String
+ createdAt DateTime @default(now())
+ @@unique([storyId,number])
+ @@index([storyId,createdAt])
+}
+
+model DevelopmentTest {
+ id String @id @default(cuid())
+ storyId String
+ taskId String
+ priorTaskStatus String
+ systemId String
+ environmentId String
+ executionId String
+ deploymentId String
+ buildId String
+ sourceSha String
+ imageId String
+ archiveDigest String
+ suiteDigest String
+ suiteScope String
+ scopeDigest String
+ caseCount Int
+ casePlan Json
+ mutatesData Boolean
+ coverage Json
+ policyVersion String
+ number Int
+ version Int @default(1)
+ state String @default("queued")
+ message String
+ actorId String
+ actorName String
+ reason String
+ leaseId String?
+ leaseUntil DateTime?
+ dispatchStartedAt DateTime?
+ startedAt DateTime?
+ finishedAt DateTime?
+ result String?
+ proof Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([storyId,number])
+ @@index([state,createdAt])
+ @@index([environmentId,createdAt])
+}
+
+model DevelopmentDeployment {
+ id String @id @default(cuid())
+ storyId String
+ executionId String
+ buildId String
+ systemId String
+ repositoryId String
+ repositoryVersion Int
+ projectId Int
+ environmentId String
+ targetId String?
+ preparationId String?
+ expectedDeploymentId String?
+ number Int
+ version Int @default(1)
+ state String @default("queued")
+ message String @default("")
+ actorId String
+ actorName String
+ reason String
+ sourceSha String
+ contractDigest String
+ unitId String
+ profile String
+ configDigest String
+ imageId String
+ archiveDigest String
+ artifactSize Int
+ leaseId String?
+ leaseUntil DateTime?
+ dispatchStartedAt DateTime?
+ startedAt DateTime?
+ finishedAt DateTime?
+ proof Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@unique([storyId,number])
+ @@index([state,createdAt])
+ @@index([environmentId,createdAt])
 }

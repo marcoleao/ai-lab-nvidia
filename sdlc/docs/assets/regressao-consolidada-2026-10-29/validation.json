@@ -1,0 +1,225 @@
+{
+    "version":  1,
+    "date":  "2026-10-29",
+    "scope":  "Complete registered Portal regression with deterministic external adapters; real pilot acceptance is separate",
+    "final":  {
+                  "run":  "20261029T173936Z-3bdf4e",
+                  "ok":  true,
+                  "sourceStable":  true,
+                  "startedAt":  "2026-10-29T17:39:44.964Z",
+                  "finishedAt":  "2026-10-29T17:53:46.791Z",
+                  "runtimeHash":  "2a052a616af6c6af74256014440386a10938bd83e73769fcc33e1ce307fe4a15",
+                  "testHash":  "7f32b5f6ef3b735f30f9129e329b18f42d2e4d225abeeccca4957c78799e9d1e",
+                  "phases":  [
+                                 {
+                                     "name":  "guards",
+                                     "exitCode":  0,
+                                     "durationMs":  885
+                                 },
+                                 {
+                                     "name":  "backend",
+                                     "exitCode":  0,
+                                     "durationMs":  219286
+                                 },
+                                 {
+                                     "name":  "build",
+                                     "exitCode":  0,
+                                     "durationMs":  13964
+                                 },
+                                 {
+                                     "name":  "case-registration",
+                                     "exitCode":  0,
+                                     "durationMs":  2376
+                                 },
+                                 {
+                                     "name":  "browser",
+                                     "exitCode":  0,
+                                     "durationMs":  660985
+                                 }
+                             ],
+                  "backend":  {
+                                  "files":  74,
+                                  "passed":  783,
+                                  "failed":  0,
+                                  "skipped":  4,
+                                  "notExecuted":  [
+                                                      {
+                                                          "file":  "gitlab-live.test.ts",
+                                                          "skipped":  2,
+                                                          "skipReason":  "Real GitLab integration requires explicitly isolated resources"
+                                                      },
+                                                      {
+                                                          "file":  "merge-live.test.ts",
+                                                          "skipped":  1,
+                                                          "skipReason":  "Real GitLab integration requires explicitly isolated resources"
+                                                      },
+                                                      {
+                                                          "file":  "quality-live.test.ts",
+                                                          "skipped":  1,
+                                                          "skipReason":  "Real GitLab integration requires explicitly isolated resources"
+                                                      }
+                                                  ]
+                              },
+                  "browser":  {
+                                  "files":  45,
+                                  "registered":  363,
+                                  "passed":  363,
+                                  "failed":  0,
+                                  "skipped":  0,
+                                  "flaky":  0
+                              },
+                  "environment":  {
+                                      "version":  1,
+                                      "operationId":  "c7df4f7b-89e7-4e9f-9480-d9d7049bc44a",
+                                      "resourceId":  "portal-v1-4c1c6a4df6-verify",
+                                      "scope":  "verify",
+                                      "runnerId":  "90e92ee11e6f010f8a8c67535f28f58efb2d0cd1a65e881fe7f6b660f5b11076",
+                                      "databaseId":  "93b9deb220ab3781b35be85fc97535d1c18eef4522b9dfeef9b3fbb41f5d118d",
+                                      "imageId":  "sha256:95ebb415588d8607b49043ebc8cb500536100b6534767ec324cf95f0157d9e15",
+                                      "postgresImageId":  "sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3",
+                                      "startedAt":  "2026-10-29T17:39:44.862251+00:00",
+                                      "command":  "full"
+                                  },
+                  "artifacts":  "portal/test-results/regression/20261029T173936Z-3bdf4e"
+              },
+    "supplementary":  {
+                          "nodeGuardsPassed":  4,
+                          "pythonControllerPassed":  3,
+                          "administrativeAuditPassed":  9,
+                          "relayPassed":  1,
+                          "pythonRun":  "support-final",
+                          "results":  {
+                                          "value":  [
+                                                        {
+                                                            "name":  "admin-audit",
+                                                            "exitCode":  0,
+                                                            "durationMs":  611
+                                                        },
+                                                        {
+                                                            "name":  "relay",
+                                                            "exitCode":  0,
+                                                            "durationMs":  1221
+                                                        },
+                                                        {
+                                                            "name":  "controller",
+                                                            "exitCode":  0,
+                                                            "durationMs":  156
+                                                        }
+                                                    ],
+                                          "Count":  3
+                                      },
+                          "note":  "Auxiliary Python contracts were executed separately after the final run had captured its source; the full controller now invokes this same helper. The production runtime source is unchanged by that follow-up."
+                      },
+    "initialBackend":  {
+                           "run":  "20261029T170044Z-1c9bd1",
+                           "passed":  781,
+                           "failed":  2,
+                           "skipped":  4,
+                           "failures":  [
+                                            {
+                                                "file":  "metrics.test.ts",
+                                                "failed":  1
+                                            },
+                                            {
+                                                "file":  "release-composition-migration.test.ts",
+                                                "failed":  1
+                                            }
+                                        ]
+                       },
+    "initialCompleteBrowser":  {
+                                   "run":  "20261029T171953Z-7b5249",
+                                   "passed":  359,
+                                   "failed":  4,
+                                   "failures":  [
+                                                    {
+                                                        "id":  "UI-782118101a98",
+                                                        "file":  "merge.spec.ts",
+                                                        "title":  "a blocked merge opens a contextual conversation, preserves it on reload and requires a separate merge confirmation"
+                                                    },
+                                                    {
+                                                        "id":  "UI-403203eba6e3",
+                                                        "file":  "merge.spec.ts",
+                                                        "title":  "merge has an explicit decision, pins SHA, reconciles uncertain submission and preserves Story status"
+                                                    },
+                                                    {
+                                                        "id":  "UI-1604f0a1018d",
+                                                        "file":  "quality.spec.ts",
+                                                        "title":  "quality phases precede merge, expose findings and require an explicit AI correction"
+                                                    },
+                                                    {
+                                                        "id":  "UI-c02efb48b020",
+                                                        "file":  "validation-retry.spec.ts",
+                                                        "title":  "legacy validation failure resumes technical correction without repeating user choices or G1"
+                                                    }
+                                                ]
+                               },
+    "warmReuse":  {
+                      "runs":  [
+                                   {
+                                       "run":  "20261029T171925Z-4e81c5",
+                                       "ok":  true,
+                                       "cases":  4,
+                                       "failed":  0,
+                                       "durationMs":  13232
+                                   },
+                                   {
+                                       "run":  "20261029T172048Z-9ac7c8",
+                                       "ok":  true,
+                                       "cases":  4,
+                                       "failed":  0,
+                                       "durationMs":  13721
+                                   },
+                                   {
+                                       "run":  "20261029T172243Z-0c8839",
+                                       "ok":  true,
+                                       "cases":  20,
+                                       "failed":  0,
+                                       "durationMs":  75570
+                                   },
+                                   {
+                                       "run":  "20261029T172421Z-e29d95",
+                                       "ok":  true,
+                                       "cases":  20,
+                                       "failed":  0,
+                                       "durationMs":  74423
+                                   },
+                                   {
+                                       "run":  "20261029T174257Z-d56584",
+                                       "ok":  true,
+                                       "cases":  4,
+                                       "failed":  0,
+                                       "durationMs":  13946
+                                   }
+                               ],
+                      "servicesObservedRepeatedly":  {
+                                                         "apiPid":  184,
+                                                         "webPid":  185,
+                                                         "runnerId":  "993b6ca90fb98c82934899aa1b5b2ad1e07663472439745f0949deb90f142d31"
+                                                     },
+                      "qualifiedFile":  "contract-publications.spec.ts",
+                      "fullFilePassedTwiceWithoutReset":  20
+                  },
+    "audit":  {
+                  "recorder":  "sdlc/scripts/audit_admin.py",
+                  "recordsAtFinalCheck":  34,
+                  "pendingOperations":  0,
+                  "epochId":  "7f58c90d-8dce-416c-bf3d-f7aab4bdec97",
+                  "head":  "e816c652089b68e26f7e2d42b574011f4892218f68288ad3bd4b660d21e24c86",
+                  "ledger":  "portal/test-results/regression/control/audit",
+                  "legacyNote":  "Initial harness runs before audit integration are not backfilled."
+              },
+    "operationalPortal":  {
+                              "imageId":  "sha256:3c37d24f1fc9ac69a1f10131a1d297b6a84303ebe2797d2ab5b92f00ba70c05e",
+                              "webStartedAt":  "2026-10-29T16:04:41.922832473Z",
+                              "apiStartedAt":  "2026-10-29T16:04:36.175692384Z",
+                              "checks":  "Image and startup timestamps checked read-only. No operational deployment or business database mutation was performed; no new business-row fingerprint claim."
+                          },
+    "limitations":  [
+                        "Remote CI workflow configured and YAML parsed; not executed remotely in this delivery.",
+                        "New toolchain Dockerfile is versioned; local validation reused the existing cache after checking the frozen dependency lock. A cold image build was not executed.",
+                        "No real GitLab/LLM/registry/deployment acceptance, QA/HML/PRD deployment or functional RA completion is claimed.",
+                        "Other repository CI jobs and complete assistive validation remain separate.",
+                        "Raw artifacts include prior failed/interrupted attempts; only the explicit final run is declared green.",
+                        "Conversation draft fixes are in source and validated; not published to the human portal in this consolidation."
+                    ]
+}

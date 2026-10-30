@@ -1,0 +1,112 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-29T12:31:54.511Z",
+    "duration": 48369.456999999995,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "globalErrors": [],
+  "suites": [
+    "composition-code-traceability"
+  ],
+  "specs": [
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "planned source and later integration remain distinct through keyboard, reload and Audit at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "partial and absent integration do not invent a commit or failure at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "historical trace keeps the exact execution when a new cycle changes planning and refresh fails at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "Story participation trace preserves an unsaved release choice across failure and Audit at 1440px",
+      "ok": false,
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "location": {
+            "file": "/app/tests/e2e/composition-code-traceability.spec.ts",
+            "column": 220,
+            "line": 39
+          },
+          "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Atualizar participações', exact: true })\u001b[22m\n\n\n  37 |   const f=await fixture(request);await page.setViewportSize({width,height:1000});await page.addInitScript(()=>sessionStorage.setItem('sdlc-persona','admin'));await page.goto(`/stories/${f.story.id}?tab=planning&process=delivery`);await page.getByRole('button',{name:'Alterar release',exact:true}).click();const choice=page.getByRole('combobox',{name:'Release planejada',exact:true});await choice.selectOption(f.b.id);const participation=page.locator('.release-compositions');await participation.locator('summary').first().click();await participation.locator('.composition-code-traceability>summary').click();await expect(participation).toContainText(f.run.id);await expect(participation).toContainText(merged);await expect(choice).toHaveValue(f.b.id);\n  38 |   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Auditoria',exact:true}).click();await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();await expect(choice).toHaveValue(f.b.id);\n> 39 |   await page.route('**/api/items/*/release-participations*',route=>route.fulfill({status:503,json:{error:{message:'Consulta indisponível.'}}}));await page.getByRole('button',{name:'Atualizar participações',exact:true}).click();await expect(participation).toContainText('Última leitura preservada');await expect(participation).toContainText(merged);await expect(choice).toHaveValue(f.b.id);await participation.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/code-trace-participation-${width}.png`});expect((await db.releaseStory.findUniqueOrThrow({where:{storyId:f.story.id}})).releaseId).toBe(f.a.id);\n     |                                                                                                                                                                                                                            ^\n  40 |  });\n  41 |  test(`member page two and independent query parameters survive reload at ${width}px`,async({page,request})=>{\n  42 |   const f=await fixture(request),members=(f.composition.stories as any[]);for(let n=0;n<20;n++){const row=await db.item.create({data:{kind:'story',parentId:f.epic.id,parentKind:'epic',key:randomUUID(),name:'Outra História '+n,status:'specification'}});members.push({...members[0],storyId:row.id,storyKey:row.key,storyName:row.name,execution:null});}\n    at /app/tests/e2e/composition-code-traceability.spec.ts:39:220"
+        }
+      ]
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "member page two and independent query parameters survive reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "delayed old revision response cannot replace a newly selected composition at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "planned source and later integration remain distinct through keyboard, reload and Audit at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "partial and absent integration do not invent a commit or failure at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "historical trace keeps the exact execution when a new cycle changes planning and refresh fails at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "Story participation trace preserves an unsaved release choice across failure and Audit at 390px",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/composition-code-traceability.spec.ts",
+            "column": 261,
+            "line": 38
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('combobox', { name: 'Release planejada', exact: true })\nExpected: \u001b[32m\"cmvtiwy3i003001qqe0unl808\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('combobox', { name: 'Release planejada', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Release planejada', exact: true })\u001b[22m\n\n\n  36 |  test(`Story participation trace preserves an unsaved release choice across failure and Audit at ${width}px`,async({page,request})=>{\n  37 |   const f=await fixture(request);await page.setViewportSize({width,height:1000});await page.addInitScript(()=>sessionStorage.setItem('sdlc-persona','admin'));await page.goto(`/stories/${f.story.id}?tab=planning&process=delivery`);await page.getByRole('button',{name:'Alterar release',exact:true}).click();const choice=page.getByRole('combobox',{name:'Release planejada',exact:true});await choice.selectOption(f.b.id);const participation=page.locator('.release-compositions');await participation.locator('summary').first().click();await participation.locator('.composition-code-traceability>summary').click();await expect(participation).toContainText(f.run.id);await expect(participation).toContainText(merged);await expect(choice).toHaveValue(f.b.id);\n> 38 |   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Auditoria',exact:true}).click();await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();await expect(choice).toHaveValue(f.b.id);\n     |                                                                                                                                                                                                                                                                     ^\n  39 |   await page.route('**/api/items/*/release-participations*',route=>route.fulfill({status:503,json:{error:{message:'Consulta indisponível.'}}}));await page.getByRole('button',{name:'Atualizar participações',exact:true}).click();await expect(participation).toContainText('Última leitura preservada');await expect(participation).toContainText(merged);await expect(choice).toHaveValue(f.b.id);await participation.scrollIntoViewIfNeeded();await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/code-trace-participation-${width}.png`});expect((await db.releaseStory.findUniqueOrThrow({where:{storyId:f.story.id}})).releaseId).toBe(f.a.id);\n  40 |  });\n  41 |  test(`member page two and independent query parameters survive reload at ${width}px`,async({page,request})=>{\n    at /app/tests/e2e/composition-code-traceability.spec.ts:38:261"
+        }
+      ]
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "member page two and independent query parameters survive reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "composition-code-traceability.spec.ts",
+      "title": "delayed old revision response cannot replace a newly selected composition at 390px",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

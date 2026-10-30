@@ -1,0 +1,37 @@
+{
+  "readOnly": true,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "counts": {
+    "DEV": 1,
+    "QA": 0,
+    "HML": 0,
+    "PRD": 0,
+    "unconfirmed": 0,
+    "total": 1
+  },
+  "globalCounts": {
+    "DEV": 1,
+    "QA": 0,
+    "HML": 0,
+    "PRD": 0,
+    "unconfirmed": 0,
+    "total": 1
+  },
+  "checks": [
+    {
+      "width": 1440,
+      "finalPanelOrder": true,
+      "integralTotalsMatchAPI": true,
+      "environmentRegistrationVisible": true,
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "finalPanelOrder": true,
+      "integralTotalsMatchAPI": true,
+      "environmentRegistrationVisible": true,
+      "pageOverflow": false
+    }
+  ]
+}

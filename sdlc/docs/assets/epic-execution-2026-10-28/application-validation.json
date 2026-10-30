@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "file": "epic-execution.test.ts",
+      "exitCode": 0,
+      "passed": 6
+    },
+    {
+      "file": "lifecycle-contract.test.ts",
+      "exitCode": 0,
+      "passed": 11
+    },
+    {
+      "file": "item-state-policy.test.ts",
+      "exitCode": 0,
+      "passed": 2
+    },
+    {
+      "file": "collections.test.ts",
+      "exitCode": 0,
+      "passed": 17
+    },
+    {
+      "file": "work-activities.test.ts",
+      "exitCode": 0,
+      "passed": 15
+    }
+  ]
+}

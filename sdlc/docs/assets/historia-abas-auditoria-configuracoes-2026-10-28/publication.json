@@ -1,0 +1,14 @@
+{
+  "id": "story-audit-settings-tabs-final-20261028-05dd9d2a",
+  "source": "aee6be4b799b4853f8845a15bf52b47f6e8d44e456eb94cb3eb904b79b9b4a66",
+  "candidateImage": "sha256:5bf7d7b2574ff3d00ad53500cc335187f3e05dc1298864958cd04e78715f3913",
+  "verifiedAt": "2026-10-28T15:15:08.158754+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ra04a-states-20261027-fd7bbbd8",
+  "candidateImage": "sha256:dc3c67e96509d30eeb1bb9f914d678205cc3ee025efe1d5c1c9e734b6c9040e4",
+  "source": "b111345658a5dcf4719e14881bc8a0c28e9edb53b871eb6a17da3e4aa7afbb9e",
+  "published": true,
+  "verifiedAt": "2026-10-28T02:05:08.230817+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "backupVerification": {
+    "backupId": "ra04a-states-20261027-fd7bbbd8",
+    "bytes": 170647,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "migration": "202610270005_release_open_closed_canceled",
+  "normalizedBusinessRowsPreserved": true,
+  "unchangedBusinessTables": 30,
+  "expectedReleaseMetadataChanges": [
+    "compositionStatus value names",
+    "flowEnvironment initial DEV for OPEN"
+  ],
+  "audit": {
+    "records": 154,
+    "head": "8c986170da73b6ab54bf9b04e7e8a769764a1c88e0c29c78d9254c466cbb6e1d",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

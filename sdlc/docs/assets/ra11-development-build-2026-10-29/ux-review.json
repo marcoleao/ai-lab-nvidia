@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "slice": "RA-11",
+  "reviewProfile": "UX and interface implementation review",
+  "decision": "approved_with_documented_limits",
+  "scope": "Generic Story DEV build UI; fixtures of a new courses application are isolated browser data. No VIDLOC data or application code was reused.",
+  "navigation": {
+    "entry": "Existing Story/Task Execution destination query: tab=planning&process=environment&environment=DEV",
+    "newTabs": false,
+    "existingShellPreserved": true,
+    "educationalDetails": "How DEV works is collapsed below the actual build action.",
+    "taskOwner": "Task view reads the owning Story ID, preserving the consulted attempt and existing navigation."
+  },
+  "behaviorReviewed": [
+    "Fixed integrated commit and contract digest in explicit confirmation; reason and checkbox required.",
+    "Queued request, execution, pause, blocker, failure, unknown result, cancellation and successful artifact are separate states.",
+    "Artifact confirmation does not claim deployment, tests or Development Finalized.",
+    "Known operation/artifact survives a later GET failure; new decisions stay blocked until fresh metadata.",
+    "Lost ACK preserves body/persona/idempotency key through tabs and reload; recovery banner remains reachable outside DEV.",
+    "Context or persona changes invalidate acceptance while preserving the written reason.",
+    "Resume/cancel retain the reviewed operation identity/version; cancellation is exposed only before dispatch.",
+    "Focus enters confirmation and explicit result; timer refresh does not direct focus.",
+    "Full SHAs and digests wrap; controls remain usable at 390px without document overflow in the primary flow."
+  ],
+  "verification": {
+    "initial": {
+      "run": "20261029T193509Z-81684c",
+      "passed": 20,
+      "failed": 0,
+      "note": "Same 20 unique cases before compacting the educational content and correcting screenshot position."
+    },
+    "final": {
+      "run": "20261029T194202Z-badab2",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "runtimeHash": "26b0ae9cd3be8452cd64a301913f284a657e43764908bcbfb98985d9347d393d",
+      "testHash": "d79920b18376e32d3a25ae99962a147f40b3436d07d1f3c7870d3a5487e86796",
+      "sourceStable": true,
+      "caseIds": [
+        "UI-440475964b0a",
+        "UI-b651b6c09ea6",
+        "UI-8748fe570c02",
+        "UI-ac068470a46c",
+        "UI-a209b24cf9ab",
+        "UI-fc20dd77d384",
+        "UI-0c2f471d808a",
+        "UI-27acfed7e6d6",
+        "UI-4d5575c4ccea",
+        "UI-68dd3dfd3739",
+        "UI-bab821d89102",
+        "UI-7cde18670527",
+        "UI-113ee0ce445d",
+        "UI-ce4afe8d1177",
+        "UI-d2ab9e321471",
+        "UI-090db0b64840",
+        "UI-c2a3a5cf08fc",
+        "UI-cb1adfa7f8e7",
+        "UI-2043dbc5bb6e",
+        "UI-94b1c93dee8f"
+      ]
+    },
+    "existingNavigationFollowUp": {
+      "run": "20261029T194128Z-4a7505",
+      "passed": 4,
+      "failed": 0,
+      "scope": "Existing DEV/QA navigation at both widths, historical Task destination and keyboard/release-draft preservation.",
+      "earlierFailedRun": "20261029T193851Z-dae06e",
+      "earlierPassed": 2,
+      "earlierFailed": 2,
+      "rawFailedReportPreserved": true,
+      "repair": "Visibility of the environment waits for its committed URL. Explicit selection of the current URL replaces pending navigation; focus waits for the URL. Existing test assertions were not changed."
+    },
+    "uniqueNewCases": 20,
+    "viewports": [
+      1440,
+      390
+    ],
+    "browser": "Headless Chromium through the shared regression controller",
+    "providers": "All API calls in development-build.spec.ts are intercepted; no operational provider/database calls.",
+    "screenshots": [
+      {
+        "file": "development-build-artifact-query-failure-1440.png",
+        "sha256": "63f669a82ce03a39c1a5141d287e7cd19a3110a91387afabbeb0ca877ccf6724",
+        "width": 1440
+      },
+      {
+        "file": "development-build-artifact-query-failure-390.png",
+        "sha256": "61f27d8826588a66627e16e07e1130462dd03aba51d681bc86d36a884ed07bc8",
+        "width": 390
+      },
+      {
+        "file": "development-build-blocked-1440.png",
+        "sha256": "7c0bd771b8560f5b809264c4ecc5fd51b46cfb20d8737f56b1099a512951ffe1",
+        "width": 1440
+      },
+      {
+        "file": "development-build-blocked-390.png",
+        "sha256": "296f379491ab7f62bf3827911e9062562e10d279d56673394af3b922c9709483",
+        "width": 390
+      },
+      {
+        "file": "development-build-confirmation-1440.png",
+        "sha256": "fdaf74d7ee605148c521547dd3300199c4e44fb9da6b9dbaf4dc5e715ce47cf5",
+        "width": 1440
+      },
+      {
+        "file": "development-build-confirmation-390.png",
+        "sha256": "0c8729a3c1b1da137be04c9ca1c9f2ec4abf81c134aca51017d4a34ca33a90cf",
+        "width": 390
+      },
+      {
+        "file": "development-build-queued-1440.png",
+        "sha256": "198a06eaf9a63ba7446ae2e88de92e9479a073e388b845571d1bfc03c9702cf1",
+        "width": 1440
+      },
+      {
+        "file": "development-build-queued-390.png",
+        "sha256": "5ee75119a31dc23da72d5093289d18fb05cdc4af015f36c0628766687c944043",
+        "width": 390
+      }
+    ]
+  },
+  "resolvedFindings": [
+    {
+      "finding": "The old DEV explanation pushed the newly actionable build content down, especially on mobile.",
+      "resolution": "Build first; educational content preserved inside How DEV works details. All 20 cases rerun."
+    },
+    {
+      "finding": "FullPage capture at the post-action scroll offset painted fixed header/skip-link in the middle of the exported image.",
+      "resolution": "Focus assertions remain before capture; screenshot helper blurs and scrolls to top before exporting. Eight final images inspected."
+    }
+  ],
+  "limitations": [
+    "This UX receipt does not attest a real application build, image, deployment, remote executor or production readiness. API/provider/live validation has separate evidence.",
+    "No complete screen-reader, native keyboard traversal, browser matrix or WCAG conformance certification. Focus and selected keyboard navigation have scoped assertions.",
+    "The Story lifecycle summary is intentionally absent in the intercepted fixture, so its preexisting unconfirmed-summary message is not evidence of a production lifecycle failure.",
+    "FullPage captures start at the top and do not certify fixed-header behavior at every scroll/zoom level.",
+    "The persistent build query is local current/last-artifact metadata, not a paginated archive of every build. Full history remains in Audit.",
+    "No remote CI run is claimed."
+  ],
+  "manualApproval": "pending-user-OK-RA-11"
+}

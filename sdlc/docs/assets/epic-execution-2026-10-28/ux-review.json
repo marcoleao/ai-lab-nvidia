@@ -1,0 +1,14 @@
+{
+  "reviewer": "ux_phase_visibility",
+  "scope": "Epic active journey execution tab",
+  "sourceAndEightCapturesApproved": true,
+  "materialBlockers": [],
+  "viewportFocusVerifiedSeparately": true,
+  "assistiveValidationComplete": false,
+  "notes": [
+    "Stories primary; cycle, resume and Project planning disclosed separately.",
+    "Reason aligned; real blockers and explicit confirmation visible.",
+    "Previous reading qualified; unknown outcome keeps original request.",
+    "Full-page sticky artifacts checked with actual mobile viewport/focus."
+  ]
+}

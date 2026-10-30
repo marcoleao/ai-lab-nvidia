@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "date": "2026-10-30T12:38:37.536996-03:00",
+  "scope": "UX review of the quality-diagnosis stop after exhausted technical corrections.",
+  "decision": "approved_with_documented_limits",
+  "frontendChangeRequired": false,
+  "reason": "The existing StoryWorkspace already uses the authoritative nextAction and routes respond_blocker to the existing contextual conversation. The domain rule and confirmed-decision marker belong to the API projection, not to duplicate browser counters.",
+  "sourceFilesChanged": [
+    "tests/e2e/validation-retry.spec.ts"
+  ],
+  "behaviorReviewed": [
+    "Polling replaces Retomar correção técnica with Responder impedimento without requiring reload.",
+    "The primary action opens the existing diagnostic conversation instead of sending another retry command.",
+    "No POST is issued while entering or leaving the diagnostic conversation. The existing filter and record version are preserved.",
+    "Returning to the current step does not restore the old retry action.",
+    "The diagnostic explanation remains visible; the conversation preserves the explicit decision and new Gateway requirement.",
+    "The adjacent legacy technical retry still recovers the same idempotent request without repeating user choices; explicit discussion/decision and new G1 flow also remains tested."
+  ],
+  "tests": {
+    "run": "20261030T153639Z-c01c6d",
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "newCases": 2,
+    "adjacentCases": 2,
+    "countByFile": {
+      "discussion.spec.ts": 1,
+      "validation-retry.spec.ts": 3
+    },
+    "sourceStable": true,
+    "runtimeHash": "cd10eb84527b373f00c6737f19b16026e0853335d34ac8f8ee72a43ac4e9ed95",
+    "testHash": "6a34a459a1d44331dd05e0ba9f74cac4d301c6584564c32e5d62821711c92316",
+    "catalogRun": "20261030T153524Z-19cf86",
+    "catalogCases": 565,
+    "catalogFiles": 54,
+    "qualification": "Isolated UI snapshots using simulated HTTP responses. This validates consuming the corrected projection and navigation behavior, not the backend counting rule or a real DEV publication."
+  },
+  "screenshots": [
+    {
+      "file": "quality-diagnosis-next-action-1440.png",
+      "width": 1440,
+      "reviewed": true,
+      "sha256": "f334494acd153c131187d864da87f90174b8e61cdb6022ef13321139f3685541"
+    },
+    {
+      "file": "quality-diagnosis-next-action-390.png",
+      "width": 390,
+      "reviewed": true,
+      "sha256": "b1ffeabccc466ff82e6b67debfb7251d3b0d1f675b6642cbc005cba5d929311e"
+    }
+  ],
+  "sourceHashes": {
+    "tests/e2e/validation-retry.spec.ts": "69b20cbfed19d1b29fa6fb2acf349698ec012a2de8e0bc7d7035a682099eadec",
+    "apps/web/app/story-workspace.tsx": "e7d060551065ec1e6a1c0d7eda4b740e0d38ac3569b00a3b4cca04f2878c9cb7",
+    "apps/web/app/execution-discussion.tsx": "d4dd683da981428ef7a71018fcc70f0c0503e899421f7a74d7efa8f693ef961a"
+  },
+  "limitations": [
+    "No generated application, business data or agent outcome was altered.",
+    "No backend/domain/gate or shared-browser mutation was performed by this UX task.",
+    "Publication and resumed real jewelry journey remain with the parent.",
+    "The new two browser cases must not be added to previous overlapping runs as if they were a full system regression."
+  ],
+  "publishedByThisTask": false,
+  "manualOK": false
+}

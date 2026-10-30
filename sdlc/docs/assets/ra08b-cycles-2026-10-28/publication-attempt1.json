@@ -1,0 +1,15 @@
+{
+  "outcome": "FAILED",
+  "rolledBack": true,
+  "reason": "Publication verifier searched for an API-provided label in the browser JavaScript bundle. Corrected to verify browser labels and API action separately.",
+  "source": "2a941c7fc2f5696710bfe3a826565a2d41614f1baf13eab3d03e1ce33299baa5",
+  "candidateImage": "sha256:40734ce4310406c2bea0820d64a49e6f8d62ec841dcebcdaff66d54382e987a9",
+  "migrationsPlanned": [],
+  "existingTablesPreserved": 34,
+  "rollbackHealth": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  }
+}

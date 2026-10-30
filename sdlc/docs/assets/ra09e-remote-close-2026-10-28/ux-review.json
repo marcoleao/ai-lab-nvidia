@@ -1,0 +1,24 @@
+{
+  "reviewer": "ux_ra09e",
+  "result": "approved",
+  "source": "c199aeabaa5c153541787ce33c57c0aa2e7f050d1945b37c22671bf5a5493442",
+  "image": "sha256:4d36e60134f81fd10f03949e7a772d37f7aaa928639a0a8bf8ac2b1d91115490",
+  "viewports": [1440, 390],
+  "screenshots": 10,
+  "materialBlockers": 0,
+  "scope": "Solicitação de fechamento remoto do MR histórico, execução, resultado incerto, impedimento e recuperação do mesmo pedido.",
+  "observations": [
+    "Recebimento local e resultado remoto permanecem distintos.",
+    "MR, execução, branches e SHA continuam visíveis após ACK e no recovery.",
+    "Motivo e confirmação são claros; ações cabem no celular.",
+    "Impedimento tem destaque vermelho e orientação para nova revisão; incerteza oferece consulta do mesmo job.",
+    "Versão do job preserva resultado mais recente diante de recibo antigo.",
+    "Fechamento confirmado conduz explicitamente à decisão local RA09d com motivo preservado."
+  ],
+  "limitations": [
+    "Alguns recortes não mostram o topo completo sob o cabeçalho fixo.",
+    "Qualificação de sinal superior a 45 segundos conferida na fonte, sem representação desse estado específico nas dez capturas.",
+    "Não constitui validação assistiva integral.",
+    "PUT em MR real não foi executado como demonstração."
+  ]
+}

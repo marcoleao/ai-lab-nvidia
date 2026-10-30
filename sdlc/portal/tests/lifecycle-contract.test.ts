@@ -1,3 +1,4 @@
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,describe,expect,test} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -27,13 +28,14 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('lifecycle contract through the 
   const db=database(process.env.TEST_DATABASE_URL!),runtime=createApp({db,demoMode:true});
   afterAll(async()=>{await runtime.app.close();await db.$disconnect();});
   const headers={'x-persona':'admin'};
+  let fixtureSequence=0;
   const post=(path:string,body:unknown,key=randomUUID())=>runtime.app.inject({method:'POST',url:'/api'+path,headers:{...headers,'idempotency-key':key},payload:body});
   async function create(kind:string,parentId?:string){
-    const token=randomUUID().replace(/[^a-f]/g,'').slice(0,4).toUpperCase().padEnd(4,'A');
+    const token=String(fixtureSequence++).padStart(4,'0').replace(/\d/g,digit=>String.fromCharCode(65+Number(digit)));
     const response=await post('/items',{kind,parentId,name:`Isolated ${kind}`,description:'Isolated contract scope',...(kind==='system'?{key:'LC'+token}:kind==='project'?{key:'PR'+token}:{} )});
     expect(response.statusCode,response.body).toBe(200);return response.json().item;
   }
-  async function fixture(){const system=await create('system'),project=await create('project',system.id),epic=await create('epic',project.id),story=await create('story',epic.id);const repo=await db.repository.create({data:{systemId:system.id,key:'isolated-'+randomUUID(),name:'Isolated repository without provider effects',runtime:'node',state:'ready'}});return {system,project,epic,story,repo};}
+  async function fixture(){const system=await create('system'),project=await create('project',system.id),epic=await create('epic',project.id),story=await create('story',epic.id);const repo=await repositoryFixture(db,{data:{systemId:system.id,key:'isolated-'+randomUUID(),name:'Isolated repository without provider effects',runtime:'node',state:'ready'}});return {system,project,epic,story,repo};}
   async function current(id:string){return db.item.findUniqueOrThrow({where:{id}});}
 
   test('manual creation has active groupers and six fixed pipeline tasks in the same idempotent operation',async()=>{

@@ -1,3 +1,5 @@
+import {reviewedGateBody} from './reviewed-gate';
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,beforeAll,expect,test} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -54,7 +56,7 @@ test('empty installation has no seeded business data and health never creates it
   expect(dashboard.weeks).toHaveLength(4);expect(dashboard.dora.every((m:{value:unknown})=>m.value===null)).toBe(true);
   expect(await db.item.count()).toBe(0);expect(await db.historyEvent.count()).toBe(0);
 });
-test('hierarchy creation has exact statuses, unique keys, history and three empty environments',async()=>{
+test('hierarchy creation has exact statuses, unique keys, history and four environment references',async()=>{
   root=await create('system',undefined,{key:'liveSt'});
   expect(root.key).toBe('LIVEST'); expect(root.data.code).toBe('LIVEST');
   expect((await db.item.findUniqueOrThrow({where:{id:root.id}})).key).toBe('LIVEST');
@@ -64,10 +66,11 @@ test('hierarchy creation has exact statuses, unique keys, history and three empt
   expect((await db.item.findUniqueOrThrow({where:{id:project.id}})).projectLifecycle).toBe('active');
   const detail=(await app.inject(`/api/items/${task.id}`)).json();
   expect(detail.ancestors.map((i:WorkItem)=>i.kind)).toEqual(['system','project','epic','story']);
-  expect(await db.environment.count()).toBe(0);
+  expect(await db.environment.count()).toBe(4);
   expect(project.data.gitlabState).toBeUndefined();
   expect(await db.provisioningJob.count({where:{itemId:project.id}})).toBe(0);
-  expect((await app.inject(`/api/items/${root.id}`)).json().history).toHaveLength(11);
+  const history=(await app.inject(`/api/items/${root.id}`)).json().history;
+  expect(history).toHaveLength(13);expect(history.filter((event:{action:string})=>event.action==='ENVIRONMENT_REFERENCES_REGISTERED')).toHaveLength(1);
   expect(await db.item.count({where:{parentId:story.id,kind:'task',data:{path:['creationOrigin'],equals:'pipeline'}}})).toBe(6);
 });
 test('hierarchy errors, whitespace, unknown fields and duplicate keys are rejected without side effects',async()=>{
@@ -136,19 +139,19 @@ test('history is append-only in PostgreSQL',async()=>{
   await expect(db.historyEvent.delete({where:{id:first.id}})).rejects.toThrow();
 });
 
-test('repositories belong to the system, can serve multiple projects, and scopes cannot cross systems',async()=>{
+test('one repository belongs to the System and is inherited by all projects without mutable child scopes',async()=>{
   const result=await post(`/systems/${root.id}/repositories`,{name:'Componente',key:'backend',runtime:'python',mode:'create'});
-  expect(result.statusCode,result.body).toBe(200);const repo=result.json().repository;
-  expect(await db.environment.count({where:{repositoryId:repo.id}})).toBe(3);
+  expect(result.statusCode,result.body).toBe(409);const repo=await db.repository.findUniqueOrThrow({where:{systemId:root.id}});
+  expect(await db.environment.count({where:{repositoryId:repo.id}})).toBe(4);
   const assign=async(itemId:string,repositoryIds:string[])=>app.inject({method:'PATCH',url:`/api/items/${itemId}/repositories`,headers:{...headers,'idempotency-key':randomUUID()},payload:{repositoryIds,expectedVersion:(await db.item.findUniqueOrThrow({where:{id:itemId}})).version}});
-  expect((await assign(project.id,[repo.id])).statusCode).toBe(200);
+  expect((await assign(project.id,[repo.id])).statusCode).toBe(409);
   const second=await create('project',root.id,{key:'SECOND',repositoryIds:[repo.id]});
   expect(await db.repository.count()).toBe(1);
   expect(await db.provisioningJob.count({where:{itemId:second.id}})).toBe(0);
-  expect((await assign(story.id,[repo.id])).statusCode).toBe(200);
-  expect((await assign(task.id,[repo.id])).statusCode).toBe(200);
+  expect((await assign(story.id,[repo.id])).statusCode).toBe(409);
+  expect((await assign(task.id,[repo.id])).statusCode).toBe(409);
   expect((await assign(project.id,[])).statusCode).toBe(409);
-  expect((await app.inject(`/api/items/${root.id}`)).json().environments).toHaveLength(3);
+  expect((await app.inject(`/api/items/${root.id}`)).json().environments).toHaveLength(4);
   expect((await app.inject(`/api/items/${project.id}`)).json().environments).toHaveLength(0);
   const foreign=await create('system',undefined,{key:'FOREIG'});
   const forbidden=await post('/items',{kind:'project',parentId:foreign.id,key:'NOSCOP',name:'Wrong scope',repositoryIds:[repo.id]});
@@ -158,11 +161,11 @@ test('repositories belong to the system, can serve multiple projects, and scopes
   await processJobs();expect((await db.repository.findUniqueOrThrow({where:{id:repo.id}})).state).toBe('not_configured');
 });
 
-test('linking an existing repository is read-only remotely and project closure preserves the product',async()=>{
+test('a second external repository cannot replace the inherited System destination and closure preserves the product',async()=>{
   let writes=0;
   const connected=createApp({db,demoMode:true,git:{health:async()=>true,ensureGroup:async()=>{writes++;throw Error('unexpected write');},ensureProject:async()=>{writes++;throw Error('unexpected write');},inspectProject:async id=>({id,path_with_namespace:'external/component',web_url:'http://gitlab/external/component'})}});
   const linked=await connected.app.inject({method:'POST',url:`/api/systems/${root.id}/repositories`,headers:{...headers,'idempotency-key':randomUUID()},payload:{name:'Existente',key:'existing',runtime:'node',mode:'link',gitlabProjectId:42}});
-  expect(linked.statusCode,linked.body).toBe(200);const repo=linked.json().repository;expect(repo.state).toBe('ready');expect(writes).toBe(0);
+  expect(linked.statusCode,linked.body).toBe(409);const repo=await db.repository.findUniqueOrThrow({where:{systemId:root.id}});expect(writes).toBe(0);
   let initiative=await create('project',root.id,{key:'CYCLES',repositoryIds:[repo.id]});
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version})).statusCode).toBe(409);
   expect((await post(`/items/${initiative.id}/approve`,{expectedVersion:initiative.version})).json().error.code).toBe('PLANNING_APPROVAL_REMOVED');
@@ -172,7 +175,7 @@ test('linking an existing repository is read-only remotely and project closure p
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'planned',expectedVersion:initiative.version,comment:'Nova iniciativa autorizada pelo usuário'})).statusCode).toBe(422);
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version})).statusCode).toBe(422);
   expect((await post(`/items/${initiative.id}/lifecycle`,{lifecycle:'active',expectedVersion:initiative.version,comment:'Nova iniciativa autorizada pelo usuário'})).statusCode).toBe(200);
-  expect(await db.repository.findUnique({where:{id:repo.id}})).not.toBeNull();expect(await db.environment.count({where:{repositoryId:repo.id}})).toBe(3);
+  expect(await db.repository.findUnique({where:{id:repo.id}})).not.toBeNull();expect(await db.environment.count({where:{repositoryId:repo.id}})).toBe(4);
   await connected.app.close();
 });
 test('archive cascades locally, blocks descendants and preserves audit history',async()=>{
@@ -191,7 +194,7 @@ test('archive cascades locally, blocks descendants and preserves audit history',
   expect(archivedTask.statusCode,archivedTask.body).toBe(200);
   expect(archivedTask.json().ancestors.map((item:WorkItem)=>item.id)).toEqual([root.id,project.id,epic.id,story.id]);
   expect(archivedTask.json().ancestors.every((item:WorkItem)=>item.archived)).toBe(true);
-  expect((await app.inject(`/api/items/${root.id}?includeArchived=true`)).json().environments).toHaveLength(6);
+  expect((await app.inject(`/api/items/${root.id}?includeArchived=true`)).json().environments).toHaveLength(4);
   expect(await db.historyEvent.count()).toBe(beforeRead);
   expect((await post(`/items/${root.id}/status?includeArchived=true`,{status:'inactive',expectedVersion:current.version+1})).statusCode).toBe(404);
   const afterRejected=await db.historyEvent.count();expect(afterRejected).toBe(beforeRead+1);
@@ -355,7 +358,7 @@ test('assistant completes a System interview in the selected Project exactly onc
 test('story execution requires G1, pins context and reconciles publication without regenerating code',async()=>{
   const system=await create('system',undefined,{key:'EXECST'}),initiative=await create('project',system.id,{key:'CODING'});
   const group=await create('epic',initiative.id);
-  const repository=await db.repository.create({data:{systemId:system.id,key:'CODING',name:'Fixture',runtime:'python',state:'ready',gitlabProjectId:987}});
+  const repository=await repositoryFixture(db,{data:{systemId:system.id,key:'CODING',name:'Fixture',runtime:'python',state:'ready',gitlabProjectId:987}});
   await db.itemRepository.create({data:{itemId:initiative.id,repositoryId:repository.id}});
   let work=await create('story',group.id,{repositoryIds:[repository.id]});
   let generations=0,publishCalls=0,failPublish=true,alwaysInvalid=false;
@@ -370,7 +373,7 @@ test('story execution requires G1, pins context and reconciles publication witho
     return {model:'fixture',content:JSON.stringify({requirements:'Resultado deve ser verificável.',architecture:'Uma função pura simples.',testCases:[{criterionIndex:0,description:'Verificar o retorno esperado.'}],risks:[]})};
   }}});
   work=await specify(runtime,work,'O resultado é verificável.');
-  const act=(url:string,payload:unknown,key=randomUUID(),persona='admin')=>runtime.app.inject({method:'POST',url:'/api'+url,headers:{'x-persona':persona,'idempotency-key':key},payload});
+  const act=async(url:string,payload:unknown,key=randomUUID(),persona='admin')=>runtime.app.inject({method:'POST',url:'/api'+url,headers:{'x-persona':persona,'idempotency-key':key},payload:await reviewedGateBody(runtime.app,url,payload,key)});
   const read=async()=>(await runtime.app.inject(`/api/items/${work.id}/execution`)).json().run;
   const key=randomUUID(),payload={expectedVersion:work.version};
   expect((await act(`/items/${work.id}/execution`,payload,randomUUID(),'carla')).statusCode).toBe(403);
@@ -402,7 +405,7 @@ test('story execution requires G1, pins context and reconciles publication witho
 test('execution impediment becomes a persistent discussion and confirmed capability requires a new G1',async()=>{
   const system=await create('system',undefined,{key:'DIALOG'}),project=await create('project',system.id,{key:'DECIDE'});
   const epic=await create('epic',project.id);
-  const repository=await db.repository.create({data:{systemId:system.id,key:'DIALOG',name:'Fixture',runtime:'node',state:'ready',gitlabProjectId:988}});
+  const repository=await repositoryFixture(db,{data:{systemId:system.id,key:'DIALOG',name:'Fixture',runtime:'node',state:'ready',gitlabProjectId:988}});
   await db.itemRepository.create({data:{itemId:project.id,repositoryId:repository.id}});
   let story=await create('story',epic.id,{repositoryIds:[repository.id]});
   let generations=0,discussions=0,specifications=0,published=false;
@@ -415,7 +418,7 @@ test('execution impediment becomes a persistent discussion and confirmed capabil
     return {model:'dialog-fixture',content:JSON.stringify(response)};
   }}});
   story=await specify(runtime,story,'Resultado definido pelo usuário.');
-  const act=(path:string,payload:unknown,key=randomUUID(),persona='admin')=>runtime.app.inject({method:'POST',url:'/api'+path,headers:{'x-persona':persona,'idempotency-key':key},payload});
+  const act=async(path:string,payload:unknown,key=randomUUID(),persona='admin')=>runtime.app.inject({method:'POST',url:'/api'+path,headers:{'x-persona':persona,'idempotency-key':key},payload:await reviewedGateBody(runtime.app,path,payload,key)});
   const read=async()=>(await runtime.app.inject(`/api/items/${story.id}/execution`)).json().run;
   const executionPrepared=await act(`/items/${story.id}/execution`,{expectedVersion:story.version});expect(executionPrepared.statusCode,executionPrepared.body).toBe(200);await runtime.processExecutionJobs();let run=await read();const approved=await act(`/executions/${run.id}/approve`,{expectedVersion:(await db.item.findUniqueOrThrow({where:{id:story.id}})).version});expect(approved.statusCode,approved.body).toBe(200);
   await runtime.processExecutionJobs();await runtime.processExecutionJobs();run=await read();expect(run.state).toBe('waiting_input');expect(run.error).toContain('ainda não autorizada');expect(published).toBe(false);
@@ -468,9 +471,7 @@ test('dashboard combines user, system and project scopes without leaking other w
 test('system activation is reversible, audited, authorized and preserves linked work and resources',async()=>{
   let system=await create('system',undefined,{key:'SITUAT'});
   const initiative=await create('project',system.id,{key:'KEEPER'});
-  const repositoryResponse=await post(`/systems/${system.id}/repositories`,{name:'Preserved component',key:'keep',runtime:'node',mode:'create'});
-  expect(repositoryResponse.statusCode,repositoryResponse.body).toBe(200);
-  const repository=repositoryResponse.json().repository;
+  const repository=await db.repository.findUniqueOrThrow({where:{systemId:system.id}});
   const environments=await db.environment.findMany({where:{repositoryId:repository.id},orderBy:{id:'asc'}});
   const projectBefore=await db.item.findUniqueOrThrow({where:{id:initiative.id}});
   const repositoryBefore=await db.repository.findUniqueOrThrow({where:{id:repository.id}});

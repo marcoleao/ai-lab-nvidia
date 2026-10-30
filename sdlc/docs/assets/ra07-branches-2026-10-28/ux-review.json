@@ -1,0 +1,16 @@
+{
+    "sourceAndCapturesApproved":  true,
+    "assistiveValidationComplete":  false,
+    "materialBlockers":  [
+
+                         ],
+    "reviewer":  "ux_phase_visibility",
+    "capturesReviewed":  10,
+    "notes":  [
+                  "Decisão local e execução remota distintas; confirmação com contexto, SHA e proteção.",
+                  "Viewport móvel da confirmação preserva contexto e botões visíveis.",
+                  "Recuperação da mesma operação e leitura anterior qualificadas.",
+                  "Métricas com total/semanas coerentes, datas/PARCIAL e amostras separadas.",
+                  "Dados simulados de captura restritos a portal_test; consulta de composições validada separadamente."
+              ]
+}

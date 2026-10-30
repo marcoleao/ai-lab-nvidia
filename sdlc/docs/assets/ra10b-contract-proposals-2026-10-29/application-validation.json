@@ -1,0 +1,39 @@
+{
+  "results": [
+    {
+      "file": "contract-proposals.test.ts",
+      "exitCode": 0,
+      "passed": 23
+    },
+    {
+      "file": "contract-proposal-provider.test.ts",
+      "exitCode": 0,
+      "passed": 4
+    },
+    {
+      "file": "execution-contract.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "execution-contract-provider.test.ts",
+      "exitCode": 0,
+      "passed": 35
+    },
+    {
+      "file": "lifecycle-contract.test.ts",
+      "exitCode": 0,
+      "passed": 11
+    },
+    {
+      "file": "conversation-scope.test.ts",
+      "exitCode": 0,
+      "passed": 13
+    },
+    {
+      "file": "assistant-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 3
+    }
+  ]
+}

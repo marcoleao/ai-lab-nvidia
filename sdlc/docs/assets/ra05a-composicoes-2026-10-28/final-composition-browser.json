@@ -1,0 +1,36 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T15:43:14.179Z",
+    "duration": 6974.204,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "release-compositions"
+  ],
+  "specs": [
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

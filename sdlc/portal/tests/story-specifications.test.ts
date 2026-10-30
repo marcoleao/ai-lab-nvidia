@@ -1,3 +1,5 @@
+import {reviewedGateBody} from './reviewed-gate';
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,afterEach,describe,expect,test,vi} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -37,13 +39,13 @@ describe.skipIf(!target)('manual and agent story specifications through the real
   const publish=options.publish??vi.fn(async()=>({sha:'b'.repeat(40),url:'http://isolated-gitlab/project/-/merge_requests/12'}));
   const git:GitProvider={health:async()=>true,ensureGroup:async()=>{throw Error('unused');},ensureProject:async()=>{throw Error('unused');},inspectProject:async()=>{throw Error('unused');},codeContext:async()=>({sha:'a'.repeat(40),targetBranch:'main',files:[]}),publishCode:publish};
   const runtime=createApp({db,demoMode:true,git,...(options.llm===false?{}:{llm:{model:'isolated',models:async()=>['isolated'],complete}})});runtimes.push(runtime);
-  const request=(method:'POST'|'PUT'|'PATCH',url:string,payload:unknown,key=randomUUID())=>runtime.app.inject({method,url:'/api'+url,headers:{'x-persona':'admin','idempotency-key':key},payload});
+  const request=async(method:'POST'|'PUT'|'PATCH',url:string,payload:unknown,key=randomUUID())=>runtime.app.inject({method,url:'/api'+url,headers:{'x-persona':'admin','idempotency-key':key},payload:await reviewedGateBody(runtime.app,url,payload,key)});
   const create=async(kind:string,parentId?:string,extra:Record<string,unknown>={})=>{
    const response=await request('POST','/items',{kind,parentId,name:'Especificação isolada '+kind,...extra});expect(response.statusCode,response.body).toBe(200);return response.json().item;
   };
   const key=(randomUUID().replace(/[^a-z]/gi,'')+'AAAAAA').slice(0,6).toUpperCase();
   const system=await create('system',undefined,{key});
-  const repository=await db.repository.create({data:{systemId:system.id,key:randomUUID(),name:'Componente isolado',runtime:'node',mode:'link',state:'ready',gitlabProjectId:Math.floor(Math.random()*100000000)+100}});
+  const repository=await repositoryFixture(db,{data:{systemId:system.id,key:randomUUID(),name:'Componente isolado',runtime:'node',mode:'link',state:'ready',gitlabProjectId:Math.floor(Math.random()*100000000)+100}});
   const project=await create('project',system.id,{key:randomUUID().slice(0,6).split('').map(char=>'ABCDEFGHIJKLMNOP'[parseInt(char,16)]).join(''),repositoryIds:[repository.id]});
   const epic=await create('epic',project.id),story=await create('story',epic.id,{repositoryIds:[repository.id]});
   const get=async()=>(await runtime.app.inject({method:'GET',url:`/api/items/${story.id}/specification`,headers:{'x-persona':'admin'}})).json();

@@ -1,0 +1,29 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "cancellationsExecuted": 0,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "releaseStatus": "OPEN",
+  "releaseVersion": 2,
+  "storyStatus": "merge_request",
+  "storyVersion": 18,
+  "checks": [
+    {
+      "width": 1440,
+      "rolesAndConfirmation": true,
+      "emptyReasonBlocksSubmit": true,
+      "backReturnsFocus": true,
+      "noEnvironmentPanelInDetail": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "rolesAndConfirmation": true,
+      "emptyReasonBlocksSubmit": true,
+      "backReturnsFocus": true,
+      "noEnvironmentPanelInDetail": true,
+      "overflow": false
+    }
+  ]
+}

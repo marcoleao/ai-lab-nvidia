@@ -1,0 +1,36 @@
+{
+    "result":  "approved",
+    "reviewer":  "/root/ux_ra10c",
+    "source":  "f42f148a51018e33eccf7a49dda7fe4f73182900fe74e37e90d9bc4022c7735a",
+    "image":  "sha256:3c37d24f1fc9ac69a1f10131a1d297b6a84303ebe2797d2ab5b92f00ba70c05e",
+    "reviewed":  "Current source and twelve desktop/mobile captures",
+    "widths":  [
+                   1440,
+                   390
+               ],
+    "captures":  [
+                     "confirm",
+                     "queued",
+                     "unknown",
+                     "partial",
+                     "confirmed",
+                     "confirmed-read-error"
+                 ],
+    "materialBlockers":  [
+
+                         ],
+    "findings":  [
+                     "Commit, MR and effective default-branch contract are distinct.",
+                     "Partial continuation confirms only the not-yet-started MR creation and preserves commit.",
+                     "Known results survive failed refresh; metadata uncertainty blocks new decisions independently.",
+                     "Focus uses post-render effects and current-tab fallback after terminal banner removal.",
+                     "Reason, persona, context and job-version guards have contextual guidance."
+                 ],
+    "limitations":  [
+                        "FullPage captures after scroll contain sticky-header/skip-link overlays on parts of the previous identity; new confirmation/result regions remain legible.",
+                        "Not all recovery-banner states are shown in captures; source and browser tests complement them.",
+                        "Complete assistive technology and native hardware keyboard validation not performed."
+                    ],
+    "copyCorrection":  "Old promise of future repository publication replaced with available MR submission and future default-branch integration.",
+    "backendRefinement":  "Added complete root/.sdlc tree proof after visual review; UI unchanged."
+}

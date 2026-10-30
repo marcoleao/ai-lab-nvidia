@@ -1,0 +1,7 @@
+{
+  "database": "portal_test",
+  "isolatedSchema": true,
+  "upAndDownPreservedRows": true,
+  "closedCompositionBlocksRollback": true,
+  "publicBusinessRecordsChanged": false
+}

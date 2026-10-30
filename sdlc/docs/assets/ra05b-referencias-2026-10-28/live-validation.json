@@ -1,0 +1,32 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "scopeAndReadingConsistent": true,
+      "administrativeVersionNotAStaleRule": true,
+      "oldReadingUnconfirmed": true,
+      "absentAndReviewFiltersSeparate": true,
+      "phase": "MERGE REQUEST",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "scopeAndReadingConsistent": true,
+      "administrativeVersionNotAStaleRule": true,
+      "oldReadingUnconfirmed": true,
+      "absentAndReviewFiltersSeparate": true,
+      "phase": "MERGE REQUEST",
+      "overflow": false
+    }
+  ],
+  "referenceState": "unconfirmed",
+  "releaseVersion": 2,
+  "storyVersion": 18,
+  "recordedStoryVersion": 17,
+  "existingUnassignedStories": 1,
+  "storyExcludedFromUnassigned": true
+}

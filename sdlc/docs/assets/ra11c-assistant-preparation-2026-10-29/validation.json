@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-11c",
+  "scope": "System conversation handoff to the existing application-preparation commands; current server metadata and model guidance, no model write tools or DEV provision/deployment.",
+  "backend": {
+    "run": "20261030T020447Z-f6f116",
+    "files": 8,
+    "passed": 83,
+    "failed": 0,
+    "skipped": 0,
+    "sourceStable": true
+  },
+  "browser": {
+    "confirmedUniqueCurrentRuntime": 59,
+    "newCases": 20,
+    "viewports": [
+      1440,
+      390
+    ],
+    "registeredTotal": 449,
+    "registeredFiles": 49,
+    "runs": [
+      {
+        "run": "20261030T020334Z-1c8241",
+        "total": 59,
+        "passed": 57,
+        "failed": 2,
+        "sourceStable": true,
+        "qualification": "Two exact-text assertions failed because the error paragraph also contained recovery guidance. Product rejected incomplete/foreign metadata. Raw failed report retained."
+      },
+      {
+        "run": "20261030T020652Z-66f856",
+        "total": 20,
+        "passed": 20,
+        "failed": 0,
+        "sourceStable": true,
+        "qualification": "After assertion correction only; runtime unchanged. All twenty new cases passed; overlay by stable case ID confirms the 59 unique cases on this runtime."
+      }
+    ],
+    "earlierRun": {
+      "run": "20261030T015910Z-67e64e",
+      "passed": 56,
+      "qualification": "Preliminary runtime before scoped primary-button contrast, sticky dialog header and metadata validation refinements. Not counted as final-runtime coverage."
+    }
+  },
+  "source": {
+    "runtimeHash": "64f113df779b7f16f48d248138d0d5405d3282ed1013ae8aeaaae768351748e1",
+    "testHash": "6aee230576e7a2b1270aa5d11faae8ca7d9144cd6df8510841f1d4e41c1065c3",
+    "preparedSource": "9c9fdc5cf404df66c9e2ce0e56db1cbaf84516c42122fa2920e09ff0f3647884",
+    "publishedImage": "sha256:b3a037f310e2b56faf30350ee5414d11400d50e7352db5ce837eb7f796cb065c",
+    "schemaChanged": false,
+    "newWriteCommand": false
+  },
+  "publication": {
+    "published": true,
+    "verifiedAt": "2026-10-30T02:11:11.938517+00:00",
+    "existingTablesChecked": 44,
+    "tablesChecked": 44,
+    "newTables": [],
+    "existingRowsUnchangedAfterReadOnlyChecks": true,
+    "migrations": [],
+    "normalization": "Only nullable ExecutionContractPublication resolution fields and volatile MergeOperation lease/read fields are excluded, as declared by the publication helper.",
+    "backup": {
+      "backupId": "ra11c-assistant-preparation-verified-20261029-4eaa3d48",
+      "bytes": 316230,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "administrativeAudit": {
+      "records": 350,
+      "head": "f5f6ad77243eadf8f403f7f614491a7934a8bd2d9c5d0f9a7bd381cd9dc17e38",
+      "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+      "pendingOperations": []
+    }
+  },
+  "liveReadOnly": {
+    "run": "ra11c-live-readonly-95841f1b",
+    "live-readonly.json": {
+      "ok": true,
+      "mode": "GET/HEAD-only",
+      "blockedWrites": 0,
+      "results": [
+        {
+          "width": 1440,
+          "currentSystemAction": true,
+          "existingPanelReused": true,
+          "localEntry": true,
+          "focusReturned": true,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "currentSystemAction": true,
+          "existingPanelReused": true,
+          "localEntry": true,
+          "focusReturned": true,
+          "overflow": false
+        }
+      ]
+    },
+    "runtime-readonly.json": {
+      "ok": true,
+      "mode": "read-only",
+      "uid": 1000,
+      "dockerSocketExposed": false,
+      "before": {
+        "preparations": 0,
+        "turns": 10,
+        "events": 161
+      },
+      "after": {
+        "preparations": 0,
+        "turns": 10,
+        "events": 161
+      },
+      "role": {
+        "role": "sdlc_portal_app",
+        "delete": false,
+        "update_audit": false
+      },
+      "systemAction": {
+        "kind": "application_preparation",
+        "systemId": "cmvtxl4ve000001payfklcdhw",
+        "systemVersion": 1,
+        "systemName": "Venda de Cursos On-line",
+        "configured": true,
+        "repositoryId": "cmvtxl4vw000201paeq076xfx",
+        "repositoryVersion": 1,
+        "repositoryReady": true,
+        "readOnly": false,
+        "blockers": [],
+        "operationId": null,
+        "operationState": null,
+        "mrState": null,
+        "resolved": false,
+        "asOf": "2026-10-30T02:14:41.374Z"
+      },
+      "viewerReadOnly": true,
+      "projectAction": null
+    }
+  },
+  "finalSmoke": {
+    "run": "20261030T020919Z-d4f73e",
+    "passed": 4,
+    "sourceStable": true,
+    "scope": "persistent automation-only environment"
+  },
+  "regressionAdministrativeAudit": {
+    "records": 192,
+    "head": "006cd1b9884ee129b1a96244e5b56c6cf4b4efc4b81a65a56d8509ba99af7708",
+    "epochId": "7f58c90d-8dce-416c-bf3d-f7aab4bdec97",
+    "pendingOperations": []
+  },
+  "environments": {
+    "fast": "running exclusively for automation",
+    "ui": "removed by owned-resource controller",
+    "verify": "removed by owned-resource controller"
+  },
+  "manualApproval": "pending-user-OK-RA-11c",
+  "limitations": [
+    "This is a directed regression: not all 449 browser cases or every backend file were rerun. Raw failures and preliminary-source runs remain in their reports.",
+    "Interface tests intercept external HTTP; guidance tests use a simulated language provider. No real-model inference or fresh real-GitLab write acceptance is claimed by this slice. The RA-11b real provider/executor receipt retains its original scope.",
+    "Published validation used GET/HEAD and SELECT only; it did not create conversations, preparation jobs, application files, deployments, approvals or agent results in the pilot.",
+    "The assistant guides a structured control; message text never authorizes an operation. DEV provisioning and deployment remain RA-12a/b/c.",
+    "UX receipt documents screenshot, fullPage and assistive-testing limits. No complete screen-reader certification or migration of all portal screens is claimed.",
+    "The first published UI probe used an exact link label without its displayed arrow and failed that assertion. The corrected read-only probe passed; no product source was changed for the correction."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "ra05b-references-final-20261028-2e077f04",
+  "source": "1e16d9f719daf5890170143f21f2e84443db5bcbe4c15118c0a139151070ab47",
+  "candidateImage": "sha256:02697bc1111bde1e67daf3f9eec69e8517ceb4be47ab9c60423b55f484fffb0c",
+  "verifiedAt": "2026-10-28T16:45:18.349124+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280002_story_planning_reference"
+  ],
+  "existingTablesChecked": 32,
+  "newTables": [],
+  "tablesChecked": 32,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra05b-references-final-20261028-2e077f04",
+    "bytes": 181387,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 194,
+    "head": "12b675c23b2ac122cb8f910a806b832a8dd18a7e5ae6fab722b4ee9f99674e09",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

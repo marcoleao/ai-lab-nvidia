@@ -1,0 +1,22 @@
+{
+  "scrollY": 1443,
+  "viewport": 1000,
+  "focused": "Confirmação da operação do Épico",
+  "confirmation": {
+    "top": 418.03125,
+    "bottom": 802.03125
+  },
+  "buttons": [
+    {
+      "label": "Confirmar inativação",
+      "top": 705.03125,
+      "bottom": 749.03125
+    },
+    {
+      "label": "Voltar sem alterar",
+      "top": 758.03125,
+      "bottom": 802.03125
+    }
+  ],
+  "skipLinkFocused": false
+}

@@ -1,0 +1,255 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T20:35:57.398Z",
+    "duration": 69062.147,
+    "expected": 36,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "suites": [
+    "release-branch-preparation",
+    "branch-plan-decisions",
+    "release-branch-plan",
+    "release-cancellation",
+    "release-compositions",
+    "audit-history",
+    "release-metrics"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/release-compositions.spec.ts",
+            "column": 360,
+            "line": 28
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.release-compositions')\nExpected substring: \u001b[32m\"27 registros\"\u001b[39m\nReceived string:    \u001b[31m\"Revisões da composiçãoRegistro da composição; não é candidata, pacote construído, aprovação ou implantação.Escopo: revisões registradas desta release · ordem: mais recentes primeiro · 16 registros na consulta confirmada.Atualizar revisõesAnterior1–16 de 16 resultados · Página 1 de 1PróximaRevisão da composição 27 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 27.Composição vigente da release.Consultar revisão 27Revisão da composição 26 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 26.Consultar revisão 26Revisão da composição 25 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 25.Consultar revisão 25Revisão da composição 24 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 24.Consultar revisão 24Revisão da composição 23 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 23.Consultar revisão 23Revisão da composição 22 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 22.Consultar revisão 22Revisão da composição 21 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 21.Consultar revisão 21Revisão da composição 20 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 20.Consultar revisão 20Revisão da composição 19 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 19.Consultar revisão 19Revisão da composição 18 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 18.Consultar revisão 18Revisão da composição 17 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 17.Consultar revisão 17Revisão da composição 16 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 16.Consultar revisão 16Revisão da composição 15 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 15.Consultar revisão 15Revisão da composição 14 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 14.Consultar revisão 14Revisão da composição 13 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 13.Consultar revisão 13Revisão da composição 12 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 12.Consultar revisão 12Anterior1–16 de 16 resultados · Página 1 de 1PróximaRevisão consultada · a composição vigente permanece acimaFechar consulta da revisãoRevisão da composição 2 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 2.Revisão anterior preservada. Consultar não altera o planejamento atual.Registro da composição; não é candidata, pacote construído, aprovação ou implantação.Anterior1–1 de 1 resultados · Página 1 de 1PróximaPLVKMS-KMBCMO-1 · Ensaio de composições storyVersão do cadastro da História no registro: 1. Especificação não capturada neste registro.Código registrado: referência não capturada.Consultar referências registradasEspecificação: não capturada · Execução: não capturadaEspecificação e código são referências independentes; não representam uma aprovação comum de desenvolvimento. Versão do cadastro não é revisão aprovada.Anterior1–1 de 1 resultados · Página 1 de 1Próxima\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" locator('.release-compositions') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.release-compositions')\u001b[22m\n\u001b[2m    13 × locator resolved to <details open=\"\" class=\"panel release-compositions\">…</details>\u001b[22m\n\u001b[2m       - unexpected value \"Revisões da composiçãoRegistro da composição; não é candidata, pacote construído, aprovação ou implantação.Escopo: revisões registradas desta release · ordem: mais recentes primeiro · 16 registros na consulta confirmada.Atualizar revisõesAnterior1–16 de 16 resultados · Página 1 de 1PróximaRevisão da composição 27 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 27.Composição vigente da release.Consultar revisão 27Revisão da composição 26 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 26.Consultar revisão 26Revisão da composição 25 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 25.Consultar revisão 25Revisão da composição 24 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 24.Consultar revisão 24Revisão da composição 23 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 23.Consultar revisão 23Revisão da composição 22 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 22.Consultar revisão 22Revisão da composição 21 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 21.Consultar revisão 21Revisão da composição 20 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 20.Consultar revisão 20Revisão da composição 19 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 19.Consultar revisão 19Revisão da composição 18 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 18.Consultar revisão 18Revisão da composição 17 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 17.Consultar revisão 17Revisão da composição 16 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 16.Consultar revisão 16Revisão da composição 15 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 15.Consultar revisão 15Revisão da composição 14 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 14.Consultar revisão 14Revisão da composição 13 · 0 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 13.Consultar revisão 13Revisão da composição 12 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 12.Consultar revisão 12Anterior1–16 de 16 resultados · Página 1 de 1PróximaRevisão consultada · a composição vigente permanece acimaFechar consulta da revisãoRevisão da composição 2 · 1 Histórias · 28/10/2026, 17:36Registrada por Admin. Estado no registro: OPEN. Versão do cadastro da release: 2.Revisão anterior preservada. Consultar não altera o planejamento atual.Registro da composição; não é candidata, pacote construído, aprovação ou implantação.Anterior1–1 de 1 resultados · Página 1 de 1PróximaPLVKMS-KMBCMO-1 · Ensaio de composições storyVersão do cadastro da História no registro: 1. Especificação não capturada neste registro.Código registrado: referência não capturada.Consultar referências registradasEspecificação: não capturada · Execução: não capturadaEspecificação e código são referências independentes; não representam uma aprovação comum de desenvolvimento. Versão do cadastro não é revisão aprovada.Anterior1–1 de 1 resultados · Página 1 de 1Próxima\"\u001b[22m\n\n\n  26 | test('composition revision pagination and member query preserve selected historical snapshot and the current composition',async({page,request})=>{\n  27 |  const f=await fixture(request);for(let n=0;n<12;n++){await f.attach(f.a.id);await f.attach(null);}\n> 28 |  await page.goto(`/releases/${f.a.id}?composition.revision=${encodeURIComponent(f.original.id)}&history.q=registro`);const collection=page.locator('.release-compositions'),selected=page.getByRole('region',{name:'Revisão da composição consultada'});await expect(selected.getByRole('link',{name:new RegExp(f.story.key)})).toBeVisible();await expect(collection).toContainText('27 registros');await collection.getByRole('navigation',{name:'Paginação de Revisões da composição',exact:true}).getByRole('button',{name:'Próxima',exact:true}).click();await expect(page).toHaveURL(/compositionRevisions.page=2/);await expect(collection).toContainText('Página 2 de 2');await expect(selected.getByRole('link',{name:new RegExp(f.story.key)})).toBeVisible();expect(new URL(page.url()).searchParams.get('history.q')).toBe('registro');await expect(page.locator('#release-stories')).toContainText('está vazia');await page.reload();await expect(collection).toContainText('Página 2 de 2');\n     |                                                                                                                                                                                                                                                                                                                                                                        ^\n  29 | });\n  30 |\n    at /app/tests/e2e/release-compositions.spec.ts:28:360"
+        }
+      ]
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release indicators inherit combined dashboard filters and hide the old scope while a new scope loads",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "a dashboard response without release measurements states the limitation without invented totals",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "persisted releases feed the dashboard with empty drafts and actual Project and participation scopes",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

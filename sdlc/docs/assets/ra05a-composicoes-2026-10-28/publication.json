@@ -1,0 +1,34 @@
+{
+  "id": "ra05a-compositions-20261028-1342e29e",
+  "source": "96ab607b4d53c6ff193012ea7d1dc2b5caefd3c91e6f9b11735e09857013347b",
+  "candidateImage": "sha256:da3a7808f9440b7acb4cd72b0c1cb8015734a86a9b86a464f99834d0ecdb6a63",
+  "verifiedAt": "2026-10-28T15:49:06.748707+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280001_release_composition_revisions"
+  ],
+  "existingTablesChecked": 31,
+  "newTables": [
+    "ReleaseCompositionRevision"
+  ],
+  "tablesChecked": 32,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra05a-compositions-20261028-1342e29e",
+    "bytes": 172850,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 188,
+    "head": "a4f08067a2e5049584a9a75f1b8057cc1e94b92190d885fd0374a5549608ab9d",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

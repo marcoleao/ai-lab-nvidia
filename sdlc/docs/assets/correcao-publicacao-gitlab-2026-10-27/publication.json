@@ -1,0 +1,96 @@
+{
+  "published": true,
+  "verifiedAt": "2026-10-27T12:55:59.571722+00:00",
+  "source": "ae00be6c8f95cc18e06482fc230b0de8309ee63e7e85117d7cf97c39267ff8bc",
+  "apiImage": "sha256:ccfb4b47b7769d3559a1d396943d9f2174bd411d9b7a86e5d208d8c7aa43649b",
+  "webImage": "sha256:5f693f72bad13bd34292be4833c4bd520cdf951e1fd0301a2c74a8d457e55937",
+  "webUnchanged": true,
+  "migrationsApplied": false,
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 30,
+  "preexistingRowsPreserved": true,
+  "volatileFieldsExcluded": {
+    "MergeOperation": [
+      "leaseId",
+      "leaseUntil",
+      "checkedAt",
+      "updatedAt"
+    ]
+  },
+  "exactTablesPreserved": false,
+  "backup": {
+    "backupId": "correction-publication-20261027-8d9c9d8f",
+    "bytes": 153398,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "administrativeAudit": {
+    "records": 92,
+    "head": "8142b526cff6db460e382c460630d014ac93d8063987bd18679d5ff0e85914f9",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  },
+  "applicationTests": {
+    "passed": 330,
+    "skipped": 4
+  },
+  "browserTests": {
+    "passed": 21
+  },
+  "livePreview": {
+    "readOnly": true,
+    "runId": "cmvpr9rig000201qsry08a5zu",
+    "expectedSha": "18a1ad89db0dca904890c7557b10e05363062803",
+    "proposed": {
+      "method": "POST",
+      "path": "/api/v4/projects/6/repository/commits",
+      "branch": "sdlc/story-cmvpr9rig000201qsry08a5zu",
+      "actions": [
+        {
+          "action": "update",
+          "path": "src/components/MovieForm.tsx",
+          "hasLastCommitGuard": true
+        },
+        {
+          "action": "update",
+          "path": "src/hooks/useAuth.ts",
+          "hasLastCommitGuard": true
+        },
+        {
+          "action": "update",
+          "path": "src/services/movieService.ts",
+          "hasLastCommitGuard": true
+        },
+        {
+          "action": "update",
+          "path": "src/pages/MovieList.tsx",
+          "hasLastCommitGuard": true
+        },
+        {
+          "action": "create",
+          "path": "src/pages/ReadOnlyMovieList.tsx",
+          "hasLastCommitGuard": false
+        },
+        {
+          "action": "create",
+          "path": "src/App.tsx",
+          "hasLastCommitGuard": false
+        }
+      ]
+    },
+    "metadataReads": 8,
+    "blockedWrites": 1,
+    "networkWritesSent": 0,
+    "executionUnchanged": true,
+    "counts": {
+      "update": 4,
+      "create": 2
+    }
+  }
+}

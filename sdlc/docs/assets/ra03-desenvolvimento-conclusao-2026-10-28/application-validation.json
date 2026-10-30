@@ -1,0 +1,52 @@
+{
+  "results": [
+    {
+      "file": "collections.test.ts",
+      "exitCode": 0,
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "journey.test.ts",
+      "exitCode": 0,
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "lifecycle-contract.test.ts",
+      "exitCode": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "release-reading.test.ts",
+      "exitCode": 0,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "story-delivery.test.ts",
+      "exitCode": 0,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "story-lifecycle-reading.test.ts",
+      "exitCode": 0,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

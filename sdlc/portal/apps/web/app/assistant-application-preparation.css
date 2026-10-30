@@ -1,0 +1,17 @@
+.assistant-application-dialog{width:min(920px,calc(100vw - 40px));max-width:calc(100vw - 40px);max-height:min(92dvh,1000px);padding:0;border:1px solid #ccdce8;border-radius:10px;color:var(--ink,#17334d);box-shadow:0 12px 50px #01216930;overflow:hidden}
+.assistant-application-dialog[open]{display:flex;flex-direction:column}
+.assistant-application-dialog::backdrop{background:#17334d66}
+.assistant-application-dialog>header{display:flex;flex-shrink:0;justify-content:space-between;align-items:flex-start;gap:16px;padding:18px 22px;border-bottom:1px solid var(--line);background:#fff}
+.assistant-application-dialog>header h2{font-size:20px;margin:0;line-height:1.4}.assistant-application-dialog>header p{font-size:13px;line-height:1.5;margin:5px 0 0;color:#526579}
+.assistant-application-dialog>header button{flex-shrink:0;font-size:12px;white-space:normal;min-height:40px}
+.assistant-application-dialog-body{padding:0 22px 22px;font-size:13px;line-height:1.6;min-width:0;min-height:0;overflow:auto;flex:1}
+.assistant-application-handoff{margin:16px 0}.assistant-application-availability{padding:10px 12px;border:1px solid #e6d5af;border-radius:6px;background:#fff9ed}
+.assistant-application-dialog .application-preparation{margin-top:16px;padding-top:16px}.assistant-application-dialog .application-preparation h3{font-size:17px}
+.assistant-application-dialog .application-preparation button{font-size:12px;white-space:normal}.assistant-application-dialog .application-preparation textarea{min-width:0}
+.assistant-system-action-recovery{flex-shrink:0;max-height:30%;overflow:auto}.assistant-system-action-recovery:empty{display:none}.assistant-system-action-recovery>.application-preparation-recovery{margin:10px 20px;font-size:12px}
+.assistant-system-action-trigger{max-width:100%;white-space:normal}
+.assistant-system-action-entry{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.assistant-system-action-entry>span{font-size:10px;color:#8c2727}
+.assistant-chat-toolbar nav .assistant-application-dialog button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #b8ccdc;background:#fff;color:#075c98;padding:8px 12px;min-height:40px;border-radius:5px}
+.assistant-chat-toolbar nav .assistant-application-dialog button.primary{background:#0076ce;border-color:#0076ce;color:#fff}
+.assistant-chat-toolbar nav .assistant-application-dialog button:disabled{opacity:.55}
+@media(max-width:600px){.assistant-application-dialog{width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);border-radius:8px}.assistant-application-dialog>header{padding:14px;gap:10px}.assistant-application-dialog>header h2{font-size:17px}.assistant-application-dialog>header button{max-width:130px}.assistant-application-dialog-body{padding:0 14px 18px}.assistant-application-dialog textarea{font-size:16px}.assistant-system-action-recovery>.application-preparation-recovery{margin:8px 12px}.assistant-chat-toolbar nav .assistant-system-action-trigger{font-size:11px}}

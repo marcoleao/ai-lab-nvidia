@@ -1,0 +1,32 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "explicitConfirmation": true,
+      "reasonEmpty": true,
+      "recordingDisabledWithoutPersonaAndReason": true,
+      "noAutomaticDecision": true,
+      "policyVisible": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "explicitConfirmation": true,
+      "reasonEmpty": true,
+      "recordingDisabledWithoutPersonaAndReason": true,
+      "noAutomaticDecision": true,
+      "policyVisible": true,
+      "overflow": false
+    }
+  ],
+  "releaseVersion": 2,
+  "storyVersion": 18,
+  "currentDecisionId": null,
+  "policyOffered": "release-branches-v1",
+  "policyApproved": false,
+  "productionBaseConfirmed": false
+}

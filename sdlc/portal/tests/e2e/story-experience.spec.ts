@@ -15,6 +15,7 @@ async function fixture(page:Page){
   if(request.method()!=='GET'){state.writes.push(path);return route.fulfill({status:409,json:{error:{message:'Este ensaio só permite consultas.'}}});}
   if(path==='/api/personas')return route.fulfill({json:{personas:[{id:'admin',name:'Administrador',role:'admin'}]}});
   if(path.endsWith('/journey'))return state.disconnected?route.fulfill({status:503,json:{error:{message:'Falha simulada de consulta.'}}}):route.fulfill({json:journey});
+  if(path.endsWith('/release'))return route.fulfill({json:{story:{...story,projectId:'ux-project',projectName:'Projeto exclusivo da fixture',epicId:'ux-epic',epicName:'Épico exclusivo da fixture'},assignment:null,system:{id:'ux-system',name:'Sistema exclusivo da fixture'},releases:[],truncated:false,totalChoices:0}});
   const selected=[story,...tasks].find(value=>path===`/api/items/${value.id}`);
   if(selected)return route.fulfill({json:{item:selected,ancestors:selected.kind==='task'?[story]:[],children:selected.kind==='story'?tasks:[],history:[],repositories:[],availableRepositories:[],environments:[]}});
   return route.fulfill({json:{}});

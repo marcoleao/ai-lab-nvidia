@@ -8,22 +8,22 @@
   <link rel="stylesheet" href="assets/historia-2026-10-26/prototipo.css">
   <script src="assets/historia-2026-10-26/prototipo.js" defer></script>
 </head>
-<body>
+<body class="portal-prototype">
   <a class="skip" href="#main">Pular para o conteúdo</a>
   <aside class="sidebar" aria-label="Navegação global">
-    <a class="brand" href="?scenario=g1&tab=tasks" aria-label="Portal SDLC, início do protótipo"><span class="brand-mark">S</span><span>Portal SDLC<small>DA IDEIA À ENTREGA</small></span></a>
+    <div class="brand">Dell Technologies<span>Portal SDLC</span></div>
     <button class="mobile-menu" data-action="global-menu" aria-haspopup="dialog" aria-label="Abrir menu de navegação global"><span aria-hidden="true">☰</span> Menu</button>
     <nav aria-label="Principal">
-      <a href="#overview" data-destination="Visão geral"><span aria-hidden="true">◫</span>Visão geral</a>
-      <a href="#assistant" data-destination="Assistente"><span aria-hidden="true">✧</span>Assistente</a>
-      <a class="selected" href="?view=system" data-view="system" aria-current="page"><span aria-hidden="true">▤</span>Sistemas</a>
-      <a href="#releases" data-destination="Releases"><span aria-hidden="true">◇</span>Releases</a>
-      <a href="#integrations" data-destination="Integrações"><span aria-hidden="true">⌘</span>Integrações</a>
+      <a href="#overview" data-destination="Visão geral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-8H9v8H4a1 1 0 0 1-1-1Z"/></svg>Visão geral</a>
+      <a href="#assistant" data-destination="Assistente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5a8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z"/></svg>Assistente</a>
+      <a class="selected" href="?view=system" data-view="system" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 6v5M6 11h12M6 11v5M18 11v5"/><rect x="8" y="2" width="8" height="4" rx="1"/><rect x="2" y="16" width="8" height="5" rx="1"/><rect x="14" y="16" width="8" height="5" rx="1"/></svg>Sistemas</a>
+      <a href="#releases" data-destination="Releases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5Zm-9 5v10l9 5 9-5V8M12 13v10"/></svg>Releases</a>
+      <a href="#integrations" data-destination="Integrações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m16 3-4 4M21 8l-4 4M9 7l8 8M7 9l-3 3a4 4 0 0 0 0 6l2 2a4 4 0 0 0 6 0l3-3M3 21l3-3"/></svg>Integrações</a>
     </nav>
-    <div class="sidebar-foot"><span class="lab-dot"></span>LAB · revisão de experiência<small>História → Tarefas → Evidências</small></div>
+    <p class="sidebar-note">Da ideia à entrega.<br>Um processo, contexto completo.</p>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span>Sistemas <span class="topbar-divider">/</span> Gestão da história</span><div class="persona"><span class="avatar" aria-hidden="true">MP</span><span>Marina Pereira<small>Persona PO · demonstração</small></span></div></header>
+    <header class="topbar"><span>Planejamento e entrega</span><label class="persona"><span>Modo demo local · Persona</span><select id="persona" aria-label="Persona"><option value="">Selecione para atuar</option><option value="ana" selected>Ana · Product Owner</option><option value="bruno">Bruno · Arquiteto</option><option value="carla">Carla · QA Lead</option><option value="diego">Diego · Security Lead</option><option value="elisa">Elisa · Release Manager</option><option value="admin">Admin · Administrador</option></select></label></header>
     <section class="prototype-bar" aria-label="Controles do protótipo">
       <div><span class="prototype-label">PROTÓTIPO</span><p>Navegação proposta <span>· dados fictícios isolados</span></p></div>
       <label>Cenário <select id="scenario" aria-label="Cenário da história"></select></label>
@@ -31,7 +31,7 @@
       <button class="text-button" data-action="guide">Como explorar <span aria-hidden="true">↗</span></button>
     </section>
     <main id="main" tabindex="-1"></main>
-    <footer>Protótipo para revisão · 26/10/2026 · As interações alteram somente esta demonstração no navegador. Nenhum agente ou integração é acionado.</footer>
+    <footer class="prototype-footer"><span>Protótipo para revisão · 26/10/2026 · Dados fictícios isolados.</span><button class="text-button" data-action="flow-explore">Explorar situações</button></footer>
   </div>
   <div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="toast" class="toast" role="status" hidden></div>

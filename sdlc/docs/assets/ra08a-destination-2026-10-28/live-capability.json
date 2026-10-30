@@ -1,0 +1,9 @@
+{
+  "readOnly": true,
+  "providerMethod": "developmentDestination",
+  "projectId": 6,
+  "sha": "121384d5b07e12837018e62ae1ca71eb9f8752c7",
+  "targetBranch": "main",
+  "filesRead": false,
+  "remoteWrites": false
+}

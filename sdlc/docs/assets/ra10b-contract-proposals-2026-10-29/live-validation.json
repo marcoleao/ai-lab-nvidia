@@ -1,0 +1,33 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "readOnly": true,
+      "contextConfirmed": true,
+      "emptyProposalSource": true,
+      "overflow": false,
+      "filterPreserved": true
+    },
+    {
+      "width": 390,
+      "readOnly": true,
+      "contextConfirmed": true,
+      "emptyProposalSource": true,
+      "overflow": false,
+      "filterPreserved": true
+    }
+  ],
+  "systemVersion": 1,
+  "storyVersion": 18,
+  "state": "missing",
+  "sourceSha": "121384d5b07e12837018e62ae1ca71eb9f8752c7",
+  "currentProposal": null,
+  "latestRequest": null,
+  "executionAvailable": false,
+  "tooling": "not_evaluated",
+  "llmInvoked": false
+}

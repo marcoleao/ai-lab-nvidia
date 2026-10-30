@@ -1,0 +1,141 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T19:36:43.127Z",
+    "duration": 20513.953,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "epic-execution",
+    "planning-lifecycle",
+    "hierarchy",
+    "audit-history"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic lost acknowledgement replays original body and persona after reload without another status event",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic resumes only after its own confirmation and reports queued work without claiming execution",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "user creates an active hierarchy, inherits its System repository and records a manual Task result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "hierarchy.spec.ts",
+      "title": "context tabs preserve an editing draft and real persona permissions; confirmations stay beside the breadcrumb",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "System planning preserves roles, loading, conflict recovery, audit headers and current versions",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project groups work with four lifecycle states, no approval and explicit self-reactivation",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project reopening requires justification, preserves it after failure and disables edits for readonly roles",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic starts ACTIVE without a planning gate and exposes explicit Project planning",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic transitions confirm explicitly and preserve versions and reason after definite rejection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic explains inactive ancestor and blocks mutations",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic explains completed ancestor and blocks mutations",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

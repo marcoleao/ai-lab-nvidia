@@ -1,0 +1,224 @@
+{
+  "realIntegrations": false,
+  "apiIntercepted": true,
+  "stats": {
+    "startTime": "2026-10-27T15:03:46.303Z",
+    "duration": 40886.769,
+    "expected": 41,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "story-workspace",
+    "story-flow"
+  ],
+  "specs": [
+    {
+      "file": "story-flow.spec.ts",
+      "title": "História preserva shell, cinco abas e entrada em Tarefas; Execução concentra a decisão",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway usa confirmação inline com foco e preserva o comando, corpo e autoria originais",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "mudança de versão durante a confirmação exige revisar a decisão nova",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "editar mantém formulário e rascunho centrais, sem decisão concorrente ou escrita ao cancelar",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "queued mostra a situação observada sem botão fictício de continuar",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "running mostra a situação observada sem botão fictício de continuar",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "persona de consulta e tentativa histórica não liberam aprovação por caminhos secundários",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway permanece no shell e acessível por teclado em celular e altura reduzida",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Componentes legado consulta o repositório herdado sem escolhas e conserva filtros e retorno pelo Sistema",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "mais de um repositório legado permanece consultável sem escolha automática ou mutação",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "pedido incerto permite consultar o repositório herdado e retornar antes de reconciliar a intenção original",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "confirmação incerta reconcilia a mesma intenção após recarga sem repetir o efeito",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "nome Gateway não reescreve conteúdo de plano registrado pelo agente",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "acervo conserva o estado registrado e o destino em consulta sem ações operacionais",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "pendência de repositório conserva a razão do backend e leva ao Sistema com retorno ao recorte da História",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Projeto e Tarefa consultam o mesmo repositório do Sistema sem escopo ou seleção próprios",
+      "ok": true
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Ana solicita a criação única e neutra no Sistema ativo; consulta e inatividade não permitem criar",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task editing uses a central mobile form and unique header actions, and Cancel restores its prior central process section",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Task edit preserves its draft across tabs, permission changes and a rejected save before confirming the versioned PATCH",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task edit acknowledgement retries the original PATCH identity without applying the update twice",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story creates a Task in the central form with one Save and Cancel in the header and preserves a cancelled draft across tabs",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task creation acknowledgement keeps its draft and retries the same idempotency identity",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Story editing retains a rejected draft across persona and tab changes and can be confirmed from the header",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story remains macro and task drill down keeps phase and one place for interaction",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 1440px without commands",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 390px without commands",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and SECURITY SCAN without changing lifecycle",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and TESTING without changing lifecycle",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and CANCELLED without changing lifecycle",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "the Specification Gateway requires review and confirmation, and an uncertain G1 request reuses its identity after reload",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "historical evidence and other tasks cannot execute the current review",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost correction confirmation can be reconciled with its original identity after the current task changes",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "processing distinguishes screen connection, executor heartbeat and last real tool event",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "planned work binding has explicit scope and a completion criterion without silently completing tasks",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "existing results remain readable without creating artificial process tasks",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a binding draft keeps its original concurrency token until the user reviews a newer selection",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a newer assistant conversation never replaces the canonical blocked merge attempt",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "manual task status updates preserve the active central planning section from DOING through DONE",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "refreshing the same item preserves edit and binding drafts and the interaction section",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "desktop and mobile keep both Story and Task processes central without any interaction sidebar",
+      "ok": true
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "legacy Task interaction URLs normalize to central process views and survive reload without writes",
+      "ok": true
+    }
+  ],
+  "errors": []
+}

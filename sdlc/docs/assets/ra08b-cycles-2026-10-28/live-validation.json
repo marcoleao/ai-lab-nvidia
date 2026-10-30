@@ -1,0 +1,26 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "cycleOffered": true,
+      "enabled": true,
+      "confirmationOnly": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "cycleOffered": true,
+      "enabled": true,
+      "confirmationOnly": true,
+      "overflow": false
+    }
+  ],
+  "storyVersion": 18,
+  "releaseVersion": 2,
+  "executionId": "cmvpr9rig000201qsry08a5zu",
+  "realCycleStarted": false
+}

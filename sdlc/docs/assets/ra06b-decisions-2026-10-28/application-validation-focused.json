@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "file": "branch-plan-decisions.test.ts",
+      "exitCode": 0,
+      "passed": 16
+    },
+    {
+      "file": "release-branch-plan.test.ts",
+      "exitCode": 0,
+      "passed": 5
+    }
+  ]
+}

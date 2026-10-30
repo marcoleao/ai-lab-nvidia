@@ -1,0 +1,52 @@
+{
+  "readOnly": true,
+  "writesAttempted": 0,
+  "pageErrors": [],
+  "checks": [
+    {
+      "width": 1440,
+      "tab": "activity",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    },
+    {
+      "width": 1440,
+      "tab": "manage",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    },
+    {
+      "width": 1440,
+      "tab": "more",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    },
+    {
+      "width": 390,
+      "tab": "activity",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    },
+    {
+      "width": 390,
+      "tab": "manage",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    },
+    {
+      "width": 390,
+      "tab": "more",
+      "activeTabVisible": true,
+      "historyAndSettingsSeparate": true,
+      "keyboardReloadBackAndQueryPreserved": true
+    }
+  ],
+  "taskNavigationPreserved": true,
+  "storyStatus": "merge_request",
+  "storyVersion": 18
+}

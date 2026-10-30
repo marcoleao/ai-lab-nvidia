@@ -91,7 +91,7 @@ export async function dashboard(db:Database,now=new Date(),filters:DashboardFilt
         {key:'approvals',label:'Aprovações de planejamento e gates',value:count(['PLANNING_APPROVED','GATE_APPROVED']),unit:'count'},
         {key:'loops',label:'Loops de retrabalho e retomadas',value:count(['EXECUTION_RETRIED','PATCH_VALIDATION_REJECTED','EXECUTION_DECISION_CONFIRMED','QUALITY_CORRECTION_REQUESTED']),unit:'count'},
         {key:'executions',label:'Execuções solicitadas',value:count(['EXECUTION_REQUESTED']),unit:'count'},
-        {key:'failures',label:'Falhas registradas',value:count(['EXECUTION_FAILED','EXECUTION_LEASE_EXPIRED','ASSISTANT_TURN_FAILED','GITLAB_PROVISIONING_FAILED','REPOSITORY_PROVISIONING_FAILED','MERGE_DISCUSSION_FAILED','QUALITY_CHECK_FAILED']),unit:'count'},
+        {key:'failures',label:'Falhas registradas',value:count(['EXECUTION_FAILED','EXECUTION_LEASE_EXPIRED','ASSISTANT_TURN_FAILED','EXECUTION_CONTRACT_PROPOSAL_FAILED','GITLAB_PROVISIONING_FAILED','REPOSITORY_PROVISIONING_FAILED','MERGE_DISCUSSION_FAILED','QUALITY_CHECK_FAILED']),unit:'count'},
         {key:'discussionMessages',label:'Mensagens humanas sobre impedimentos',value:count(['EXECUTION_DISCUSSION_SENT','MERGE_DISCUSSION_SENT']),unit:'count'},
         {key:'mergeRequests',label:'Merge Requests publicados',value:count(['CODE_PUBLISHED']),unit:'count'},
         {key:'completedItems',label:'Conclusões de itens',value:own.filter(e=>{const p=e.payload as Record<string,unknown>;return(e.action==='STATUS_CHANGED'&&['done','completed'].includes(String(p.to)))||(e.action==='PROJECT_LIFECYCLE_CHANGED'&&p.to==='completed');}).length,unit:'count'},

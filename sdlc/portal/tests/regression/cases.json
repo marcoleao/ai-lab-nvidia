@@ -1,0 +1,3979 @@
+{
+  "version": 1,
+  "runtimeHash": "00a069bccd6f3631daa2e883bc84a4f80dcbd453314391acaac651a1036dfbea",
+  "testHash": "9fff6ce487279547e7315d04af22029b645c35316f9ca92b584e50bf7192aa95",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "cases": [
+    {
+      "id": "UI-31b2f2e81e75",
+      "file": "application-preparation.spec.ts",
+      "title": "application preparation previews all nine files and requests only a reviewed change at 1440px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e97f1043929c",
+      "file": "application-preparation.spec.ts",
+      "title": "application Draft release and integration remain separate decisions at 1440px",
+      "line": 63,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e400f2eb6c0e",
+      "file": "application-preparation.spec.ts",
+      "title": "application lost acceptance replays the original request across Audit reload and personas at 1440px",
+      "line": 64,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-db2bb8c2faca",
+      "file": "application-preparation.spec.ts",
+      "title": "application changed source refuses confirmation and preserves its reason at 1440px",
+      "line": 65,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1b1e904ad1da",
+      "file": "application-preparation.spec.ts",
+      "title": "application persona changes invalidate acceptance and read-only role cannot confirm at 1440px",
+      "line": 66,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-72c1a5706c0d",
+      "file": "application-preparation.spec.ts",
+      "title": "application integration proof survives a later canonical read failure at 1440px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6546b7d3f236",
+      "file": "application-preparation.spec.ts",
+      "title": "application existing-code conflict blocks preparation without hiding the nine-file preview at 1440px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0dabca9c0b92",
+      "file": "application-preparation.spec.ts",
+      "title": "application local resolution preserves uncertain intent and remote facts at 1440px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f14669bdc816",
+      "file": "application-preparation.spec.ts",
+      "title": "application reconciliation observes the same publish operation without another intent at 1440px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8c95ab8b5826",
+      "file": "application-preparation.spec.ts",
+      "title": "application paused intent resumes explicitly and cancels only before dispatch at 1440px",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-41dafa480838",
+      "file": "application-preparation.spec.ts",
+      "title": "application partial publication continues only unopened MR and preserves its known commit at 1440px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0a665da7f6a8",
+      "file": "application-preparation.spec.ts",
+      "title": "application wrong-System reading and preview cannot authorize a write at 1440px",
+      "line": 77,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0672926eb9ff",
+      "file": "application-preparation.spec.ts",
+      "title": "application preparation previews all nine files and requests only a reviewed change at 390px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d2ea64b33e23",
+      "file": "application-preparation.spec.ts",
+      "title": "application Draft release and integration remain separate decisions at 390px",
+      "line": 63,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-37e56194f199",
+      "file": "application-preparation.spec.ts",
+      "title": "application lost acceptance replays the original request across Audit reload and personas at 390px",
+      "line": 64,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-79d0917da5e8",
+      "file": "application-preparation.spec.ts",
+      "title": "application changed source refuses confirmation and preserves its reason at 390px",
+      "line": 65,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e0e64c40542f",
+      "file": "application-preparation.spec.ts",
+      "title": "application persona changes invalidate acceptance and read-only role cannot confirm at 390px",
+      "line": 66,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e542e33901b9",
+      "file": "application-preparation.spec.ts",
+      "title": "application integration proof survives a later canonical read failure at 390px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-32b90bf77f80",
+      "file": "application-preparation.spec.ts",
+      "title": "application existing-code conflict blocks preparation without hiding the nine-file preview at 390px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-454c18723391",
+      "file": "application-preparation.spec.ts",
+      "title": "application local resolution preserves uncertain intent and remote facts at 390px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e4f9cdb00852",
+      "file": "application-preparation.spec.ts",
+      "title": "application reconciliation observes the same publish operation without another intent at 390px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-afacb02a04ea",
+      "file": "application-preparation.spec.ts",
+      "title": "application paused intent resumes explicitly and cancels only before dispatch at 390px",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-608adb42b1b1",
+      "file": "application-preparation.spec.ts",
+      "title": "application partial publication continues only unopened MR and preserves its known commit at 390px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-038e3c532c56",
+      "file": "application-preparation.spec.ts",
+      "title": "application wrong-System reading and preview cannot authorize a write at 390px",
+      "line": 77,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5945aff64f0b",
+      "file": "application-preparation.spec.ts",
+      "title": "blocked preparation before any write resumes the same intent instead of observing a nonexistent effect at 1440px",
+      "line": 80,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7be3077634b0",
+      "file": "application-preparation.spec.ts",
+      "title": "blocked preparation before any write resumes the same intent instead of observing a nonexistent effect at 390px",
+      "line": 80,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d92ca3c3d19c",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "System Conversations opens the preparation assistant without enabling item creation at 1440px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1515f6e7d875",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant hands off only a reviewed nine-file System preparation at 1440px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-07b04aa02634",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant panel preserves focus, URL and shared preparation draft at 1440px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3e16a1d91d72",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant recovers the original preparation after lost acknowledgment and persona switch at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9f760bfb6b10",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant metadata failure preserves the review and blocks a new preparation at 1440px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a440e3dcdf1c",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant keeps current uncertain preparation independent of older messages at 1440px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-df303d653be4",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes viewer impediment without new writes at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6d8b6a0a06eb",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes inactive impediment without new writes at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-776e3a6f7846",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes unconfigured impediment without new writes at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-af43a7e84468",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant does not offer a foreign or Project action at 1440px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-65cb33db3dbe",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "System Conversations opens the preparation assistant without enabling item creation at 390px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cd857bbde952",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant hands off only a reviewed nine-file System preparation at 390px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ea6843f063f0",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant panel preserves focus, URL and shared preparation draft at 390px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c577fa1df9db",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant recovers the original preparation after lost acknowledgment and persona switch at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d8edcf4e74a0",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant metadata failure preserves the review and blocks a new preparation at 390px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-498f7c4d5cef",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant keeps current uncertain preparation independent of older messages at 390px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6b606360d7b4",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes viewer impediment without new writes at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c1ecae8ff337",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes inactive impediment without new writes at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5eef364b9aca",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant preparation exposes unconfigured impediment without new writes at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-eb4bedd14429",
+      "file": "assistant-application-preparation.spec.ts",
+      "title": "assistant does not offer a foreign or Project action at 390px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1fab00b40cb2",
+      "file": "assistant-chat.spec.ts",
+      "title": "chat keeps its composer anchored in desktop, mobile and reduced keyboard space",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-33e96a185df6",
+      "file": "assistant-chat.spec.ts",
+      "title": "older messages prepend without moving the reading anchor and all 65 remain accessible",
+      "line": 44,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-25f13d33e053",
+      "file": "assistant-chat.spec.ts",
+      "title": "a reloaded historical cursor exposes its real coverage, explicit continuation and current pause",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f2f474770f3d",
+      "file": "assistant-chat.spec.ts",
+      "title": "new interactions while reading older messages create a visible gap and catch up more than one page",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-aaa7777e2e3a",
+      "file": "assistant-chat.spec.ts",
+      "title": "a failed older-page query retains the confirmed messages and retries only that query",
+      "line": 65,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-301dd5063731",
+      "file": "assistant-chat.spec.ts",
+      "title": "a delayed feed cannot overwrite a newer completed response observed in metadata",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6e3ff64c28eb",
+      "file": "assistant-chat.spec.ts",
+      "title": "an invalid chat cursor is reported and can return to the newest messages",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c525100e9180",
+      "file": "assistant-chat.spec.ts",
+      "title": "an empty historical slice does not pretend the existing conversation has no messages",
+      "line": 81,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-72bd94da6122",
+      "file": "assistant-chat.spec.ts",
+      "title": "current interview questions remain visible beside a historical chat without opening Summary at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8c35c663ece7",
+      "file": "assistant-chat.spec.ts",
+      "title": "invalid assistant output stays qualified and collapsed while its message can be recovered at 1440px",
+      "line": 96,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d141cda0bee1",
+      "file": "assistant-chat.spec.ts",
+      "title": "current interview questions remain visible beside a historical chat without opening Summary at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-24836b4b6085",
+      "file": "assistant-chat.spec.ts",
+      "title": "invalid assistant output stays qualified and collapsed while its message can be recovered at 390px",
+      "line": 96,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d508226fb02d",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system opens the existing review and preserves keyboard context at 1440px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9d08c10b0d75",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system recovers the original acknowledgment across close reload and persona at 1440px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4aa3fc7fa8fe",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system loses freshness without losing reason or old acceptance protection at 1440px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-100b11596a96",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system shares pending request and reason with its regular page at 1440px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cfff7005c3ea",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story opens the existing review and preserves keyboard context at 1440px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e97e4a133d1c",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story recovers the original acknowledgment across close reload and persona at 1440px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-17609c1bec2d",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story loses freshness without losing reason or old acceptance protection at 1440px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-31dcc00638e3",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story shares pending request and reason with its regular page at 1440px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c8748f91a9b5",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV rejects foreign malformed and Project metadata before opening effects at 1440px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c1b05165ee53",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV uses real role read-only and configured blockers in owning Story and System at 1440px",
+      "line": 73,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d3347fb17d97",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system opens the existing review and preserves keyboard context at 390px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ca9d407456ab",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system recovers the original acknowledgment across close reload and persona at 390px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b0ba74575cba",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system loses freshness without losing reason or old acceptance protection at 390px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7e069cd47e80",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV system shares pending request and reason with its regular page at 390px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-46b95651f57b",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story opens the existing review and preserves keyboard context at 390px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9cfa59370c21",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story recovers the original acknowledgment across close reload and persona at 390px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4d2b5cf88d06",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story loses freshness without losing reason or old acceptance protection at 390px",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f3114a84c6dc",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV story shares pending request and reason with its regular page at 390px",
+      "line": 70,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2856d490cd7b",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV rejects foreign malformed and Project metadata before opening effects at 390px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-db1ad77cfffb",
+      "file": "assistant-dev-actions.spec.ts",
+      "title": "assistant DEV uses real role read-only and configured blockers in owning Story and System at 390px",
+      "line": 73,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f2cdc08e0fa2",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "proposal counts the six fixed stages, preserves stage identity and focuses one Story at a time",
+      "line": 84,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2215d8d65d6b",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "proposal uses materialized item limits while detailing a fixed stage consumes no extra item",
+      "line": 115,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c7a93e976f88",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "proposal edits preserve the complete specification, criteria contract and dependency meaning",
+      "line": 136,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0aaf45602265",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "an invalid complementary edit remains recoverable after reload and does not send a mutation",
+      "line": 162,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-97bc8343e629",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "drafts survive reload, persona changes and a concurrent revision without overwriting another edit",
+      "line": 174,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b425e15a0144",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "an uncertain revision keeps its body and key across reload, persona changes and an inactive context",
+      "line": 193,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6dfff857569e",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "an uncertain creation recovers its confirmed receipt and actual item links without creating duplicates",
+      "line": 213,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f2119d4183cc",
+      "file": "assistant-plan-review.spec.ts",
+      "title": "a newer proposal and reload cannot conceal the uncertain operation of an older proposal",
+      "line": 234,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d0054a1864d9",
+      "file": "assistant-workflow.spec.ts",
+      "title": "compact selected context keeps the composer reachable, one scroll and drafts through views, personas and contexts",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ff2c8dee1ce1",
+      "file": "assistant-workflow.spec.ts",
+      "title": "paused current activity and latest interaction remain independent from historical pages without automatic requeue",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-336fdb94aa0d",
+      "file": "assistant-workflow.spec.ts",
+      "title": "an uncertain network response survives reload, persona and inactivity and replays exactly once",
+      "line": 61,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8be1fdda2945",
+      "file": "assistant-workflow.spec.ts",
+      "title": "an uncertain incomplete response survives reload, persona and inactivity and replays exactly once",
+      "line": 61,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-46e2c01857bb",
+      "file": "assistant-workspace.spec.ts",
+      "title": "Assistente keeps the destination compact and restores focus and dependent Project choices",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-528adf30f3f4",
+      "file": "assistant-workspace.spec.ts",
+      "title": "the selected proposal separates essential fields, optional detail and blocking dependencies",
+      "line": 95,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0ffe79b4b55a",
+      "file": "assistant-workspace.spec.ts",
+      "title": "editing functional criteria preserves technical and complementary requirements",
+      "line": 123,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-02850ca18d03",
+      "file": "assistant-workspace.spec.ts",
+      "title": "context search and all result pages preserve the selected destination and message draft",
+      "line": 141,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a67d7e3330db",
+      "file": "assistant-workspace.spec.ts",
+      "title": "historical pages do not replace the current proposal and explicit historical selection is read only",
+      "line": 171,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d6f23ba0d38d",
+      "file": "assistant-workspace.spec.ts",
+      "title": "an inactive System keeps consultation available and removes Project creation",
+      "line": 197,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-26147b8d4492",
+      "file": "assistant-workspace.spec.ts",
+      "title": "a reduced mobile viewport keeps the focused message and Send visible without document scrolling",
+      "line": 211,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1d515b17399d",
+      "file": "assistant-workspace.spec.ts",
+      "title": "selected mobile chat exposes all global destinations in an accessible menu and restores ordinary navigation on exit",
+      "line": 250,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3e951b37d91d",
+      "file": "assistant.spec.ts",
+      "title": "assistant confirms uncertain delivery once, restores conversation, cancels and preserves keyboard access",
+      "line": 6,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f28420421c43",
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0679af7e812c",
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "line": 74,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-264308dee2f7",
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-df3fcd05579d",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 1440px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6bc89daa4bcb",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 390px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-119604602387",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c2963c6ec0d1",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4871ee9b27ac",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e06f56f4628c",
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-00186f619e16",
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4f9c38238faf",
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bde979b1b126",
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 1440px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f6265b5f1e02",
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 390px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-95f0f3c1d251",
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 1440px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-395812972c2a",
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 390px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c8810fd80f2e",
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 1440px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-30818a720fe9",
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 390px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ab0b73365f89",
+      "file": "completion.spec.ts",
+      "title": "System interview creates through assistant, keeps target on uncertain delivery and shows persistent receipt",
+      "line": 5,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8994d0f66584",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "planned source and later integration remain distinct through keyboard, reload and Audit at 1440px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3298700d15e8",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "partial and absent integration do not invent a commit or failure at 1440px",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-83311520701d",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "historical trace keeps the exact execution when a new cycle changes planning and refresh fails at 1440px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9c5c627f0f76",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "Story participation trace preserves an unsaved release choice across failure and Audit at 1440px",
+      "line": 36,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1c22d64b94c5",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "member page two and independent query parameters survive reload at 1440px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-181a518c025f",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "delayed old revision response cannot replace a newly selected composition at 1440px",
+      "line": 45,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-88ab6d45d003",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "planned source and later integration remain distinct through keyboard, reload and Audit at 390px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4d8c604d0b33",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "partial and absent integration do not invent a commit or failure at 390px",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e8f49c3be491",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "historical trace keeps the exact execution when a new cycle changes planning and refresh fails at 390px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-75200cd6bbc4",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "Story participation trace preserves an unsaved release choice across failure and Audit at 390px",
+      "line": 36,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7c9e820d82b6",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "member page two and independent query parameters survive reload at 390px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7d9521d1dbe1",
+      "file": "composition-code-traceability.spec.ts",
+      "title": "delayed old revision response cannot replace a newly selected composition at 390px",
+      "line": 45,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fabfae5539d4",
+      "file": "contract-integrations.spec.ts",
+      "title": "uncertain publication without confirmed MR can be resolved locally at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-42f0c4d82653",
+      "file": "contract-integrations.spec.ts",
+      "title": "Draft and merge have separate confirmations and preserve the historical query at 1440px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c9861b993d30",
+      "file": "contract-integrations.spec.ts",
+      "title": "lost merge response is recovered without another write at 1440px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-15b740362328",
+      "file": "contract-integrations.spec.ts",
+      "title": "lost HTTP acceptance keeps persona body and key across Audit and reload at 1440px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e5dfea0d7a19",
+      "file": "contract-integrations.spec.ts",
+      "title": "known receipt survives canonical GET failure at 1440px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b3e86a88db22",
+      "file": "contract-integrations.spec.ts",
+      "title": "changed base refuses stale confirmation without discarding reason at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e6be0f0e3127",
+      "file": "contract-integrations.spec.ts",
+      "title": "local resolution preserves unknown remote effect and original intent at 1440px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ce1449f6c466",
+      "file": "contract-integrations.spec.ts",
+      "title": "read-only persona cannot authorize and inactive System explains its blocker at 1440px",
+      "line": 25,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fac6b605c02f",
+      "file": "contract-integrations.spec.ts",
+      "title": "current source drift preserves the integration receipt at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-94720fc3a6cd",
+      "file": "contract-integrations.spec.ts",
+      "title": "external merge is recorded as observation without another PUT at 1440px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6c5c42dd063d",
+      "file": "contract-integrations.spec.ts",
+      "title": "paused integration resumes the same intention explicitly at 1440px",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4a300f51c1e5",
+      "file": "contract-integrations.spec.ts",
+      "title": "uncertain publication without confirmed MR can be resolved locally at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ddfbf39bba8d",
+      "file": "contract-integrations.spec.ts",
+      "title": "Draft and merge have separate confirmations and preserve the historical query at 390px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6aa18a3555e2",
+      "file": "contract-integrations.spec.ts",
+      "title": "lost merge response is recovered without another write at 390px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d571deecafae",
+      "file": "contract-integrations.spec.ts",
+      "title": "lost HTTP acceptance keeps persona body and key across Audit and reload at 390px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e5544257f02b",
+      "file": "contract-integrations.spec.ts",
+      "title": "known receipt survives canonical GET failure at 390px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-14c7540e1fa6",
+      "file": "contract-integrations.spec.ts",
+      "title": "changed base refuses stale confirmation without discarding reason at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2a4fa55b7d39",
+      "file": "contract-integrations.spec.ts",
+      "title": "local resolution preserves unknown remote effect and original intent at 390px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ce6ac1ab7b72",
+      "file": "contract-integrations.spec.ts",
+      "title": "read-only persona cannot authorize and inactive System explains its blocker at 390px",
+      "line": 25,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-86d90a382b7b",
+      "file": "contract-integrations.spec.ts",
+      "title": "current source drift preserves the integration receipt at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e4c91699db64",
+      "file": "contract-integrations.spec.ts",
+      "title": "external merge is recorded as observation without another PUT at 390px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-655678613e3c",
+      "file": "contract-integrations.spec.ts",
+      "title": "paused integration resumes the same intention explicitly at 390px",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c82109d4ce54",
+      "file": "contract-proposals.spec.ts",
+      "title": "preparation is queued and remains recoverable through Audit and reload at 1440px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-eae6be4014f4",
+      "file": "contract-proposals.spec.ts",
+      "title": "architect questions block final review and another preparation preserves the prior definition at 1440px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-62894a5070b8",
+      "file": "contract-proposals.spec.ts",
+      "title": "known local review survives a failed refresh and keeps focus at 1440px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c78baf6de2dc",
+      "file": "contract-proposals.spec.ts",
+      "title": "accepted request stays visible while canonical follow-up is unavailable at 1440px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4075961043c7",
+      "file": "contract-proposals.spec.ts",
+      "title": "lost acceptance recovers the same persona body and key after the job has completed at 1440px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c0a7ed38929f",
+      "file": "contract-proposals.spec.ts",
+      "title": "base change rejects review without discarding human text or approving another commit at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b586d4a1dae9",
+      "file": "contract-proposals.spec.ts",
+      "title": "cancel preparation reports cancellation and preserves the prior proposal at 1440px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-147ed35edef6",
+      "file": "contract-proposals.spec.ts",
+      "title": "failed generation does not replace the previous proposal at 1440px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8b4389e6d2bf",
+      "file": "contract-proposals.spec.ts",
+      "title": "workspace query failure blocks all local decisions while preserving the review draft at 1440px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-189112c9a3b9",
+      "file": "contract-proposals.spec.ts",
+      "title": "human revision and historical query restore focus without replacing the current proposal at 1440px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e68e1eda0572",
+      "file": "contract-proposals.spec.ts",
+      "title": "current proposal remains independent of the second historical page and reload at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c3decb4d9cd4",
+      "file": "contract-proposals.spec.ts",
+      "title": "impediments explain persona configuration and unsupported entries beside the action at 1440px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-36ba2cdfefce",
+      "file": "contract-proposals.spec.ts",
+      "title": "preparation is queued and remains recoverable through Audit and reload at 390px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-df174ce67638",
+      "file": "contract-proposals.spec.ts",
+      "title": "architect questions block final review and another preparation preserves the prior definition at 390px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-568c66abd4f5",
+      "file": "contract-proposals.spec.ts",
+      "title": "known local review survives a failed refresh and keeps focus at 390px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-94486bc277e5",
+      "file": "contract-proposals.spec.ts",
+      "title": "accepted request stays visible while canonical follow-up is unavailable at 390px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-31987b0f8446",
+      "file": "contract-proposals.spec.ts",
+      "title": "lost acceptance recovers the same persona body and key after the job has completed at 390px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4c4a8c9f0375",
+      "file": "contract-proposals.spec.ts",
+      "title": "base change rejects review without discarding human text or approving another commit at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b7323114a55c",
+      "file": "contract-proposals.spec.ts",
+      "title": "cancel preparation reports cancellation and preserves the prior proposal at 390px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-62a8a5c3039f",
+      "file": "contract-proposals.spec.ts",
+      "title": "failed generation does not replace the previous proposal at 390px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-01772c6173cd",
+      "file": "contract-proposals.spec.ts",
+      "title": "workspace query failure blocks all local decisions while preserving the review draft at 390px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-47bef11677fc",
+      "file": "contract-proposals.spec.ts",
+      "title": "human revision and historical query restore focus without replacing the current proposal at 390px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-463ef8538aef",
+      "file": "contract-proposals.spec.ts",
+      "title": "current proposal remains independent of the second historical page and reload at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b1f456c886ec",
+      "file": "contract-proposals.spec.ts",
+      "title": "impediments explain persona configuration and unsupported entries beside the action at 390px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7b36822f4212",
+      "file": "contract-publications.spec.ts",
+      "title": "unreviewed proposal explains why send is unavailable at 1440px",
+      "line": 10,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-35f7e0e9e0a3",
+      "file": "contract-publications.spec.ts",
+      "title": "confirmation preserves reason explains the exact target and restores focus at 1440px",
+      "line": 11,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-24ca2f287ebf",
+      "file": "contract-publications.spec.ts",
+      "title": "queued send stays recoverable in Audit and reload and cancellation is explicit at 1440px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-197e876ea61f",
+      "file": "contract-publications.spec.ts",
+      "title": "confirmed MR remains separate from default-branch contract and execution at 1440px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-87e2a29f06a3",
+      "file": "contract-publications.spec.ts",
+      "title": "lost commit receipt is observed and the same job continues without another commit at 1440px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-97728d35950a",
+      "file": "contract-publications.spec.ts",
+      "title": "known MR receipt survives failed canonical refresh and blocks another decision at 1440px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-71b0db0094e2",
+      "file": "contract-publications.spec.ts",
+      "title": "lost HTTP acceptance retains original persona body and key across tabs and reload at 1440px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ad143c21bdc0",
+      "file": "contract-publications.spec.ts",
+      "title": "base refusal preserves human reason and moves focus to the stable panel at 1440px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6c16c0b19a96",
+      "file": "contract-publications.spec.ts",
+      "title": "missing send metadata blocks proposal decisions without falsely declaring a pending send at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6d63f5597a36",
+      "file": "contract-publications.spec.ts",
+      "title": "return from confirmation uses stable focus when metadata becomes unavailable at 1440px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-aecfb1014fd1",
+      "file": "contract-publications.spec.ts",
+      "title": "unreviewed proposal explains why send is unavailable at 390px",
+      "line": 10,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1de5f60f03c3",
+      "file": "contract-publications.spec.ts",
+      "title": "confirmation preserves reason explains the exact target and restores focus at 390px",
+      "line": 11,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f619da33b305",
+      "file": "contract-publications.spec.ts",
+      "title": "queued send stays recoverable in Audit and reload and cancellation is explicit at 390px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a6dd0ef5ecbd",
+      "file": "contract-publications.spec.ts",
+      "title": "confirmed MR remains separate from default-branch contract and execution at 390px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-48b3b29bd931",
+      "file": "contract-publications.spec.ts",
+      "title": "lost commit receipt is observed and the same job continues without another commit at 390px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2c093ea473e4",
+      "file": "contract-publications.spec.ts",
+      "title": "known MR receipt survives failed canonical refresh and blocks another decision at 390px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-41fcb59b6083",
+      "file": "contract-publications.spec.ts",
+      "title": "lost HTTP acceptance retains original persona body and key across tabs and reload at 390px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-43f42f5c548e",
+      "file": "contract-publications.spec.ts",
+      "title": "base refusal preserves human reason and moves focus to the stable panel at 390px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8561181f5311",
+      "file": "contract-publications.spec.ts",
+      "title": "missing send metadata blocks proposal decisions without falsely declaring a pending send at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9708c39d6f07",
+      "file": "contract-publications.spec.ts",
+      "title": "return from confirmation uses stable focus when metadata becomes unavailable at 390px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e58be18630e7",
+      "file": "conversation-history.spec.ts",
+      "title": "conversations preserve pagination, filters, direct links and the last confirmed result after a query failure",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6270b600a9d5",
+      "file": "conversation-history.spec.ts",
+      "title": "relating an original message searches and pages stories, requires confirmation and reconciles the same request after reload",
+      "line": 94,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-36675e317a11",
+      "file": "conversation-history.spec.ts",
+      "title": "story and task use the same contextual consultation without project plan actions or implicit execution",
+      "line": 121,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8143677e12ec",
+      "file": "conversation-history.spec.ts",
+      "title": "the first association of a saved plan revision is available before any references exist",
+      "line": 139,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f528bdf8e268",
+      "file": "conversation-history.spec.ts",
+      "title": "a running turn outside the consulted page still blocks new messages, and archived conversations stay read only",
+      "line": 155,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e9b30576bbad",
+      "file": "conversation-history.spec.ts",
+      "title": "registered plan revisions remain distinct from the original model response and the view fits desktop and mobile",
+      "line": 176,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-16a082885d85",
+      "file": "conversation-history.spec.ts",
+      "title": "failed messages show a red failure signal and only the cause captured by their own source",
+      "line": 189,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d10c1f5fb12e",
+      "file": "dashboard.spec.ts",
+      "title": "overview shows distinct dashboard, explicit unavailable measurements and accessible responsive sections",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fb6008cec624",
+      "file": "dashboard.spec.ts",
+      "title": "dashboard shows one subject at a time and keeps filters through keyboard, hash, history and reload navigation",
+      "line": 91,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-31959026c90c",
+      "file": "dashboard.spec.ts",
+      "title": "assistant indicators show four weeks, samples and the same dashboard scope",
+      "line": 134,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d0164df717de",
+      "file": "dashboard.spec.ts",
+      "title": "Story metrics keep creation origin, revision authorship and confirmed cycles distinct across four weeks",
+      "line": 145,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fcf992590ca1",
+      "file": "dashboard.spec.ts",
+      "title": "dashboard failure is actionable and never replaced with invented zero values",
+      "line": 164,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6a2d8b1f1548",
+      "file": "dashboard.spec.ts",
+      "title": "dashboard filters combine scopes, preserve URL and recover from empty results",
+      "line": 177,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e4d84a3ad5d4",
+      "file": "dashboard.spec.ts",
+      "title": "changing filter aborts stale requests and hides the prior scope while loading",
+      "line": 238,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f8ec284fb4c6",
+      "file": "development-approval.spec.ts",
+      "title": "development approval reviews the complete evidence chain without equating SHAs at 1440px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a2aec5cbe761",
+      "file": "development-approval.spec.ts",
+      "title": "development approval records one local decision without release or Story completion at 1440px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-edc96fc1976f",
+      "file": "development-approval.spec.ts",
+      "title": "development approval recovers lost ACK across tabs reload and original persona at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-878e1b77ca04",
+      "file": "development-approval.spec.ts",
+      "title": "development approval old replay never restores current validity after a new cycle at 1440px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-938b817aaa01",
+      "file": "development-approval.spec.ts",
+      "title": "development approval preserves only qualified receipt when refreshed reading fails at 1440px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7f873f5eb089",
+      "file": "development-approval.spec.ts",
+      "title": "development approval survives another Story occupying shared DEV at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7bd516ea5a9b",
+      "file": "development-approval.spec.ts",
+      "title": "development approval projects own revision and negative-evidence invalidation without deleting history at 1440px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-57c01f9cbbd6",
+      "file": "development-approval.spec.ts",
+      "title": "development approval stays valid through administrative version and phase changes at 1440px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-406a93fd54aa",
+      "file": "development-approval.spec.ts",
+      "title": "development approval uses owning Story and real role while preserving reason at 1440px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1c597936acd6",
+      "file": "development-approval.spec.ts",
+      "title": "development approval explains missing acceptance and returns to existing evidence at 1440px",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-32de8cb831ed",
+      "file": "development-approval.spec.ts",
+      "title": "development approval rejects changed or foreign preview without losing the draft at 1440px",
+      "line": 61,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-aff0bf545e45",
+      "file": "development-approval.spec.ts",
+      "title": "development approval shared summary reaches collection and Release without declaring QA ready at 1440px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-eaaed23515c1",
+      "file": "development-approval.spec.ts",
+      "title": "development approval reviews the complete evidence chain without equating SHAs at 390px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a3696193faff",
+      "file": "development-approval.spec.ts",
+      "title": "development approval records one local decision without release or Story completion at 390px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-369bf8ea94e7",
+      "file": "development-approval.spec.ts",
+      "title": "development approval recovers lost ACK across tabs reload and original persona at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9c6ed2870885",
+      "file": "development-approval.spec.ts",
+      "title": "development approval old replay never restores current validity after a new cycle at 390px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b8ca6811401b",
+      "file": "development-approval.spec.ts",
+      "title": "development approval preserves only qualified receipt when refreshed reading fails at 390px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e17ee59dbf13",
+      "file": "development-approval.spec.ts",
+      "title": "development approval survives another Story occupying shared DEV at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ad301ccbb622",
+      "file": "development-approval.spec.ts",
+      "title": "development approval projects own revision and negative-evidence invalidation without deleting history at 390px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-79e41d9ade47",
+      "file": "development-approval.spec.ts",
+      "title": "development approval stays valid through administrative version and phase changes at 390px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b4f2acd2592f",
+      "file": "development-approval.spec.ts",
+      "title": "development approval uses owning Story and real role while preserving reason at 390px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0aef706a3aa2",
+      "file": "development-approval.spec.ts",
+      "title": "development approval explains missing acceptance and returns to existing evidence at 390px",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e1e4bbcb1690",
+      "file": "development-approval.spec.ts",
+      "title": "development approval rejects changed or foreign preview without losing the draft at 390px",
+      "line": 61,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-59cf00847001",
+      "file": "development-approval.spec.ts",
+      "title": "development approval shared summary reaches collection and Release without declaring QA ready at 390px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-440475964b0a",
+      "file": "development-build.spec.ts",
+      "title": "DEV build confirms fixed source without release or deployment at 1440px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b651b6c09ea6",
+      "file": "development-build.spec.ts",
+      "title": "DEV build preserves known artifact when a later GET fails at 1440px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8748fe570c02",
+      "file": "development-build.spec.ts",
+      "title": "DEV build lost ACK recovers the original request across tabs and reload at 1440px",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ac068470a46c",
+      "file": "development-build.spec.ts",
+      "title": "DEV build context refusal preserves draft and requires another review at 1440px",
+      "line": 78,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a209b24cf9ab",
+      "file": "development-build.spec.ts",
+      "title": "DEV build read-only persona sees blockers and cannot authorize at 1440px",
+      "line": 81,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fc20dd77d384",
+      "file": "development-build.spec.ts",
+      "title": "DEV build persona change invalidates confirmation and preserves reason at 1440px",
+      "line": 84,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0c2f471d808a",
+      "file": "development-build.spec.ts",
+      "title": "DEV build result reconciliation observes the same operation at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-27acfed7e6d6",
+      "file": "development-build.spec.ts",
+      "title": "DEV build pause requires explicit resume of the original operation at 1440px",
+      "line": 90,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4d5575c4ccea",
+      "file": "development-build.spec.ts",
+      "title": "DEV build cancellation is explicit before dispatch at 1440px",
+      "line": 93,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-68dd3dfd3739",
+      "file": "development-build.spec.ts",
+      "title": "DEV build from a task consults the owning story at 1440px",
+      "line": 96,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bab821d89102",
+      "file": "development-build.spec.ts",
+      "title": "DEV build confirms fixed source without release or deployment at 390px",
+      "line": 68,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7cde18670527",
+      "file": "development-build.spec.ts",
+      "title": "DEV build preserves known artifact when a later GET fails at 390px",
+      "line": 72,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-113ee0ce445d",
+      "file": "development-build.spec.ts",
+      "title": "DEV build lost ACK recovers the original request across tabs and reload at 390px",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ce4afe8d1177",
+      "file": "development-build.spec.ts",
+      "title": "DEV build context refusal preserves draft and requires another review at 390px",
+      "line": 78,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d2ab9e321471",
+      "file": "development-build.spec.ts",
+      "title": "DEV build read-only persona sees blockers and cannot authorize at 390px",
+      "line": 81,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-090db0b64840",
+      "file": "development-build.spec.ts",
+      "title": "DEV build persona change invalidates confirmation and preserves reason at 390px",
+      "line": 84,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c2a3a5cf08fc",
+      "file": "development-build.spec.ts",
+      "title": "DEV build result reconciliation observes the same operation at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cb1adfa7f8e7",
+      "file": "development-build.spec.ts",
+      "title": "DEV build pause requires explicit resume of the original operation at 390px",
+      "line": 90,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2043dbc5bb6e",
+      "file": "development-build.spec.ts",
+      "title": "DEV build cancellation is explicit before dispatch at 390px",
+      "line": 93,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-94b1c93dee8f",
+      "file": "development-build.spec.ts",
+      "title": "DEV build from a task consults the owning story at 390px",
+      "line": 96,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-35fa280133f2",
+      "file": "development-cycle.spec.ts",
+      "title": "explicit development cycle preserves old delivery and tasks at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-203cc14fbac5",
+      "file": "development-cycle.spec.ts",
+      "title": "changed context clears acceptance before a new development cycle at 1440px",
+      "line": 37,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e1336a18a549",
+      "file": "development-cycle.spec.ts",
+      "title": "uncertain integration blocks a previously reviewed cycle at 1440px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ffd057b4caa2",
+      "file": "development-cycle.spec.ts",
+      "title": "lost cycle acknowledgement replays the same intent after reload at 1440px",
+      "line": 46,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-96bca12f7192",
+      "file": "development-cycle.spec.ts",
+      "title": "explicit development cycle preserves old delivery and tasks at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ba7d15ffc338",
+      "file": "development-cycle.spec.ts",
+      "title": "changed context clears acceptance before a new development cycle at 390px",
+      "line": 37,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6e141571f69d",
+      "file": "development-cycle.spec.ts",
+      "title": "uncertain integration blocks a previously reviewed cycle at 390px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7dd82df31b96",
+      "file": "development-cycle.spec.ts",
+      "title": "lost cycle acknowledgement replays the same intent after reload at 390px",
+      "line": 46,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d0500cc04d76",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication follows build and reviews chained preparation in one decision at 1440px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cefa39acb90f",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication submits only the fixed artifact without requiring a release at 1440px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d78541b9ff43",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication recovers lost acknowledgment across tabs, persona and reload at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-abeb31a822f2",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication distinguishes current healthy version from its historical receipt at 1440px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4b7524c50e1b",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication preserves proof and removes current URL claim after reading failure at 1440px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8c3bd5fdf60a",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication context refusal preserves reason and requires a new review at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2a0f6d9bfecc",
+      "file": "development-deployment.spec.ts",
+      "title": "Task DEV publication consults the owning Story and keeps its draft at 1440px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4e4d6d716efd",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication cancellation preserves resources after explicit resume at 1440px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-da4bfcfc0aae",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication refuses foreign context and viewer decisions at 1440px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8fb29bd8313d",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication exposes missing artifact or executor impediments without new effects at 1440px",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4faba7a443fc",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication follows build and reviews chained preparation in one decision at 390px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-85c4abbec2f3",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication submits only the fixed artifact without requiring a release at 390px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1875e451de89",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication recovers lost acknowledgment across tabs, persona and reload at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-890b0619ca92",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication distinguishes current healthy version from its historical receipt at 390px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bfbe56baf5db",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication preserves proof and removes current URL claim after reading failure at 390px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-df6187032abe",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication context refusal preserves reason and requires a new review at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ce8ee76908a9",
+      "file": "development-deployment.spec.ts",
+      "title": "Task DEV publication consults the owning Story and keeps its draft at 390px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3f6431cb893c",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication cancellation preserves resources after explicit resume at 390px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bcca20b6abbc",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication refuses foreign context and viewer decisions at 390px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5cc61629c6cb",
+      "file": "development-deployment.spec.ts",
+      "title": "DEV publication exposes missing artifact or executor impediments without new effects at 390px",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-01250a94d9ae",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests review versioned acceptance and concrete data writes after deployment at 1440px",
+      "line": 48,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d49b12df42de",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests send only one reviewed suite with original persona and fixed context at 1440px",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c433230879dd",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests technical success stays separate from business acceptance and task completion at 1440px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1ea07f7896a4",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests failed cases retain versioned names and correction only opens the existing cycle at 1440px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3ff4f68350e9",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests executor failure without cases does not invent rejected criteria at 1440px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4adeb9c22ecc",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests reconcile uncertain result without repeating data writes at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7311eac1467b",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests lost acknowledgment recovers original identity across tabs persona and reload at 1440px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-96d122034e0b",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests preserve historical evidence when current reading fails at 1440px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0aaf27d7d17b",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests old commit and different active deployment never attest current coverage at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-09148d8acb76",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests changed context preserves reason and requires a new review at 1440px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c7c6aa9830ab",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests resume and pre-dispatch cancel have separate confirmations at 1440px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7b25b94f0628",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests owning Story role and incomplete acceptance blockers remain explicit at 1440px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0cca9e3dd720",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests review versioned acceptance and concrete data writes after deployment at 390px",
+      "line": 48,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3d85f374d15e",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests send only one reviewed suite with original persona and fixed context at 390px",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4df4d7b767c4",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests technical success stays separate from business acceptance and task completion at 390px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7d223c8d13ce",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests failed cases retain versioned names and correction only opens the existing cycle at 390px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a691d1f0ad5d",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests executor failure without cases does not invent rejected criteria at 390px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7f833f194472",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests reconcile uncertain result without repeating data writes at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ca4b69585318",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests lost acknowledgment recovers original identity across tabs persona and reload at 390px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-720a1ed5e257",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests preserve historical evidence when current reading fails at 390px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-951a97142e7d",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests old commit and different active deployment never attest current coverage at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0f5948edd9d6",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests changed context preserves reason and requires a new review at 390px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9423333a1104",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests resume and pre-dispatch cancel have separate confirmations at 390px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-73cccbed7d23",
+      "file": "development-test.spec.ts",
+      "title": "DEV tests owning Story role and incomplete acceptance blockers remain explicit at 390px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ea3239493efd",
+      "file": "discussion.spec.ts",
+      "title": "impediment conversation preserves history and confirms an explicit decision with safe retries and a new G1",
+      "line": 7,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2f684e6f3af4",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination separates references, resources and deployment without writes at 1440px",
+      "line": 48,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0a27864d831c",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination confirms one preparation and preserves the query URL at 1440px",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-316ac4475ced",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination keeps reason and return focus across tabs at 1440px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-842982fa7bd3",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination recovers original intent after lost acknowledgment, reload and persona switch at 1440px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-828432334a84",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination uncertain result remains recoverable outside the environment tab at 1440px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bb70e5bec60a",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination retains confirmed facts when current reading fails at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-eff45b93b6eb",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination blocks foreign context and invalidates persona approval at 1440px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-16329ec30994",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination exposes contract and ownership impediment with repository route at 1440px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d5836339c181",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination viewer cannot confirm a prepared context at 1440px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c8406b3d7b3d",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination pause resumes only after confirmation and cancel remains explicit at 1440px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-10b07738cb55",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination separates references, resources and deployment without writes at 390px",
+      "line": 48,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-12bc46cba6ff",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination confirms one preparation and preserves the query URL at 390px",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-448f418b6308",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination keeps reason and return focus across tabs at 390px",
+      "line": 50,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f24a5aa94128",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination recovers original intent after lost acknowledgment, reload and persona switch at 390px",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ffdb3f09fb01",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination uncertain result remains recoverable outside the environment tab at 390px",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-11d60bccd9f7",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination retains confirmed facts when current reading fails at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b2bf51f9c4ec",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination blocks foreign context and invalidates persona approval at 390px",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-18d127c679d0",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination exposes contract and ownership impediment with repository route at 390px",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7aa0885c107c",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination viewer cannot confirm a prepared context at 390px",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-aa049fdd1401",
+      "file": "environment-target-preparation.spec.ts",
+      "title": "DEV destination pause resumes only after confirmation and cancel remains explicit at 390px",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6fd4aa66090c",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 1440px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f9a696e30834",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 390px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9d3d2647b667",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 1440px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-76ec770b7778",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 390px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7f7d4e35602d",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 1440px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f21322b0fe2d",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 390px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-41670d753cd6",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic lost acknowledgement replays original body and persona after reload without another status event",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8ca088b564d0",
+      "file": "epic-execution.spec.ts",
+      "title": "Epic resumes only after its own confirmation and reports queued work without claiming execution",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f9ca55d44aea",
+      "file": "execution-contract.spec.ts",
+      "title": "explicit read separates structure, declarations and unavailable execution at 1440px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e0724facd05c",
+      "file": "execution-contract.spec.ts",
+      "title": "missing invalid and unsupported contracts remain separate from integration at 1440px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-92d856cce4d3",
+      "file": "execution-contract.spec.ts",
+      "title": "failed refresh preserves the dated source and a retry clears the obsolete failure at 1440px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-991e34d23f11",
+      "file": "execution-contract.spec.ts",
+      "title": "revision query, pending commit input and System form survive consultation and tabs at 1440px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-40e23bad32e7",
+      "file": "execution-contract.spec.ts",
+      "title": "branch changed during the read keeps the pinned commit and explains how to consult again at 1440px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ae71778442ca",
+      "file": "execution-contract.spec.ts",
+      "title": "leaving the tab aborts a delayed read and a newer response keeps its own identity at 1440px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4be4fb7dee9b",
+      "file": "execution-contract.spec.ts",
+      "title": "a different System starts with its own collapsed contract context at 1440px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-409d8504f93d",
+      "file": "execution-contract.spec.ts",
+      "title": "explicit read separates structure, declarations and unavailable execution at 390px",
+      "line": 13,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e0836d3058a9",
+      "file": "execution-contract.spec.ts",
+      "title": "missing invalid and unsupported contracts remain separate from integration at 390px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fc144853043a",
+      "file": "execution-contract.spec.ts",
+      "title": "failed refresh preserves the dated source and a retry clears the obsolete failure at 390px",
+      "line": 19,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-54ab090c12e7",
+      "file": "execution-contract.spec.ts",
+      "title": "revision query, pending commit input and System form survive consultation and tabs at 390px",
+      "line": 22,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1e75fde8aa5e",
+      "file": "execution-contract.spec.ts",
+      "title": "branch changed during the read keeps the pinned commit and explains how to consult again at 390px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cc450a28c0ba",
+      "file": "execution-contract.spec.ts",
+      "title": "leaving the tab aborts a delayed read and a newer response keeps its own identity at 390px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6651ac8cd494",
+      "file": "execution-contract.spec.ts",
+      "title": "a different System starts with its own collapsed contract context at 390px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4d6c4c7ca4c2",
+      "file": "experience-standards.spec.ts",
+      "title": "real hierarchy uses collapsed filters, server query paging and sortable headers with keyboard and preserved return",
+      "line": 38,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c1ee1be371c7",
+      "file": "experience-standards.spec.ts",
+      "title": "query loading is animated, failures preserve the confirmed rows and order and retry restores the requested query",
+      "line": 47,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e069871def7f",
+      "file": "experience-standards.spec.ts",
+      "title": "canonical history reaches an old correlation and invalid dates produce a recoverable alert without losing the page",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b421a8b9218e",
+      "file": "experience-standards.spec.ts",
+      "title": "archived consultation preserves its query across tabs and mobile tables remain within their scroll region",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ae17fa95b47a",
+      "file": "hierarchy.spec.ts",
+      "title": "user creates an active hierarchy, inherits its System repository and records a manual Task result",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-522444d3e5f9",
+      "file": "hierarchy.spec.ts",
+      "title": "context tabs preserve an editing draft and real persona permissions; confirmations stay beside the breadcrumb",
+      "line": 156,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5e0b086c0359",
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure review requires reason and persona and retains draft on return at 1440px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4b34c000c9d2",
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure success preserves old failure and current gate despite failed refresh at 1440px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-578ee03fa5a9",
+      "file": "merge-history-closure.spec.ts",
+      "title": "context rejection and navigation retain reason and require a new acceptance at 1440px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c6bffe01f59b",
+      "file": "merge-history-closure.spec.ts",
+      "title": "lost closure receipt survives reload and Audit with original reason key and persona at 1440px",
+      "line": 36,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c2468b0f04d3",
+      "file": "merge-history-closure.spec.ts",
+      "title": "an old closure replay cannot hide a later confirmed integration at 1440px",
+      "line": 39,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9879ef73dfb5",
+      "file": "merge-history-closure.spec.ts",
+      "title": "open MR stays blocked with the expected historical reference at 1440px",
+      "line": 42,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2e6c91262fc4",
+      "file": "merge-history-closure.spec.ts",
+      "title": "failed consultation preserves reason and previous reading without confirming closure at 1440px",
+      "line": 45,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7f0822781466",
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure review requires reason and persona and retains draft on return at 390px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-419a6f6778de",
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure success preserves old failure and current gate despite failed refresh at 390px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d8d0eb9531d7",
+      "file": "merge-history-closure.spec.ts",
+      "title": "context rejection and navigation retain reason and require a new acceptance at 390px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4a2a921363bd",
+      "file": "merge-history-closure.spec.ts",
+      "title": "lost closure receipt survives reload and Audit with original reason key and persona at 390px",
+      "line": 36,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7435014e909b",
+      "file": "merge-history-closure.spec.ts",
+      "title": "an old closure replay cannot hide a later confirmed integration at 390px",
+      "line": 39,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-14edd37d86a8",
+      "file": "merge-history-closure.spec.ts",
+      "title": "open MR stays blocked with the expected historical reference at 390px",
+      "line": 42,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-272171f0e4a2",
+      "file": "merge-history-closure.spec.ts",
+      "title": "failed consultation preserves reason and previous reading without confirming closure at 390px",
+      "line": 45,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-83bd6fd9f2d9",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history review separates original failure and current consultation at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0efd066c9731",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history confirmation preserves original attempt and current gate with failed refresh at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a0c725356700",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history opened retains expected reference and blocks confirmation at 1440px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-053c30abdb4c",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history closed retains expected reference and blocks confirmation at 1440px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6fde40817b1f",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history changed observation preserves preview and requires explicit refresh at 1440px",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2d4afa5567df",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "lost history receipt survives reload, offline and Audit with original persona at 1440px",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9f4c6f9a3504",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history review separates original failure and current consultation at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ffcb19dbcdda",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history confirmation preserves original attempt and current gate with failed refresh at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0f1eb47fa019",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history opened retains expected reference and blocks confirmation at 390px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-457c8615745d",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history closed retains expected reference and blocks confirmation at 390px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cccc338c1215",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history changed observation preserves preview and requires explicit refresh at 390px",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3c7fca1b9578",
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "lost history receipt survives reload, offline and Audit with original persona at 390px",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3bd89db88bc6",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 1440px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e49db253cd10",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 1440px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d6a5725bae94",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 1440px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-68df469afca2",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 1440px",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-303703722f32",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 1440px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b6567537e3f9",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 1440px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9ed383d6439e",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 1440px",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fdde29fc22ab",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 390px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-083a99cb0973",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 390px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a00dfbd175be",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 390px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-58f9a2ef1bdc",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 390px",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f627a2985011",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 390px",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-29abf239e75d",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 390px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f1c5780ee601",
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 390px",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c41a7f470d72",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "merge and squash reference is readable without executing an action at 1440px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0eaa86e9fc3c",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "partial reference keeps confirmed merge and never guesses integrated commit at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2719f3e4558e",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "legacy reference remains not captured and GET does not backfill at 1440px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1b511679fdb6",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "another cycle preserves exact reference on the historical Task at 1440px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2561867cec3d",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "merge and squash reference is readable without executing an action at 390px",
+      "line": 15,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0f46e25af1c5",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "partial reference keeps confirmed merge and never guesses integrated commit at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4e43d3ea1896",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "legacy reference remains not captured and GET does not backfill at 390px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-478a66812f78",
+      "file": "merge-integration-reference.spec.ts",
+      "title": "another cycle preserves exact reference on the historical Task at 390px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d2b7ffd9314f",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "reference consultation requires explicit confirmation and respects persona at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a2bd23f35bc6",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "capture receipt survives a failed following query without altering the merge at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-006663958f9e",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "changed remote reference preserves preview and requires another consultation at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1e962f406b20",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "lost capture acknowledgement can be checked offline after reload with original persona at 1440px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c5cb0e61a984",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "historical Task captures its old operation without authorizing the current cycle at 1440px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c9cdc47952ce",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "pending capture remains recoverable while consulting Audit at 1440px",
+      "line": 38,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-80977910e58b",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "partial historical metadata is announced before capture and preserved at 1440px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-168ba42928d6",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "reference consultation requires explicit confirmation and respects persona at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5e7d10758ee9",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "capture receipt survives a failed following query without altering the merge at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9ff0fc3054b9",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "changed remote reference preserves preview and requires another consultation at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d27495633f2d",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "lost capture acknowledgement can be checked offline after reload with original persona at 390px",
+      "line": 30,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-207b9675e7b1",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "historical Task captures its old operation without authorizing the current cycle at 390px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ba08b44e58f0",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "pending capture remains recoverable while consulting Audit at 390px",
+      "line": 38,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-07f4e2736345",
+      "file": "merge-reference-capture.spec.ts",
+      "title": "partial historical metadata is announced before capture and preserved at 390px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-782118101a98",
+      "file": "merge.spec.ts",
+      "title": "a blocked merge opens a contextual conversation, preserves it on reload and requires a separate merge confirmation",
+      "line": 7,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-403203eba6e3",
+      "file": "merge.spec.ts",
+      "title": "merge has an explicit decision, pins SHA, reconciles uncertain submission and preserves Story status",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-af8516c9e31e",
+      "file": "merge.spec.ts",
+      "title": "merge metrics have their own compact view and explicit missing manual-request measurements",
+      "line": 46,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7be0cfaca215",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "System planning preserves roles, loading, conflict recovery, audit headers and current versions",
+      "line": 42,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f4d53d13dfbc",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project groups work with four lifecycle states, no approval and explicit self-reactivation",
+      "line": 66,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6e1398391dfa",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project reopening requires justification, preserves it after failure and disables edits for readonly roles",
+      "line": 90,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-687a51c0e247",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic starts ACTIVE without a planning gate and exposes explicit Project planning",
+      "line": 105,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-55c411df95fc",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic transitions confirm explicitly and preserve versions and reason after definite rejection",
+      "line": 108,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8c0869491682",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic explains inactive ancestor and blocks mutations",
+      "line": 112,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-62f711737988",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Epic explains completed ancestor and blocks mutations",
+      "line": 112,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bb598aa7b3c0",
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 1440px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8de273e0c675",
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 390px",
+      "line": 18,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-58c7f71eba6b",
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f5c13f52b593",
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b1bbfe680a87",
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 1440px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-acf41d068a51",
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 390px",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d4e2dd9a0b27",
+      "file": "planning-references.spec.ts",
+      "title": "code-only drift blocks composition save until review and retains choices outside the changed reference",
+      "line": 36,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f10c1a5df15d",
+      "file": "plans.spec.ts",
+      "title": "human edits and confirms a plan; uncertain acknowledgement never duplicates the operation",
+      "line": 7,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1604f0a1018d",
+      "file": "quality.spec.ts",
+      "title": "quality phases precede merge, expose findings and require an explicit AI correction",
+      "line": 5,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a192bc955618",
+      "file": "quality.spec.ts",
+      "title": "quality metrics provide weekly results, severity and correction cycles inside the compact dashboard",
+      "line": 45,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c66086573fdc",
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 1440px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-31d6f6caf6ac",
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 390px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-eee27da71d15",
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 1440px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a71bd78f31f2",
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 390px",
+      "line": 27,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ab364d3e17a2",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 1440px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8f46f95aa7c9",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 390px",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9437b7898d85",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 1440px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e4c1914f33e3",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 390px",
+      "line": 20,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-342e71a8fd5d",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 1440px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-690f6ba7120f",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 390px",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7253bdbc6ab0",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 1440px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0789824b77c1",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 390px",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-43d5ff1997c8",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 1440px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1263bb14353e",
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 390px",
+      "line": 34,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8f00f1c38a89",
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cea86c933bca",
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "line": 14,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cfa9b6ad87aa",
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "line": 25,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-440a56d1d1f5",
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "line": 31,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1301302bf16f",
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "line": 38,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c4d97c8e8dbd",
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c02367d0e146",
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ced47571cd84",
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-743738ca8bef",
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 1440px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b8a6ecfe781e",
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 390px",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7eefc9b7fa58",
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d40b7678b433",
+      "file": "release-metrics.spec.ts",
+      "title": "release indicators inherit combined dashboard filters and hide the old scope while a new scope loads",
+      "line": 92,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-95eab5ac4012",
+      "file": "release-metrics.spec.ts",
+      "title": "a dashboard response without release measurements states the limitation without invented totals",
+      "line": 128,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c5d46c4b7932",
+      "file": "release-metrics.spec.ts",
+      "title": "persisted releases feed the dashboard with empty drafts and actual Project and participation scopes",
+      "line": 140,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e7495b9f5204",
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 OPEN keeps independent dimensions through Release and Story navigation without writes",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4c7f76b51c83",
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CLOSED keeps independent dimensions through Release and Story navigation without writes",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4cbd23e50743",
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CANCELED keeps independent dimensions through Release and Story navigation without writes",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-411e398ad930",
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 mobile composition refresh failure preserves the last confirmed reading and never replaces it with a successful result",
+      "line": 42,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0f7c51656c7e",
+      "file": "release-reading.spec.ts",
+      "title": "unknown release state and destination stay unconfirmed, without OPEN or DEV fallback",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5b7caa3f9fd8",
+      "file": "releases.spec.ts",
+      "title": "Releases shows DEV and the other System destinations separately from composition, including read failure",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-34573590f0b3",
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "line": 46,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0d35588ccecc",
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-28aa58cff71d",
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "line": 104,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-40ca3df15ffe",
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real compositionStatus counts and newest-first pages of twenty on desktop and mobile",
+      "line": 140,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3255c84db1f9",
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "line": 161,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-aec47aece25d",
+      "file": "releases.spec.ts",
+      "title": "quick views preserve applied scope and pending Project and Epic fields",
+      "line": 184,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5fad30659675",
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "line": 215,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9971bcadb9c1",
+      "file": "releases.spec.ts",
+      "title": "refresh reviews changed selected Stories outside the filter and preserves choices on a read failure",
+      "line": 255,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cdfa620d9513",
+      "file": "releases.spec.ts",
+      "title": "release list shortcuts preserve the applied System and pending System selection",
+      "line": 283,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b01800a42c4b",
+      "file": "releases.spec.ts",
+      "title": "an unavailable selected Story is reported and never silently removed on refresh",
+      "line": 296,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8091a6539834",
+      "file": "stabilization.spec.ts",
+      "title": "Project key uses the System six-letter rule in the form and persistence",
+      "line": 17,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0cb4c1e60296",
+      "file": "stabilization.spec.ts",
+      "title": "manual Story creates the six Tasks and supports draft, manual technical plan and historical consultation",
+      "line": 39,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ed4cd4d0905d",
+      "file": "stabilization.spec.ts",
+      "title": "an uncertain draft command survives reload and reuses the same idempotency key",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-da270fa32edd",
+      "file": "stabilization.spec.ts",
+      "title": "inactive ancestors freeze editing and explicit Story reopening preserves cancelled Tasks",
+      "line": 79,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1b2b6e716b89",
+      "file": "story-execution.spec.ts",
+      "title": "story execution prepares specification, requires G1, recovers uncertain requests and links the MR",
+      "line": 7,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f5d115db5552",
+      "file": "story-execution.spec.ts",
+      "title": "processing visibility preserves the confirmed execution during a lost update and recovers without resending",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1538cabf7daf",
+      "file": "story-experience.spec.ts",
+      "title": "a new Story without Tasks loads empty, filters and clears without submitting an empty status",
+      "line": 28,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8473928debe1",
+      "file": "story-experience.spec.ts",
+      "title": "45 real-portal Task fixtures use complete server queries, collapsed filters, URL and preserved drafts between tabs",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d12cb4dfa27b",
+      "file": "story-experience.spec.ts",
+      "title": "27 complete linked attempts paginate independently of the current phase and historical evidence cannot invoke current commands",
+      "line": 54,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d21afaac12bd",
+      "file": "story-experience.spec.ts",
+      "title": "current queued/running processing rotates, human wait and stale heartbeat remain static, and reduced motion is respected",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ab1e78d0ef13",
+      "file": "story-experience.spec.ts",
+      "title": "a failed Task query preserves the previous page, shows a red error with retry, and never reports an empty successful result",
+      "line": 63,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3f3c09061cae",
+      "file": "story-experience.spec.ts",
+      "title": "desktop and mobile keep collapsed queries, complete count and a visible current phase without horizontal overflow",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-29654dc48860",
+      "file": "story-experience.spec.ts",
+      "title": "coding activity keeps its own spinner while a previous conversation stays static; discussion animates only in its confirmed stage",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e588d8e63031",
+      "file": "story-flow.spec.ts",
+      "title": "História preserva shell, seis abas e entrada em Tarefas; Execução concentra a decisão",
+      "line": 109,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-16e58d69067f",
+      "file": "story-flow.spec.ts",
+      "title": "Gateway usa confirmação inline com foco e preserva o comando, corpo e autoria originais",
+      "line": 127,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9e45e17cf2bb",
+      "file": "story-flow.spec.ts",
+      "title": "mudança de versão durante a confirmação exige revisar a decisão nova",
+      "line": 144,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3f0e8f802bdd",
+      "file": "story-flow.spec.ts",
+      "title": "editar mantém formulário e rascunho centrais, sem decisão concorrente ou escrita ao cancelar",
+      "line": 158,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8bc35ad18a77",
+      "file": "story-flow.spec.ts",
+      "title": "queued mostra a situação observada sem botão fictício de continuar",
+      "line": 176,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a52cb70cf137",
+      "file": "story-flow.spec.ts",
+      "title": "running mostra a situação observada sem botão fictício de continuar",
+      "line": 176,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-981a1370dca4",
+      "file": "story-flow.spec.ts",
+      "title": "persona de consulta e tentativa histórica não liberam aprovação por caminhos secundários",
+      "line": 191,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1616f8e49138",
+      "file": "story-flow.spec.ts",
+      "title": "Gateway permanece no shell e acessível por teclado em celular e altura reduzida",
+      "line": 205,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8756060a5404",
+      "file": "story-flow.spec.ts",
+      "title": "Componentes legado consulta o repositório herdado sem escolhas e conserva filtros e retorno pelo Sistema",
+      "line": 223,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3a76dfc80dc6",
+      "file": "story-flow.spec.ts",
+      "title": "mais de um repositório legado permanece consultável sem escolha automática ou mutação",
+      "line": 256,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7e2dc0da21d4",
+      "file": "story-flow.spec.ts",
+      "title": "pedido incerto permite consultar o repositório herdado e retornar antes de reconciliar a intenção original",
+      "line": 277,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-cafbcd6a9b73",
+      "file": "story-flow.spec.ts",
+      "title": "confirmação incerta reconcilia a mesma intenção após recarga sem repetir o efeito",
+      "line": 295,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7e725be833a2",
+      "file": "story-flow.spec.ts",
+      "title": "nome Gateway não reescreve conteúdo de plano registrado pelo agente",
+      "line": 310,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-314f5d212332",
+      "file": "story-flow.spec.ts",
+      "title": "acervo conserva o estado registrado e o destino em consulta sem ações operacionais",
+      "line": 316,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-55977af1290b",
+      "file": "story-flow.spec.ts",
+      "title": "pendência de repositório conserva a razão do backend e leva ao Sistema com retorno ao recorte da História",
+      "line": 332,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-360d408b6199",
+      "file": "story-flow.spec.ts",
+      "title": "Projeto e Tarefa consultam o mesmo repositório do Sistema sem escopo ou seleção próprios",
+      "line": 353,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5c5b58a77f37",
+      "file": "story-flow.spec.ts",
+      "title": "Ana solicita a criação única e neutra no Sistema ativo; consulta e inatividade não permitem criar",
+      "line": 370,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e7c93cc3ed93",
+      "file": "story-task-planning.spec.ts",
+      "title": "Story execution preserves actual phase, contextual decisions and detail access without status writes",
+      "line": 51,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-da8aa5ecdbfb",
+      "file": "story-task-planning.spec.ts",
+      "title": "Manual Task planning uses the central process for transitions and justified reopening",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3187d234da27",
+      "file": "story-task-planning.spec.ts",
+      "title": "Managed Task planning keeps status controlled by process and exposes no manual status action",
+      "line": 92,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-af5d89919520",
+      "file": "story-task-planning.spec.ts",
+      "title": "story preserves history query and current phase in its own audit navigation",
+      "line": 104,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5a863b040b08",
+      "file": "story-task-planning.spec.ts",
+      "title": "task preserves history query and current phase in its own audit navigation",
+      "line": 104,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7ea979453d47",
+      "file": "story-task-planning.spec.ts",
+      "title": "Story uses six tabs, preserves filters and resolves former Summary, delivery and repository links",
+      "line": 143,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ca496e1a685e",
+      "file": "story-workspace.spec.ts",
+      "title": "Task editing uses a central mobile form and unique header actions, and Cancel restores its prior central process section",
+      "line": 114,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9d5e43bc2edd",
+      "file": "story-workspace.spec.ts",
+      "title": "central Task edit preserves its draft across tabs, permission changes and a rejected save before confirming the versioned PATCH",
+      "line": 140,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c1d4f2bd9654",
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task edit acknowledgement retries the original PATCH identity without applying the update twice",
+      "line": 169,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bc3566c8db2b",
+      "file": "story-workspace.spec.ts",
+      "title": "Story creates a Task in the central form with one Save and Cancel in the header and preserves a cancelled draft across tabs",
+      "line": 187,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c200a194a27f",
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task creation acknowledgement keeps its draft and retries the same idempotency identity",
+      "line": 228,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-04778f722a12",
+      "file": "story-workspace.spec.ts",
+      "title": "central Story editing retains a rejected draft across persona and tab changes and can be confirmed from the header",
+      "line": 244,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-95cded06c1ff",
+      "file": "story-workspace.spec.ts",
+      "title": "Story remains macro and task drill down keeps phase and one place for interaction",
+      "line": 267,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c05418cb8e8f",
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 1440px without commands",
+      "line": 305,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8d6fc2f15202",
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 390px without commands",
+      "line": 305,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0cde2afc6195",
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and SECURITY SCAN without changing lifecycle",
+      "line": 335,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bee1cabb6ec0",
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and MERGE REQUEST without changing lifecycle",
+      "line": 335,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-37f630d43db9",
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and TESTING without changing lifecycle",
+      "line": 335,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0b3c3e4f7969",
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and CANCELLED without changing lifecycle",
+      "line": 335,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2ebbcb433b2c",
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 1440px",
+      "line": 347,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a9ccfa6378a1",
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 390px",
+      "line": 347,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c04176e1e596",
+      "file": "story-workspace.spec.ts",
+      "title": "merge failure requests reconciliation without claiming a confirmed blocker; resolved state clears old diagnosis",
+      "line": 368,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b6315af8d748",
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 1440px",
+      "line": 376,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1d5f16db78bb",
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 390px",
+      "line": 376,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bb33026c869b",
+      "file": "story-workspace.spec.ts",
+      "title": "assistant requests architect diagnosis inside the portal and preserves specialist attribution without release writes",
+      "line": 394,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bda78f6f5353",
+      "file": "story-workspace.spec.ts",
+      "title": "unknown Draft release offers result verification without claiming Draft remains or requesting another release confirmation",
+      "line": 402,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f246f27c7415",
+      "file": "story-workspace.spec.ts",
+      "title": "the Specification Gateway requires review and confirmation, and an uncertain G1 request reuses its identity after reload",
+      "line": 409,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fb7df526091d",
+      "file": "story-workspace.spec.ts",
+      "title": "historical evidence and other tasks cannot execute the current review",
+      "line": 445,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-19c24521fbc4",
+      "file": "story-workspace.spec.ts",
+      "title": "a lost correction confirmation can be reconciled with its original identity after the current task changes",
+      "line": 469,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-716ef53c27ec",
+      "file": "story-workspace.spec.ts",
+      "title": "processing distinguishes screen connection, executor heartbeat and last real tool event",
+      "line": 492,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0af610b83065",
+      "file": "story-workspace.spec.ts",
+      "title": "planned work binding has explicit scope and a completion criterion without silently completing tasks",
+      "line": 511,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-722dde6bf56d",
+      "file": "story-workspace.spec.ts",
+      "title": "existing results remain readable without creating artificial process tasks",
+      "line": 526,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-08bd531a6f75",
+      "file": "story-workspace.spec.ts",
+      "title": "a binding draft keeps its original concurrency token until the user reviews a newer selection",
+      "line": 542,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4d3b0803de76",
+      "file": "story-workspace.spec.ts",
+      "title": "a newer assistant conversation never replaces the canonical blocked merge attempt",
+      "line": 563,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8daf8ea7951d",
+      "file": "story-workspace.spec.ts",
+      "title": "manual task status updates preserve the active central planning section from DOING through DONE",
+      "line": 577,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4025d80f6ced",
+      "file": "story-workspace.spec.ts",
+      "title": "refreshing the same item preserves edit and binding drafts and the interaction section",
+      "line": 595,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2b5da58497a2",
+      "file": "story-workspace.spec.ts",
+      "title": "desktop and mobile keep both Story and Task processes central without any interaction sidebar",
+      "line": 615,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-586118195685",
+      "file": "story-workspace.spec.ts",
+      "title": "legacy Task interaction URLs normalize to central process views and survive reload without writes",
+      "line": 649,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b81739de4e44",
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 1440px",
+      "line": 670,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c259988f2c32",
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 390px",
+      "line": 670,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8cbc40f0d208",
+      "file": "story-workspace.spec.ts",
+      "title": "Task destination consultation preserves historical attempt, current journey and read-only context",
+      "line": 692,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7355dbf2237a",
+      "file": "story-workspace.spec.ts",
+      "title": "destination keyboard consultation keeps unsaved release choice separate from confirmed association across tabs",
+      "line": 703,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9b45df652a4f",
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 keeps development and completion separate with revision details collapsed",
+      "line": 716,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8b7aedec252c",
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 Task DONE and historical evidence keep the current parent Story reading on mobile",
+      "line": 729,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-652be6d40b27",
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 missing references and lost refresh retain uncertainty without approving or reopening legacy completion",
+      "line": 740,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5bb04765cf6e",
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 collection keeps phase primary and the same reading as Story details",
+      "line": 749,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4a5b72813a48",
+      "file": "system-environments.spec.ts",
+      "title": "new System shows four ordered registered destinations without deployment claims or read mutations",
+      "line": 24,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1d39d9ec8684",
+      "file": "system-environments.spec.ts",
+      "title": "legacy recovery reviews exact missing DEV, preserves saved metadata and can cancel without mutation",
+      "line": 35,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b9f439291973",
+      "file": "system-environments.spec.ts",
+      "title": "permission and confirmation changes require reviewing persona and repository revision",
+      "line": 48,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7ed319646cdc",
+      "file": "system-environments.spec.ts",
+      "title": "lost response survives reload and replays the original key, body and persona once",
+      "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2bf96cf1b206",
+      "file": "system-environments.spec.ts",
+      "title": "read failure preserves the last reference grid and blocks recovery until a confirmed query",
+      "line": 69,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-af6474c3b0a5",
+      "file": "system-environments.spec.ts",
+      "title": "a concurrently completed registration is a neutral NO_CHANGE and never a deployment",
+      "line": 76,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c02efb48b020",
+      "file": "validation-retry.spec.ts",
+      "title": "legacy validation failure resumes technical correction without repeating user choices or G1",
+      "line": 8,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b83a44d4fc4c",
+      "file": "validation-retry.spec.ts",
+      "title": "quality repair exhaustion replaces retry with the diagnostic conversation without resending correction at 1440px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-30d7273ec5b2",
+      "file": "validation-retry.spec.ts",
+      "title": "quality repair exhaustion replaces retry with the diagnostic conversation without resending correction at 390px",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-80fdd83efc8b",
+      "file": "validation-retry.spec.ts",
+      "title": "technical failure summary keeps complete details collapsed and does not attribute stale validation issues at 1440px",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d5c6b76cdaa8",
+      "file": "validation-retry.spec.ts",
+      "title": "technical failure summary keeps complete details collapsed and does not attribute stale validation issues at 390px",
+      "line": 75,
+      "expected": "passed"
+    }
+  ]
+}

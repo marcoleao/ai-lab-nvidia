@@ -1,3 +1,4 @@
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,describe,expect,test,vi} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -234,7 +235,7 @@ describe.skipIf(!url)('conversation scope and traceability in an isolated databa
 
   test('the unified Story query preserves source identity and execution/merge ownership with complete pagination',async()=>{
     const f=await fixture(),other=await secondStory(f),source=await completedTurn(f.story);
-    const repository=await db.repository.create({data:{systemId:f.system.id,key:'CONVERSATION',name:'Componente isolado',runtime:'node',state:'ready'}});
+    const repository=await repositoryFixture(db,{data:{systemId:f.system.id,key:'CONVERSATION',name:'Componente isolado',runtime:'node',state:'ready'}});
     const execution=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:repository.id,storyVersion:f.story.version,state:'failed',stage:'completed',snapshot:{},error:'Falha atual não atribuível às mensagens antigas.',actorId:'admin',actorName:'Admin'}});
     await db.executionMessage.createMany({data:Array.from({length:25},(_,index)=>({executionId:execution.id,sequence:index+1,role:index%2?'assistant':'user',content:'Mensagem de execução '+index,state:'succeeded',actorId:'admin',actorName:'Admin'}))});
     const operation=await db.mergeOperation.create({data:{executionId:execution.id,storyId:f.story.id,projectId:1,iid:1,sourceBranch:'feature/test',targetBranch:'main',sha:'a'.repeat(40)}});

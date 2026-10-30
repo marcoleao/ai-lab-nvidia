@@ -1,0 +1,13 @@
+BEGIN;
+DO $$ BEGIN IF EXISTS(SELECT 1 FROM "ExecutionContractRequest") OR EXISTS(SELECT 1 FROM "ExecutionContractProposal") OR EXISTS(SELECT 1 FROM "ExecutionContractReview") OR EXISTS(SELECT 1 FROM "ChatTurn" WHERE kind='contract_proposal') THEN RAISE EXCEPTION 'Preserve recorded contract requests and proposals'; END IF; END; $$;
+ALTER TABLE "ChatTurn" DROP CONSTRAINT "ChatTurn_kind_check";
+ALTER TABLE "ChatTurn" ADD CONSTRAINT "ChatTurn_kind_check" CHECK(kind IN ('chat','plan'));
+DROP TRIGGER freeze_contract_turn_intent ON "ChatTurn";
+DROP FUNCTION freeze_contract_turn_intent();
+DROP TABLE "ExecutionContractReview";
+ALTER TABLE "ExecutionContractRequest" DROP CONSTRAINT "ExecutionContractRequest_expectedProposalId_fkey";
+DROP TABLE "ExecutionContractProposal";
+DROP TABLE "ExecutionContractRequest";
+DROP FUNCTION validate_execution_contract_source();
+DELETE FROM "_prisma_migrations" WHERE migration_name='202610290001_execution_contract_proposals';
+COMMIT;

@@ -1,0 +1,739 @@
+{
+  "version": 1,
+  "evaluationDate": "2026-10-30T10:11:03.445353-03:00",
+  "target": "Create a new jewelry catalog through real SDLC agents and publish a DEV version using UI only",
+  "outcome": "FAILED_BEFORE_DEV",
+  "portal": "http://localhost:3310",
+  "systemId": "cmvuyxwxs000001no52u26eju",
+  "projectId": "cmvuz2ec9000r01noyocwpx81",
+  "storyId": "cmvuzcbp8001x01nodp2cxj2j",
+  "observedFinalStoryState": "CODING / Aguardando sua orientação",
+  "devPublicationConfirmed": false,
+  "directBackendTests": 0,
+  "directApiCalls": 0,
+  "sqlUsed": false,
+  "mockedProviders": false,
+  "portalImplementationChanged": false,
+  "createdViaUI": {
+    "systems": 1,
+    "projects": 1,
+    "epics": 1,
+    "stories": 1,
+    "pipelineTasks": 6
+  },
+  "summary": {
+    "portalExecuted": 20,
+    "portalPassed": 12,
+    "portalFailed": 8,
+    "catalogBlockedNotExecuted": 28
+  },
+  "scores": {
+    "overallQualitative": 2,
+    "scale": 5,
+    "basis": "Next action clarity for a business user; not a statistical usability study or mean of scores."
+  },
+  "portalCases": [
+    {
+      "id": "UI-JOI-P01",
+      "title": "Criar Sistema novo",
+      "status": "PASSED",
+      "steps": [
+        "Sistemas > Criar sistema",
+        "Preencher nome, sigla JOIASC e descrição",
+        "Salvar"
+      ],
+      "expected": "Abrir o Sistema criado.",
+      "observed": "Sistema criado e consultável.",
+      "evidence": [
+        "03-sistema-criado.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P02",
+      "title": "Repositório automático",
+      "status": "PASSED",
+      "steps": [
+        "Sistema > Repositório do Sistema"
+      ],
+      "expected": "Repositório único provisionado.",
+      "observed": "UI apresenta sdlc/joiasc/app READY; não houve consulta direta ao GitLab.",
+      "evidence": [
+        "08-preparacao-repositorio.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P03",
+      "title": "Criar Projeto contextual",
+      "status": "PASSED",
+      "steps": [
+        "Sistema > Criar projeto",
+        "Preencher nome, chave CATLOG e descrição",
+        "Salvar"
+      ],
+      "expected": "Projeto pertencente ao novo Sistema.",
+      "observed": "Projeto criado com breadcrumb do Sistema.",
+      "evidence": [
+        "07-projeto-criado.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P04",
+      "title": "Conversar com agente real no Sistema",
+      "status": "PASSED",
+      "steps": [
+        "Sistema > Conversas > Abrir assistente do Sistema",
+        "Informar necessidade e responder entrevista"
+      ],
+      "expected": "Conversa e resposta reais registradas.",
+      "observed": "Agente respondeu e preservou a conversa.",
+      "evidence": [
+        "05-primeira-orientacao-agente.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P05",
+      "title": "Perguntas pendentes visíveis na conversa",
+      "status": "FAILED",
+      "steps": [
+        "Abrir Assistente do Projeto",
+        "Pedir consolidar necessidade",
+        "Ler resposta e abrir Resumo"
+      ],
+      "expected": "Questões bloqueadoras explícitas no diálogo principal.",
+      "observed": "Resposta anunciou perguntas, mas as duas questões estavam apenas no Resumo.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-P06",
+      "title": "Resposta válida da entrevista",
+      "status": "FAILED",
+      "steps": [
+        "Responder às questões de busca/filtros e persistência"
+      ],
+      "expected": "Resposta utilizável e resumo atualizado.",
+      "observed": "Uma rodada exibiu JSON bruto e falha de formato esperado.",
+      "evidence": [
+        "11-resposta-invalida-e-recuperacao.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P07",
+      "title": "Recuperar mensagem inválida",
+      "status": "PASSED",
+      "steps": [
+        "Clicar Recuperar mensagem no rascunho",
+        "Conferir texto preservado",
+        "Reenviar mensagem concisa"
+      ],
+      "expected": "Rascunho recuperável, sem perder a pergunta.",
+      "observed": "Texto original recuperado; nova rodada concluída.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-P08",
+      "title": "Preservar escopo completo ao gerar proposta",
+      "status": "FAILED",
+      "steps": [
+        "Gerar proposta para revisão",
+        "Ler História e critérios"
+      ],
+      "expected": "CRUD, busca, taxonomias e persistência preservados.",
+      "observed": "Primeira proposta omitiu CRUD; exigiu feedback e nova geração.",
+      "evidence": [
+        "12-proposta-incompleta-sem-crud.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P09",
+      "title": "Revisão humana da proposta pela UI",
+      "status": "PASSED",
+      "steps": [
+        "Revisar proposta corrigida",
+        "Tornar explícitos os doze critérios completos",
+        "Salvar revisão"
+      ],
+      "expected": "Revisão nova preservando alterações humanas.",
+      "observed": "Revisão 2 salva; nenhuma edição de código ou resultado de execução.",
+      "evidence": [
+        "18-confirmacao-plano-revisado.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P10",
+      "title": "Criar itens do planejamento",
+      "status": "PASSED",
+      "steps": [
+        "Conferir criação",
+        "Marcar revisão",
+        "Confirmar criação"
+      ],
+      "expected": "Um Épico, uma História e seis Tarefas.",
+      "observed": "Plano aplicado; oito IDs consultáveis pela interface.",
+      "evidence": [
+        "19-historia-criada-proxima-acao.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P11",
+      "title": "Preparar aplicação padrão",
+      "status": "FAILED",
+      "steps": [
+        "Assistente do Sistema > Preparar aplicação",
+        "Conferir Node24/React",
+        "Revisar dez arquivos e confirmar"
+      ],
+      "expected": "Estrutura técnica preparada em MR próprio.",
+      "observed": "Pedido impedido antes da escrita; perfil técnico recusado.",
+      "evidence": [
+        "09-impedimento-perfil-preparacao.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P12",
+      "title": "Recuperar preparação impedida",
+      "status": "FAILED",
+      "steps": [
+        "Conferir próxima etapa",
+        "Verificar resultado da preparação"
+      ],
+      "expected": "Causa e ação de recuperação coerentes.",
+      "observed": "Perfil recusado; consulta orienta aguardar/retomar fila apesar do impedimento.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-P13",
+      "title": "Cancelar e encerrar acompanhamento preservando intenção",
+      "status": "PASSED",
+      "steps": [
+        "Revisar cancelamento",
+        "Confirmar cancelamento",
+        "Encerrar acompanhamento com motivo"
+      ],
+      "expected": "Cancelar pedido não enviado sem apagar histórico.",
+      "observed": "UI confirmou cancelamento antes da escrita e preservação da intenção.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-P14",
+      "title": "Retentar preparação padrão",
+      "status": "FAILED",
+      "steps": [
+        "Após encerramento, Conferir preparação Node24/React",
+        "Confirmar novo pedido",
+        "Conferir próxima etapa"
+      ],
+      "expected": "Novo pedido compatível ou impedimento resolvível.",
+      "observed": "Segundo pedido reproduziu a mesma recusa de perfil.",
+      "evidence": [
+        "14-mesmo-bloqueio-segundo-pedido.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P15",
+      "title": "Bloquear DEV sem pré-requisitos",
+      "status": "PASSED",
+      "steps": [
+        "Sistema > Ambientes > Conferir destino DEV",
+        "História > DEV > Conferir construção e publicação"
+      ],
+      "expected": "Confirmações bloqueadas com motivos.",
+      "observed": "Destino exige contrato; construção exige merge; publicação exige integração e artefato.",
+      "evidence": [
+        "10-dev-impedido-sem-contrato.png",
+        "28-dev-build-publicacao-impedidos.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P16",
+      "title": "Preparar especificação com agente real",
+      "status": "PASSED",
+      "steps": [
+        "História > Continuar em Execução > Preparar especificação",
+        "Ler Especificação e plano técnico"
+      ],
+      "expected": "Critérios preservados e casos de teste gerados.",
+      "observed": "Agente gerou revisão 2 com os doze critérios, arquitetura, riscos e casos.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-P17",
+      "title": "Revisar Gateway e autorizar codificação",
+      "status": "PASSED",
+      "steps": [
+        "Revisar aprovação",
+        "Conferir destino DEV/main",
+        "Confirmar autorização"
+      ],
+      "expected": "Codificação enfileirada pelo Gateway.",
+      "observed": "Autorização registrada pela UI e agente iniciou o ciclo.",
+      "evidence": [
+        "22-aprovacao-gateway-pela-interface.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P18",
+      "title": "Executar codificação do escopo aceito",
+      "status": "FAILED",
+      "steps": [
+        "Aguardar agente após Gateway",
+        "Consultar Tarefa e etapa atual"
+      ],
+      "expected": "Código gerado ou orientação adequada antes da aprovação.",
+      "observed": "Falhou com Contexto maior que 15000 caracteres. Reduza o escopo desta História.",
+      "evidence": [
+        "24-codificacao-bloqueada-contexto-15000.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P19",
+      "title": "Resolver impedimento pelo assistente do portal",
+      "status": "FAILED",
+      "steps": [
+        "Pedir orientação sobre perfil no Sistema",
+        "Responder impedimento da codificação",
+        "Reenviar mensagem curta após falha"
+      ],
+      "expected": "Orientação executável no portal e revisão coerente.",
+      "observed": "Modelo sugeriu controles ausentes e ferramentas externas; primeira rodada de impedimento falhou; resposta seguinte ficou incompleta e pediu autorização de dependências sem explicar necessidade.",
+      "evidence": [
+        "26-falha-conversa-impedimento.png",
+        "29-recuperacao-impedimento-segunda-rodada.png"
+      ]
+    },
+    {
+      "id": "UI-JOI-P20",
+      "title": "Preservar leitura após recarga e em mobile",
+      "status": "PASSED",
+      "steps": [
+        "Recarregar repositório",
+        "Consultar História e Tarefa",
+        "Usar viewport 390"
+      ],
+      "expected": "Estado preservado, trilho visível e sem overflow horizontal.",
+      "observed": "Estado e persona preservados na mesma aba; trilho nas duas superfícies; mobile sem overflow nos recortes observados. Não é certificação integral de acessibilidade.",
+      "evidence": [
+        "15-preparacao-mobile.png",
+        "30-conversa-impedimento-mobile.png",
+        "31-dev-publicacao-impedida-mobile.png"
+      ]
+    }
+  ],
+  "catalogCases": [
+    {
+      "id": "UI-JOI-C01",
+      "title": "Estado vazio e aviso de persistência local",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C02",
+      "title": "Criar categoria",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C03",
+      "title": "Editar categoria",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C04",
+      "title": "Criar e editar coleção",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C05",
+      "title": "Cadastrar joia com todos os campos",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C06",
+      "title": "Recusar campos obrigatórios ausentes",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C07",
+      "title": "Recusar SKU duplicado",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C08",
+      "title": "Recusar preço negativo",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C09",
+      "title": "Aceitar preço zero",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C10",
+      "title": "Consultar listagem com preço BRL",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C11",
+      "title": "Abrir detalhes completos",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C12",
+      "title": "Exibir fotos e ausência de foto",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C13",
+      "title": "Buscar nome com acentos e maiúsculas",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C14",
+      "title": "Buscar por SKU",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C15",
+      "title": "Combinar filtros",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C16",
+      "title": "Limpar filtros sem perder dados",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C17",
+      "title": "Exibir zero resultados",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C18",
+      "title": "Editar joia sem duplicar SKU",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C19",
+      "title": "Cancelar edição sem salvar",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C20",
+      "title": "Cancelar arquivamento",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C21",
+      "title": "Arquivar preservando dados",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C22",
+      "title": "Consultar joias arquivadas",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C23",
+      "title": "Reativar com mesmo SKU",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C24",
+      "title": "Preservar catálogo ao recarregar",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C25",
+      "title": "Bloquear exclusão de categoria/coleção em uso",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C26",
+      "title": "Navegar por teclado com foco visível",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C27",
+      "title": "Operar catálogo em 390px",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    },
+    {
+      "id": "UI-JOI-C28",
+      "title": "Explicar limite local sem anunciar dados compartilhados",
+      "status": "BLOCKED",
+      "steps": [
+        "Abrir aplicação publicada em DEV",
+        "Executar operação pelo formulário/lista visível"
+      ],
+      "expected": "Operação conforme os critérios da História.",
+      "observed": "Aplicação não publicada; operação não executada e resultado não presumido.",
+      "evidence": []
+    }
+  ],
+  "evidence": {
+    "screenshots": {
+      "01-portal-inicial.png": "21d949965f3e113e9b83f70ca2528ab5b43eddbe633146a8817822ae5eb576ac",
+      "02-cadastro-sistema.png": "5895dc16ca4db8e7fa696c95763a32e94545d978126c655c654122f58c7715ac",
+      "03-sistema-criado.png": "4672f747971b2727b9a8a05847bd5815429d16267e24dbdec35488b34071a057",
+      "04-assistente-sistema.png": "fe243b35ab78639e595848834ee3497e2dd15489015c4f3f27019292e766bfa4",
+      "05-primeira-orientacao-agente.png": "4cb45333d41741d59075cdf512492aaca8257ed80ebe47a03c15ab526b6558d6",
+      "06-preparacao-confirmada-pelo-usuario.png": "fb4da8e5f8404c0e583518b91458a06fa3ebec9f3308a1dc240551039185f250",
+      "07-projeto-criado.png": "d4f90e5b6b4ae2dd444f258a0779a9cb05c279c7c53efbf8b495f38135122c8d",
+      "08-preparacao-repositorio.png": "08cdb51f378eb62aa9b18e7636fb6ae0b905ee86a1ae0a44c2b8a0e1267cc0ed",
+      "09-impedimento-perfil-preparacao.png": "13400ac2818c8561a516c90351e554b6c67ad3082ed64710c6ba8bdff6530e0e",
+      "10-dev-impedido-sem-contrato.png": "9dd905f9a11d0b181464b11ff62c8ec9ca581dbba5e893e4dc9948eb89128130",
+      "11-resposta-invalida-e-recuperacao.png": "853e51c7f0d9403693f8f08a3c8b47bc5a848057f271a5bbad6df3d351d32414",
+      "12-proposta-incompleta-sem-crud.png": "22a4677a8de76df27322ac929daf1f11dd876bffd17f66e8c5805df2e6e067b8",
+      "13-retentativa-preparacao.png": "343e99f60923c6038bedf31f82e1a88577bd0aa57100259cad3f821acc76e061",
+      "14-mesmo-bloqueio-segundo-pedido.png": "bbcef0638c99ccbab59022c58292abb27dd94836c324d2a8efcc9e618ae07e66",
+      "15-preparacao-mobile.png": "cba8b8d7d13750accdb077a841f0c0884651909b636822bd0bebb1db8c0f7208",
+      "16-dev-impedido-mobile.png": "8e21509c7074ecb2b9e2cc8b38cd99e402a024bcc1644e5cbf61fc5122943b93",
+      "17-proposta-revisada.png": "be2502827aed7d3ff42cbb3daed803d171f51ad2cd1e83345ce28353ad0b6ca5",
+      "18-confirmacao-plano-revisado.png": "cbec3b07d87655de57be2b9daa1f286cbc877a3af13865014909568aead4e276",
+      "19-historia-criada-proxima-acao.png": "49c54725ce7e59239e9b46d3e19d9fc81a1b4531240aec41f5f8838e35d67d53",
+      "20-historia-execucao-inicial.png": "7f6cbc553607d47f2208676e95f6cd2ec6fcb0006e4e570ba59a44ca7a4fd6bb",
+      "21-gateway-especificacao-pronto.png": "8c8cb76cef96ba2f29001084ba23c5de10bc55dc33a126201aa8ca8cdda0e3c0",
+      "22-aprovacao-gateway-pela-interface.png": "50c071048cd75266e7b63f484212dca24d9b3b83074ccf57cf0f7c93460c1749",
+      "23-tarefa-codificacao-trilho-preservado.png": "688ff2c5fbbcee42fccf9324188b9363ef636d8fab9a1ec4dcbc10cba8d92f8b",
+      "24-codificacao-bloqueada-contexto-15000.png": "de75f74122211a5609b493b7eb3777987d70910e8a504e0c900f1eaa351d22e9",
+      "26-falha-conversa-impedimento.png": "f647bfaf80353cca49a83842a889b90806cbaf5fabc2b33a2142be1f13ca180f",
+      "27-dev-historia-sem-merge.png": "6ab820509615a0b782617a1a1be41efd4f71f99e6e4d0a4cfaa6d1774dd96dc3",
+      "28-dev-build-publicacao-impedidos.png": "07706a4fb4605a351537e2b03b1c8fa8942fe17f0f5f6d65d4b4521d14526e02",
+      "29-recuperacao-impedimento-segunda-rodada.png": "ffb9e536e7d09bcc97335f5ac368ad643b8bbc2fb4f2d45591be56e69c4581f0",
+      "30-conversa-impedimento-mobile.png": "d91423fbb6143df1ff77088e1c597081099c6af848d66c4cef789cdae98a12d6",
+      "31-dev-publicacao-impedida-mobile.png": "1463080729aa0ae157190dc9ce279d27047cc6ae36b50681d03764ffb0bac6ee",
+      "32-estado-final-historia.png": "d91423fbb6143df1ff77088e1c597081099c6af848d66c4cef789cdae98a12d6",
+      "error-1503b47282.png": "08946402cedf17f22818767323fb572bb4edb701cce676423f699e2cdf411a07",
+      "error-1e19d1bc90.png": "4f04a17e4b40dd6df22b1a1ab9510ba20aa748b034a3c452f413c41a3a31f0b4",
+      "error-57331b8a6e.png": "2f531da6aa66a53b1e3747751dd0c9dc656255435cb334781473ad6a12091e4d",
+      "error-abb24739fe.png": "4672f747971b2727b9a8a05847bd5815429d16267e24dbdec35488b34071a057"
+    },
+    "rawJournal": "sdlc/portal/test-results/user-journeys/joias-20261030/browser-events.jsonl",
+    "rawJournalSha256": "93b7b321ad2d39e472526f6cf91a92223e23dce7620c09f655ca26dcafb0165e",
+    "interactionsRecorded": 65,
+    "automationErrorsNotProductDefects": [
+      {
+        "id": "1e19d1bc90",
+        "error": "locator.click: Timeout 12000ms exceeded."
+      },
+      {
+        "id": "abb24739fe",
+        "error": "locator.waitFor: Timeout 12000ms exceeded."
+      },
+      {
+        "id": "1503b47282",
+        "error": "locator.waitFor: Timeout 12000ms exceeded."
+      },
+      {
+        "id": "57331b8a6e",
+        "error": "locator.isEnabled: Timeout 12000ms exceeded."
+      }
+    ],
+    "driverInterruption": {
+      "cause": "ENODATA while reading the automation command file",
+      "impact": "The pending command was read-only browser navigation. Driver restarted, the business state and conversation were reopened through UI. No business action was replayed.",
+      "excludedFromProductAssessment": true,
+      "videoCoverage": "Partial because the initial browser driver exited unexpectedly; final session closed normally."
+    }
+  },
+  "limitations": [
+    "No end-to-end DEV success; code review, security and merge successful paths not reached.",
+    "Catalog CRUD tests registered but not executed.",
+    "No backend investigation of internal root causes performed.",
+    "Demo personas are not corporate authentication.",
+    "Initial localStorage scope is a lab MVP, not a shared persistent production catalog."
+  ],
+  "browserResource": {
+    "name": "sdlc-jewelry-ui-20261030",
+    "released": true,
+    "ownershipVerified": true,
+    "finalExitCode": 0,
+    "platformContainersTouched": false
+  }
+}

@@ -1,0 +1,45 @@
+﻿{
+    "published":  true,
+    "verifiedAt":  "2026-10-27T14:34:49.456539+00:00",
+    "webImage":  "sha256:b5bcb9c76f6fed03b8aac0a1b6c1ab7471e829e2bbf0f7c6e51575dcfa1ea397",
+    "apiImage":  "sha256:ccfb4b47b7769d3559a1d396943d9f2174bd411d9b7a86e5d208d8c7aa43649b",
+    "apiUnchanged":  true,
+    "source":  "fa5e292903805e98c7036ab0c707e31e04fe55a94dd449508d38623d48804ca1",
+    "verification":  {
+                         "health":  {
+                                        "status":  "ready",
+                                        "scope":  "portal-foundation",
+                                        "demoMode":  true,
+                                        "databaseMode":  "preview"
+                                    },
+                         "apiUnchanged":  true,
+                         "servedFlowVerified":  true
+                     },
+    "tablesChecked":  30,
+    "businessFingerprintsPreserved":  true,
+    "exactTablesPreserved":  false,
+    "operationalFieldsExcluded":  [
+                                      "MergeOperation.leaseId",
+                                      "MergeOperation.leaseUntil",
+                                      "MergeOperation.checkedAt",
+                                      "MergeOperation.updatedAt"
+                                  ],
+    "backup":  {
+                   "backupId":  "story-cycle-20261027-5a044cc0",
+                   "bytes":  160623,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "administrativeAudit":  {
+                                "records":  98,
+                                "pendingOperations":  [
+
+                                                      ]
+                            },
+    "browserScenariosPassed":  38,
+    "browserFailures":  0,
+    "liveReadOnlyChecks":  4,
+    "writesAttempted":  0,
+    "pageErrors":  0
+}

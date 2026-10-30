@@ -1,0 +1,76 @@
+{
+  "results": [
+    {
+      "file": "audit-app.test.ts",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "audit-db.test.ts",
+      "exitCode": 0,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "audit-guard.test.ts",
+      "exitCode": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "audit.test.ts",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "environments.test.ts",
+      "exitCode": 0,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "foundation.test.ts",
+      "exitCode": 0,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "release-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "releases.test.ts",
+      "exitCode": 0,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "system-repository.test.ts",
+      "exitCode": 0,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

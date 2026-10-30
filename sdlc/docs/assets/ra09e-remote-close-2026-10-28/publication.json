@@ -1,0 +1,34 @@
+{
+  "id": "ra09e-remote-close-final-20261028-f612e784",
+  "source": "c199aeabaa5c153541787ce33c57c0aa2e7f050d1945b37c22671bf5a5493442",
+  "candidateImage": "sha256:4d36e60134f81fd10f03949e7a772d37f7aaa928639a0a8bf8ac2b1d91115490",
+  "verifiedAt": "2026-10-29T02:54:41.601870+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280007_merge_history_close_operation"
+  ],
+  "existingTablesChecked": 36,
+  "newTables": [
+    "MergeHistoryCloseOperation"
+  ],
+  "tablesChecked": 37,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra09e-remote-close-final-20261028-f612e784",
+    "bytes": 222471,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 284,
+    "head": "d2e789a20e2a5395d66e27ac2b48e79c0520a59d07f61c08ec71db4f4237afa1",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

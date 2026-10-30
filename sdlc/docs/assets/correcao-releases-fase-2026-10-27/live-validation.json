@@ -1,0 +1,35 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "storyStatus": "merge_request",
+  "journeyPhase": "MERGE REQUEST",
+  "mergeConfirmed": true,
+  "storyCompleted": false,
+  "environmentCodes": [
+    "DEV",
+    "QA",
+    "HML",
+    "PRD"
+  ],
+  "compositionStatuses": [
+    "DRAFT"
+  ],
+  "checks": [
+    {
+      "width": 1440,
+      "devVisible": true,
+      "oldReleaseLabelsAbsent": true,
+      "listAndDetailPhase": "MERGE REQUEST",
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "devVisible": true,
+      "oldReleaseLabelsAbsent": true,
+      "listAndDetailPhase": "MERGE REQUEST",
+      "pageOverflow": false
+    }
+  ]
+}

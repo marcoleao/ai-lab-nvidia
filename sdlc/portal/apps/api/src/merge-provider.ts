@@ -1,8 +1,9 @@
 import {DomainError} from './errors.ts';
+import type {MergeIntegrationObservation,MergeClosureObservation,MergeOpenClosureObservation} from '../../../packages/shared/src/merge-integration-reference.ts';
 
 export type MergeReference={projectId:number;iid:number;sourceBranch:string;targetBranch:string;sha:string;expectedTargetSha?:string};
-export type MergeInspection={state:string;sha:string;targetSha?:string;url:string;mergedBy:string|null;mergedAt:string|null;blocks:{category:string;message:string}[]};
-export interface MergeProvider{inspect(reference:MergeReference):Promise<MergeInspection>;merge(reference:MergeReference):Promise<MergeInspection>;}
+export type MergeInspection={state:string;sha:string;targetSha?:string;draft?:boolean;url:string;mergedBy:string|null;mergedAt:string|null;blocks:{category:string;message:string}[];integration?:MergeIntegrationObservation;closure?:MergeClosureObservation;openForClosure?:MergeOpenClosureObservation};
+export interface MergeProvider{inspect(reference:MergeReference):Promise<MergeInspection>;merge(reference:MergeReference):Promise<MergeInspection>;releaseDraft?(reference:MergeReference):Promise<MergeInspection>;closeHistorical?(reference:MergeReference&{remoteUpdatedAt:string}):Promise<MergeInspection>;}
 
 /** Credential is exclusive to this adapter; no arbitrary API method is exposed. */
 export class GitLabMergeProvider implements MergeProvider{
@@ -35,7 +36,35 @@ export class GitLabMergeProvider implements MergeProvider{
    if(mr.blocking_discussions_resolved===false)blocks.push({category:'discussion',message:'Há discussões obrigatórias pendentes no GitLab.'});
    if(mr.detailed_merge_status!=='mergeable')blocks.push({category:'checks',message:`O GitLab ainda não liberou a integração (${String(mr.detailed_merge_status||'unknown')}). Verifique as aprovações e verificações exigidas.`});
   }
-  return {state:mr.state,sha:mr.sha,targetSha:target.commit?.id,url:mr.web_url,mergedBy:mr.merge_user?.username??mr.merged_by?.username??null,mergedAt:mr.merged_at??null,blocks};
+  const safeSha=(v:unknown)=>typeof v==='string'&&/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(v)?v:null;
+  const mergedAt=typeof mr.merged_at==='string'&&Number.isFinite(Date.parse(mr.merged_at))?new Date(mr.merged_at).toISOString():null;
+  const integration=mr.state==='merged'&&!blocks.length?{projectId:mr.project_id,iid:ref.iid,sourceBranch:mr.source_branch,targetBranch:mr.target_branch,sourceSha:mr.sha,mergeCommitSha:safeSha(mr.merge_commit_sha),squashCommitSha:safeSha(mr.squash_commit_sha),mergedAt}:undefined;
+  // Absence/invalid metadata is not proof of absence: require explicit null/false.
+  const closure:MergeClosureObservation|undefined=mr.state==='closed'&&!blocks.some(b=>b.category==='changed')&&mr.merge_commit_sha===null&&mr.squash_commit_sha===null&&mr.merged_at===null&&mr.merge_when_pipeline_succeeds===false&&mr.auto_merge_enabled!==true&&!mr.merge_after?{projectId:mr.project_id,iid:ref.iid,sourceBranch:mr.source_branch,targetBranch:mr.target_branch,sourceSha:mr.sha,state:'closed',mergeCommitSha:null,squashCommitSha:null,mergedAt:null,mergeScheduled:false}:undefined;
+  const updatedAt=typeof mr.updated_at==='string'&&Number.isFinite(Date.parse(mr.updated_at))?new Date(mr.updated_at).toISOString():null;
+  const openForClosure:MergeOpenClosureObservation|undefined=mr.state==='opened'&&ref.sourceBranch.startsWith('sdlc/')&&!blocks.some(b=>b.category==='changed')&&mr.merge_commit_sha===null&&mr.squash_commit_sha===null&&mr.merged_at===null&&mr.merge_when_pipeline_succeeds===false&&mr.auto_merge_enabled!==true&&!mr.merge_after&&updatedAt?{projectId:mr.project_id,iid:ref.iid,sourceBranch:mr.source_branch,targetBranch:mr.target_branch,sourceSha:mr.sha,state:'opened',mergeCommitSha:null,squashCommitSha:null,mergedAt:null,mergeScheduled:false,updatedAt}:undefined;
+  return {state:mr.state,sha:mr.sha,targetSha:target.commit?.id,draft:Boolean(mr.draft||mr.work_in_progress||/^(draft:|wip:|\[draft\]|\(draft\))/i.test(mr.title||'')),url:mr.web_url,mergedBy:mr.merge_user?.username??mr.merged_by?.username??null,mergedAt,blocks,...(integration?{integration}:{}),...(closure?{closure}:{}),...(openForClosure?{openForClosure}:{})};
+ }
+ async closeHistorical(ref:MergeReference&{remoteUpdatedAt:string}){
+  const before=await this.inspect(ref);
+  if(before.state==='merged'||before.closure)return before;
+  if(!before.openForClosure||before.openForClosure.updatedAt!==ref.remoteUpdatedAt)throw new DomainError('HISTORY_CLOSE_STALE','O MR ou sua revisão mudou desde a confirmação. Consulte novamente antes de fechar.',409);
+  // The update endpoint has no SHA CAS. Inspect both sides and never claim atomicity.
+  await this.call('PUT',`projects/${ref.projectId}/merge_requests/${ref.iid}`,{state_event:'close'});
+  return this.inspect(ref);
+ }
+ async releaseDraft(ref:MergeReference){
+  const before=await this.inspect(ref);
+  if(before.state!=='opened'||before.sha!==ref.sha||before.blocks.some(b=>!['draft','checks'].includes(b.category))||ref.expectedTargetSha&&before.targetSha!==ref.expectedTargetSha)throw new DomainError('MERGE_PREPARATION_BLOCKED','As condições ou a revisão do MR mudaram. Consulte o diagnóstico antes de liberar.',409);
+  if(!before.draft)return before;
+  const mr=await this.call('GET',`projects/${ref.projectId}/merge_requests/${ref.iid}`);
+  if(mr.state!=='opened'||mr.sha!==ref.sha||mr.source_branch!==ref.sourceBranch||mr.target_branch!==ref.targetBranch)throw new DomainError('MERGE_STALE','A revisão do MR mudou antes da liberação.',409);
+  const title=String(mr.title||'').replace(/^(?:(?:draft:|wip:|\[draft\]|\(draft\))\s*)+/i,'').trim();
+  if(!title||title===mr.title)throw new DomainError('MERGE_PREPARATION_BLOCKED','A marcação de rascunho não pode ser retirada com segurança nesta proposta.',409);
+  // GitLab supports removing the Draft prefix through the MR update endpoint.
+  // This endpoint has no SHA CAS: inspect again after writing; never infer approval.
+  await this.call('PUT',`projects/${ref.projectId}/merge_requests/${ref.iid}`,{title});
+  return this.inspect(ref);
  }
  async merge(ref:MergeReference){
   const before=await this.inspect(ref);

@@ -1,9 +1,11 @@
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID,createHash} from 'node:crypto';
 import {afterAll,describe,expect,test} from 'vitest';
 import {database} from '../packages/db/client.ts';
 import {createApp} from '../apps/api/src/app.ts';
 import {qualityPolicy} from '../apps/api/src/merge-readiness.ts';
 import {workLinksVersion} from '../apps/api/src/work-activities.ts';
+import {withAuditContext} from '../apps/api/src/audit.ts';
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and task bindings',()=>{
  const db=database(process.env.TEST_DATABASE_URL!),runtime=createApp({db,demoMode:true,git:{health:async()=>true,codeContext:async()=>({sha:'b'.repeat(40),targetBranch:'main',files:[]}),publishCode:async()=>({sha:'a'.repeat(40),url:'http://gitlab/mr/1'}),qualityContext:async()=>({sha:'a'.repeat(40),baseSha:'b'.repeat(40),files:[],changes:[]}),publishCorrection:async()=>({sha:'c'.repeat(40),url:'http://gitlab/mr/1'}),ensureGroup:async()=>{throw Error('unused');},ensureProject:async()=>{throw Error('unused');},inspectProject:async()=>{throw Error('unused');}},llm:{model:'test-only',models:async()=>['test-only'],complete:async()=>{throw Error('No inference expected');}},scannerUrl:'http://isolated-scanner:8080'});
@@ -11,7 +13,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
  async function fixture(){
   const create=(kind:'system'|'project'|'epic'|'story'|'task',parentId?:string,parentKind?:'system'|'project'|'epic'|'story')=>db.item.create({data:{kind,key:'J-'+randomUUID(),name:'Journey isolated',description:'Planned scope',status:kind==='story'?'coding':kind==='task'?'todo':'active',parentId,parentKind,...(kind==='project'?{projectLifecycle:'active'}:{}),data:kind==='story'?{acceptanceCriteria:['Return a result.']}:{} }});
   const system=await create('system'),project=await create('project',system.id,'system'),epic=await create('epic',project.id,'project'),story=await create('story',epic.id,'epic'),task=await create('task',story.id,'story');
-  const repo=await db.repository.create({data:{systemId:system.id,key:'J-'+randomUUID(),name:'Journey repo',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
+  const repo=await repositoryFixture(db,{data:{systemId:system.id,key:'J-'+randomUUID(),name:'Journey repo',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
   const fingerprint=createHash('sha256').update(JSON.stringify({name:story.name,description:story.description,data:story.data,ancestors:[system,project,epic].map(i=>[i.id,i.version,i.status,i.projectLifecycle]),tasks:[{id:task.id,name:task.name,description:task.description,data:task.data,repositoryLinks:[]}],repository:[repo.id,repo.version]})).digest('hex');
   const sha='a'.repeat(40),baseSha='b'.repeat(40),run=await db.storyExecution.create({data:{storyId:story.id,repositoryId:repo.id,storyVersion:1,state:'succeeded',stage:'completed',snapshot:{scopeRevision:2,fingerprint,codeContext:{sha:baseSha,targetBranch:'main',files:[{path:'private.js',content:'PRIVATE_BACKEND_CONTEXT'}]}},commitSha:sha,mergeRequestUrl:'http://gitlab/mr/1',branch:'sdlc/story-fixture',actorId:'admin',actorName:'Admin'}});
   await db.mergeOperation.create({data:{executionId:run.id,storyId:story.id,projectId:repo.gitlabProjectId!,iid:1,sha,sourceBranch:run.branch!,targetBranch:'main',checkedAt:new Date('2099-01-01')}});
@@ -19,6 +21,96 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
   const bind=async(links:unknown[],key=randomUUID(),version=1,expectedLinksVersion?:string)=>runtime.app.inject({method:'POST',url:`/api/items/${story.id}/work-links`,headers:{'x-persona':'admin','idempotency-key':key},payload:{expectedVersion:version,expectedLinksVersion:expectedLinksVersion??workLinksVersion(await db.workTaskLink.findMany({where:{activity:{storyId:story.id,kind:'coding'}}})),links}});
   return {story,task,repo,run,sha,baseSha,get,bind};
  }
+ test('lifecycle reading agrees across collection, Story, Task and journey without leaking revision payloads or writing',async()=>{
+  const f=await fixture();
+  const spec=await db.storySpecificationRevision.create({data:{storyId:f.story.id,number:2,content:{private:'PRIVATE_SPECIFICATION_PAYLOAD'},actorId:'admin',actorName:'Admin',source:'human'}});
+  const before={story:await db.item.findUniqueOrThrow({where:{id:f.story.id}}),history:await db.historyEvent.count(),specs:await db.storySpecificationRevision.count(),runs:await db.storyExecution.count()};
+  const list=await runtime.app.inject(`/api/collections/items?kind=story&parentId=${f.story.parentId}`),detail=await runtime.app.inject(`/api/items/${f.story.id}`),task=await runtime.app.inject(`/api/items/${f.task.id}`),journey=await f.get(),taskJourney=await f.get(f.task.id);
+  for(const response of [list,detail,task,journey,taskJourney]){expect(response.statusCode,response.body).toBe(200);expect(response.body).not.toContain('PRIVATE_SPECIFICATION_PAYLOAD');expect(response.body).not.toContain('PRIVATE_BACKEND_CONTEXT');}
+  const reading=detail.json().storyLifecycle;
+  expect(list.json().items.find((row:any)=>row.id===f.story.id).storyLifecycle).toEqual(reading);
+  expect(task.json().storyLifecycle).toEqual(reading);
+  expect(journey.json().storyLifecycle).toEqual({...reading,revision:{...reading.revision,executionContext:'current'}});
+  expect(taskJourney.json().storyLifecycle).toEqual(journey.json().storyLifecycle);
+  expect(reading).toMatchObject({storyId:f.story.id,development:{state:'not_recorded'},completion:{state:'awaiting_production'},revision:{recordVersion:1,specification:{id:spec.id,number:2},execution:{id:f.run.id,sha:f.sha,storyRecordVersion:1},executionContext:'not_checked'}});
+  expect({story:await db.item.findUniqueOrThrow({where:{id:f.story.id}}),history:await db.historyEvent.count(),specs:await db.storySpecificationRevision.count(),runs:await db.storyExecution.count()}).toEqual(before);
+ });
+ test('administrative version and historical query do not substitute content revision or attest approval',async()=>{
+  const f=await fixture();const spec=await db.storySpecificationRevision.create({data:{storyId:f.story.id,number:4,content:{},actorId:'admin',actorName:'Admin',source:'human'}});
+  await db.item.update({where:{id:f.story.id},data:{description:'Changed current Story scope',version:{increment:1}}});
+  const view=(await f.get()).json().storyLifecycle;
+  expect(view.revision).toMatchObject({recordVersion:2,specification:{id:spec.id,number:4},execution:{sha:f.sha,storyRecordVersion:1},executionContext:'outdated'});
+  await runtime.app.inject(`/api/items/${f.story.id}/history?page=99`);
+  expect((await f.get()).json().storyLifecycle).toEqual(view);
+  expect(view.development.state).toBe('not_recorded');expect(view.completion.production).toBe('unconfirmed');
+ });
+ test('missing latest references stay unknown and never fall back to an older code revision',async()=>{
+  const f=await fixture();
+  await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.repo.id,storyVersion:1,state:'failed',stage:'context',snapshot:{},actorId:'admin',actorName:'Admin',createdAt:new Date(Date.now()+1000)}});
+  const view=(await f.get()).json().storyLifecycle;
+  expect(view.revision.specification).toBeNull();expect(view.revision.execution.sha).toBeNull();expect(view.revision.execution.id).not.toBe(f.run.id);
+  const empty=await db.item.create({data:{kind:'story',parentId:f.story.parentId,parentKind:'epic',key:'EMPTY-'+randomUUID(),name:'No revision',status:'testing',data:{}}});
+  const missing=(await f.get(empty.id)).json().storyLifecycle;
+  expect(missing.revision).toMatchObject({specification:null,execution:null,executionContext:'not_checked'});expect(missing.development.state).toBe('not_recorded');
+ });
+ test('legacy completion is preserved without inventing DEV approval or production',async()=>{
+  const f=await fixture();await db.item.update({where:{id:f.story.id},data:{status:'completed'}});
+  const reading=(await f.get()).json().storyLifecycle;
+  expect(reading.completion.state).toBe('recorded_without_production_evidence');expect(reading.completion.production).toBe('unconfirmed');expect(reading.development.state).toBe('not_recorded');
+  expect((await db.item.findUniqueOrThrow({where:{id:f.story.id}})).status).toBe('completed');
+ });
+ test('generic status and PATCH cannot approve development or complete a Story; Task DONE does not close its parent',async()=>{
+  const f=await fixture(),post=(path:string,payload:unknown)=>runtime.app.inject({method:'POST',url:'/api'+path,headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload});
+  const blocked=await post(`/items/${f.story.id}/status`,{expectedVersion:1,status:'completed'});expect(blocked.statusCode,blocked.body).toBe(409);expect(blocked.json().error).toMatchObject({code:'PIPELINE_STATUS_ONLY'});expect(blocked.json().error.message).toContain('produção');
+  const patch=await runtime.app.inject({method:'PATCH',url:`/api/items/${f.story.id}`,headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{expectedVersion:1,name:f.story.name,description:f.story.description,status:'completed',developmentApproved:true}});expect(patch.statusCode,patch.body).toBe(422);
+  await db.item.update({where:{id:f.task.id},data:{status:'done'}});
+  expect((await f.get(f.task.id)).json().storyLifecycle).toMatchObject({development:{state:'not_recorded'},completion:{state:'awaiting_production'}});
+  expect((await db.item.findUniqueOrThrow({where:{id:f.story.id}})).status).toBe('coding');
+  const close=await post(`/items/${f.story.parentId}/lifecycle`,{expectedVersion:1,lifecycle:'completed',comment:'Do not force unfinished Stories closed.'});expect(close.statusCode,close.body).toBe(409);expect(close.json().error.code).toBe('UNFINISHED_CHILDREN');
+ });
+ test('delivery consultation shares Story ownership with Tasks without inferring deployments or changing data',async()=>{
+  const f=await fixture();
+  const before={story:await db.item.findUniqueOrThrow({where:{id:f.story.id}}),history:await db.historyEvent.count()};
+  const view=(await f.get(f.story.id)).json();
+  expect(view.delivery.development).toMatchObject({unit:'story',releaseRequired:false,publication:'unconfirmed',approval:'unconfirmed',publicationAvailable:false});
+  expect(view.delivery.release).toMatchObject({association:'unassigned',reference:null,candidate:'unconfirmed'});
+  expect(view.delivery.promotion).toMatchObject({releaseRequiredFrom:'QA',immutableCandidateRequired:true,allStoriesDevelopmentApprovalRequired:true});
+  expect((await f.get(f.task.id)).json().delivery).toEqual(view.delivery);
+  const release=await db.release.create({data:{key:'R-'+randomUUID(),name:'Delivery read fixture',systemId:f.repo.systemId,compositionStatus:'OPEN',createdById:'admin',createdByName:'Admin'}});
+  await db.releaseStory.create({data:{releaseId:release.id,storyId:f.story.id,plannedStoryVersion:f.story.version}});
+  await db.release.update({where:{id:release.id},data:{compositionStatus:'CLOSED'}});
+  const assigned=(await f.get()).json().delivery;
+  expect(assigned.release).toMatchObject({association:'assigned',reference:{id:release.id,compositionStatus:'CLOSED'},candidate:'unconfirmed'});
+  expect(assigned.destinations.every((d:any)=>d.publication==='unconfirmed'&&d.validation==='unconfirmed')).toBe(true);
+  expect(await db.item.findUniqueOrThrow({where:{id:f.story.id}})).toEqual(before.story);
+  expect(await db.historyEvent.count()).toBe(before.history);
+ });
+ test('only a confirmed merge for the current revision identifies DEV as next',async()=>{
+  const f=await fixture();
+  await db.mergeOperation.update({where:{executionId:f.run.id},data:{state:'succeeded'}});
+  expect((await f.get()).json().delivery.development.next).toBe(true);
+  await db.item.update({where:{id:f.story.id},data:{description:'A newer scope needs another development cycle',version:{increment:1}}});
+  expect((await f.get()).json().delivery.development.next).toBe(false);
+ });
+ test('phase reconciliation uses real gates, stays open, and agrees across list, filter, order and journey',async()=>{
+  const f=await fixture(),plan=[{id:f.story.id,expectedVersion:f.story.version,executionId:f.run.id}];
+  await expect(runtime.reconcileStoryPhases(plan)).rejects.toThrow('evidência vigente');
+  for(const kind of ['code_review','security_scan'])await db.qualityCheck.create({data:{storyId:f.story.id,executionId:f.run.id,kind,sha:f.sha,baseSha:f.baseSha,policyVersion:qualityPolicy,state:'passed',actorId:'admin',actorName:'Admin',evidence:{digest:'d'.repeat(64)}}});
+  const operationId='phase-test:'+randomUUID();
+  const result=await withAuditContext({operationId,source:'isolated-maintenance'},()=>runtime.reconcileStoryPhases(plan));expect(result.updated).toEqual([f.story.id]);
+  const detail=(await f.get()).json();expect(detail.story.status).toBe('merge_request');expect(detail.current.phase).toBe('MERGE REQUEST');expect(detail.story.status).not.toBe('completed');
+  const list=await runtime.app.inject(`/api/collections/items?kind=story&parentId=${f.story.parentId}&status=merge_request&sort=status`);expect(list.statusCode,list.body).toBe(200);expect(list.json().items.map((row:{id:string;status:string})=>[row.id,row.status])).toContainEqual([f.story.id,'merge_request']);
+  expect((await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).storyVersion).toBe(detail.story.version);
+  expect((await runtime.reconcileStoryPhases(plan)).unchanged).toEqual([f.story.id]);expect(await db.historyEvent.count({where:{itemId:f.story.id,action:'STORY_MERGE_PHASE_ENTERED',operationId}})).toBe(1);
+ });
+ test('phase audit failure rolls back Story and execution version; the same plan can retry',async()=>{
+  const f=await fixture(),plan=[{id:f.story.id,expectedVersion:f.story.version,executionId:f.run.id}];await db.mergeOperation.update({where:{executionId:f.run.id},data:{state:'succeeded'}});
+  await db.$executeRawUnsafe(`CREATE FUNCTION reject_phase_fixture() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='STORY_MERGE_PHASE_ENTERED' THEN RAISE EXCEPTION 'phase audit rollback'; END IF; RETURN NEW; END; $$`);
+  await db.$executeRawUnsafe('CREATE TRIGGER reject_phase_fixture BEFORE INSERT ON "HistoryEvent" FOR EACH ROW EXECUTE FUNCTION reject_phase_fixture()');
+  try{await expect(runtime.reconcileStoryPhases(plan)).rejects.toThrow('phase audit rollback');expect((await db.item.findUniqueOrThrow({where:{id:f.story.id}})).status).toBe('coding');expect((await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).storyVersion).toBe(f.story.version);}
+  finally{await db.$executeRawUnsafe('DROP TRIGGER reject_phase_fixture ON "HistoryEvent"');await db.$executeRawUnsafe('DROP FUNCTION reject_phase_fixture()');}
+  expect((await runtime.reconcileStoryPhases(plan)).updated).toEqual([f.story.id]);
+ });
  test('GET preserves all business data, exposes no source files and disables commands without a persona',async()=>{
   const f=await fixture(),before={tasks:await db.item.count({where:{parentId:f.story.id}}),activities:await db.workActivity.count({where:{storyId:f.story.id}})};
   const response=await f.get();expect(response.statusCode,response.body).toBe(200);expect(response.body).not.toContain('PRIVATE_BACKEND_CONTEXT');

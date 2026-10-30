@@ -1,3 +1,5 @@
+import {reviewedGateBody} from './reviewed-gate';
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID} from 'node:crypto';
 import {afterAll,describe,expect,test} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -45,7 +47,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('planned pipeline Tasks',()=>{
  });
  test('execution activity reuses Codificação and G1 has no seventh Task',async()=>{
   const f=await fixture(),story=await create({kind:'story',name:'Planejamento de execução',parentId:f.epic.id});
-  const repo=await db.repository.create({data:{systemId:f.system.id,key:randomUUID(),name:'Componente isolado',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)}});
+  const repo=await repositoryFixture(db,{data:{systemId:f.system.id,key:randomUUID(),name:'Componente isolado',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)}});
   await db.itemRepository.create({data:{itemId:story.id,repositoryId:repo.id}});
   const response=await runtime.app.inject({method:'POST',url:`/api/items/${story.id}/work-links`,headers:headers(),payload:{expectedVersion:story.version,expectedLinksVersion:workLinksVersion([]),links:[]}});
   expect(response.statusCode,response.body).toBe(200);
@@ -102,13 +104,13 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('planned pipeline Tasks',()=>{
   const f=await fixture(),story=await create({kind:'story',name:'Retomada explícita de codificação',parentId:f.epic.id});
   const git={health:async()=>true,codeContext:async()=>({sha:'b'.repeat(40),targetBranch:'main',files:[{path:'app.js',content:'export const answer=0;'}]}),publishCode:async()=>({sha:'c'.repeat(40),url:'http://gitlab/test/-/merge_requests/1'})} as GitProvider;
   const execution=createApp({db,demoMode:true,git,llm:{model:'isolated',models:async()=>['isolated'],complete:async()=>{throw Error('Generation is not part of this scope-start test');}}});
-  const command=async(path:string,payload:unknown,method:'POST'|'PUT'='POST')=>{const response=await execution.app.inject({method,url:`/api${path}`,headers:headers(),payload});expect(response.statusCode,response.body).toBe(200);return response.json();};
+  const command=async(path:string,payload:unknown,method:'POST'|'PUT'='POST')=>{const response=await execution.app.inject({method,url:`/api${path}`,headers:headers(),payload:await reviewedGateBody(execution.app,path,payload,randomUUID())});expect(response.statusCode,response.body).toBe(200);return response.json();};
   try{
    const cancelled=await command(`/items/${story.id}/cancel`,{expectedVersion:story.version});
    expect(await db.item.count({where:{parentId:story.id,status:'cancelled'}})).toBe(6);
    const reopened=await command(`/items/${story.id}/reopen`,{expectedVersion:cancelled.item.version,comment:'Retomar a entrega com revisão explícita do planejamento.'});
    expect(await db.item.count({where:{parentId:story.id,status:'cancelled'}})).toBe(6);
-   const repository=await db.repository.create({data:{systemId:f.system.id,key:randomUUID(),name:'Componente da retomada',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
+   const repository=await repositoryFixture(db,{data:{systemId:f.system.id,key:randomUUID(),name:'Componente da retomada',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
    const content={requirements:{objective:'Consultar a situação de uma solicitação.',behavior:'Receber o identificador e mostrar a situação correspondente.',functionalCriteria:['Uma solicitação existente apresenta sua situação.']},technical:{requirements:'Validar a entrada e consultar a situação correspondente.',architecture:'Uma função de consulta mantém o contrato existente.',testCases:[{criterionIndex:0,description:'Uma entrada válida apresenta a situação correspondente.'}],risks:[]}};
    const draft=await command(`/items/${story.id}/specification/draft`,{expectedDraftVersion:0,content},'PUT');
    await command(`/items/${story.id}/specification/apply`,{expectedDraftVersion:draft.draft.version,expectedVersion:reopened.item.version,confirmed:true});
@@ -124,31 +126,29 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('planned pipeline Tasks',()=>{
    expect((audit.audit as any).changes).toContainEqual({field:'status',before:{kind:'value',value:'cancelled'},after:{kind:'value',value:'doing'}});
   }finally{await execution.app.close();}
  });
- test('planning can change pipeline components, but queued coding freezes scope while titles preserve G1',async()=>{
+ test('pipeline inherits the System repository and queued coding freezes content while titles preserve G1',async()=>{
   const f=await fixture(),story=await create({kind:'story',name:'Escopo planejado e execução protegida',parentId:f.epic.id});
   const tasks=await db.item.findMany({where:{parentId:story.id}}),coding=tasks.find(task=>pipelineStageOf(task)==='coding')!;
-  const repositories=await Promise.all([1,2].map(index=>db.repository.create({data:{systemId:f.system.id,key:randomUUID(),name:`Componente de planejamento ${index}`,runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}})));
-  await db.itemRepository.createMany({data:repositories.map(repository=>({itemId:f.project.id,repositoryId:repository.id}))});
+  const repository=await repositoryFixture(db,{data:{systemId:f.system.id,key:randomUUID(),name:'Repositório único do Sistema',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});
   const git={codeContext:async()=>({sha:'b'.repeat(40),targetBranch:'main',files:[]}),publishCode:async()=>({sha:'c'.repeat(40),url:'http://gitlab/test/-/merge_requests/80'})} as unknown as GitProvider;
   const execution=createApp({db,demoMode:true,git,llm:{model:'isolated',models:async()=>['isolated'],complete:async()=>{throw Error('No worker or model runs in this queued-scope test');}}});
-  const command=async(path:string,payload:unknown,method:'POST'|'PUT'|'PATCH'='POST')=>{const response=await execution.app.inject({method,url:`/api${path}`,headers:headers(),payload});expect(response.statusCode,response.body).toBe(200);return response.json();};
+  const command=async(path:string,payload:unknown,method:'POST'|'PUT'|'PATCH'='POST')=>{const response=await execution.app.inject({method,url:`/api${path}`,headers:headers(),payload:await reviewedGateBody(execution.app,path,payload,randomUUID())});expect(response.statusCode,response.body).toBe(200);return response.json();};
   try{
-   let selected=await command(`/items/${story.id}/repositories`,{expectedVersion:story.version,repositoryIds:[repositories[0].id]},'PATCH');
-   const assigned=await command(`/items/${coding.id}/repositories`,{expectedVersion:coding.version,repositoryIds:[repositories[0].id]},'PATCH');
-   const cleared=await command(`/items/${coding.id}/repositories`,{expectedVersion:assigned.item.version,repositoryIds:[]},'PATCH');
-   expect(await db.itemRepository.count({where:{itemId:coding.id}})).toBe(0);
-   selected=await command(`/items/${story.id}/repositories`,{expectedVersion:selected.item.version,repositoryIds:[repositories[1].id]},'PATCH');
+   const selected={item:story},cleared={item:coding};
+   const inherited=(await execution.app.inject('/api/items/'+story.id)).json();
+   expect(inherited.repositories.map((value:{id:string})=>value.id)).toEqual([repository.id]);
+   expect(await db.itemRepository.count({where:{itemId:{in:[story.id,coding.id]}}})).toBe(0);
    const content={requirements:{objective:'Consultar a situação de uma solicitação.',behavior:'Receber o identificador e apresentar sua situação.',functionalCriteria:['Uma solicitação existente apresenta sua situação.']},technical:{requirements:'Validar o identificador e consultar a situação correspondente.',architecture:'Uma função mantém o contrato de consulta estabelecido.',testCases:[{criterionIndex:0,description:'Uma entrada conhecida apresenta a situação correspondente.'}],risks:[]}};
    const draft=await command(`/items/${story.id}/specification/draft`,{expectedDraftVersion:0,content},'PUT');
    const applied=await command(`/items/${story.id}/specification/apply`,{expectedDraftVersion:draft.draft.version,expectedVersion:selected.item.version,confirmed:true});
    const current=await db.item.findUniqueOrThrow({where:{id:story.id}}),prepared=await command(`/items/${story.id}/execution`,{expectedVersion:current.version});
    await command(`/executions/${prepared.runId}/approve`,{expectedVersion:current.version});
-   const approved=await db.storyExecution.findUniqueOrThrow({where:{id:prepared.runId}});expect(approved).toMatchObject({state:'queued',stage:'context',repositoryId:repositories[1].id});
+   const approved=await db.storyExecution.findUniqueOrThrow({where:{id:prepared.runId}});expect(approved).toMatchObject({state:'queued',stage:'context',repositoryId:repository.id});
    const changedScope=await execution.app.inject({method:'PATCH',url:`/api/items/${coding.id}`,headers:headers(),payload:{expectedVersion:cleared.item.version,name:coding.name,description:'Alterar o contrato funcional enquanto o executor está na fila.'}});
    expect(changedScope.statusCode,changedScope.body).toBe(409);expect(changedScope.json().error.code).toBe('TASK_SCOPE_BUSY');
    expect(await db.item.findUniqueOrThrow({where:{id:coding.id}})).toMatchObject({description:coding.description,version:cleared.item.version});
-   const repositoryChange=await execution.app.inject({method:'PATCH',url:`/api/items/${coding.id}/repositories`,headers:headers(),payload:{expectedVersion:cleared.item.version,repositoryIds:[repositories[1].id]}});
-   expect(repositoryChange.statusCode,repositoryChange.body).toBe(409);expect(repositoryChange.json().error.code).toBe('EXECUTION_SCOPE_BUSY');
+   const repositoryChange=await execution.app.inject({method:'PATCH',url:`/api/items/${coding.id}/repositories`,headers:headers(),payload:{expectedVersion:cleared.item.version,repositoryIds:[repository.id]}});
+   expect(repositoryChange.statusCode,repositoryChange.body).toBe(409);expect(repositoryChange.json().error.code).toBe('SYSTEM_REPOSITORY_INHERITED');
    expect(await db.itemRepository.count({where:{itemId:coding.id}})).toBe(0);
    const renamed=await command(`/items/${coding.id}`,{expectedVersion:cleared.item.version,name:'Codificação do contrato de consulta',description:coding.description},'PATCH');
    expect(renamed.item.name).toBe('Codificação do contrato de consulta');
@@ -161,7 +161,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('planned pipeline Tasks',()=>{
  test('an explicit legacy replan adopts the existing coding Task and preserves its historical attempts',async()=>{
   const f=await fixture(),technical={requirements:'Validar a entrada e retornar a situação correspondente.',architecture:'Uma função de consulta mantém o contrato estabelecido.',testCases:[{criterionIndex:0,description:'Uma entrada conhecida apresenta a situação correspondente.'}],risks:[]};
   const story=await db.item.create({data:{kind:'story',key:randomUUID(),name:'Entrega legada observada',description:'Consultar a situação de uma solicitação pelo identificador.',status:'coding',parentId:f.epic.id,parentKind:'epic',data:{requirements:{objective:'Consultar uma solicitação pelo identificador.',behavior:'Informar o identificador e apresentar sua situação.',functionalCriteria:['Uma solicitação existente apresenta sua situação.']},acceptanceCriteria:['Uma solicitação existente apresenta sua situação.'],technicalPlan:technical}}});
-  const repository=await db.repository.create({data:{systemId:f.system.id,key:randomUUID(),name:'Componente legado isolado',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
+  const repository=await repositoryFixture(db,{data:{systemId:f.system.id,key:randomUUID(),name:'Componente legado isolado',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*1e8)+100}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
   const task=await db.item.create({data:{kind:'task',parentId:story.id,parentKind:'story',key:randomUUID(),name:'Codificar e publicar a revisão legada',description:'Preservar este detalhamento de codificação já planejado.',status:'done',data:{workProcess:true,result:{summary:'Resultado observado da tentativa anterior.'}}}});
   const prior=await db.storyExecution.create({data:{storyId:story.id,repositoryId:repository.id,storyVersion:1,state:'succeeded',stage:'completed',snapshot:{scopeRevision:1},mergeRequestUrl:'http://gitlab/test/-/merge_requests/70',actorId:'admin',actorName:'Admin'}});
   const activity=await db.workActivity.create({data:{storyId:story.id,repositoryId:repository.id,kind:'coding',scopeKey:`${story.id}:${repository.id}:coding`,taskId:task.id}}),attempt=await db.workAttempt.create({data:{activityId:activity.id,sourceType:'execution',sourceId:prior.id,sourceKey:randomUUID(),state:'succeeded',summary:'Tentativa histórica preservada.',actorId:'ana',actorName:'Ana'}});await db.workActivity.update({where:{id:activity.id},data:{currentAttemptId:attempt.id}});

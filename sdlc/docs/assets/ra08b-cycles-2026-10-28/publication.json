@@ -1,0 +1,30 @@
+{
+  "id": "ra08b-cycles-published-20261028-e83696f5-retry1",
+  "source": "2a941c7fc2f5696710bfe3a826565a2d41614f1baf13eab3d03e1ce33299baa5",
+  "candidateImage": "sha256:40734ce4310406c2bea0820d64a49e6f8d62ec841dcebcdaff66d54382e987a9",
+  "verifiedAt": "2026-10-28T22:01:53.281870+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [],
+  "existingTablesChecked": 34,
+  "newTables": [],
+  "tablesChecked": 34,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra08b-cycles-published-20261028-e83696f5-retry1",
+    "bytes": 204739,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 244,
+    "head": "87381d9078aa631454a1e3728811cfa2e63658b8007f0e8966be126714121de3",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

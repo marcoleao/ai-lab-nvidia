@@ -1,0 +1,12 @@
+.epic-execution .epic-follow{display:inline-flex;align-items:center;border:1px solid var(--blue);border-radius:5px;background:var(--blue);color:white;font-weight:600;padding:10px 14px;text-decoration:none;min-height:44px}
+.epic-execution>details>summary{cursor:pointer;font-weight:600;min-height:24px}
+.epic-execution .epic-disclosure{padding-top:16px;min-width:0}
+.epic-execution .epic-reason{display:grid;gap:8px;margin:16px 0}
+.epic-execution .epic-reason textarea{display:block;width:100%;min-height:96px;resize:vertical}
+.epic-execution .epic-reason small{display:block}
+.epic-execution .epic-cycle-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.epic-execution .epic-cycle-actions p{margin:6px 0}
+.epic-execution .epic-read-refresh{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:20px}
+.epic-execution .epic-confirmation{border-top:1px solid var(--line);margin-top:20px;padding-top:16px;scroll-margin-top:220px}
+.epic-execution p,.epic-execution a{overflow-wrap:anywhere}
+@media(max-width:600px){.epic-execution button{min-height:44px}.epic-execution .epic-cycle-actions{grid-template-columns:1fr}.epic-execution .epic-reason textarea{font-size:16px}}

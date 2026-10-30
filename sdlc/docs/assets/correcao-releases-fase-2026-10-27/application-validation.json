@@ -1,0 +1,76 @@
+{
+  "results": [
+    {
+      "file": "audit-guard.test.ts",
+      "exitCode": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "audit.test.ts",
+      "exitCode": 0,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "foundation.test.ts",
+      "exitCode": 0,
+      "passed": 25,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "journey.test.ts",
+      "exitCode": 0,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "merge-worker.test.ts",
+      "exitCode": 0,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "quality.test.ts",
+      "exitCode": 0,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "release-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "release-reading.test.ts",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "file": "releases.test.ts",
+      "exitCode": 0,
+      "passed": 23,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

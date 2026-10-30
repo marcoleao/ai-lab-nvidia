@@ -5,7 +5,7 @@ permissions:
 jobs:
   portal-foundation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 40
     defaults:
       run:
         working-directory: sdlc/portal
@@ -32,22 +32,26 @@ jobs:
           node-version: '24'
       - name: Prepare workspace
         run: npm install --global pnpm@12.14.0 && pnpm install --frozen-lockfile
-      - name: Migrations and strict TypeScript build
-        run: pnpm db:generate && pnpm db:setup && pnpm build
-      - name: Domain and PostgreSQL contracts
-        run: pnpm test
+      - name: Generate database client and apply isolated migrations
+        run: pnpm db:generate && pnpm db:setup
       - name: Administrative audit contracts
-        run: python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
+        run: |
+          python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
+          python3 tests/regression-runner.test.py
       - name: Local inference relay contracts
         run: python3 tests/relay_tests.py
       - name: Browser dependencies
         run: pnpm exec playwright install --with-deps chromium
-      - name: Human creation journey in isolated browser
-        run: |
-          pnpm --filter @sdlc/api start >/tmp/portal-api.log 2>&1 &
-          pnpm --filter @sdlc/web start >/tmp/portal-web.log 2>&1 &
-          node scripts/wait.mjs http://127.0.0.1:3000/api/health
-          pnpm test:e2e
+      - name: Registered backend and browser regression
+        run: pnpm regression:ci
+      - name: Regression reports and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-regression-${{ github.run_attempt }}
+          path: sdlc/portal/test-results/regression/
+          if-no-files-found: warn
+          retention-days: 7
   vscode-extension:
     runs-on: ubuntu-24.04
     steps:

@@ -1,0 +1,44 @@
+{
+  "results": [
+    {
+      "file": "merge-integration-reference.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "merge-integration-provider.test.ts",
+      "exitCode": 0,
+      "passed": 5
+    },
+    {
+      "file": "merge.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "merge-worker.test.ts",
+      "exitCode": 0,
+      "passed": 19
+    },
+    {
+      "file": "journey.test.ts",
+      "exitCode": 0,
+      "passed": 22
+    },
+    {
+      "file": "development-cycle.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "quality.test.ts",
+      "exitCode": 0,
+      "passed": 9
+    },
+    {
+      "file": "release-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    }
+  ]
+}

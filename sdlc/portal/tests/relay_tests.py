@@ -27,7 +27,7 @@ class RelayTests(unittest.TestCase):
                 calls.append((self.path, self.headers.get('Authorization'), body))
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(b'{"model":"local-model","choices":[]}')
+                self.wfile.write(b'{"model":"local-model","done":true,"done_reason":"stop","message":{"content":"resposta completa"}}')
 
             def log_message(self, *_):
                 pass
@@ -61,11 +61,19 @@ class RelayTests(unittest.TestCase):
             self.assertEqual(request('/v1/models')[0], 200)
             self.assertEqual(request('/v1/chat/completions', body)[0], 200)
             self.assertEqual(len(calls), 2)
-            self.assertEqual(calls[1][2]['reasoning_effort'], 'none')
+            self.assertEqual(calls[1][0], '/api/chat')
+            self.assertEqual(calls[1][2]['think'], False)
+            self.assertEqual(calls[1][2]['options'], {'num_ctx': 32768, 'num_predict': 32, 'temperature': 0.2})
             schema_format = {'type': 'json_schema', 'json_schema': {'name': 'sdlc_plan', 'strict': True, 'schema': {'type': 'object', 'properties': {'summary': {'type': 'string'}}, 'additionalProperties': False}}}
-            self.assertEqual(request('/v1/chat/completions', {**body, 'max_tokens': 4096, 'response_format': schema_format})[0], 200)
-            self.assertEqual(calls[-1][2]['response_format'], schema_format)
-            self.assertEqual(request('/v1/chat/completions', {**body, 'max_tokens': 4097})[0], 422)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'max_tokens': 8192, 'response_format': schema_format})[0], 200)
+            self.assertEqual(calls[-1][2]['format'], schema_format['json_schema']['schema'])
+            self.assertEqual(calls[-1][2]['options']['num_predict'], 8192)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'options': {'num_ctx': 99999}})[0], 422)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*16000}]*3})[0], 422)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*14000}]*3})[0], 200)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*n} for n in [16000,16000,14000]]})[0], 200)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*n} for n in [16000,16000,14001]]})[0], 422)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'max_tokens': 8193})[0], 422)
             self.assertEqual(request('/v1/chat/completions', {**body, 'response_format': {'type': 'json_schema', 'json_schema': {'name': 'other'}}})[0], 422)
             self.assertTrue(all(call[1] is None for call in calls))
         finally:

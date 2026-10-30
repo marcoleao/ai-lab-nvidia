@@ -1,0 +1,36 @@
+{
+  "passed": 86,
+  "failed": 0,
+  "results": [
+    {
+      "file": "merge-reference-capture.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "merge-integration-reference.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "merge-worker.test.ts",
+      "exitCode": 0,
+      "passed": 19
+    },
+    {
+      "file": "journey.test.ts",
+      "exitCode": 0,
+      "passed": 22
+    },
+    {
+      "file": "development-cycle.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "release-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    }
+  ]
+}

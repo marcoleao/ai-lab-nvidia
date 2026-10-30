@@ -1,0 +1,54 @@
+﻿{
+    "published":  true,
+    "verifiedAt":  "2026-10-27T17:05:04.727538+00:00",
+    "apiAndWebImage":  "sha256:7670fb8c185ae1ab4395dcdb321006df3122eaf44e8fe9dcbc4d094d6af666a5",
+    "source":  "e50f4fa7c7b993586e5e59eb4e2f8192f9d835ecec6bd693f2b93063b170d3d5",
+    "health":  {
+                   "status":  "ready",
+                   "scope":  "portal-foundation",
+                   "demoMode":  true,
+                   "databaseMode":  "preview"
+               },
+    "migrations":  [
+                       "202610270001_merge_preparation",
+                       "202610270002_merge_preparation_runtime"
+                   ],
+    "tablesChecked":  31,
+    "priorRowsPreserved":  true,
+    "hashProjectionExcludes":  [
+                                   "MergeOperation.leaseId",
+                                   "MergeOperation.leaseUntil",
+                                   "MergeOperation.checkedAt",
+                                   "MergeOperation.updatedAt",
+                                   "MergeDiscussionTurn.specialist"
+                               ],
+    "exactTablesPreserved":  false,
+    "backup":  {
+                   "backupId":  "merge-preparation-runtime-20261027-6241c09f",
+                   "bytes":  165244,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "audit":  {
+                  "records":  116,
+                  "pendingOperations":  [
+
+                                        ]
+              },
+    "validation":  {
+                       "externalOptInSkipped":  4,
+                       "browserPassed":  48,
+                       "restrictedRoleTest":  true,
+                       "failures":  0,
+                       "applicationPassed":  342
+                   },
+    "runtimeGrant":  {
+                         "delete":  false,
+                         "select":  true,
+                         "insert":  true,
+                         "update":  true
+                     },
+    "releaseSent":  false,
+    "mergeSent":  false
+}

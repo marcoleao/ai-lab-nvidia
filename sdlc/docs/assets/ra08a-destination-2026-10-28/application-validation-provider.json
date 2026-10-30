@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "file": "code-destination-provider.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    },
+    {
+      "file": "code.test.ts",
+      "exitCode": 0,
+      "passed": 6
+    },
+    {
+      "file": "correction-context.test.ts",
+      "exitCode": 0,
+      "passed": 4
+    }
+  ]
+}

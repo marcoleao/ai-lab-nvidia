@@ -1,0 +1,276 @@
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+33 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+Applying migration `202610280005_merge_integration_reference`
+Applying migration `202610280006_merge_history_resolution`
+Applying migration `202610280007_merge_history_close_operation`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+  └─ 202610280005_merge_integration_reference/
+    └─ migration.sql
+  └─ 202610280006_merge_history_resolution/
+    └─ migration.sql
+  └─ 202610280007_merge_history_close_operation/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/app[39m
+
+ [31m❯[39m tests/execution-contract.test.ts [2m([22m[2m14 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 385[2mms[22m[39m
+   [31m❯[39m System execution contract read capability [2m(14)[22m
+     [32m✓[39m read-only consultation preserves System/repository and all business source counts without inferring runtime readiness[32m 165[2mms[22m[39m
+     [32m✓[39m explicit commit is forwarded only to the System repository and returned unchanged[32m 17[2mms[22m[39m
+     [32m✓[39m unconfigured repository context is explicit without remote calls: {"repository":false}[32m 8[2mms[22m[39m
+     [32m✓[39m unconfigured repository context is explicit without remote calls: {"ready":false}[32m 12[2mms[22m[39m
+     [32m✓[39m a provider without this optional read capability does not infer a contract from repository runtime[32m 25[2mms[22m[39m
+[31m     [31m×[31m a non-System context cannot choose another repository[39m[32m 9[2mms[22m[39m
+     [32m✓[39m an archived System cannot expose the active query capability[32m 29[2mms[22m[39m
+     [32m✓[39m inactive System remains readable without resuming work[32m 22[2mms[22m[39m
+     [32m✓[39m invalid query ?sha=HEAD cannot widen scope[32m 11[2mms[22m[39m
+     [32m✓[39m invalid query ?repositoryId=outside cannot widen scope[32m 10[2mms[22m[39m
+     [32m✓[39m invalid query ?sha=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&path=.env cannot widen scope[32m 10[2mms[22m[39m
+     [32m✓[39m local repository change while the remote read is in flight rejects the observation[32m 20[2mms[22m[39m
+     [32m✓[39m remote result for a different project or commit is not presented as this contract[32m 22[2mms[22m[39m
+     [32m✓[39m a failed GET produces no business audit decision or idempotency key[32m 23[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m13 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 13:00:56
+[2m   Duration [22m 1.35s[2m (transform 46%, tests 31%, import 23%)[22m
+
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+33 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+Applying migration `202610280005_merge_integration_reference`
+Applying migration `202610280006_merge_history_resolution`
+Applying migration `202610280007_merge_history_close_operation`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+  └─ 202610280005_merge_integration_reference/
+    └─ migration.sql
+  └─ 202610280006_merge_history_resolution/
+    └─ migration.sql
+  └─ 202610280007_merge_history_close_operation/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/execution-contract.test.ts[2m > [22mSystem execution contract read capability[2m > [22ma non-System context cannot choose another repository
+[31m[1mPrismaClientKnownRequestError[22m: 
+Invalid `db.item.create()` invocation in
+/app/tests/execution-contract.test.ts:8:124
+
+  5 describe.skipIf(!url)('System execution contract read capability',()=>{
+  6  const db=database(url!),source='a'.repeat(40),read=vi.fn(),git={executionContract:read} as any,runtime=createApp({db,demoMode:true,git});afterAll(async()=>{await runtime.app.close();await db.$disconnect();});afterEach(()=>read.mockReset());
+  7  const observation=(projectId:number,sha=source):ExecutionContractObservation=>({projectId,branch:'main',sha,mode:'branch',observedHeadSha:source,headChanged:false,observedAt:new Date().toISOString(),state:'missing',message:'Contrato não encontrado.',path:'.sdlc/execution.json',digest:null,blobId:null,schemaVersion:null,units:[],issues:[],files:[]});
+→ 8  async function fixture(options:{repository?:boolean;ready?:boolean;kind?:'system'|'story'}={}){const system=await db.item.create(
+Database error. Code: `23514`. Message: `new row for relation "Item" violates check constraint "Item_hierarchy_check"`[39m
+[90m [2m❯[22m vn.handleRequestError node_modules/.pnpm/@prisma+client@7.10.1_prisma@7.10.1_@types+node@24.10.0_@types+react-dom@19.3.0_@types+_16938101af68c40b842a055c7ee8c668/node_modules/@prisma/client/src/runtime/RequestHandler.ts:[2m238:13[22m[39m
+[90m [2m❯[22m vn.handleAndLogRequestError node_modules/.pnpm/@prisma+client@7.10.1_prisma@7.10.1_@types+node@24.10.0_@types+react-dom@19.3.0_@types+_16938101af68c40b842a055c7ee8c668/node_modules/@prisma/client/src/runtime/RequestHandler.ts:[2m184:12[22m[39m
+[90m [2m❯[22m vn.request node_modules/.pnpm/@prisma+client@7.10.1_prisma@7.10.1_@types+node@24.10.0_@types+react-dom@19.3.0_@types+_16938101af68c40b842a055c7ee8c668/node_modules/@prisma/client/src/runtime/RequestHandler.ts:[2m153:12[22m[39m
+[90m [2m❯[22m a node_modules/.pnpm/@prisma+client@7.10.1_prisma@7.10.1_@types+node@24.10.0_@types+react-dom@19.3.0_@types+_16938101af68c40b842a055c7ee8c668/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:[2m1012:24[22m[39m
+[36m [2m❯[22m fixture tests/execution-contract.test.ts:[2m8:110[22m[39m
+
+[90m [2m❯[22m tests/execution-contract.test.ts:[2m13:81[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+file:///app/scripts/test-isolated.mjs:20
+  if(result.status!==0){process.stdout.write(result.stdout||'');process.stderr.write(result.stderr||'');throw new Error(`Isolated check failed: ${args.join(' ')}`);}
+                                                                                                              ^
+
+Error: Isolated check failed: node_modules/vitest/vitest.mjs run tests/execution-contract.test.ts
+    at run (file:///app/scripts/test-isolated.mjs:20:111)
+    at file:///app/scripts/test-isolated.mjs:38:5
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.0

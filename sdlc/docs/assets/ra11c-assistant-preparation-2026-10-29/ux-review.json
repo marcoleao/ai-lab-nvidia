@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-11c",
+  "reviewProfile": "UX implementation, explicit browser assertions and visual review",
+  "decision": "approved_with_documented_limits",
+  "scope": "System conversation handoff to the existing application-preparation component. All interface scenarios intercept HTTP and keep synthetic fixtures isolated; no operational application, business record or agent result changed.",
+  "navigation": {
+    "entry": "Assistant in System context, or System > Conversations > Open System assistant",
+    "action": "Prepare application / Follow preparation next to conversation",
+    "newTabs": false,
+    "shellPreserved": true,
+    "urlPreservedWhileReviewing": true,
+    "dialog": "Native modal; header/context/return remain visible, one scroll area in body; existing nine-file preview and confirmations reused",
+    "recovery": "The component remains mounted when the dialog closes. Shared original request and reason survive reload, persona changes and navigation to the repository page."
+  },
+  "behaviorReviewed": [
+    "System conversation is writable for authorized personas; planning generation/application/completion still require the Project destination and server capabilities.",
+    "Action observation comes from the current server response and is independent of message/history pages and the text of the model answer.",
+    "Complete or scoped metadata failures preserve the prior valid observation, mark freshness unavailable and block new preparation decisions. An incomplete initial or foreign-System descriptor cannot mount an actionable preparation panel.",
+    "Existing application-preparation APIs, idempotency, body, persona and durable requests are reused; opening/typing a message does not publish files or authorize merge.",
+    "Publication acknowledgment, queue and actual result remain distinct. Lost acknowledgment preserves original request identity and requires original persona for replay.",
+    "The same request can be recovered while the dialog is closed and reopened without writing tab=components into the assistant URL.",
+    "Draft release and merge retain the existing separate preparation confirmations. The existing preparation suite was rerun for this shared component change.",
+    "The local Conversations archive remains independent; its new scoped link opens the active System assistant.",
+    "Visual review caught inherited toolbar CSS making primary button text white on white despite passing click assertions. Scoped button styles now show the standard blue primary action; raw preliminary captures were preserved."
+  ],
+  "accessibility": {
+    "nativeDialog": true,
+    "asserted": "Named dialog and controls; entry heading focus, preview focus, return focus, disabled decisions, role-based access and preserved drafts; viewport overflow asserted at 1440/390 in the new handoff scenario.",
+    "visual": "Six final viewport captures inspected: two review, two unavailable-observation and two uncertain-result recovery states. Five match the prior inspected capture byte for byte; the differing desktop recovery capture was inspected again from the final artifact.",
+    "limits": [
+      "Full screen-reader certification, every keyboard path and browser/OS combinations were not exercised.",
+      "Viewport captures show the visible portion of the scrollable dialog, not a full expanded representation of every technical file.",
+      "Closed-toolbar entry has behavior assertions and is visible behind the recovery capture; no dedicated closed-entry screenshot is asserted here."
+    ]
+  },
+  "tests": {
+    "catalogue": {
+      "cases": 449,
+      "files": 49,
+      "newCases": 20
+    },
+    "finalNewCases": {
+      "run": "20261030T020652Z-66f856",
+      "passed": 20,
+      "failed": 0,
+      "stats": {
+        "startTime": "2026-10-30T02:07:06.556Z",
+        "duration": 27732.554,
+        "expected": 20,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runtimeHash": "64f113df779b7f16f48d248138d0d5405d3282ed1013ae8aeaaae768351748e1",
+      "testHash": "6aee230576e7a2b1270aa5d11faae8ca7d9144cd6df8510841f1d4e41c1065c3",
+      "sourceStable": true
+    },
+    "finalRuntimeRegression": {
+      "run": "20261030T020334Z-1c8241",
+      "passed": 57,
+      "failed": 2,
+      "total": 59,
+      "sourceStable": true,
+      "runtimeHash": "64f113df779b7f16f48d248138d0d5405d3282ed1013ae8aeaaae768351748e1",
+      "testHash": "c2a71eb70a290786c2dcf198496134b60a0a137f4ef1ce7139557b15172b2ebd",
+      "failures": "The two foreign-System cases used exact text matching for an error paragraph that also includes recovery text. The UI rejected the foreign descriptor; only the assertion was corrected, then the new twenty cases rerun.",
+      "unchangedRegressionCasesPassed": 39
+    },
+    "combinedFinalRuntimeCoverage": {
+      "uniqueCases": 59,
+      "allPassedAfterCorrectedAssertions": true,
+      "countByFile": {
+        "application-preparation.spec.ts": 24,
+        "assistant-application-preparation.spec.ts": 20,
+        "assistant-workspace.spec.ts": 8,
+        "conversation-history.spec.ts": 7
+      },
+      "method": "Union by stable case ID of the 59-case final-runtime run and the twenty-case rerun; repeated cases are not added."
+    },
+    "preliminary": {
+      "run": "20261030T015910Z-67e64e",
+      "passed": 56,
+      "failed": 0,
+      "runtimeHash": "4a964d1f0ab0865d74f9ae75168c64616ac4a8d354e4e48a4476beeacee6cdd5",
+      "testHash": "75fba4fbacddab69ce576688295e37b58987d3ac091cd1d753a3d8163551b701",
+      "sourceStable": true,
+      "countByFile": {
+        "application-preparation.spec.ts": 24,
+        "assistant-application-preparation.spec.ts": 20,
+        "assistant-workflow.spec.ts": 4,
+        "assistant-workspace.spec.ts": 8
+      },
+      "limit": "Before the final visual CSS and metadata-shape refinements; its workflow cases are historical regression evidence, not a claim that all 56 were reexecuted on the final source."
+    }
+  },
+  "screenshots": [
+    {
+      "file": "assistant-preparation-recovery-1440.png",
+      "sha256": "eb9ef6a03f8b9899dcaaae01fb3ae63dc2f8b2543c7e17bb1b9f0c771712b329",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": false,
+      "reviewedFromFinalArtifact": true
+    },
+    {
+      "file": "assistant-preparation-recovery-390.png",
+      "sha256": "262eb04af27db10f757a5a6fd5548f3ad56ba8f1f181d04d85910a1d6419fa1d",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": true,
+      "reviewedFromFinalArtifact": true
+    },
+    {
+      "file": "assistant-preparation-review-1440.png",
+      "sha256": "3aca8a65d0aeb08a3574dddcfaeb2fca834fd547ca262299fc60fc26c97b7f3b",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": true,
+      "reviewedFromFinalArtifact": true
+    },
+    {
+      "file": "assistant-preparation-review-390.png",
+      "sha256": "34d4affd0fa21fc30570010e22c39c711f1b51643d1e7c2398aa3db861000762",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": true,
+      "reviewedFromFinalArtifact": true
+    },
+    {
+      "file": "assistant-preparation-unavailable-1440.png",
+      "sha256": "6fe4a6aeb20f35d2a6c0c7c387274cdce5a8af37e6db454351750d93b5c9d5b8",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": true,
+      "reviewedFromFinalArtifact": true
+    },
+    {
+      "file": "assistant-preparation-unavailable-390.png",
+      "sha256": "e306ec1475587621c79e258bd3df232b18e8b118c5d601b21d9f1948e3582e1b",
+      "capture": "viewport only, 1440x1000 or 390x1000; modal body may scroll",
+      "matchesPreviouslyInspectedCapture": true,
+      "reviewedFromFinalArtifact": true
+    }
+  ],
+  "sourceHashes": {
+    "apps/web/app/assistant-application-preparation.tsx": "13981efac358c901932c78d0a2b30d69eed2da4a45a9c2f7fa61ff11623ae547",
+    "apps/web/app/assistant-application-preparation.css": "d41755b09e3558fea4890339644b22106d72a04db202d79e98e19ab0f408fcba",
+    "apps/web/app/assistant.tsx": "8af24c34c8cf224f4806d4a7db7f4968731dfb731cba7ccabb55692f2511ee79",
+    "apps/web/app/assistant-workspace.tsx": "0a64dde2cdb0899aab0b1817988d8cbd7980c18edcd29178aa2d018c52338fe4",
+    "apps/web/app/application-preparation.tsx": "589deadaa14cc81c629fee1e676a8fefef94823f75799e0f46ede27480c6fefd",
+    "apps/web/app/conversation-history.tsx": "559854bf6c6e5ec4a067f1fe8a217aae13955e26997a5bedbde48b85e6678629",
+    "apps/web/app/portal.tsx": "d808c6ca3376be3a3061146d5bff5ebaf641b1909e1dbbb31fdc2aba201c4ce1",
+    "tests/e2e/assistant-application-preparation.spec.ts": "deb5e7f8c25bee1bfab5592be23afe74ca9a3d0ee674dfa9934e6a7980a61f7f"
+  },
+  "implementationLimits": [
+    "No new deployment/runtime capability is implemented by this handoff. DEV target provisioning and deployment remain RA-12a/b/c.",
+    "No model tool calls, arbitrary shell/commands or action inferred as authorized from the wording of chat were introduced.",
+    "No full catalogue rerun or migration of all portal screens is claimed. No new indicators or targets."
+  ]
+}

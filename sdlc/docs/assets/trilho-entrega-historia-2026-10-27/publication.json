@@ -1,0 +1,30 @@
+{
+  "id": "delivery-rail-20261027-06df4d73",
+  "candidateImage": "sha256:7704f696ce754100c098ad0693720c2c9f31698c981d1aab7134db3424ac1697",
+  "source": "822b7b27f7b0423fe3378ca624511abc78b96a85377d6f216e2d47dcb06567ff",
+  "published": true,
+  "verifiedAt": "2026-10-28T01:28:38.307820+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "delivery-rail-20261027-06df4d73",
+    "bytes": 170647,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "allTablesPreservedAfterReadOnlyVerification": true,
+  "audit": {
+    "records": 150,
+    "head": "7dcebe7da8b5573990d3069642ff9facc326f74febdaf10a4085cb43b7dd6aae",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  },
+  "migrationsApplied": false
+}

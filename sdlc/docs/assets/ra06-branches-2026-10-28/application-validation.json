@@ -1,0 +1,39 @@
+{
+  "results": [
+    {
+      "file": "branch-plan-gitlab.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "release-branch-plan.test.ts",
+      "exitCode": 0,
+      "passed": 5
+    },
+    {
+      "file": "releases.test.ts",
+      "exitCode": 0,
+      "passed": 26
+    },
+    {
+      "file": "release-compositions.test.ts",
+      "exitCode": 0,
+      "passed": 9
+    },
+    {
+      "file": "planning-references.test.ts",
+      "exitCode": 0,
+      "passed": 11
+    },
+    {
+      "file": "gitlab-publication.test.ts",
+      "exitCode": 0,
+      "passed": 9
+    },
+    {
+      "file": "gitlab.test.ts",
+      "exitCode": 0,
+      "passed": 4
+    }
+  ]
+}

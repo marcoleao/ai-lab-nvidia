@@ -1,0 +1,115 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T02:29:30.312Z",
+    "duration": 30858.050000000003,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "releases",
+    "release-reading"
+  ],
+  "specs": [
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 OPEN keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CLOSED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CANCELED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 mobile composition refresh failure preserves the last confirmed reading and never replaces it with a successful result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "unknown release state and destination stay unconfirmed, without OPEN or DEV fallback",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Releases shows DEV and the other System destinations separately from composition, including read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real compositionStatus counts and newest-first pages of twenty on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "quick views preserve applied scope and pending Project and Epic fields",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "refresh reviews changed selected Stories outside the filter and preserves choices on a read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "release list shortcuts preserve the applied System and pending System selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "an unavailable selected Story is reported and never silently removed on refresh",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

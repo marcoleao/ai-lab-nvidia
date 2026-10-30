@@ -1,0 +1,16 @@
+{
+  "shell": {
+    "brand": "Dell Technologies\nPORTAL SDLC",
+    "navigation": [
+      "Visão geral",
+      "Assistente",
+      "Sistemas",
+      "Releases",
+      "Integrações"
+    ],
+    "sidebarWidth": 228,
+    "topbar": "Planejamento e entrega\nModo demo local · Persona\nSelecione para atuar\nAna · Product Owner\nBruno · Arquiteto\nCarla · QA Lead\nDiego · Security Lead\nElisa · Release Manager\nAdmin · Administrador",
+    "title": "Sistemas"
+  },
+  "mutations": []
+}

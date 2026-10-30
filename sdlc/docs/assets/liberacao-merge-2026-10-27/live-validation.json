@@ -1,0 +1,28 @@
+{
+  "readOnly": true,
+  "checks": [
+    {
+      "width": 1440,
+      "proposalVisible": true,
+      "specialistsVisible": true,
+      "reviewScopeVisible": true,
+      "unconfirmedReleaseDisabled": true,
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "proposalVisible": true,
+      "specialistsVisible": true,
+      "reviewScopeVisible": true,
+      "unconfirmedReleaseDisabled": true,
+      "pageOverflow": false
+    }
+  ],
+  "sha": "0889a43155fa670325463338fd575a789b60a6cf",
+  "releaseEligible": true,
+  "preparationUnchanged": true,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "releaseSent": false,
+  "mergeSent": false
+}

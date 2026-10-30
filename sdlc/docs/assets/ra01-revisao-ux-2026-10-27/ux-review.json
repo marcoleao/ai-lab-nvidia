@@ -1,0 +1,28 @@
+{
+  "reviewedAt": "2026-10-27T19:59:54.873068+00:00",
+  "reviewer": "Agente com perfil de UX",
+  "scope": "Revisão da mesma RA-01 após reprovação do usuário",
+  "verdict": "Aprovado tecnicamente neste recorte; sem bloqueio material",
+  "checks": [
+    "Abas Composição/Auditoria no padrão compartilhado",
+    "Auditoria acessível somente na aba própria",
+    "Rascunho/seleção preservados na troca de abas",
+    "Atalhos preservam escopo aplicado e campos pendentes",
+    "Recorte aplicado, filtro pendente e seleção fora da página distinguíveis",
+    "Revisão mostra alterações antes de continuar com dados atualizados",
+    "Salvar composição bloqueado durante revisão; atualização não salva",
+    "Mobile sem corte nos controles revisados",
+    "Links antigos de ocorrência/operação e nome Atualizar opções corrigidos no código"
+  ],
+  "screenshots": [
+    "release-picker-scope-mobile.png",
+    "release-audit-desktop.png",
+    "release-audit-mobile.png",
+    "release-refresh-review-desktop.png"
+  ],
+  "limitations": [
+    "Não substitui novo aceite do usuário na RA-01",
+    "Não comprova acessibilidade assistiva integral",
+    "Não aprova candidatas, ambientes, builds ou novos gates"
+  ]
+}

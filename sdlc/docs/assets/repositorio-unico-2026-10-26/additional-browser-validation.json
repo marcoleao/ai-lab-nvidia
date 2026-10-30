@@ -1,0 +1,10 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "suites": ["assistant-plan-review.spec.ts", "assistant-workflow.spec.ts"],
+  "passed": 12,
+  "failed": 0,
+  "durationSeconds": 17.7,
+  "realIntegrations": false,
+  "note": "Additional distinct scenarios covering proposal review and the assistant flow after removing repository selection; combined with validation.json, 88 browser scenarios passed."
+}

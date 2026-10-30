@@ -1,0 +1,84 @@
+{
+  "slice": "RA-12b",
+  "published": true,
+  "image": "sha256:4ba4f7cd7ff25df3692f9f047beb0f88c807b4ee96ae90a66e422982bf213fe9",
+  "source": "8393c549c859a008df329be2d0a536e5f38d6b6922372afe5cbc6ead20fae995",
+  "backend": {
+    "newRun": "20261030T044656Z-352e87",
+    "newPassed": 12,
+    "adjacentRun": "20261030T044548Z-41b028",
+    "adjacentPassed": 24,
+    "qualification": "Adjacent Build14 and Target10 passed; first new deployment fixture lacked DEV reference, corrected in isolated fixture, final12 pass."
+  },
+  "browser": {
+    "run": "20261030T044810Z-4e0c81",
+    "passed": 44,
+    "sourceStable": true,
+    "failedRunPreserved": "20261030T044608Z-7ece24"
+  },
+  "actualExecutor": {
+    "passed": true,
+    "operationId": "4dc0e7aa-3247-4287-bc1b-f0c0a731e7b1",
+    "checks": [
+      "built-image-deployed-and-healthy",
+      "bounded-nonroot-readonly-loopback-runtime",
+      "replay-and-retarget-protection",
+      "unhealthy-candidate-preserves-previous",
+      "healthy-replacement-stable-url",
+      "lost-receipt-read-only-reconciliation"
+    ],
+    "first": {
+      "id": "deployment-live-f249c6ef-deploy1",
+      "proof": {
+        "archiveDigest": "12a92ed3a0aedb78823a979acd0d08f72a0120e99fb49fbcfd0344d780758b49",
+        "buildId": "deployment-live-f249c6ef-build1",
+        "configDigest": "1755131da0656592502f90eb2749f462e94e12d47a3118c15fe093da9ec7afe1",
+        "containerId": "2725f473b78a2a917064904936058db5d30b659f8551529f0069fccabb799502",
+        "healthAt": "2026-10-30T04:50:00.367977+00:00",
+        "imageId": "sha256:d88d277b0e0a3ff8db46a3547789761507647de5e8dc7e3350cf24c70c4a7b6e",
+        "resourceId": "61c234a9a1201912ff0dc2c83d65c5037264d41fe259d6049a2314979e9497d5",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "http://localhost:37431"
+      },
+      "state": "succeeded"
+    },
+    "replacement": {
+      "id": "deployment-live-f249c6ef-deploy3",
+      "proof": {
+        "archiveDigest": "8161d75218b9f22b3c09bf334bb8a7278e456d3718bff184e7456c4a970185a0",
+        "buildId": "deployment-live-f249c6ef-build3",
+        "configDigest": "1755131da0656592502f90eb2749f462e94e12d47a3118c15fe093da9ec7afe1",
+        "containerId": "49e0fb1e6383cff9e33633bb6322631d2f14592aadafe675a47d8f82c2da64fc",
+        "healthAt": "2026-10-30T04:50:22.657656+00:00",
+        "imageId": "sha256:5c4a2713ab536853b2360837881c87760863381382bc36bdbdf2cf08d4cf2fc7",
+        "resourceId": "61c234a9a1201912ff0dc2c83d65c5037264d41fe259d6049a2314979e9497d5",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "url": "http://localhost:37431"
+      },
+      "state": "succeeded"
+    },
+    "scope": "actual owned Docker builds and deployments; no portal database, GitLab fetch, business data or pilot source changed",
+    "ownedResourcesRemoved": true
+  },
+  "publication": {
+    "backup": {
+      "backupId": "ra12b-development-deployment-verified-20261030-56c647dc",
+      "bytes": 332261,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "oldTables": 46,
+    "newTables": [
+      "DevelopmentDeployment"
+    ],
+    "exactRowsPreserved": true
+  },
+  "manualApproval": "pending-user-OK-RA-12b",
+  "limitations": [
+    "Directed regression, not complete system regression.",
+    "Real executor used only controlled fixtures; no pilot code, agent results or business data changed.",
+    "Health confirms HTTP availability, not functional acceptance.",
+    "Retention, quotas and generic interrupted-candidate administration remain pending."
+  ]
+}

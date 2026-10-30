@@ -1,0 +1,227 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T15:37:25.497Z",
+    "duration": 51784.612,
+    "expected": 29,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "suites": [
+    "releases",
+    "release-cancellation",
+    "release-reading",
+    "release-metrics",
+    "audit-history",
+    "release-compositions"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/release-compositions.spec.ts",
+            "column": 210,
+            "line": 20
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Planejamento atual', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Planejamento atual', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Planejamento atual', exact: true })\u001b[22m\n\n\n  18 |  expect(new URL(page.url()).searchParams.get('picker.project')).toBe(f.project.id);expect(new URL(page.url()).searchParams.get('history.q')).toBe('registro');await page.reload();await expect(selected).toBeVisible();await page.screenshot({path:join(folder,`composition-${width}.png`),fullPage:true});\n  19 |  await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Auditoria',exact:true}).click();await expect(history).toBeHidden();await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Composição',exact:true}).click();await expect(selected).toBeVisible();\n> 20 |  await page.goto(`/stories/${f.story.id}?tab=planning&process=release`);const participation=page.locator('.release-compositions');await expect(page.getByRole('heading',{name:'Planejamento atual',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Associação de release da História'})).toContainText(f.b.name);await participation.locator('summary').first().click();await expect(participation.getByText('Participação registrada na revisão 2',{exact:true})).toHaveCount(2);\n     |                                                                                                                                                                                                                  ^\n  21 |  await page.getByRole('button',{name:'Alterar release',exact:true}).click();const choice=page.getByRole('combobox',{name:'Release planejada',exact:true});await choice.selectOption(f.a.id);await page.locator('.release-compositions').locator('summary').first().click();await expect(page.locator('.release-compositions').getByText('Participação registrada na revisão 2',{exact:true})).toHaveCount(2);await expect(choice).toHaveValue(f.a.id);await expect(page.getByText('Planejamento atual:',{exact:true})).toBeVisible();\n  22 |  await page.screenshot({path:join(folder,`participation-${width}.png`),fullPage:true});\n  23 |  await page.route('**/api/items/*/release-participations*',route=>route.fulfill({status:503,json:{error:{message:'Consulta de participações indisponível no ensaio.'}}}));await page.getByRole('button',{name:'Atualizar participações',exact:true}).click();await expect(page.locator('.release-compositions')).toContainText('Última consulta preservada; recorte atual ainda não confirmado.');await expect(choice).toHaveValue(f.a.id);expect(writes).toEqual([]);expect(errors).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n    at /app/tests/e2e/release-compositions.spec.ts:20:210"
+        }
+      ]
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/release-compositions.spec.ts",
+            "column": 210,
+            "line": 20
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Planejamento atual', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Planejamento atual', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Planejamento atual', exact: true })\u001b[22m\n\n\n  18 |  expect(new URL(page.url()).searchParams.get('picker.project')).toBe(f.project.id);expect(new URL(page.url()).searchParams.get('history.q')).toBe('registro');await page.reload();await expect(selected).toBeVisible();await page.screenshot({path:join(folder,`composition-${width}.png`),fullPage:true});\n  19 |  await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Auditoria',exact:true}).click();await expect(history).toBeHidden();await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Composição',exact:true}).click();await expect(selected).toBeVisible();\n> 20 |  await page.goto(`/stories/${f.story.id}?tab=planning&process=release`);const participation=page.locator('.release-compositions');await expect(page.getByRole('heading',{name:'Planejamento atual',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Associação de release da História'})).toContainText(f.b.name);await participation.locator('summary').first().click();await expect(participation.getByText('Participação registrada na revisão 2',{exact:true})).toHaveCount(2);\n     |                                                                                                                                                                                                                  ^\n  21 |  await page.getByRole('button',{name:'Alterar release',exact:true}).click();const choice=page.getByRole('combobox',{name:'Release planejada',exact:true});await choice.selectOption(f.a.id);await page.locator('.release-compositions').locator('summary').first().click();await expect(page.locator('.release-compositions').getByText('Participação registrada na revisão 2',{exact:true})).toHaveCount(2);await expect(choice).toHaveValue(f.a.id);await expect(page.getByText('Planejamento atual:',{exact:true})).toBeVisible();\n  22 |  await page.screenshot({path:join(folder,`participation-${width}.png`),fullPage:true});\n  23 |  await page.route('**/api/items/*/release-participations*',route=>route.fulfill({status:503,json:{error:{message:'Consulta de participações indisponível no ensaio.'}}}));await page.getByRole('button',{name:'Atualizar participações',exact:true}).click();await expect(page.locator('.release-compositions')).toContainText('Última consulta preservada; recorte atual ainda não confirmado.');await expect(choice).toHaveValue(f.a.id);expect(writes).toEqual([]);expect(errors).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n    at /app/tests/e2e/release-compositions.spec.ts:20:210"
+        }
+      ]
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release indicators inherit combined dashboard filters and hide the old scope while a new scope loads",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "a dashboard response without release measurements states the limitation without invented totals",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "persisted releases feed the dashboard with empty drafts and actual Project and participation scopes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 OPEN keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CLOSED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 CANCELED keeps independent dimensions through Release and Story navigation without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "RA-01 mobile composition refresh failure preserves the last confirmed reading and never replaces it with a successful result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-reading.spec.ts",
+      "title": "unknown release state and destination stay unconfirmed, without OPEN or DEV fallback",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Releases shows DEV and the other System destinations separately from composition, including read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Release Manager creates an empty persisted OPEN and leaves composition for another person",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "central composition filters stories, preserves choices and shares the exact association with the Story",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "visual release consultation uses real compositionStatus counts and newest-first pages of twenty on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "composition keeps selections from two server pages when a later filter hides one of twenty-five Stories",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "quick views preserve applied scope and pending Project and Epic fields",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "Audit tab preserves composition draft and independent query fields, including legacy bookmarks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "refresh reviews changed selected Stories outside the filter and preserves choices on a read failure",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "release list shortcuts preserve the applied System and pending System selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "an unavailable selected Story is reported and never silently removed on refresh",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

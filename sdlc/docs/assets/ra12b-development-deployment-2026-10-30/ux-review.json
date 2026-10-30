@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-12b",
+  "reviewProfile": "UX implementation, browser assertions and visual inspection",
+  "decision": "approved_with_documented_limits",
+  "scope": "Story-owned DEV publication of a confirmed work artifact, with a separately tracked System target preparation. New interface fixtures fully intercept HTTP; they do not change operational applications, business data, agent results or host resources.",
+  "navigation": {
+    "entry": "Story or its Task > Execution > DEV",
+    "shellPreserved": true,
+    "newTabs": false,
+    "ordering": "The publication panel follows the existing artifact-build panel. Source and artifact references are collapsed; process guidance follows the operational actions.",
+    "recovery": "The publication component stays mounted across process views and tabs. A recovery banner returns to the same request. Reason, original request body, persona and key survive reload. Task uses its owning Story.",
+    "history": "The current operation, linked preparation and latest successful receipt are not a complete history collection. Audit remains the history source."
+  },
+  "behaviorReviewed": [
+    "One confirmation fixes the artifact and permits the required target preparation before deployment. The shared System DEV destination and possible replacement of its active revision are explicit.",
+    "Target preparation, deployment receipt and current remote observation are separate facts. Target confirmation alone never claims an application is running.",
+    "A current live link requires a successful receipt with valid URL/health/end proof plus a healthy observation naming that same deployment operation. Changed, unavailable, foreign or failed current readings keep the historical receipt and remove the current URL claim.",
+    "Lost acknowledgment recovers the original body, persona and idempotency key. Unknown result reconciliation observes the same operation without creating another publication.",
+    "Persona, Story version and operation changes invalidate a decision while preserving its reason. Backend context refusal requires a fresh review, not another unchecked attempt.",
+    "Real persona role and read-only Story/Task context control decisions. No release is required for DEV. Build success and publication success do not approve functional tests, Development Finished or Story completion.",
+    "Resume explicitly includes the linked pre-dispatch paused target preparation. Blocked or uncertain target preparation points to that same request in System Environments. Cancellation does not undo resources already confirmed.",
+    "Twelve DEVELOPMENT_DEPLOYMENT action labels and the Publicação DEV target are translated. TARGET_CONFIRMED remains distinct from COMPLETED with deployment and HTTP health proof."
+  ],
+  "legacyExpectationChanges": [
+    {
+      "file": "tests/e2e/development-build.spec.ts",
+      "reason": "The previous constant absence-of-publication assertion became obsolete when the separate publication producer was introduced. It now points to the publication panel; artifact proof still does not claim deployment. The unrelated new endpoint is explicitly empty in this fixture."
+    },
+    {
+      "file": "tests/e2e/story-workspace.spec.ts",
+      "reason": "A constant pending-publication sentence could contradict confirmed operational evidence. DEV cycle help now explains the next available work and points to the publication panel. Its common fixture explicitly returns no deployment rather than malformed metadata."
+    }
+  ],
+  "browser": {
+    "initialRun": {
+      "run": "20261030T044608Z-7ece24",
+      "passed": 22,
+      "failed": 22,
+      "sourceStable": true,
+      "summary": "initial-browser-summary.json",
+      "finding": "Build and publication sibling elements shared the Story key. React could retain duplicate build panels during updates. The corrected mount prefixes each key by component; assertions and scenario count were retained."
+    },
+    "finalRun": {
+      "run": "20261030T044810Z-4e0c81",
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "scope": "selected",
+      "cases": 44,
+      "summary": "final-browser-summary.json"
+    },
+    "newCases": 20,
+    "runtimeHash": "6186d498d963b218b1e699bca13258734d69d48e3a1dd17d694373b70d6a5222",
+    "testHash": "6add91633322d15dc204da181011e418391923dcc89c68e36cdeac08ed1890af"
+  },
+  "accessibility": {
+    "viewports": [
+      1440,
+      390
+    ],
+    "assertions": [
+      "Confirmation and result focus; return-to-trigger focus",
+      "Labels for reason/checkbox and disabled decisions for viewer/changed context",
+      "No document horizontal overflow at both widths",
+      "Reason, unrelated query context, original persona/body/key and owning Story identity preserved"
+    ],
+    "limits": [
+      "No comprehensive screen-reader, keyboard-only or WCAG certification is claimed.",
+      "Full-page captures include the established fixed shell/header, skip-link at capture position and development indicator. They do not establish every native viewport scroll position.",
+      "Six captures were visually reviewed for wrapping, button distinction, action sequence, retained historical proof and explicit stale observations."
+    ]
+  },
+  "sourceHashes": {
+    "apps/web/app/development-deployment.tsx": "5c52901a677192b68ee9d66d6a0b49530f3be70ddf60f74ea647b204e57e8468",
+    "apps/web/app/development-deployment.css": "030a3f31cbde14b114b5bd559a21edaf3586a603aeebc69df5503cacdf76b8d6",
+    "apps/web/app/story-workspace.tsx": "e985a36acc42bc3e053a57010018ac348a8f22ea3fc95dd2fd9c52f50bd611e8",
+    "apps/web/app/story-environment.tsx": "ab5d44748315749709d6cbe30c9730a9550f1e9a7bdfff57c02ca19433ec106a",
+    "apps/web/app/development-build.tsx": "4f91cc50ef48c5df5f3b4e60c6741a70f8f8d0fabd1014ba6f9f22f10e3e7880",
+    "apps/web/app/history-collection.tsx": "246043753db63d76ceae760db376ba1a350b41d88a77c34deebf1e129aab45a1",
+    "tests/e2e/development-deployment.spec.ts": "07b1da9aae0181cf37b5f1099d83d6b9a7536d4767ae58fdb8ebd0364e0386a7",
+    "tests/e2e/development-build.spec.ts": "de191c7cad25865dee58baf7d25ce0d3241fa1f970900103c114eb5d54d88118",
+    "tests/e2e/story-workspace.spec.ts": "b4b79b0326d32d47f6a36c1325122c03dd526ad340c791d8a92f68913ec07cee"
+  },
+  "captures": [
+    {
+      "file": "development-deployment-review-1440.png",
+      "width": 1440,
+      "state": "review",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "890f4986b20fbadb2a5c4dfb7f3a97cab1f99be909036171087dc69db116831f"
+    },
+    {
+      "file": "development-deployment-review-390.png",
+      "width": 390,
+      "state": "review",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "eb6f2770aa7dd7be812672c7bafd145b9652247ae9a6d7bc5c6dcf99c252c321"
+    },
+    {
+      "file": "development-deployment-history-1440.png",
+      "width": 1440,
+      "state": "history",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "96306692e02f9b7e1a2cad01c88e5629a0fb2dbd47e361f4e0127543f524d7ab"
+    },
+    {
+      "file": "development-deployment-history-390.png",
+      "width": 390,
+      "state": "history",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "bd30fbb6c77b9cc150c7f0ecc1cf709be9b771f35ef0e61e63dd5b9e6dbddf93"
+    },
+    {
+      "file": "development-deployment-stale-1440.png",
+      "width": 1440,
+      "state": "stale",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "6ed6edfaa79b3e9d266725841eba168e40c674537333b0dc0260e98fd9a9db66"
+    },
+    {
+      "file": "development-deployment-stale-390.png",
+      "width": 390,
+      "state": "stale",
+      "sourceRun": "20261030T044810Z-4e0c81",
+      "visuallyInspected": true,
+      "sha256": "e761c6438e9232d1b6cca2dba3d726949671611727d92fde067a58422a44fe68"
+    }
+  ],
+  "manualApproval": "pending-user-review",
+  "outsideScope": [
+    "Assistant orchestration of publication",
+    "Functional test execution and Development Finished approval",
+    "Immutable release candidates and QA/HML/PRD promotion",
+    "Production completion",
+    "Real runtime deployment acceptance; it has a separate parent receipt"
+  ]
+}

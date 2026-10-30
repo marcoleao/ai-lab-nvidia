@@ -1,0 +1,258 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T20:27:00.316Z",
+    "duration": 91729.309,
+    "expected": 36,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "suites": [
+    "release-branch-preparation",
+    "branch-plan-decisions",
+    "release-branch-plan",
+    "release-cancellation",
+    "release-compositions",
+    "audit-history",
+    "release-metrics"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch proposal is lazy and read-only, preserves pinned SHA and drafts across pages/tabs at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-plan.spec.ts",
+      "title": "branch consultation failure identifies previous scope, preserves draft and distinguishes confirmed empty at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "reconciliation receipt survives unavailable follow-up reading at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "explicit branch preparation preserves navigation and requires confirmation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "changed context and read failure preserve review without sending an operation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "lost local acknowledgement reconciles same key and original persona after reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-branch-preparation.spec.ts",
+      "title": "unknown remote effect offers read-only reconciliation after reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "cancellation keeps unsaved composition and audit context while blocking old OPEN save at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "persona changes invalidate confirmation, preserve reason and allow only managers",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "concurrent composition change rejects stale cancellation and requires review with the reason preserved",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-cancellation.spec.ts",
+      "title": "response loss keeps original body, persona and key through reload, without a second cancellation decision",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "retained composition and Story participation preserve current planning, drafts, URL and failure context at 390px",
+      "ok": false,
+      "errors": [
+        {
+          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+        },
+        {
+          "location": {
+            "file": "/app/tests/e2e/release-compositions.spec.ts",
+            "column": 98,
+            "line": 16
+          },
+          "message": "Error: locator.focus: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.release-compositions').getByRole('button', { name: 'Consultar revisão 2', exact: true })\u001b[22m\n\n\n  14 |  await page.goto(`/releases/${f.a.id}?picker.project=${f.project.id}&history.q=registro`);\n  15 |  const history=page.locator('.release-compositions');await expect(history).not.toHaveAttribute('open','');await expect(page.locator('#release-stories')).toContainText('está vazia');await history.locator('summary').first().click();\n> 16 |  const inspect=history.getByRole('button',{name:'Consultar revisão 2',exact:true});await inspect.focus();await inspect.press('Enter');const selected=page.getByRole('region',{name:'Revisão da composição consultada'});\n     |                                                                                                  ^\n  17 |  await expect(selected.getByRole('link',{name:new RegExp(f.story.key)})).toBeVisible();await expect(selected).toBeFocused();await selected.getByRole('button',{name:'Fechar consulta da revisão',exact:true}).click();await expect(inspect).toBeFocused();await inspect.press('Enter');await expect(selected).toBeFocused();await expect(page.locator('#release-stories')).toContainText('está vazia');await expect(selected).toContainText('não é candidata, pacote construído, aprovação ou implantação');\n  18 |  expect(new URL(page.url()).searchParams.get('picker.project')).toBe(f.project.id);expect(new URL(page.url()).searchParams.get('history.q')).toBe('registro');await page.reload();await expect(selected).toBeVisible();await page.screenshot({path:join(folder,`composition-${width}.png`),fullPage:true});\n  19 |  await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Auditoria',exact:true}).click();await expect(history).toBeHidden();await page.getByRole('navigation',{name:'Seções da release'}).getByRole('link',{name:'Composição',exact:true}).click();await expect(selected).toBeVisible();\n    at /app/tests/e2e/release-compositions.spec.ts:16:98"
+        }
+      ]
+    },
+    {
+      "file": "release-compositions.spec.ts",
+      "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "branch preparation metrics keep scope, URL and absence distinct at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "release indicators inherit combined dashboard filters and hide the old scope while a new scope loads",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "a dashboard response without release measurements states the limitation without invented totals",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "release-metrics.spec.ts",
+      "title": "persisted releases feed the dashboard with empty drafts and actual Project and participation scopes",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

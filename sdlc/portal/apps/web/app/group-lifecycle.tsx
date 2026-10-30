@@ -10,6 +10,6 @@ export default function GroupLifecycle({kind,value,version,enabled,onChange}:{ki
  return <LifecyclePanel title={`Ciclo do ${kind}`} description={`${kind} organiza o trabalho. INACTIVE é uma pausa; conclusão e cancelamento exigem ausência de filhos abertos.`} value={current} stages={['active','inactive','completed','cancelled']} busy={busy} error={error}>
   <label>Justificativa<textarea value={comment} onChange={event=>setComment(event.target.value)} maxLength={2000} disabled={!enabled||busy}/><small>Obrigatória, com ao menos 10 caracteres, para concluir, cancelar ou reabrir um encerrado.</small></label>
   <div className="actions">{next.map(target=><button key={target} type="button" disabled={!enabled||busy||reasonRequired(target)&&comment.trim().length<10} onClick={()=>void change(target)}>{({active:current==='inactive'?'Reativar · ACTIVE':'Reabrir · ACTIVE',inactive:'Inativar · INACTIVE',completed:'Concluir · COMPLETED',cancelled:'Cancelar · CANCELLED'} as Record<string,string>)[target]}</button>)}</div>
-  <p className="hint">A inatividade bloqueia toda a árvore e novas conversas. Operações em andamento precisam terminar ou ser interrompidas antes. Reativar não retoma agentes automaticamente nem altera o G1 de conteúdo preservado.</p>
+  <p className="hint">A inatividade bloqueia toda a árvore e novas conversas. Operações em andamento precisam terminar ou ser interrompidas antes. Reativar não retoma agentes automaticamente nem altera o Gateway de Especificação de conteúdo preservado.</p>
  </LifecyclePanel>;
 }

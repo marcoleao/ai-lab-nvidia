@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-13",
+  "reviewProfile": "UX implementation, browser assertions and visual inspection",
+  "decision": "approved_with_documented_limits",
+  "scope": "Versioned HTTP tests of the owning Story DEV deployment. Every new browser scenario intercepts HTTP. Synthetic cases, writes, results and Task status remain isolated test fixtures; no operational application, business record or agent result changes.",
+  "navigation": {
+    "entry": "Story or current Task > Execution > DEV > Test version",
+    "ordering": "Build, publication, then tests. No new navigation tab or visual identity. Technical references and per-case HTTP details remain collapsed.",
+    "recovery": "One test controller per owning Story, mounted across tabs. Lost acknowledgment preserves exact body/persona/key and reason across reload. External recovery returns to the same result after the journey central focus has settled.",
+    "correction": "Request correction reveals/focuses the existing development-cycle decision and Gateway of Specification flow. It does not send a test, code-generation or status command."
+  },
+  "behaviorReviewed": [
+    "The preview enumerates all cases of the fixed suite, with source/deployment/suite references, names, methods, paths, expected status and one-based G1 criterion references. Complete acceptance coverage is separate from technical verification.",
+    "For mutatesData, a visible warning identifies the marked concrete write cases by name/method/path and the checkbox authorizes those effects. Payload stays in the controlled build source; no payload preview or arbitrary target is claimed.",
+    "Technical success does not approve business criteria or finish the Test Task. Acceptance refers to its fixed suite/revision; only the backend may complete the Test Task. The UI links to the recorded Task and refreshes its journey after terminal results.",
+    "A failed operation with case results is a test rejection. A failed executor with no cases is distinguished explicitly and does not invent rejected acceptance criteria.",
+    "Historical evidence uses the names/criterion indices preserved with that suite. A later context never renames an earlier result. Current scope requires the server current flag, fresh reading and healthy observation naming the same deployment.",
+    "Old commit, another active deployment, unavailable target or reading failure preserve dated evidence while removing the assertion of current coverage. These tests never approve Development Finished or complete a Story.",
+    "Real Admin/Product Owner/Architect role, current Story/Task context, reason, explicit checkbox and a confirmed preview govern new decisions. Foreign/malformed context and incomplete G1 acceptance remain blocked.",
+    "Original acknowledgment replay and unknown-result reconciliation reuse the existing operation; resume and pre-dispatch cancellation require distinct confirmations and do not undo earlier data effects.",
+    "Thirteen DEVELOPMENT_TEST action labels and development_test target are translated without conflating Task status, operational state, test outcome or Story completion."
+  ],
+  "tests": {
+    "catalogue": {
+      "cases": 533,
+      "files": 53,
+      "newCases": 24
+    },
+    "initial": {
+      "run": "20261030T053328Z-725aee",
+      "passed": 85,
+      "failed": 4,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "runtimeHash": "7ab1333ee3235ca6e10b68acabc01453a84bc0c53d972053e96c7ab5a50fc652",
+      "testHash": "9d0372fe244ec65419bacb0282d87df0db5839ed3b052ab200329c848b34922b",
+      "cases": 89,
+      "countByFile": {
+        "assistant-dev-actions.spec.ts": 20,
+        "development-build.spec.ts": 20,
+        "development-deployment.spec.ts": 20,
+        "development-test.spec.ts": 24,
+        "story-workspace.spec.ts": 5
+      },
+      "summary": "initial-browser-summary.json"
+    },
+    "final": {
+      "run": "20261030T053906Z-a89d54",
+      "passed": 89,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "runtimeHash": "560e3c1021658fa811c458e6c062841c3c6eb7bf50c647841109e4b56b6b1998",
+      "testHash": "fd89e43c4d1cf222b208991eecf0a861442082db29b967c0cc22fa0e0cc8a7ee",
+      "cases": 89,
+      "countByFile": {
+        "assistant-dev-actions.spec.ts": 20,
+        "development-build.spec.ts": 20,
+        "development-deployment.spec.ts": 20,
+        "development-test.spec.ts": 24,
+        "story-workspace.spec.ts": 5
+      },
+      "summary": "final-browser-summary.json"
+    },
+    "uniqueCases": 89,
+    "qualification": "The complete selected set was rerun after fixes; repeated executions are not counted as new cases. Browser fixtures simulate every provider and do not attest real HTTP execution.",
+    "initialFindings": "Two assertions searched for DONE while the retained tasks.q filter excluded the Task; the corrected scenario clears that filter through the interface. Two failures found real focus contention between the recovery result and journey central section; return focus now waits for the latter. Preliminary rejection captures were at page top; final captures scroll the relevant preview/evidence into view below the established sticky rail."
+  },
+  "accessibility": {
+    "viewports": [
+      1440,
+      390
+    ],
+    "assertions": [
+      "Confirmation/result/return focus and focused correction entry",
+      "Explicit labeled reason/checkbox, disabled roles and incomplete coverage",
+      "No document horizontal overflow in preview",
+      "Original request identity preserved across tabs/persona/reload"
+    ],
+    "visual": "Six final viewport captures inspected for shell/rail context, wrapping, clear case names/results, concrete data-write notice, blue primary and disabled controls.",
+    "limits": [
+      "No comprehensive screen-reader, WCAG, keyboard-only or cross-browser certification is claimed.",
+      "Viewport captures show the visible portion of a long DEV flow, not every control/reference at once.",
+      "Current Story lifecycle summaries in the synthetic fixture remain explicitly unconfirmed rather than fabricated production evidence."
+    ]
+  },
+  "sourceHashes": {
+    "apps/web/app/development-test.tsx": "6291ce39d9582f71168054ad89d9866f426ddadf404226d292ba33fef96336c3",
+    "apps/web/app/development-test.css": "de62e17f57f7699da710dfa02c8b6e9e6cf1fb651e7af94f92a0547ceadc8294",
+    "apps/web/app/story-workspace.tsx": "1e50ceca08b6f8ca6de5299ffdb552196c024a0e4db043abb89ba1a121162f9e",
+    "apps/web/app/story-environment.tsx": "66d78a71665604c69ff30f10f247379a5be324ae8c575f4a66f3e9ef209eeade",
+    "apps/web/app/history-collection.tsx": "cb6a094269392f4fd1c922f0c7fb7be16d2287808735c3fa132d1a0da09da68e",
+    "tests/e2e/development-test.spec.ts": "8982204a0c254982b4ad20685cd6a1647d1ed281c06bb192225a5709cb357318",
+    "tests/e2e/development-build.spec.ts": "7b3e4330971c33cb4686fa761095afd6d770e62e93bba3e6b275b7f743db10f9",
+    "tests/e2e/development-deployment.spec.ts": "ba5199ee86398d94b0fa7368773cd8fd450b96fbba5797158beb5cd686f6aca3",
+    "tests/e2e/assistant-dev-actions.spec.ts": "33321ac9283398605e698a96953dde5e835f24971b060303e79fed198c505966",
+    "tests/e2e/story-workspace.spec.ts": "7e38299684b680cff685524c320ab863626a5c7131685f60bcb7ad0b600443b1"
+  },
+  "captures": [
+    {
+      "file": "development-test-review-1440.png",
+      "width": 1440,
+      "state": "review",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "eec16f7eab91e523bacaaec27a1edd89f14d0747e6cef2d5cc6cc7a18d892f35"
+    },
+    {
+      "file": "development-test-review-390.png",
+      "width": 390,
+      "state": "review",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "37f4d539a406021679c40905c59ee75fdf522ca01ce4e25a4e7aa338a19df381"
+    },
+    {
+      "file": "development-test-failed-1440.png",
+      "width": 1440,
+      "state": "failed",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "9523c4f7bfd14832db6a27402cc6faf6ac05f5ff44a8129ca9cb448231969943"
+    },
+    {
+      "file": "development-test-failed-390.png",
+      "width": 390,
+      "state": "failed",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "4deba47ff96adbc3a9f58563f0827f7d928837e0dfe31a90ea4fb28109d13391"
+    },
+    {
+      "file": "development-test-stale-1440.png",
+      "width": 1440,
+      "state": "stale",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "8749f7348827101d1d507e4e86b206f52aa5675768e3212b314c32d806ddd620"
+    },
+    {
+      "file": "development-test-stale-390.png",
+      "width": 390,
+      "state": "stale",
+      "sourceRun": "20261030T053906Z-a89d54",
+      "visuallyInspected": true,
+      "sha256": "ff9be00f011b5083e7819c410a86c644b559cd46d05ef79bc41550cd15b4220e"
+    }
+  ],
+  "metrics": "Existing indicators retained; no new indicator or target.",
+  "manualApproval": "pending-user-review",
+  "outsideScope": [
+    "API/shared/runtime implementations and real HTTP acceptance, owned by the parent receipt",
+    "Arbitrary test scripts, free-form endpoints, payload/secret projection",
+    "Automatic code correction or G1 approval",
+    "Development Finished approval",
+    "Release candidates, QA/HML/PRD promotion or Story completion"
+  ]
+}

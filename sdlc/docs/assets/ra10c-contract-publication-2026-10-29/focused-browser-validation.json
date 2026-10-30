@@ -1,0 +1,181 @@
+{
+    "target":  "http://127.0.0.1:3390",
+    "database":  "portal_test",
+    "realIntegrations":  false,
+    "derivedFrom":  "browser-validation.json",
+    "stats":  {
+                  "startTime":  "2026-10-29T15:58:57.865Z",
+                  "expected":  20,
+                  "skipped":  0,
+                  "unexpected":  0,
+                  "flaky":  0
+              },
+    "globalErrors":  [
+
+                     ],
+    "suites":  [
+                   "contract-publications"
+               ],
+    "specs":  [
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "unreviewed proposal explains why send is unavailable at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "confirmation preserves reason explains the exact target and restores focus at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "queued send stays recoverable in Audit and reload and cancellation is explicit at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "confirmed MR remains separate from default-branch contract and execution at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "lost commit receipt is observed and the same job continues without another commit at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "known MR receipt survives failed canonical refresh and blocks another decision at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "lost HTTP acceptance retains original persona body and key across tabs and reload at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "base refusal preserves human reason and moves focus to the stable panel at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "missing send metadata blocks proposal decisions without falsely declaring a pending send at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "return from confirmation uses stable focus when metadata becomes unavailable at 1440px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "unreviewed proposal explains why send is unavailable at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "confirmation preserves reason explains the exact target and restores focus at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "queued send stays recoverable in Audit and reload and cancellation is explicit at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "confirmed MR remains separate from default-branch contract and execution at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "lost commit receipt is observed and the same job continues without another commit at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "known MR receipt survives failed canonical refresh and blocks another decision at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "lost HTTP acceptance retains original persona body and key across tabs and reload at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "base refusal preserves human reason and moves focus to the stable panel at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "missing send metadata blocks proposal decisions without falsely declaring a pending send at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  },
+                  {
+                      "file":  "contract-publications.spec.ts",
+                      "title":  "return from confirmation uses stable focus when metadata becomes unavailable at 390px",
+                      "ok":  true,
+                      "errors":  [
+
+                                 ]
+                  }
+              ]
+}

@@ -1,0 +1,40 @@
+{
+  "published": true,
+  "url": "http://localhost:3310",
+  "verifiedAt": "2026-10-26T19:31:22.435505+00:00",
+  "image": "sha256:80091d7f2448bc4aad837e260e9438fcc30e120436f4cfa1b47953420bd8e7d9",
+  "source": "382a7be37eb87db663f1ef0d8f8e58e3f58030648bd7f85ca363aaf743415dac",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "apiUnchanged": true,
+  "tablesChecked": 30,
+  "exactTablesPreserved": true,
+  "backup": {
+    "backupId": "story-flow-20261026-b26873a7",
+    "bytes": 128279,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "rollbackImage": "sdlc-portal:before-story-flow-20261026-b26873a7-web",
+  "readOnlyBrowser": {
+    "systemManagement": true,
+    "attemptedWrites": 0,
+    "pageErrors": 0
+  },
+  "validation": {
+    "browserScenarios": 73,
+    "browserFailures": 0,
+    "applicationTests": 21,
+    "buildAndTypes": true
+  },
+  "limits": [
+    "No new Teste/Teste Final executors",
+    "No migration of legacy operational collections",
+    "No native mobile keyboard or full screen-reader certification"
+  ]
+}

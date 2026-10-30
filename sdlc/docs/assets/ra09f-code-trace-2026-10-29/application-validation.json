@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "file": "composition-code-traceability.test.ts",
+      "exitCode": 0,
+      "passed": 17
+    },
+    {
+      "file": "release-compositions.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "planning-references.test.ts",
+      "exitCode": 0,
+      "passed": 11
+    },
+    {
+      "file": "releases.test.ts",
+      "exitCode": 0,
+      "passed": 26
+    },
+    {
+      "file": "merge-integration-reference.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "release-metrics.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    }
+  ]
+}

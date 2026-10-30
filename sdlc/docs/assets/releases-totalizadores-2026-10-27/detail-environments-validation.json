@@ -1,0 +1,19 @@
+{
+  "readOnly": true,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "detailEnvironmentPanelAbsent": true,
+      "releaseSituationAndStoryListPreserved": true,
+      "listEnvironmentTotalsPreserved": true
+    },
+    {
+      "width": 390,
+      "detailEnvironmentPanelAbsent": true,
+      "releaseSituationAndStoryListPreserved": true,
+      "listEnvironmentTotalsPreserved": true
+    }
+  ]
+}

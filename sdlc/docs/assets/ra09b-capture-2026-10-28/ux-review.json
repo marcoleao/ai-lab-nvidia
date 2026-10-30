@@ -1,0 +1,20 @@
+{
+  "reviewer": "ux_ra09b",
+  "scope": "Captura histórica confirmada e recuperação persistente por operação",
+  "viewports": [
+    1440,
+    390
+  ],
+  "screenshots": 12,
+  "materialBlockers": 0,
+  "result": "aprovada após bloqueio do fluxo, recuperação entre abas, cancelamento de consulta e foco",
+  "observations": [
+    "Prévia não é registro; confirmação exige checkbox e persona apropriada.",
+    "Solicitação incerta permanece acessível em Auditoria e após nova leitura/recarga.",
+    "Sucesso tem anúncio; retorno do painel restaura foco à aba ativa."
+  ],
+  "limitations": [
+    "Não constitui validação assistiva integral.",
+    "Operações sem merge confirmado e complementação de referências parciais continuam em fatias próprias."
+  ]
+}

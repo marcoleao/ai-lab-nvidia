@@ -1,5 +1,11 @@
 # Sistema contínuo, Projetos temporários e repositórios reutilizáveis
 
+**Responsabilidades — 29/10/2026:** ambientes pertencem ao Sistema por meio do repositório único. Cadastro de referência, preparação da aplicação, provisionamento de destino e implantação têm provas próprias. O SDLC deve oferecer essa operação a partir do assistente e dos controles do portal, usando os mesmos serviços/executores; a infraestrutura base é administrada pela plataforma. A preparação RA-11b já funciona pelos controles; encaminhamento pela conversa e destino/implantação DEV são pendências explícitas. [Contrato e cobertura](autonomia-assistente-executores-2026-10-29.md).
+
+**Atualização RA-02, 27/10/2026:** o cadastro corrente do repositório único inclui referências DEV/QA/HML/PRD. Sistemas existentes podem completar referências ausentes por comando explícito na aba Ambientes, sem alterar dados já registrados. Cadastro de referência não provisiona infraestrutura nem implanta aplicação. [Recibo e limites](plano-incremental-releases-ambientes-2026-10-27.md#10-recibo-ra-02--referências-de-ambiente). Os exemplos de múltiplos componentes abaixo permanecem históricos.
+
+**Registro histórico parcialmente substituído em 26/10/2026:** por decisão posterior do usuário, cada Sistema passa a ter **um repositório criado automaticamente**, herdado por Projetos, Épicos, Histórias e Tarefas. A arquitetura organiza APIs, frontend, backend, batch e infraestrutura em pastas do mesmo repositório. Seleções manuais e catálogo de múltiplos componentes abaixo descrevem o modelo anterior. O [contrato corrente](../portal/docs/ARCHITECTURE.md#repositório-único-por-sistema--26102026) e a [publicação/adoção](revisao-navegacao-historia-2026-10-26.md#18-repositório-único-criado-no-cadastro-do-sistema) preservam as evidências históricas e os registros existentes; as regras antigas de aprovação/ciclo também foram substituídas pela estabilização de 25/10.
+
 Esta decisão substitui a associação original de um repositório/ambientes por Projeto. A hierarquia de planejamento permanece **Sistema → Projeto → Épico → História → Tarefa**.
 
 - **Sistema:** produto contínuo, proprietário lógico do catálogo de repositórios e seus ambientes.

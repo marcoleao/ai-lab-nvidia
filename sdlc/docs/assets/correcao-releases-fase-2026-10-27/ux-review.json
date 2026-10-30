@@ -1,0 +1,24 @@
+{
+  "reviewedAt": "2026-10-28T00:32:25.590858+00:00",
+  "reviewer": "Agente com perfil de UX",
+  "scope": "Correção RA-02-C1 — destinos em Releases e vocabulário da História",
+  "verdict": "Aprovado no recorte, sem bloqueio material",
+  "screenshots": [
+    "releases-destinations-desktop.png",
+    "releases-destinations-mobile.png",
+    "release-composition-desktop.png",
+    "release-composition-mobile.png"
+  ],
+  "checks": [
+    "DEV/QA/HML/PRD separados da composição e do cadastro por Sistema",
+    "Ausência de rótulos de compatibilidade na nova interface",
+    "Sem inferir implantação, candidata ou validação",
+    "Abas, filtros, rascunhos e identidade visual preservados",
+    "Cabeçalho usa fase persistida sem substituição cosmética"
+  ],
+  "limitations": [
+    "Aceite manual do usuário separado",
+    "Conferência da base real registrada em live-validation.json",
+    "Não equivale a validação assistiva integral"
+  ]
+}

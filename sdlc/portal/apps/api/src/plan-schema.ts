@@ -3,7 +3,7 @@ import {requirementsSchema} from './requirements.ts';
 import {pipelineStages,planLimits,materializedPlanCounts} from '../../../packages/shared/src/pipeline-plan.ts';
 const title=z.string().trim().min(1).max(120);
 const description=z.string().trim().max(2000);
-// Omitted assignment means no component selected, never an inferred repository.
+// Legacy assignment fields remain readable; execution inherits the System repo.
 const repositories=z.array(z.string().min(1)).max(20).default([]);
 const task=z.object({title,description,repositoryIds:repositories,pipelineStage:z.enum(pipelineStages).optional()}).strict();
 const story=z.object({title,description,acceptanceCriteria:z.array(z.string().trim().min(1).max(500)).min(1).max(12),requirements:requirementsSchema.optional(),repositoryIds:repositories,tasks:z.array(task).max(planLimits.maxTaskDetailsPerStory).default([])}).strict().superRefine((story,ctx)=>{
@@ -21,7 +21,7 @@ export const planOutputSchema={...z.toJSONSchema(z.union([planSchema,z.object({e
 export function validatePlanScope(plan:Plan,allowed:string[]){
   for(const epic of plan.epics)for(const story of epic.stories){
     if(story.repositoryIds.some(id=>!allowed.includes(id)))return false;
-    for(const task of story.tasks)if(task.repositoryIds.some(id=>!story.repositoryIds.includes(id)))return false;
+    for(const task of story.tasks)if(task.repositoryIds.some(id=>!allowed.includes(id)))return false;
   }
   return true;
 }

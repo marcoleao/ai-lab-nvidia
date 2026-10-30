@@ -1,0 +1,16 @@
+{
+  "passed": 8,
+  "failed": 0,
+  "files": [
+    "audit.test.ts",
+    "audit-guard.test.ts"
+  ],
+  "newBusinessActions": [
+    "EXECUTION_CONTRACT_PROPOSAL_REQUESTED",
+    "EXECUTION_CONTRACT_PROPOSAL_PREPARED",
+    "EXECUTION_CONTRACT_PROPOSAL_FAILED",
+    "EXECUTION_CONTRACT_PROPOSAL_REVISED",
+    "EXECUTION_CONTRACT_REVIEWED"
+  ],
+  "scope": "Shared transactional recorder; proposal rollback/retry and immutable-source permissions covered in contract-proposals.test.ts; external administrative publication recorder preserved."
+}

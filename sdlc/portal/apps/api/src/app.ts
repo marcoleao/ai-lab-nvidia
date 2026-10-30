@@ -1,3 +1,15 @@
+import {registerDevelopmentApprovals} from './development-approvals.ts';
+import {registerDevelopmentTests} from './development-tests.ts';
+import type {DevelopmentTestProvider} from './development-test-provider.ts';
+import {registerDevelopmentDeployments} from './development-deployments.ts';
+import type {DeploymentProvider} from './deployment-provider.ts';
+import {registerEnvironmentTargets} from './environment-targets.ts';
+import type {RuntimeProvider} from './runtime-provider.ts';
+import {storyLifecycleViews} from './story-lifecycle-reading.ts';
+import {registerDevelopmentBuilds} from './development-builds.ts';
+import {registerApplicationPreparations} from './application-preparations.ts';
+import type {ApplicationPreparationProvider} from './application-preparation-provider.ts';
+import type {DevelopmentBuildProvider} from './development-build-provider.ts';
 import Fastify, { type FastifyRequest } from 'fastify';
 import {createHash,randomUUID} from 'node:crypto';
 import {z, ZodError} from 'zod';
@@ -12,18 +24,32 @@ import {registerConversations} from './conversations.ts';
 import {registerExecution} from './execution.ts';
 import {registerMetrics} from './metrics.ts';
 import {registerReleases} from './releases.ts';
+import {registerExecutionContract} from './execution-contract.ts';
+import {registerContractProposals} from './contract-proposals.ts';
+import {registerContractPublications} from './contract-publications.ts';
+import {registerContractIntegrations} from './contract-integrations.ts';
+import type {ContractIntegrationProvider} from './contract-integration-provider.ts';
+import type {ContractPublicationProvider} from './contract-publication-provider.ts';
+import {registerEpicExecution} from './epic-execution.ts';
+import {registerReleaseBranchPlan} from './release-branch-plan.ts';
+import {registerReleaseBranchPreparation} from './release-branch-preparation.ts';
+import type {ReleaseBranchProvider} from './release-branch-provider.ts';
 import {registerMerge} from './merge.ts';
 import type {MergeProvider} from './merge-provider.ts';
 import {registerQuality} from './quality.ts';
 import {registerJourney} from './journey.ts';
 import {registerCollections,safeHistoryEvent} from './collections.ts';
-import {recordAudit,withAuditContext,type AuditOptions} from './audit.ts';
-import {ensureHierarchyWritable,hierarchyState,itemLifecycle,isTerminalItem,descendantItems,assertNoRunningDescendants,pauseHierarchyWork,resumeHierarchyWork} from './lifecycle-policy.ts';
+import {recordAudit,withAuditContext,currentAuditContext,type AuditOptions} from './audit.ts';
+import {enterMergeRequestPhase} from './story-phase.ts';
+import {ensureHierarchyWritable,hierarchyState,itemLifecycle,groupTransitions,closureReasonRequired,isTerminalItem,descendantItems,assertNoRunningDescendants,pauseHierarchyWork,resumeHierarchyWork} from './lifecycle-policy.ts';
 import {registerStoryLifecycle} from './story-lifecycle.ts';
 import {registerStorySpecifications} from './story-specifications.ts';
 import {ensurePipelineTasks,isPipelineTask} from './pipeline-tasks.ts';
+import {requestSystemRepository} from './system-repository.ts';
+import {environmentContext,registerEnvironmentReferences} from './environments.ts';
+import {environmentCodes} from '../../../packages/shared/src/environments.ts';
 
-type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;llm?:LLMProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
+type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
 const labels:Record<ItemKind,string>={system:'Sistema',project:'Projeto',epic:'Épico',story:'História',task:'Tarefa'};
 const dataOf=(item:Item):Record<string,Prisma.JsonValue>=>item.data as Record<string,Prisma.JsonValue>;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -51,8 +77,10 @@ export function createApp(options:Options){
         await db.$transaction(async tx=>{
           const itemId=(request.params as {id?:string}|undefined)?.id;
           const item=itemId&&request.routeOptions.url?.startsWith('/api/items/')?await tx.item.findUnique({where:{id:itemId}}):null;
-          const subject=item??{id:request.id,kind:'request',name:request.routeOptions.url??'HTTP request',parentId:null};
-          await recordAudit(tx,subject,persona??{id:'anonymous',name:'Identidade não autenticada'},rejected?'COMMAND_REJECTED':'COMMAND_FAILED',rejected?'Solicitação recusada; nenhuma alteração confirmada.':'Solicitação não concluída; consulte o resultado da operação antes de repetir.',{requestId:request.id},persona?'human':'anonymous',{outcome:rejected?'REJECTED':'FAILED',requestId:request.id,operationId:`request:${request.id}`,reasonCode:reason,initiator:{id:persona?.id??'anonymous',name:persona?.name??'Identidade não autenticada',type:persona?'human':'anonymous',authentication:persona?'declared_demo':'unauthenticated'}});
+          const referenceOperation=itemId&&request.routeOptions.url?.startsWith('/api/merge-operations/')?await tx.mergeOperation.findUnique({where:{id:itemId}}):null;
+          const referenceStory=referenceOperation?await tx.item.findUnique({where:{id:referenceOperation.storyId}}):null;
+          const subject=item??referenceStory??{id:request.id,kind:'request',name:request.routeOptions.url??'HTTP request',parentId:null};
+          await recordAudit(tx,subject,persona??{id:'anonymous',name:'Identidade não autenticada'},rejected?'COMMAND_REJECTED':'COMMAND_FAILED',rejected?'Solicitação recusada; nenhuma alteração confirmada.':'Solicitação não concluída; consulte o resultado da operação antes de repetir.',{requestId:request.id,...(referenceOperation?{operationId:referenceOperation.id,runId:referenceOperation.executionId}:{})},persona?'human':'anonymous',{outcome:rejected?'REJECTED':'FAILED',requestId:request.id,operationId:referenceOperation?.id??`request:${request.id}`,...(referenceOperation?{subject:{type:'merge_operation',id:referenceOperation.id}}:{}),reasonCode:reason,initiator:{id:persona?.id??'anonymous',name:persona?.name??'Identidade não autenticada',type:persona?'human':'anonymous',authentication:persona?'declared_demo':'unauthenticated'}});
         });
       }catch(auditError){app.log.error({requestId:request.id,code:'AUDIT_WRITE_FAILED'},'Audit persistence unavailable; request was not confirmed');}
     }
@@ -100,22 +128,16 @@ export function createApp(options:Options){
   async function ensureNotArchived(tx:Transaction,item:Item){await ensureHierarchyWritable(tx,item);}
   async function repositoryScope(tx:Transaction,item:Item,includeArchived=false){
     const chain=[...await ancestors(tx,item,includeArchived),item];const system=chain.find(i=>i.kind==='system')!;
-    const project=chain.find(i=>i.kind==='project');const story=chain.find(i=>i.kind==='story');
-    const source=item.kind==='task'?story:['story','epic'].includes(item.kind)?project:undefined;
-    const available=await tx.repository.findMany({where:{systemId:system.id,...(source?{links:{some:{itemId:source.id}}}:{})},orderBy:{createdAt:'asc'}});
-    const repositories=item.kind==='system'?available:await tx.repository.findMany({where:{links:{some:{itemId:item.id}}},orderBy:{createdAt:'asc'}});
+    const available=await tx.repository.findMany({where:{systemId:system.id},orderBy:{createdAt:'asc'}});
+    const repositories=available;
     return {system,available,repositories};
   }
   async function setRepositories(tx:Transaction,item:Item,ids:string[]){
     if(!['project','story','task'].includes(item.kind))throw new DomainError('INVALID_ITEM','Selecione repositórios em Projetos, Histórias ou Tarefas.');
     const {available}=await repositoryScope(tx,item);const selected=[...new Set(ids)];
-    if(selected.some(id=>!available.some(r=>r.id===id)))throw new DomainError('INVALID_REPOSITORY_SCOPE','Escolha repositórios do Sistema e do escopo de trabalho superior.',409);
-    // Do not orphan explicit assignments already made in descendants.
-    const descendants=await tx.historyEvent.findMany({where:{ancestorIds:{has:item.id}},select:{itemId:true},distinct:['itemId']});
-    const children=await tx.itemRepository.findMany({where:{itemId:{in:descendants.map(d=>d.itemId)},item:{archived:false}}});
-    if(children.some(link=>!selected.includes(link.repositoryId)))throw new DomainError('REPOSITORY_IN_USE','Revise os vínculos das Histórias e Tarefas antes de retirar um repositório do escopo.',409);
-    await tx.itemRepository.deleteMany({where:{itemId:item.id}});
-    if(selected.length)await tx.itemRepository.createMany({data:selected.map(repositoryId=>({itemId:item.id,repositoryId}))});
+    if(selected.length>1||selected.some(id=>!available.some(r=>r.id===id)))throw new DomainError('INVALID_REPOSITORY_SCOPE','O destino é o repositório único do Sistema; não é possível escolher outro repositório.',409);
+    // Legacy clients may still send [] or the inherited ID on creation. No
+    // mutable child scope is materialized and existing links remain untouched.
   }
 
   app.get('/api/health',async()=>{const rows=await db.$queryRaw<{name:string}[]>`SELECT current_database() AS name`;return {status:'ready',scope:'portal-foundation',demoMode:true,databaseMode:rows[0].name==='portal_test'?'test':'preview'};});
@@ -141,8 +163,10 @@ export function createApp(options:Options){
     const scope=await repositoryScope(tx,item,includeArchived);
     const history=await tx.historyEvent.findMany({where:{OR:[{itemId:item.id},{ancestorIds:{has:item.id}}]},orderBy:{timestamp:'desc'},take:100});
     const hierarchy=await hierarchyState(tx,item),parentState=await hierarchyState(tx,item,false);
-    return {item,ancestors:parents,hierarchy,readOnlyReason:hierarchy.reason??null,capabilities:{canMutate:!item.archived&&hierarchy.writable,canChangeLifecycle:!item.archived&&parentState.writable},children:await tx.item.findMany({where:{parentId:item.id,...(includeArchived?{}:{archived:false})},orderBy:{createdAt:'asc'}}),repositories:scope.repositories,availableRepositories:scope.available,environments:item.kind==='system'?(await tx.environment.findMany({where:{repository:{systemId:item.id}},include:{repository:{select:{name:true}}}})).map(e=>({...e,repositoryName:e.repository.name})):[],history:history.map(safeHistoryEvent)};
-  }));
+    const story=item.kind==='story'?item:item.kind==='task'?parents.find(parent=>parent.kind==='story'):undefined;
+    const lifecycle=story?(await storyLifecycleViews(tx,[story])).get(story.id):undefined;
+    return {...(lifecycle?{storyLifecycle:lifecycle}:{}),item,ancestors:parents,hierarchy,readOnlyReason:hierarchy.reason??null,capabilities:{canMutate:!item.archived&&hierarchy.writable,canChangeLifecycle:!item.archived&&parentState.writable},children:await tx.item.findMany({where:{parentId:item.id,...(includeArchived?{}:{archived:false})},orderBy:{createdAt:'asc'}}),repositories:scope.repositories,availableRepositories:scope.available,environments:item.kind==='system'?(await tx.environment.findMany({where:{repository:{systemId:item.id}},include:{repository:{select:{name:true}}}})).map(e=>({...e,repositoryName:e.repository.name})):[],history:history.map(safeHistoryEvent)};
+  },{isolationLevel:'RepeatableRead'}));
   app.get<{Params:{id:string};Querystring:{page?:string;asOf?:string}}>('/api/items/:id/results',async request=>{
     actor(request);
     const query=z.object({page:z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER).default(1),asOf:z.string().datetime({offset:true}).optional()}).strict().parse(request.query);
@@ -178,6 +202,7 @@ export function createApp(options:Options){
       const revision=await descriptionRevision(tx,item);
       const executor=creationAudit.executor??person;
       await event(tx,item,executor,'ITEM_CREATED',`${labels[item.kind]} criado por ${executor.name}.`,{key:item.key,status:item.status,...provenance},creationAudit.executor?.type??'human',{...creationAudit,before:null,after:{key:item.key,name:item.name,status:item.status,version:item.version,archived:item.archived,parentId:item.parentId,projectLifecycle:item.projectLifecycle,repositoryIds:body.repositoryIds??[],descriptionRevision:revision}});
+      if(item.kind==='system')await requestSystemRepository(tx,item,person,true);
       if(item.kind==='story')await ensurePipelineTasks(tx,item,person,createItem,creationAudit);
       return item;
   }
@@ -202,20 +227,20 @@ export function createApp(options:Options){
   });
   app.patch<{Params:{id:string}}>('/api/items/:id/repositories',async request=>{
     const body=versionSchema.extend({repositoryIds:z.array(z.string().min(1)).max(100)}).strict().parse(request.body);
-    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);if(!isPipelineTask(item))protectProcessTask(item);await ensureNotArchived(tx,item);if((item.kind==='story'||item.kind==='task')&&await tx.storyExecution.count({where:{storyId:item.kind==='story'?item.id:item.parentId!,state:{in:['queued','running','paused','waiting_input','cancel_pending']}}}))throw new DomainError('EXECUTION_SCOPE_BUSY','Encerre ou interrompa a tentativa antes de alterar o componente da codificação.',409);const previous=await tx.itemRepository.findMany({where:{itemId:item.id},select:{repositoryId:true}});await setRepositories(tx,item,body.repositoryIds);const changed=await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});await event(tx,changed,person,'REPOSITORIES_SELECTED','Escopo de repositórios atualizado.',{repositoryIds:body.repositoryIds},'human',{before:{repositoryIds:previous.map(link=>link.repositoryId).sort(),version:item.version},after:{repositoryIds:[...new Set(body.repositoryIds)].sort(),version:changed.version}});return {item:changed};});
+    return mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);await ensureNotArchived(tx,item);throw new DomainError('SYSTEM_REPOSITORY_INHERITED','Projetos, Histórias e Tarefas utilizam o repositório do Sistema automaticamente; não há seleção de destino.',409);});
   });
   async function changeGroupLifecycle(tx:Transaction,person:Persona,item:Item,to:string,comment?:string){
     if(!['system','project','epic'].includes(item.kind))throw new DomainError('INVALID_ITEM','O ciclo de agrupador pertence ao Sistema, Projeto ou Épico.',409);
     await ensureHierarchyWritable(tx,item,{includeSelf:false});
-    const from=itemLifecycle(item),transitions:Record<string,string[]>=item.kind==='system'?{active:['inactive'],inactive:['active']}:{active:['inactive','completed','cancelled'],inactive:['active'],completed:['active'],cancelled:['active']};
-    if(!transitions[from]?.includes(to))throw new DomainError('INVALID_TRANSITION','Transição de ciclo de vida inválida. Reative o agrupador antes de encerrar.',409);
+    const from=itemLifecycle(item);
+    if(!groupTransitions(item.kind,from).includes(to))throw new DomainError('INVALID_TRANSITION','Transição de ciclo de vida inválida. Reative o agrupador antes de encerrar.',409);
     if(['completed','cancelled'].includes(from)&&(!comment||comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.',422);
     if(to!=='active')await assertNoRunningDescendants(tx,item);
     if(['completed','cancelled'].includes(to)){
       const children=(await descendantItems(tx,item)).filter(child=>child.id!==item.id);
       if(children.some(child=>!isTerminalItem(child)))throw new DomainError('UNFINISHED_CHILDREN','Conclua ou cancele todos os descendentes antes de encerrar o agrupador. Arquivar não finaliza trabalho aberto.',409);
       const directChildren=children.filter(child=>child.parentId===item.id);
-      if((to==='cancelled'||!directChildren.length||directChildren.every(child=>itemLifecycle(child)==='cancelled'))&&(!comment||comment.length<10))throw new DomainError('CLOSURE_REASON_REQUIRED','Justifique o encerramento com pelo menos 10 caracteres.',422);
+      if(closureReasonRequired(to,directChildren)&&(!comment||comment.length<10))throw new DomainError('CLOSURE_REASON_REQUIRED','Justifique o encerramento com pelo menos 10 caracteres.',422);
     }
     if(to!=='active')await pauseHierarchyWork(tx,item,person);
     const changed=await tx.item.update({where:{id:item.id},data:{status:to,...(item.kind==='project'?{projectLifecycle:to}:{}),version:{increment:1}}});
@@ -238,7 +263,7 @@ export function createApp(options:Options){
       await ensureNotArchived(tx,item);
       protectProcessTask(item);
       if(item.kind==='task'&&await tx.workTaskLink.count({where:{taskId:item.id,completion:'publish_code'}}))throw new DomainError('PROCESS_TASK_CONTROLLED','Esta Tarefa está vinculada à publicação de código. Altere o vínculo da atividade para exigir evidência manual antes de mudar seu status.',409);
-      if(item.kind!=='task')throw new DomainError('PIPELINE_STATUS_ONLY','O status da História é controlado pelas ações de execução, cancelamento e reabertura.',409);
+      if(item.kind!=='task')throw new DomainError('PIPELINE_STATUS_ONLY','A História não recebe aprovação de desenvolvimento ou conclusão por status manual. Desenvolvimento Finalizado terá ação própria; a conclusão exige entrada confirmada da release em produção.',409);
       const transitions:Record<string,string[]>={todo:['doing','cancelled'],doing:['done','todo','cancelled'],done:['doing'],cancelled:['todo']};
       if(!transitions[item.status]?.includes(body.status))throw new DomainError('INVALID_TRANSITION','Transição de status não permitida.',409);
       if(['done','cancelled'].includes(item.status)&&(!body.comment||body.comment.length<10))throw new DomainError('REOPEN_REASON_REQUIRED','Justifique a reabertura com pelo menos 10 caracteres.');
@@ -328,7 +353,7 @@ export function createApp(options:Options){
     const result=await mutate(request,async(tx,person)=>{const item=await live(tx,request.params.id);checkVersion(item,body.expectedVersion);await ensureNotArchived(tx,item);if(item.kind!=='system')throw new DomainError('INVALID_ITEM','Somente Sistemas provisionam grupos GitLab.');const job=await tx.provisioningJob.findUniqueOrThrow({where:{itemId:item.id}});if(job.state==='running'&&job.updatedAt>new Date(Date.now()-120000))throw new DomainError('PROVISIONING_RUNNING','O provisionamento já está em execução. Aguarde sua conclusão.',409);if(job.state==='succeeded')return {item};await tx.provisioningJob.update({where:{itemId:item.id},data:{state:'pending',attempts:0}});await event(tx,item,person,'GITLAB_RETRY_REQUESTED','Nova tentativa de provisionamento solicitada.',{});return {item};});
     await provision(request.params.id,true);return result;
   });
-  const repositorySchema=z.object({name:z.string().trim().min(1).max(120),key:z.string().trim().toLowerCase().regex(/^[a-z][a-z0-9-]{1,39}$/),runtime:z.enum(['node','python']),mode:z.enum(['create','link']),gitlabProjectId:z.number().int().positive().optional()}).strict();
+  const repositorySchema=z.object({name:z.string().trim().min(1).max(120),key:z.string().trim().toLowerCase().regex(/^[a-z][a-z0-9-]{1,39}$/),runtime:z.enum(['node','python','generic']),mode:z.enum(['create','link']),gitlabProjectId:z.number().int().positive().optional()}).strict();
   app.post<{Params:{id:string}}>('/api/systems/:id/repositories',async request=>{
     const body=repositorySchema.parse(request.body);canPlan(actor(request));
     if(body.mode==='create'&&body.gitlabProjectId)throw new DomainError('INVALID_REPOSITORY','Novo repositório não recebe ID remoto.');
@@ -338,9 +363,24 @@ export function createApp(options:Options){
     return mutate(request,async(tx,person)=>{
       const system=await live(tx,request.params.id);if(system.kind!=='system')throw new DomainError('INVALID_ITEM','Repositórios pertencem ao Sistema.');
       await ensureNotArchived(tx,system);
+      if(await tx.repository.count({where:{systemId:system.id}}))throw new DomainError('SYSTEM_REPOSITORY_EXISTS','O Sistema já possui seu repositório.',409);
+      if(body.mode==='create')return {repository:await requestSystemRepository(tx,system,person)};
       const repository=await tx.repository.create({data:{systemId:system.id,name:body.name,key:body.key,runtime:body.runtime,mode:body.mode,...(remote?{gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace,gitlabUrl:remote.web_url,state:'ready'}:{})}});
-      await tx.environment.createMany({data:['QA','HML','PRD'].map(code=>({repositoryId:repository.id,code}))});
+      await registerEnvironmentReferences(tx,system,repository,person);
       await event(tx,system,person,remote?'REPOSITORY_LINKED':'REPOSITORY_REQUESTED',remote?'Repositório existente vinculado ao Sistema sem alterar seu conteúdo.':'Criação de repositório do Sistema solicitada.',{repositoryId:repository.id,gitlabProjectId:remote?.id??null},'human',{subject:{type:'repository',id:repository.id,key:repository.key,name:repository.name,version:repository.version},before:null,after:{key:repository.key,name:repository.name,state:repository.state,gitlabProjectId:repository.gitlabProjectId,gitlabPath:repository.gitlabPath,version:repository.version}});return {repository};
+    });
+  });
+  app.get<{Params:{id:string}}>('/api/systems/:id/environments',async request=>db.$transaction(async tx=>environmentContext(tx,await live(tx,request.params.id,true)),{isolationLevel:'RepeatableRead'}));
+  app.post<{Params:{id:string}}>('/api/systems/:id/environment-references',async request=>{
+    const body=versionSchema.extend({expectedRepositoryId:z.string().min(1),expectedRepositoryVersion:z.number().int().positive(),codes:z.array(z.enum(environmentCodes)).min(1).max(environmentCodes.length).refine(codes=>new Set(codes).size===codes.length,'Cada ambiente deve aparecer apenas uma vez.')}).strict().parse(request.body);
+    return mutate(request,async(tx,person)=>{
+      const system=await live(tx,request.params.id);if(system.kind!=='system')throw new DomainError('SYSTEM_REQUIRED','Os ambientes pertencem a um Sistema.',409);
+      await ensureNotArchived(tx,system);checkVersion(system,body.expectedVersion);
+      const repository=await tx.repository.findUnique({where:{systemId:system.id}});
+      if(!repository)throw new DomainError('SYSTEM_REPOSITORY_REQUIRED','Cadastre o repositório do Sistema antes de cadastrar referências de ambiente.',409);
+      if(repository.id!==body.expectedRepositoryId||repository.version!==body.expectedRepositoryVersion)throw new DomainError('VERSION_CONFLICT','O repositório mudou. Atualize a consulta de ambientes e revise o cadastro.',409);
+      const result=await registerEnvironmentReferences(tx,system,repository,person,body.codes);
+      return {...await environmentContext(tx,system),...result};
     });
   });
   app.post<{Params:{id:string}}>('/api/repositories/:id/provision',async request=>{
@@ -363,7 +403,8 @@ export function createApp(options:Options){
       const claimed=await tx.repository.updateMany({where:{id,attempts:{lt:3},OR:[{state:{in:['pending','failed']}},{state:'running',updatedAt:{lt:new Date(Date.now()-120000)}}]},data:{state:'running',attempts:{increment:1}}});if(!claimed.count)return null;
       const requests=await tx.historyEvent.findMany({where:{itemId:repository.systemId,action:{in:['REPOSITORY_REQUESTED','REPOSITORY_RETRY_REQUESTED']}},orderBy:[{timestamp:'desc'},{id:'desc'}]});
       const request=requests.find(row=>(row.payload as Record<string,unknown>).repositoryId===id);
-      const context:AuditOptions={operationId:`gitlab-repository:${id}`,attemptId:randomUUID(),subject:{type:'repository',id,key:repository.key,name:repository.name,version:repository.version},...(request?{causationEventId:request.id,initiator:{id:request.actorId,name:request.actorName,type:request.actorType,authentication:request.actorType==='human'?'declared_demo':'service'}}:{})};
+      const initiatingActor=request?(request.audit as Record<string,any>)?.initiator:undefined;
+      const context:AuditOptions={operationId:`gitlab-repository:${id}`,attemptId:randomUUID(),subject:{type:'repository',id,key:repository.key,name:repository.name,version:repository.version},...(request?{causationEventId:request.id,initiator:initiatingActor||{id:request.actorId,name:request.actorName,type:request.actorType,authentication:request.actorType==='human'?'declared_demo':'service'}}:{})};
       await event(tx,repository.system,{id:'integration:gitlab',name:'Integração GitLab'},'REPOSITORY_PROVISIONING_STARTED','Tentativa de provisionamento iniciada; recurso remoto ainda não confirmado.',{repositoryId:id},'system',{...context,before:{state:repository.state},after:{state:'running'}});
       return context;
     });if(!audit)return;
@@ -372,7 +413,7 @@ export function createApp(options:Options){
       if(!git)throw new DomainError('GITLAB_NOT_CONFIGURED','GitLab não configurado; cadastro do repositório preservado.',503);
       remoteInvoked=true;
       const group=await git.ensureGroup(`${options.gitlabRoot??'sdlc'}/${String(dataOf(repository.system).code).toLowerCase()}`);
-      const remote=await git.ensureProject(group,repository.key,repository.runtime as 'node'|'python',repository.name);
+      const remote=await git.ensureProject(group,repository.key,repository.runtime as 'node'|'python'|'generic',repository.name);
       await db.$transaction(async tx=>{await tx.$executeRaw`SELECT pg_advisory_xact_lock(741852963)`;const system=await tx.item.findUniqueOrThrow({where:{id:repository.systemId}});if(system.archived){await event(tx,system,{id:'integration:gitlab',name:'Integração GitLab'},'REPOSITORY_EFFECT_OBSERVED','Recurso remoto confirmado após arquivamento; planejamento permanece arquivado.',{repositoryId:id,gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace},'system',{...audit,outcome:'SUCCEEDED',phase:'OBSERVED'});return;}await tx.repository.update({where:{id},data:{gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace,gitlabUrl:remote.web_url,state:'ready',message:''}});await event(tx,system,{id:'integration:gitlab',name:'Integração GitLab'},'REPOSITORY_PROVISIONED','Repositório do Sistema confirmado sem build ou deploy.',{repositoryId:id,gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace,gitlabUrl:remote.web_url},'system',{...audit,before:{state:repository.state,gitlabProjectId:repository.gitlabProjectId},after:{state:'ready',gitlabProjectId:remote.id,gitlabPath:remote.path_with_namespace}});});
     }catch(error){await db.$transaction(async tx=>{
       await tx.repository.update({where:{id},data:{state:git?'failed':'not_configured',message:error instanceof DomainError?error.message:'Falha na criação; tente novamente.'}});
@@ -389,7 +430,11 @@ export function createApp(options:Options){
     if(git){try{await git.health();gitCheck={id:'gitlab',label:'GitLab',status:'ready',message:'Conexão autenticada disponível.'};}catch{gitCheck={id:'gitlab',label:'GitLab',status:'unavailable',message:'Conexão GitLab indisponível.'};}}
     let llmCheck:IntegrationCheck={id:'llm',label:'Modelos locais',status:'not_configured',message:'Conexão ainda não configurada.'};
     if(options.llm){try{const models=await options.llm.models();const found=models.includes(options.llm.model);llmCheck={id:'llm',label:'Modelos locais',status:found?'ready':'unavailable',message:found?`Modelo local disponível: ${options.llm.model}. Catálogo validado; não executa inferência neste check.`:`Modelo configurado ausente: ${options.llm.model}.`};}catch{llmCheck={id:'llm',label:'Modelos locais',status:'unavailable',message:'Não foi possível validar o catálogo de modelos locais.'};}}
-    const checks=[gitCheck,llmCheck,...await Promise.all([healthCheck('registry','Repositório de artefatos',options.registryUrl,'/v2/'),healthCheck('executor','Executor e roteamento',options.workerUrl,'/health'),healthCheck('security','Scanner de segurança',options.scannerUrl,'/health')])];
+    let buildCheck:IntegrationCheck|undefined;
+    if(options.developmentBuilds?.health){try{const value=await options.developmentBuilds.health();buildCheck={id:'executor',label:'Construção DEV (Node 24/React)',status:value.ready?'ready':'unavailable',message:value.ready?'Perfil de construção preparado. Implantação de aplicações continua uma capacidade separada.':'A imagem de ferramentas não foi confirmada.'};}catch{buildCheck={id:'executor',label:'Construção DEV (Node 24/React)',status:'unavailable',message:'O executor local não confirmou sua prontidão.'};}}
+    let runtimeCheck:IntegrationCheck|undefined;
+    if(options.runtime){try{const value=await options.runtime.health();runtimeCheck={id:'runtime',label:'Destinos DEV',status:value.ready?'ready':'unavailable',message:value.ready?'Executor de destinos controlados disponível; a prontidão de cada Sistema é consultada na aba Ambientes.':'O executor de destinos não confirmou prontidão.'};}catch{runtimeCheck={id:'runtime',label:'Destinos DEV',status:'unavailable',message:'Não foi possível conferir o executor de destinos DEV.'};}}
+    const checks=[gitCheck,llmCheck,...(runtimeCheck?[runtimeCheck]:[]),...await Promise.all([healthCheck('registry','Repositório de artefatos',options.registryUrl,'/v2/'),buildCheck??healthCheck('executor','Executor e roteamento',options.workerUrl,'/health'),healthCheck('security','Scanner de segurança',options.scannerUrl,'/health')])];
     return {checks,ready:checks.every(c=>c.status==='ready')};
   });
   app.get('/api/integrations/models',async()=>{
@@ -424,14 +469,42 @@ export function createApp(options:Options){
   let processing=false;
   async function processJobs(){if(processing)return;processing=true;try{const jobs=await db.provisioningJob.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3}},orderBy:{updatedAt:'asc'},take:10});for(const job of jobs)await provision(job.itemId);const repositories=await db.repository.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3},system:{archived:false}},orderBy:{updatedAt:'asc'},take:10});for(const repository of repositories)await provisionRepository(repository.id);}finally{processing=false;}}
   const assistantHelpers={db,llm:options.llm,actor,canPlan,mutate,live,ancestors,ensureNotArchived,event,createItem,isProbeRunning:()=>inferenceRunning};
+  registerEpicExecution(app,assistantHelpers);
   registerStoryLifecycle(app,assistantHelpers);
   registerStorySpecifications(app,assistantHelpers);
   registerReleases(app,assistantHelpers);
+  registerExecutionContract(app,assistantHelpers,git);
+  registerReleaseBranchPlan(app,assistantHelpers,git);
+  const {processReleaseBranchJobs}=registerReleaseBranchPreparation(app,assistantHelpers,options.releaseBranches);
   registerConversations(app,assistantHelpers);
-  const {processChatJobs}=registerAssistant(app,assistantHelpers);
+  const {processContractTurn,inspectContractContext}=registerContractProposals(app,assistantHelpers,git);
+  const {processContractPublicationJobs}=registerContractPublications(app,assistantHelpers,inspectContractContext,options.contracts);
+  const {processContractIntegrationJobs}=registerContractIntegrations(app,assistantHelpers,options.contractIntegrations);
+  registerDevelopmentApprovals(app,assistantHelpers);
+  const {processDevelopmentTestJobs}=registerDevelopmentTests(app,assistantHelpers,options.developmentTests,options.deployments);
+  const {processDevelopmentDeploymentJobs}=registerDevelopmentDeployments(app,assistantHelpers,options.deployments,options.runtime);
+  const {processEnvironmentTargetJobs}=registerEnvironmentTargets(app,assistantHelpers,options.runtime);
+  const {processDevelopmentBuildJobs}=registerDevelopmentBuilds(app,assistantHelpers,options.developmentBuilds);
+  const {processApplicationPreparationJobs}=registerApplicationPreparations(app,assistantHelpers,options.applicationPreparations);
+  const {processChatJobs}=registerAssistant(app,assistantHelpers,processContractTurn,!!options.applicationPreparations,{targets:!!options.runtime,deployments:!!options.runtime&&!!options.deployments});
   const {processExecutionJobs}=registerExecution(app,assistantHelpers,git);
-  const {processMergeJobs,processMergeDiscussionJobs}=registerMerge(app,assistantHelpers,options.merge);
+  const {processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs}=registerMerge(app,assistantHelpers,options.merge);
   const {processQualityJobs}=registerQuality(app,assistantHelpers,git,options.scannerUrl);
-  registerJourney(app,assistantHelpers,{git,merge:options.merge,scannerUrl:options.scannerUrl});
-  return {app,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processQualityJobs};
+  registerJourney(app,assistantHelpers,{git,merge:options.merge,scannerUrl:options.scannerUrl,developmentDeploymentsConfigured:!!options.deployments,developmentBuildsConfigured:!!options.developmentBuilds});
+  async function reconcileStoryPhases(plan:{id:string;expectedVersion:number;executionId:string}[]){
+    return db.$transaction(async tx=>{
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(741852963)`;
+      const updated:string[]=[],unchanged:string[]=[];
+      for(const value of plan){
+        const story=await live(tx,value.id);if(story.kind!=='story')throw new DomainError('STORY_REQUIRED','A correção exige uma História.',409);
+        if(story.status==='merge_request'){unchanged.push(story.id);continue;}
+        checkVersion(story,value.expectedVersion);
+        const run=await tx.storyExecution.findFirst({where:{storyId:story.id},orderBy:[{createdAt:'desc'},{id:'desc'}]});
+        if(!run||run.id!==value.executionId||!await enterMergeRequestPhase(tx,assistantHelpers,run,{id:'unknown:initiator',name:'Iniciador administrativo não capturado',type:'unknown'},{operationId:currentAuditContext()?.operationId}))throw new DomainError('PHASE_EVIDENCE_REQUIRED','Não há evidência vigente para corrigir esta História para Merge Request.',409);
+        updated.push(story.id);
+      }
+      return {updated,unchanged};
+    });
+  }
+  return {app,processDevelopmentTestJobs,processDevelopmentDeploymentJobs,processEnvironmentTargetJobs,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs,processQualityJobs,processReleaseBranchJobs,processContractPublicationJobs,processContractIntegrationJobs,processDevelopmentBuildJobs,processApplicationPreparationJobs,reconcileStoryPhases};
 }

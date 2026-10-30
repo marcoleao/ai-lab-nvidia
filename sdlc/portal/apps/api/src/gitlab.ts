@@ -1,25 +1,55 @@
 import { runtimeFiles } from '@sdlc/templates';
 import {createHash} from 'node:crypto';
 import { DomainError } from './errors.ts';
-import {validatePatch,type CodePatch} from './code-schema.ts';
-export type CodeContext={sha:string;targetBranch:string;files:{path:string;content:string}[]};
+import {validatePatch,codeFileCharacterLimit,type CodePatch} from './code-schema.ts';
+import {readBranchPlan} from './branch-plan-gitlab.ts';
+import type {BranchPlanQuery,BranchPlanObservation} from '../../../packages/shared/src/release-branch-plan.ts';
+import type {ExecutionContractObservation} from '../../../packages/shared/src/execution-contract.ts';
+import {readExecutionContract} from './execution-contract-gitlab.ts';
+import type {ContractProposalContext} from '../../../packages/shared/src/contract-proposal.ts';
+import {readContractProposalContext} from './contract-proposal-gitlab.ts';
+export type CodeContext={sha:string;targetBranch:string;files:{path:string;content:string}[];destinationPolicy?:'explicit-dev-v1'};
 export type PublishedCode={sha:string;url:string};
 export type QualityContext={sha:string;baseSha:string;files:{path:string;content:string}[];changes:{path:string;diff:string;content:string}[]};
 
 type Group = {id:number;full_path:string;description?:string;web_url?:string};
 type Project = {id:number;name?:string;path_with_namespace:string;web_url:string;topics?:string[];empty_repo?:boolean;archived?:boolean};
 export interface GitProvider {
+  contractProposalContext?(id:number,sha?:string):Promise<ContractProposalContext>;
+  executionContract?(id:number,sha?:string):Promise<ExecutionContractObservation>;
+  developmentDestination?(id:number):Promise<{sha:string;targetBranch:string}>;
+  releaseBranchPlan?(id:number,query:BranchPlanQuery):Promise<BranchPlanObservation>;
   qualityStatus?(ref:{projectId:number;iid:number;sha:string;sourceBranch:string},kind:'code_review'|'security_scan',state:'pending'|'running'|'success'|'failed'):Promise<void>;
-  qualityContext?(id:number,iid:number,sha:string,baseSha:string):Promise<QualityContext>;
+  qualityContext?(id:number,iid:number,sha:string,baseSha:string,targetBranch?:string):Promise<QualityContext>;
   publishCorrection?(id:number,runId:string,checkId:string,expectedSha:string,context:CodeContext,patch:CodePatch,title:string,permissions:{dependencies:boolean}):Promise<PublishedCode>;
-  codeContext?(id:number):Promise<CodeContext>;
+  codeContext?(id:number,revision?:{sha:string;targetBranch:string}):Promise<CodeContext>;
   publishCode?(id:number,runId:string,context:CodeContext,patch:CodePatch,title:string,permissions?:{dependencies:boolean}):Promise<PublishedCode>;
   health():Promise<boolean>;
   ensureGroup(path:string):Promise<Group>;
-  ensureProject(group:Group,key:string,runtime:'node'|'python',name:string):Promise<Project>;
+  ensureProject(group:Group,key:string,runtime:'node'|'python'|'generic',name:string):Promise<Project>;
   inspectProject(id:number):Promise<Project>;
 }
 export class GitLabProvider implements GitProvider {
+  contractProposalContext(id:number,sha?:string){return readContractProposalContext({base:this.base,token:this.token,root:this.root},id,sha);}
+  executionContract(id:number,sha?:string){return readExecutionContract({base:this.base,token:this.token,root:this.root},id,sha);}
+  async developmentDestination(id:number){
+    if(!Number.isSafeInteger(id)||id<1)throw new DomainError('INVALID_REPOSITORY','Repositório inválido.',409);
+    const project=await this.call<Project&{default_branch:string}>('GET',`projects/${id}`);
+    if(!project||project.archived||!project.path_with_namespace?.startsWith(this.root+'/')||!project.topics?.includes('sdlc-managed')||!project.default_branch)throw new DomainError('CODE_DESTINATION_SCOPE','O repositório de desenvolvimento não está no escopo gerenciado do Sistema.',409);
+    const branch=await this.call<{name:string;commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(project.default_branch)}`);
+    if(branch?.name!==project.default_branch||!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(branch?.commit?.id??''))throw new DomainError('CODE_DESTINATION_UNAVAILABLE','O GitLab não confirmou a branch e a base de desenvolvimento.',503);
+    return {sha:branch.commit.id,targetBranch:project.default_branch};
+  }
+  releaseBranchPlan(id:number,query:BranchPlanQuery){return readBranchPlan({base:this.base,token:this.token,root:this.root},id,query);}
+  private async commitActions(id:number,sha:string,patch:CodePatch){
+    return Promise.all(patch.files.map(async file=>{
+      // The model context is a bounded sample, never an inventory. Inspect the
+      // exact authorized revision even when this path is absent from the sample.
+      const metadata=await this.call<{last_commit_id:string}>('GET',`projects/${id}/repository/files/${encodeURIComponent(file.path)}?ref=${sha}`,undefined,true);
+      if(metadata&&!/^[a-f0-9]{40,64}$/.test(metadata.last_commit_id||''))throw new DomainError('FILE_METADATA_UNAVAILABLE','Não foi possível confirmar a revisão do arquivo antes de publicar. Nenhum commit foi enviado.',409);
+      return {action:metadata?'update':'create',file_path:file.path,content:file.content,...(metadata?{last_commit_id:metadata.last_commit_id}:{})};
+    }));
+  }
   async qualityStatus(ref:{projectId:number;iid:number;sha:string;sourceBranch:string},kind:'code_review'|'security_scan',state:'pending'|'running'|'success'|'failed'){
     const mr=await this.call<{sha:string;source_branch:string;state:string;head_pipeline?:{id:number;sha:string}}>('GET',`projects/${ref.projectId}/merge_requests/${ref.iid}`);
     if(!mr||mr.sha!==ref.sha||mr.source_branch!==ref.sourceBranch||mr.state!=='opened')throw new DomainError('QUALITY_STALE','O MR mudou antes de registrar o resultado no GitLab.',409);
@@ -48,9 +78,13 @@ export class GitLabProvider implements GitProvider {
       }
     }
   }
-  async qualityContext(id:number,iid:number,sha:string,baseSha:string):Promise<QualityContext>{
+  private requireDestination(mr:any,id:number,sourceBranch:string,context:CodeContext){
+    if(context.destinationPolicy&&(mr.source_project_id!==id||mr.target_project_id!==id||mr.source_branch!==sourceBranch||mr.target_branch!==context.targetBranch))throw new DomainError('MR_DESTINATION_CHANGED','O Merge Request não corresponde ao destino autorizado no Gateway de Especificação. Nenhuma referência foi sobrescrita.',409);
+  }
+  async qualityContext(id:number,iid:number,sha:string,baseSha:string,targetBranch?:string):Promise<QualityContext>{
     const mr=await this.call<{sha:string;source_project_id:number;target_project_id:number;target_branch:string;state:string}>('GET',`projects/${id}/merge_requests/${iid}`);
     if(!mr||mr.sha!==sha||mr.source_project_id!==id||mr.target_project_id!==id||mr.state!=='opened')throw new DomainError('QUALITY_STALE','O Merge Request mudou ou foi encerrado. Revise a entrega antes de verificar.',409);
+    if(targetBranch&&mr.target_branch!==targetBranch)throw new DomainError('MR_DESTINATION_CHANGED','O destino do Merge Request mudou após a autorização. A verificação não pode aprovar outro destino.',409);
     const branch=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(mr.target_branch)}`);
     if(branch?.commit.id!==baseSha)throw new DomainError('QUALITY_BASE_CHANGED','A branch de destino mudou desde a codificação. Reconcilie a base antes de verificar.',409);
     const comparison=await this.call<{compare_timeout?:boolean;diffs:{new_path:string;deleted_file:boolean;diff:string;too_large?:boolean;collapsed?:boolean}[]}>('GET',`projects/${id}/repository/compare?from=${baseSha}&to=${sha}&straight=true`);
@@ -75,28 +109,37 @@ export class GitLabProvider implements GitProvider {
   }
   async publishCorrection(id:number,runId:string,checkId:string,expectedSha:string,context:CodeContext,input:CodePatch,_title:string,permissions:{dependencies:boolean}):Promise<PublishedCode>{
     const patch=validatePatch(input,permissions),branch=`sdlc/story-${runId}`,marker=`SDLC correction ${checkId} ${createHash('sha256').update(JSON.stringify(patch)).digest('hex')}`;
+    if(context.destinationPolicy){
+      const mrs=await this.call<any[]>('GET',`projects/${id}/merge_requests?source_branch=${encodeURIComponent(branch)}&state=all`);
+      if(mrs?.length!==1||mrs[0].state!=='opened')throw new DomainError('MR_CHANGED','A correção exige o Merge Request aberto desta execução.',409);
+      this.requireDestination(mrs[0],id,branch,context);
+    }
     const head=await this.call<{commit:{id:string;message:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(branch)}`);
     if(!head)throw new DomainError('BRANCH_CHANGED','Branch da correção indisponível.',409);
     let sha=head.commit.id;
     if(!head.commit.message.includes(marker)){
+      if(context.destinationPolicy){const target=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(context.targetBranch)}`);if(target?.commit.id!==context.sha)throw new DomainError('BASE_CHANGED','A base autorizada da correção mudou. Revise o Gateway de Especificação.',409);}
       if(sha!==expectedSha)throw new DomainError('BRANCH_CHANGED','A branch mudou antes da correção. Nenhum arquivo foi sobrescrito.',409);
-      const actions=await Promise.all(patch.files.map(async f=>{const existing=context.files.some(old=>old.path===f.path);const metadata=existing?await this.call<{last_commit_id:string}>('GET',`projects/${id}/repository/files/${encodeURIComponent(f.path)}?ref=${expectedSha}`):null;return {action:existing?'update':'create',file_path:f.path,content:f.content,...(metadata?{last_commit_id:metadata.last_commit_id}:{})};}));
+      const actions=await this.commitActions(id,expectedSha,patch);
+      const confirmed=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(branch)}`);
+      if(confirmed?.commit.id!==expectedSha)throw new DomainError('BRANCH_CHANGED','A branch mudou durante a preparação da correção. Nenhum commit foi enviado.',409);
       const commit=await this.call<{id:string}>('POST',`projects/${id}/repository/commits`,{branch,commit_message:marker,actions});
       if(!commit)throw new Error('Commit de correção ausente');sha=commit.id;
     }
     for(let attempt=0;attempt<6;attempt++){
       const existing=await this.call<{web_url:string;state:string;sha:string}[]>('GET',`projects/${id}/merge_requests?source_branch=${encodeURIComponent(branch)}&state=opened`);
-      if(existing?.length===1&&existing[0].sha===sha)return {sha,url:existing[0].web_url};
+      if(existing?.length===1&&existing[0].sha===sha){this.requireDestination(existing[0],id,branch,context);return {sha,url:existing[0].web_url};}
       if(attempt<5)await new Promise(resolve=>setTimeout(resolve,1000));
     }
     throw new DomainError('MR_CHANGED','Commit de correção publicado; o GitLab ainda não reconciliou o MR. Retome a publicação para consultar o mesmo commit.',409);
   }
-  async codeContext(id:number):Promise<CodeContext>{
+  async codeContext(id:number,revision?:{sha:string;targetBranch:string}):Promise<CodeContext>{
     const project=await this.call<Project&{default_branch:string}>('GET',`projects/${id}`);
     if(!project||project.archived||!project.default_branch)throw new DomainError('REPOSITORY_NOT_READY','Repositório sem branch padrão disponível.',409);
-    const branch=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(project.default_branch)}`);
-    if(!branch)throw new Error('Branch ausente');
-    const sha=branch.commit.id;
+    if(revision&&(!/^[a-f0-9]{40}$/.test(revision.sha)||revision.targetBranch!==project.default_branch))throw new DomainError('CORRECTION_CONTEXT_INVALID','A revisão da correção não corresponde ao destino autorizado.',409);
+    const branch=revision?null:await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(project.default_branch)}`);
+    if(!revision&&!branch)throw new Error('Branch ausente');
+    const sha=revision?.sha||branch!.commit.id;
     const tree=await this.call<{path:string;type:string;mode:string}[]>('GET',`projects/${id}/repository/tree?ref=${sha}&recursive=true&per_page=100`);
     const more=await this.call<unknown[]>('GET',`projects/${id}/repository/tree?ref=${sha}&recursive=true&per_page=100&page=2`);
     if(more?.length)throw new DomainError('REPOSITORY_TOO_LARGE','Esta fatia aceita repositórios de até 100 entradas. Reduza o escopo antes de gerar.',409);
@@ -105,9 +148,11 @@ export class GitLabProvider implements GitProvider {
       if(entry.type!=='blob'||entry.mode!=='100644'||(!/\.(ts|tsx|js|jsx|mjs|cjs|py|html|css|json|md)$/.test(entry.path)&&! /^(requirements\.txt|pyproject\.toml)$/.test(entry.path))||entry.path.split('/').some(p=>p.startsWith('.'))||/lock|node_modules|vendor|secret|credential/i.test(entry.path))continue;
       if(files.length>=16)throw new DomainError('REPOSITORY_TOO_LARGE','Mais de 16 arquivos de contexto; selecione uma história menor.',409);
       const file=await this.call<{content:string;encoding:string;size:number}>('GET',`projects/${id}/repository/files/${encodeURIComponent(entry.path)}?ref=${sha}`);
-      if(!file||file.encoding!=='base64'||file.size>12000)throw new DomainError('FILE_TOO_LARGE','Arquivo do contexto excede o limite desta fatia.',409);
-      const content=Buffer.from(file.content,'base64').toString('utf8');size+=content.length;
-      if(size>18000)throw new DomainError('REPOSITORY_TOO_LARGE','Contexto do código excede 18000 caracteres.',409);
+      if(!file||file.encoding!=='base64'||file.size>64000)throw new DomainError('FILE_TOO_LARGE','Arquivo do contexto excede o limite desta fatia.',409);
+      const decoded=Buffer.from(file.content,'base64'),content=decoded.toString('utf8');
+      if(decoded.length>64000||content.length>codeFileCharacterLimit||content.includes('\0')||!Buffer.from(content,'utf8').equals(decoded))throw new DomainError('FILE_TOO_LARGE',`Arquivo deve ser texto UTF-8 de até ${codeFileCharacterLimit} caracteres.`,409);
+      size+=content.length;
+      if(size>24000)throw new DomainError('REPOSITORY_TOO_LARGE','Contexto do código excede 24000 caracteres.',409);
       files.push({path:entry.path,content});
     }
     return {sha,targetBranch:project.default_branch,files};
@@ -122,13 +167,17 @@ export class GitLabProvider implements GitProvider {
     if(!sha){
       const current=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(context.targetBranch)}`);
       if(current?.commit.id!==context.sha)throw new DomainError('BASE_CHANGED','A branch de destino mudou. Gere uma nova execução.',409);
-      const commit=await this.call<{id:string}>('POST',`projects/${id}/repository/commits`,{branch,start_sha:context.sha,commit_message:`${marker} [skip ci]`,actions:patch.files.map(f=>({action:context.files.some(old=>old.path===f.path)?'update':'create',file_path:f.path,content:f.content}))});
+      const actions=await this.commitActions(id,context.sha,patch);
+      const confirmed=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(context.targetBranch)}`);
+      if(confirmed?.commit.id!==context.sha)throw new DomainError('BASE_CHANGED','A base mudou durante a preparação da publicação. Nenhum commit foi enviado.',409);
+      const commit=await this.call<{id:string}>('POST',`projects/${id}/repository/commits`,{branch,start_sha:context.sha,commit_message:`${marker} [skip ci]`,actions});
       if(!commit)throw new Error('Commit ausente');sha=commit.id;
     }
     const existing=await this.call<{web_url:string;state:string;sha:string}[]>('GET',`projects/${id}/merge_requests?source_branch=${encodeURIComponent(branch)}&state=all`);
-    if(existing?.length){if(existing.length!==1||existing[0].state!=='opened'||existing[0].sha!==sha)throw new DomainError('MR_CHANGED','Merge Request alterada externamente; revisão necessária.',409);return {sha,url:existing[0].web_url};}
+    if(existing?.length){if(existing.length!==1||existing[0].state!=='opened'||existing[0].sha!==sha)throw new DomainError('MR_CHANGED','Merge Request alterada externamente; revisão necessária.',409);this.requireDestination(existing[0],id,branch,context);return {sha,url:existing[0].web_url};}
+    if(context.destinationPolicy){const target=await this.call<{commit:{id:string}}>('GET',`projects/${id}/repository/branches/${encodeURIComponent(context.targetBranch)}`);if(target?.commit.id!==context.sha)throw new DomainError('BASE_CHANGED','A base mudou antes da abertura do Merge Request. Revise a entrega preservada.',409);}
     const mr=await this.call<{web_url:string}>('POST',`projects/${id}/merge_requests`,{source_branch:branch,target_branch:context.targetBranch,title:`Draft: ${title.slice(0,110)}`,description:`${marker}\n\n${patch.summary}\n\nCódigo gerado por IA. Testes automatizados, Code Review e Security Scan ainda não foram executados por este fluxo.`,remove_source_branch:false});
-    if(!mr)throw new Error('MR ausente');return {sha,url:mr.web_url};
+    if(!mr)throw new Error('MR ausente');this.requireDestination(mr,id,branch,context);return {sha,url:mr.web_url};
   }
   constructor(private base:string,private token:string,private root='sdlc') {
     const url = new URL(base);
@@ -164,7 +213,7 @@ export class GitLabProvider implements GitProvider {
     if(!created) throw new Error('Missing GitLab group');
     return created;
   }
-  async ensureProject(group:Group,key:string,runtime:'node'|'python',name:string):Promise<Project> {
+  async ensureProject(group:Group,key:string,runtime:'node'|'python'|'generic',name:string):Promise<Project> {
     if(!/^[a-z][a-z0-9-]{1,39}$/.test(key)) throw new DomainError('INVALID_PROJECT_KEY','Chave de repositório inválida.');
     const path=`${group.full_path}/${key}`;
     let project=await this.call<Project>('GET',`projects/${encodeURIComponent(path)}`,undefined,true);

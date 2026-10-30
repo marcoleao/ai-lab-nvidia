@@ -20,18 +20,18 @@ const items=[
   {id:'h2',kind:'story',parentId:'e1',archived:false},
   {id:'h3',kind:'story',parentId:'e2',archived:false},
 ];
-const release=(id:string,ageDays=1,extra={})=>({id,systemId:'s1',stage:'DRAFT',createdById:'other',createdAt:new Date(+now-ageDays*DAY),stories:[] as {storyId:string}[],...extra});
+const release=(id:string,ageDays=1,extra={})=>({id,systemId:'s1',compositionStatus:'OPEN',createdById:'other',createdAt:new Date(+now-ageDays*DAY),stories:[] as {storyId:string}[],...extra});
 const event=(itemId:string,action:string,payload:unknown={})=>({itemId,action,payload});
 
 test('release stock counts each stored release once, including empty drafts, without fabricating lifecycle evidence',()=>{
   const releases=[release('empty'),release('many',2,{stories:[{storyId:'h1'},{storyId:'h2'},{storyId:'h3'}]}),
-    ...['QA','HML','PRODUCTION','REJECTED'].map(stage=>release(stage,3,{stage})),
+    ...['CLOSED','CANCELED'].map(compositionStatus=>release(compositionStatus,3,{compositionStatus})),
     release('archived',4,{systemId:'archived'}),release('future',-1),
   ];
   const result=computeReleaseDashboard({items,releases,participation:[]},now,windows);
-  expect(result.total).toBe(6);
-  expect(result.stages.map(stage=>[stage.stage,stage.count])).toEqual([['DRAFT',2],['QA',1],['HML',1],['PRODUCTION',1],['REJECTED',1]]);
-  expect(result.stages.reduce((sum,stage)=>sum+stage.count,0)).toBe(result.total);
+  expect(result.total).toBe(4);
+  expect(result.stages.map(compositionStatus=>[compositionStatus.compositionStatus,compositionStatus.count])).toEqual([['OPEN',2],['CLOSED',1],['CANCELED',1]]);
+  expect(result.stages.reduce((sum,compositionStatus)=>sum+compositionStatus.count,0)).toBe(result.total);
   expect(result.rework).toMatchObject({available:false,total:null});
   expect(result.rework.categories).toHaveLength(2);
   expect(result.rework.categories.every(category=>category.total===null&&category.weeks.every(week=>week.value===null))).toBe(true);
@@ -40,12 +40,12 @@ test('release stock counts each stored release once, including empty drafts, wit
 
 test('current composition age has exact age bands, a median and oldest age, and excludes closed or archived stock',()=>{
   const releases=[0,7,15,30].map((days,index)=>release(String(index),days));
-  releases.push(release('closed',90,{stage:'QA'}),release('hidden',100,{systemId:'archived'}));
+  releases.push(release('closed',90,{compositionStatus:'CLOSED'}),release('hidden',100,{systemId:'archived'}));
   const result=computeReleaseDashboard({items,releases,participation:[]},now,windows);
   expect(result.composition).toMatchObject({samples:4,medianHours:11*24,oldestHours:30*24});
   expect(result.composition.buckets.map(bucket=>bucket.count)).toEqual([1,1,1,1]);
   expect(result.composition.definition).toContain('não duração de composições concluídas');
-  const noDrafts=computeReleaseDashboard({items,releases:[release('only-production',5,{stage:'PRODUCTION'})],participation:[]},now,windows);
+  const noDrafts=computeReleaseDashboard({items,releases:[release('only-production',5,{compositionStatus:'CLOSED'})],participation:[]},now,windows);
   expect(noDrafts.composition).toMatchObject({samples:0,medianHours:null,oldestHours:null});
   const justCreated=computeReleaseDashboard({items,releases:[release('new',0)],participation:[]},now,windows);
   expect(justCreated.composition).toMatchObject({samples:1,medianHours:0,oldestHours:0});
@@ -103,7 +103,7 @@ test('query helper reuses the repeatable-read hierarchy snapshot and restricts p
   const queryRelease=vi.fn(async()=>[release('mine',1,{createdById:'user'})]);
   const queryItem=vi.fn(async()=>items);
   const queryHistory=vi.fn(async()=>[]);
-  const tx={release:{findMany:queryRelease},item:{findMany:queryItem},historyEvent:{findMany:queryHistory}} as unknown as Transaction;
+  const tx={release:{findMany:queryRelease},item:{findMany:queryItem},historyEvent:{findMany:queryHistory},releaseBranchPreparation:{findMany:vi.fn(async()=>[])}} as unknown as Transaction;
   const result=await releaseDashboard(tx,now,windows,{userId:'user',systemId:'s1'},items);
   expect(result.total).toBe(1);
   expect(queryItem).not.toHaveBeenCalled();
@@ -115,7 +115,7 @@ test('query helper reuses the repeatable-read hierarchy snapshot and restricts p
 
 test('an empty release query still returns meaningful zero inventory and unavailable durations without requesting participation',async()=>{
   const queryHistory=vi.fn(async()=>[]);
-  const tx={release:{findMany:vi.fn(async()=>[])},item:{findMany:vi.fn(async()=>items)},historyEvent:{findMany:queryHistory}} as unknown as Transaction;
+  const tx={release:{findMany:vi.fn(async()=>[])},item:{findMany:vi.fn(async()=>items)},historyEvent:{findMany:queryHistory},releaseBranchPreparation:{findMany:vi.fn(async()=>[])}} as unknown as Transaction;
   const result=await releaseDashboard(tx,now,windows,{userId:'user'});
   expect(result.total).toBe(0);
   expect(result.weeks.map(week=>week.created)).toEqual([0,0,0,0]);

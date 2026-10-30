@@ -1,0 +1,11 @@
+.application-preparation{border-top:1px solid var(--line);margin-top:1.25rem;padding-top:1.25rem;min-width:0}
+.application-preparation section,.application-preparation article,.application-preparation details{min-width:0}
+.application-preparation code,.application-preparation dd,.application-preparation p,.application-preparation summary{overflow-wrap:anywhere}
+.application-preparation dl{display:grid;gap:.55rem}.application-preparation dl>div{min-width:0}.application-preparation dt{font-weight:600}.application-preparation dd{margin:.15rem 0 0}
+.application-preparation textarea{display:block;width:100%;box-sizing:border-box;margin-top:.4rem}
+.application-preparation pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:22rem;overflow:auto;padding:.75rem;border:1px solid var(--line);border-radius:.5rem;background:var(--surface,#f4f7fa)}
+.application-preparation details{margin:.7rem 0}.application-preparation details>summary{cursor:pointer}
+.application-preparation-accept{display:flex;gap:.6rem;align-items:flex-start;margin:1rem 0}.application-preparation-accept input{flex-shrink:0;margin-top:.25rem}
+.application-preparation [data-testid="application-preparation-confirmation"]{border:1px solid var(--line);border-radius:.6rem;padding:1rem;margin-top:1rem}
+.application-preparation-proof{border-left:3px solid var(--blue);padding-left:1rem;margin:1rem 0}.application-preparation-recovery{margin:1rem 0}
+@media(max-width:600px){.application-preparation .actions{align-items:stretch}.application-preparation .actions button{max-width:100%;white-space:normal}.application-preparation [data-testid="application-preparation-confirmation"]{padding:.75rem}}

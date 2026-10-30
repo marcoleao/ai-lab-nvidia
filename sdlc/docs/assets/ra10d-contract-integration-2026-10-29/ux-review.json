@@ -1,0 +1,266 @@
+{
+    "version":  2,
+    "date":  "2026-10-29",
+    "reviewerProfile":  "UX agent",
+    "decision":  "approved_with_documented_limits",
+    "scope":  "RA-10d: extensão do acompanhamento do contrato no quadro existente de Sistema / Repositório do Sistema; sem nova aba ou mudança de shell",
+    "sourceFiles":  [
+                        "sdlc/portal/apps/web/app/contract-integration.tsx",
+                        "sdlc/portal/apps/web/app/contract-publication.tsx"
+                    ],
+    "captures":  [
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integrated-1440.png",
+                         "width":  1440,
+                         "height":  4196,
+                         "sha256":  "3e34a4a417e26d6535bde573b9926e71195ba42e77baf751c74be0ef6f6779d1",
+                         "reviewedWith":  "view_image",
+                         "viewports":  1440,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "supersededBy":  "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-1440.png",
+                         "validationRole":  "Historical pre-correction baseline"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integrated-390.png",
+                         "width":  390,
+                         "height":  6040,
+                         "sha256":  "21f147cf477542f1b90bb8fd7824974f119d64e78b4161cc7af0fbb40ed2ad64",
+                         "reviewedWith":  "view_image",
+                         "viewports":  390,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "supersededBy":  "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-390.png",
+                         "validationRole":  "Historical pre-correction baseline"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integration-receipt-read-error-1440.png",
+                         "width":  1440,
+                         "height":  4362,
+                         "sha256":  "367081e919bb7bf6296646f53bedf404477a6bb31da1549d9bf3412cccc899c0",
+                         "reviewedWith":  "view_image",
+                         "viewports":  1440,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "validationRole":  "Retained failure/resolution layout and state evidence; original copy predates correction"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integration-receipt-read-error-390.png",
+                         "width":  390,
+                         "height":  6356,
+                         "sha256":  "2759bfe712a209b97d879cd5421fdb0854a25354b80f4c652032f430d4c59c0d",
+                         "reviewedWith":  "view_image",
+                         "viewports":  390,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "validationRole":  "Retained failure/resolution layout and state evidence; original copy predates correction"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integration-resolved-1440.png",
+                         "width":  1440,
+                         "height":  4344,
+                         "sha256":  "e50b2ccae7f003f6190aeb89381d8ac14660fe7324346309ef1f099679683500",
+                         "reviewedWith":  "view_image",
+                         "viewports":  1440,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "validationRole":  "Retained failure/resolution layout and state evidence; original copy predates correction"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integration-resolved-390.png",
+                         "width":  390,
+                         "height":  6433,
+                         "sha256":  "f80ba5e3c64eb511930e56313caceff617bbe2785106cce7c2bcc5e0722a3ff3",
+                         "reviewedWith":  "view_image",
+                         "viewports":  390,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  true,
+                         "validationRole":  "Retained failure/resolution layout and state evidence; original copy predates correction"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-1440.png",
+                         "width":  1440,
+                         "height":  4220,
+                         "sha256":  "39d7b73e2dc67a42572afa054e581d750c462b3724845daf0ace20855f202ecf",
+                         "reviewedWith":  "view_image",
+                         "viewports":  1440,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  false,
+                         "validationRole":  "Current integrated layout and corrected copy in 1440/390",
+                         "supersedes":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integrated-1440.png"
+                     },
+                     {
+                         "file":  "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-390.png",
+                         "width":  390,
+                         "height":  6136,
+                         "sha256":  "7f7305e126443d8201575c7cf4f7bc316886c572e2ad9dac9a1f3a192032774a",
+                         "reviewedWith":  "view_image",
+                         "viewports":  390,
+                         "fullPage":  true,
+                         "beforeCopyCorrection":  false,
+                         "validationRole":  "Current integrated layout and corrected copy in 1440/390",
+                         "supersedes":  "sdlc/portal/test-results/regression/20261029T183054Z-e0f18d/screenshots/contract-integrated-390.png"
+                     }
+                 ],
+    "visualFindings":  [
+                           {
+                               "id":  "UX-RA10D-01",
+                               "finding":  "A integração permanece no quadro existente, com a identidade Dell / Portal SDLC e uma coluna em 1440 e 390; não exige nova página ou aba.",
+                               "result":  "approved"
+                           },
+                           {
+                               "id":  "UX-RA10D-02",
+                               "finding":  "Recibo de integração, fonte efetiva e resolução local têm rótulos e referências próprios. Detalhes técnicos ficam recolhidos e a consulta de fonte tem ação explícita.",
+                               "result":  "approved"
+                           },
+                           {
+                               "id":  "UX-RA10D-03",
+                               "finding":  "GET falho recebe destaque vermelho, enquanto o recibo positivo da integração permanece visível e datado. A fonte anterior aparece qualificada como última observação.",
+                               "result":  "approved"
+                           },
+                           {
+                               "id":  "UX-RA10D-04",
+                               "finding":  "O encerramento é identificado como local, preserva intenção e efeito remoto desconhecido e mantém consulta da operação anterior.",
+                               "result":  "approved"
+                           },
+                           {
+                               "id":  "UX-RA10D-05",
+                               "finding":  "Textos de execução indisponível, ferramentas / build / testes / implantação sujeitos a etapas próprias e entradas técnicas pendentes impedem confundir integração do contrato com prontidão do executor.",
+                               "result":  "approved"
+                           },
+                           {
+                               "id":  "UX-RA10D-06",
+                               "finding":  "Botões, referências e textos quebram em 390px; não foi observado alargamento horizontal nas seis capturas. O teste automatizado de overflow nesta rodada cobre explicitamente o cenário integrado em 1440/390.",
+                               "result":  "approved_with_coverage_limit"
+                           }
+                       ],
+    "layoutBlockingFindings":  [
+
+                               ],
+    "copyFindings":  [
+                         {
+                             "id":  "UX-RA10D-COPY-01",
+                             "finding":  "Nas capturas integradas, a message histórica do envio ainda dizia integração pendente, apesar de merge observado e integração confirmada no quadro abaixo.",
+                             "severity":  "medium",
+                             "status":  "corrected_and_revalidated",
+                             "correction":  "Quando mrState é merged, o texto visível informa merge observado e orienta conferir resultado e fonte. A message original permanece somente em Referências do envio, qualificada como registro do acompanhamento.",
+                             "revalidatedIn":  [
+                                                   "20261029T184816Z-bfa684",
+                                                   "20261029T185423Z-b3d566"
+                                               ]
+                         },
+                         {
+                             "id":  "UX-RA10D-COPY-02",
+                             "finding":  "A introdução dizia que a fonte da branch padrão era consultada acima, mas o cenário preserva contract.sha histórico.",
+                             "severity":  "low",
+                             "status":  "corrected_and_revalidated",
+                             "correction":  "Introdução esclarece que a consulta acima mantém o commit escolhido, inclusive histórico, e que a fonte atual fica no quadro Integração do contrato.",
+                             "revalidatedIn":  [
+                                                   "20261029T184816Z-bfa684",
+                                                   "20261029T185423Z-b3d566"
+                                               ]
+                         }
+                     ],
+    "copyCorrectionValidation":  {
+                                     "file":  "sdlc/portal/apps/web/app/contract-publication.tsx",
+                                     "authorization":  "Solicitação explícita do agente responsável após reporte visual, com fonte da regressão já congelada",
+                                     "scope":  "Somente mensagens visíveis e qualificação da mensagem histórica; sem alteração de dados, autorização, gates, requests ou fluxo",
+                                     "tsxSyntax":  "passed",
+                                     "diffCheck":  "passed",
+                                     "directedBrowserAfterCorrection":  "passed",
+                                     "newCapturesReviewed":  true,
+                                     "directedRuns":  [
+                                                          {
+                                                              "run":  "20261029T184816Z-bfa684",
+                                                              "ok":  true,
+                                                              "runtimeHash":  "55c08441714ef5cdeb1a843f7ed5c67d98b550b9dfffaf096413a7f4f46ae1c3",
+                                                              "testHash":  "d64ae49e8ac8eaae0684adb99c818d031b571b36eefebd6abd5fe7df7a7d995a",
+                                                              "sourceStable":  true,
+                                                              "passed":  6,
+                                                              "failed":  0,
+                                                              "skipped":  0,
+                                                              "flaky":  0
+                                                          },
+                                                          {
+                                                              "run":  "20261029T185423Z-b3d566",
+                                                              "ok":  true,
+                                                              "runtimeHash":  "55c08441714ef5cdeb1a843f7ed5c67d98b550b9dfffaf096413a7f4f46ae1c3",
+                                                              "testHash":  "67dab725d499a444f4031a5b58006bc9eb550d1c88ab086c8b55378806ddf5fa",
+                                                              "sourceStable":  true,
+                                                              "passed":  4,
+                                                              "failed":  0,
+                                                              "skipped":  0,
+                                                              "flaky":  0
+                                                          }
+                                                      ],
+                                     "currentCaptures":  [
+                                                             "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-1440.png",
+                                                             "sdlc/portal/test-results/regression/20261029T185423Z-b3d566/screenshots/contract-integrated-390.png"
+                                                         ],
+                                     "visualResult":  "A mensagem atual do envio mostra merge observado e remete ao resultado/fonte; não apresenta integração pendente como estado atual. A introdução identifica que a consulta superior mantém o commit escolhido, inclusive histórico. Quebra e legibilidade preservadas em 1440/390.",
+                                     "observedAssertion":  "No cenário Draft/merge da última rodada, a primeira mensagem direta de Resultado do envio do contrato é assertada sem o texto pendente. A mensagem histórica continua em aprofundamento, conforme a fonte; não foi expandida nessas duas capturas."
+                                 },
+    "testEvidence":  {
+                         "run":  "20261029T183054Z-e0f18d",
+                         "runtimeHash":  "37387b47ff61920cb2233aa53c4177f207d3ea9dc8af760e812883402b971211",
+                         "testHash":  "d1dc0c74b2a4614f6109f5199da48e9ae6161734ed697539726886042a32939b",
+                         "sourceStable":  true,
+                         "passed":  22,
+                         "failed":  0,
+                         "skipped":  0,
+                         "flaky":  0,
+                         "assertionsActuallyObserved":  [
+                                                            "Helper review verifica foco na confirmação de integração.",
+                                                            "Cenários known receipt survives canonical GET failure verificam foco no painel em 1440 e 390.",
+                                                            "Cenários Draft / merge verificam confirmação separada, ausência de write de merge na liberação, preservação de contract.sha e children.q, e scrollWidth \u003c= innerWidth.",
+                                                            "Casos perdidos HTTP / GitLab verificam persona/corpo/chave e ausência de escrita duplicada.",
+                                                            "Resolução, permissões, deriva de fonte, merge externo e pausa / retomada têm cenários aprovados nas duas larguras."
+                                                        ],
+                         "notInferredFromScreenshots":  [
+                                                            "Percurso completo por Tab / Shift+Tab em teclado nativo.",
+                                                            "Compatibilidade integral com leitores de tela ou hardware assistivo.",
+                                                            "Conformidade WCAG ou contraste medido numericamente.",
+                                                            "Prontidão / implantação de aplicação ou integração GitLab real."
+                                                        ],
+                         "afterCopyCorrection":  {
+                                                     "runs":  [
+                                                                  {
+                                                                      "run":  "20261029T184816Z-bfa684",
+                                                                      "ok":  true,
+                                                                      "runtimeHash":  "55c08441714ef5cdeb1a843f7ed5c67d98b550b9dfffaf096413a7f4f46ae1c3",
+                                                                      "testHash":  "d64ae49e8ac8eaae0684adb99c818d031b571b36eefebd6abd5fe7df7a7d995a",
+                                                                      "sourceStable":  true,
+                                                                      "passed":  6,
+                                                                      "failed":  0,
+                                                                      "skipped":  0,
+                                                                      "flaky":  0
+                                                                  },
+                                                                  {
+                                                                      "run":  "20261029T185423Z-b3d566",
+                                                                      "ok":  true,
+                                                                      "runtimeHash":  "55c08441714ef5cdeb1a843f7ed5c67d98b550b9dfffaf096413a7f4f46ae1c3",
+                                                                      "testHash":  "67dab725d499a444f4031a5b58006bc9eb550d1c88ab086c8b55378806ddf5fa",
+                                                                      "sourceStable":  true,
+                                                                      "passed":  4,
+                                                                      "failed":  0,
+                                                                      "skipped":  0,
+                                                                      "flaky":  0
+                                                                  }
+                                                              ],
+                                                     "note":  "6 e 4 execuções aprovadas; os cenários Draft/merge se repetem entre rodadas e não são contados como dez cenários distintos.",
+                                                     "additionalAssertions":  [
+                                                                                  "Mensagem atual do envio sem falsa pendência após merge observado, em 1440/390.",
+                                                                                  "Contrato ausente, inválido ou não suportado permanece distinto da integração, em 1440/390.",
+                                                                                  "As seis execuções anteriores à última rodada também repetem recibo seguido de GET falho e resolução local nas duas larguras."
+                                                                              ]
+                                                 }
+                     },
+    "limitations":  [
+                        "As oito imagens são fullPage; navegação, faixa fixa de contexto e skip link aparecem sobrepostos em trechos da captura. A inspeção estática não comprova visibilidade sem oclusão em todos os estados de rolagem/foco no viewport real.",
+                        "A consulta histórica no topo pode mostrar contrato ausente enquanto a fonte atual foi confirmada abaixo; o modo e o commit da consulta estão explicitamente identificados, e a URL preservada foi verificada nos testes.",
+                        "Capturas usam dados isolados e adapters simulados. O quadro global de integração mostra NOT CONFIGURED na fixture; isso não é prova da configuração ou prontidão de uma instalação real.",
+                        "Nenhuma captura de confirmação aberta foi incluída neste conjunto visual; o foco dessa confirmação é respaldado pelas asserções dos 22 testes, não por imagem deste conjunto.",
+                        "As duas correções textuais foram revalidadas em 6 e 4 execuções dirigidas e nas duas capturas integradas atualizadas. As quatro capturas de falha/resolução continuam como evidência de layouts/estados não alterados; não foram reabertas ou atualizadas nesta revisão.",
+                        "Assistividade integral, ordens de tabulação e comportamento de viewport com teclado móvel permanecem fora desta revisão."
+                    ]
+}

@@ -1,0 +1,24 @@
+{
+  "reviewer": "ux_ra09f",
+  "result": "approved",
+  "source": "22069fde66ffd72c95ebbe831d953baedf1f8aa7b411db245e74f4ec7b96789e",
+  "image": "sha256:befa99da3ba4a2007c4ab8b6843a29924673d78b0905a8ab1b7bbb41843b3ae2",
+  "viewports": [1440, 390],
+  "screenshots": 10,
+  "materialBlockers": 0,
+  "scope": "Rastreabilidade da execução exata da composição e da integração conhecida na consulta, nos aprofundamentos existentes da Release e das participações da História.",
+  "observations": [
+    "Código no planejamento e commit integrado permanecem distintos, com execução, MR, branches e commits identificados.",
+    "Referência parcial ou ausente não inventa commit integrado nem falha de merge.",
+    "Evidência posterior está separada do registro original e datada.",
+    "Participações mostram erro, retentativa e leitura anterior preservada.",
+    "Em 390px os dados usam uma coluna, com textos e identificadores acomodados.",
+    "Orientação sobre composição editável aplicada; consultar não propõe alterar o registro histórico."
+  ],
+  "limitations": [
+    "São recortes de viewport; várias capturas em scroll sob cabeçalho fixo não mostram o início inteiro da rastreabilidade.",
+    "Em history-error o aviso fica acima do recorte. Erro e preservação foram verificados na fonte e nos cenários; participation mostra o erro diretamente.",
+    "Não representa captura completa de todos os estados ou validação assistiva integral.",
+    "Dados sintéticos e referências completas foram demonstrados somente em portal_test."
+  ]
+}

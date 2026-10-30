@@ -1,3 +1,5 @@
+import {reviewedGateBody} from './reviewed-gate';
+import {repositoryFixture} from './repository-fixture';
 import {randomUUID,createHash} from 'node:crypto';
 import {afterAll,afterEach,describe,expect,test,vi} from 'vitest';
 import {database} from '../packages/db/client.ts';
@@ -32,8 +34,8 @@ describe.skipIf(!url)('real tasks and observable work',()=>{
   const standard=await Promise.all(pipelineTasks.map(definition=>db.item.create({data:{kind:'task',key:'W-'+randomUUID(),parentId:story.id,parentKind:'story',name:definition.name,description:definition.description,status:'todo',data:{workProcess:true,pipelineStage:definition.stage,creationOrigin:'pipeline'}}})));
   const codingTask=standard.find(task=>(task.data as Record<string,unknown>).pipelineStage==='coding')!;
   ownedStories.push(story.id);
-  const repository=await db.repository.create({data:{systemId:system.id,key:'w-'+randomUUID(),name:'Componente descartável',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*100000000)+200000000}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
-  const post=async(path:string,payload:unknown,key=randomUUID())=>runtime.app.inject({method:'POST',url:path,headers:{'x-persona':'admin','idempotency-key':key},payload});
+  const repository=await repositoryFixture(db,{data:{systemId:system.id,key:'w-'+randomUUID(),name:'Componente descartável',runtime:'node',state:'ready',gitlabProjectId:Math.floor(Math.random()*100000000)+200000000}});await db.itemRepository.create({data:{itemId:story.id,repositoryId:repository.id}});
+  const post=async(path:string,payload:unknown,key=randomUUID())=>runtime.app.inject({method:'POST',url:path,headers:{'x-persona':'admin','idempotency-key':key},payload:await reviewedGateBody(runtime.app,path,payload,key)});
   const version=async()=>(await db.item.findUniqueOrThrow({where:{id:story.id}})).version;
   const prepare=async()=>{llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify(specification)});const result=await post(`/api/items/${story.id}/execution`,{expectedVersion:await version()});expect(result.statusCode,result.body).toBe(200);await runtime.processExecutionJobs();return result.json().runId as string;};
   const snapshot=(extra:Record<string,unknown>={})=>db.$transaction(tx=>approvedSnapshot(tx,story.id,extra,3));

@@ -35,8 +35,22 @@ function evidence(value:AuditEvidence):AuditEvidence{
 }
 function target(value:AuditTarget):AuditTarget{return {type:identifier(value.type,'TARGET_TYPE'),id:identifier(value.id,'TARGET'),...(value.key?{key:safeAuditText(value.key)}:{}),...(value.name?{name:safeAuditText(value.name)}:{}),...(Number.isInteger(value.version)&&value.version!>=0?{version:value.version}:{})};}
 const publicFields=new Set(['id','kind','key','name','status','version','archived','parentId','parentKind','projectLifecycle','repositoryIds','taskIds','taskId','releaseId','fromReleaseId','toReleaseId','plannedStoryVersion','gitlabState','gitlabGroupId','gitlabGroupPath','gitlabProjectId','gitlabPath','state','stage','attempts','currentAttemptId','currentVersion','currentPackageDigest','decision','gate','sha','commitSha','baseSha','policyVersion','revision','sourceBranch','targetBranch','allowDependencies','completion','scope','links','stories','storyId','repositoryId','storyVersion','releaseVersion','descriptionRevision','descriptionDigest']);
+for(const field of ['developmentBuildId','executionId','imageId','archiveDigest','dispatchStartedAt','contractIntegrationId','integrationKind','resolvedAt','writeStartedAt','contractPublicationId','contractContentDigest','contractRequestId','contractReviewId','proposalId','proposalDigest','reviewId','repositoryVersion'])publicFields.add(field);
+for(const field of ['developmentApprovalId'])publicFields.add(field);
+for(const field of ['developmentTestId','suiteDigest','suiteScope','caseCount','passedCases','failedCases'])publicFields.add(field);
+for(const field of ['developmentDeploymentId','containerId','healthAt','currentVersion','currentPackageDigest'])publicFields.add(field);
+for(const field of ['environmentOperationId','environmentTargetId','environmentId','runtimeProfile','configDigest','resourceId','resourceName','unitId'])publicFields.add(field);
+for(const field of ['applicationPreparationId','applicationPreparationRootId','preparationKind','templateVersion','contentDigest','commitWriteStartedAt','mrWriteStartedAt','buildWriteStartedAt','statusWriteStartedAt','technicalTestPassed','pipelineId','statusId','iid','mrState'])publicFields.add(field);
 for(const field of ['linkId','sourceType','sourceId','sourceVersion','projectId','planProposalId','planRevision','sourceTurnId'])publicFields.add(field);
 for(const field of ['creationOrigin','pipelineStage','revisionId','revisionNumber','draftVersion','baseRevision','resultId','source','count'])publicFields.add(field);
+for(const field of ['integrationReferenceId','integrationSha','mergeCommitSha','squashCommitSha','sourceSha'])publicFields.add(field);
+for(const field of ['finishedAt','origin','mergedBy'])publicFields.add(field);
+for(const field of ['historyResolutionId','reasonDigest'])publicFields.add(field);
+for(const field of ['remoteClosureId','writeStartedAt'])publicFields.add(field);
+publicFields.add('environmentCodes');
+publicFields.add('compositionStatus');
+publicFields.add('flowEnvironment');
+for(const field of ['canceledAt','canceledById','canceledByName','cancellationReasonDigest'])publicFields.add(field);
 type AuditJson=Extract<AuditChange['before'],{kind:'value'}>['value'];
 function cleanValue(value:unknown,depth=0):AuditJson{
   if(depth>5)throw new Error('AUDIT_VALUE_TOO_DEEP');
@@ -84,11 +98,26 @@ export function safePublicAudit(value:unknown):AuditEnvelope|null{
     return auditEnvelopeSchema.parse({...v,target:target(v.target),targets:v.targets.map(target),initiator:actor(v.initiator,v.initiator.type),executor:actor(v.executor,v.executor.type),...(v.onBehalfOf?{onBehalfOf:actor(v.onBehalfOf,v.onBehalfOf.type)}:{}),changes:v.changes.map(normalizeChange),evidence:v.evidence.map(evidence),...(v.reasonCode?{reasonCode:safeAuditText(v.reasonCode)}:{}),source:{component:safeAuditText(v.source.component),channel:safeAuditText(v.source.channel)}});
   }catch{return null;}
 }
+for(const field of ['compositionRevisionId','compositionRevisionNumber','compositionDigest','fromCompositionRevisionId'])publicFields.add(field);
+for(const field of ['branchPlanId','branchPlanNumber','baseScenario','defaultBranch','branchName','policyDigest','decisionDigest','branchProtected','repositoryVersion'])publicFields.add(field);
 const payloadScalars=new Set(['metricsVersion','key','status','version','releaseVersion','plannedStoryVersion','projectLifecycle','from','to','state','result','outcome','durationMs','processingMs','queueMs','runId','executionId','operationId','activityId','attemptId','turnId','messageId','proposalId','checkId','releaseId','repositoryId','projectId','previousRunId','fromReleaseId','toReleaseId','correlationId','requestId','commitSha','sha','baseSha','revision','gate','stage','kind','policyVersion','errorCode','model','retry','ready','origin','mergedBy','gitlabGroupId','gitlabGroupPath','gitlabProjectId','gitlabPath','name','storyCount','storyId','storyVersion','removed','workProcess','workKind','workScopeKey']);
 const payloadArrays=new Set(['itemIds','taskIds','repositoryIds','transferredStoryIds','fromReleaseIds','categories']);
 for(const field of ['linkId','sourceType','sourceId','sourceVersion','planProposalId','planRevision','sourceTurnId'])payloadScalars.add(field);
 for(const field of ['creationOrigin','pipelineStage','revisionId','revisionNumber','draftVersion','baseRevision','resultId','source','initial'])payloadScalars.add(field);
+for(const field of ['integrationReferenceId','integrationSha','mergeCommitSha','squashCommitSha','sourceSha'])payloadScalars.add(field);
+for(const field of ['historyResolutionId','reasonDigest'])payloadScalars.add(field);
+payloadScalars.add('remoteClosureId');
+payloadScalars.add('alreadyClosed');
+for(const field of ['contractIntegrationId','integrationKind','resolvedAt','writeStartedAt','contractPublicationId','contractContentDigest','contractRequestId','contractReviewId','proposalDigest'])payloadScalars.add(field);
+for(const field of ['developmentBuildId','executionId','imageId','archiveDigest','dispatchStartedAt'])payloadScalars.add(field);
+for(const field of ['applicationPreparationId','applicationPreparationRootId','preparationKind','templateVersion','contentDigest'])payloadScalars.add(field);
 payloadArrays.add('changedSections');
+payloadArrays.add('createdEnvironmentCodes');
+payloadScalars.add('count');
+payloadScalars.add('compositionStatus');
+payloadScalars.add('flowEnvironment');
+for(const field of ['canceledAt','canceledById','canceledByName','cancellationReasonDigest'])payloadScalars.add(field);
+for(const field of ['branchPlanId','branchPlanNumber','baseScenario','defaultBranch','branchName','policyDigest','decisionDigest','repositoryVersion','targetBranch'])payloadScalars.add(field);
 export function safeStoredPayload(value:unknown):Prisma.InputJsonValue{
   const result:Record<string,Prisma.JsonValue>={};
   for(const [key,field] of Object.entries(plain(value))){
@@ -112,6 +141,7 @@ function canonical(value:unknown):unknown{
   if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([,v])=>v!==undefined).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,canonical(v)]));
   return value;
 }
+for(const field of ['compositionRevisionId','compositionRevisionNumber','compositionDigest','fromCompositionRevisionId'])payloadScalars.add(field);
 export function auditFingerprint(value:unknown):string{return createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');}
 function automaticEvidence(payload:Record<string,unknown>):AuditEvidence[]{
   const result:AuditEvidence[]=[];

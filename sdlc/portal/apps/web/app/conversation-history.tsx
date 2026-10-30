@@ -86,6 +86,7 @@ export default function ConversationHistory({ itemId, persona = '', canPlan = fa
   }
   return <section className="panel conversation-history" aria-label="Conversas e referências">
     <div className="section-heading"><h2>Conversas e referências</h2><button type="button" disabled={loading} onClick={() => { asOf.current = ''; navigate({ asOf: '', page: 1 }); setRetry(value => value + 1); }}>Atualizar conversas</button></div>
+    {data?.context?.kind === 'system' && data.context.id === itemId && <p className="hint"><Link href={`/assistant?system=${encodeURIComponent(data.context.id)}&scope=system`}>Abrir assistente do Sistema →</Link></p>}
     <p className="hint">Escopo: {data ? `${contextNames[data.context.kind] || data.context.kind} ${data.context.key} · ${data.context.name}` : 'contexto deste item'}. As mensagens permanecem nas conversas de origem. Consultar referências não executa operações nem altera o escopo aprovado.</p>
     {readonly && <p className="conversation-readonly">Acervo / contexto encerrado · somente leitura.</p>}
     <FilterPanel title="Filtrar conversas" id={`conversations-${itemId}`}><form onSubmit={event => { event.preventDefault(); navigate({ ...draft, page: 1, message: '' }); }}>
@@ -123,7 +124,7 @@ function StoryReference({ projectId, sourceContextId, disabled, onCancel, onConf
     read<{ items: Story[]; total: number; page: number }>(`/collections/items?${new URLSearchParams({ kind: 'story', projectId, q: query, page: String(page), sort: 'name', direction: 'asc' })}`, controller.signal).then(value => { if (!controller.signal.aborted) { if (!Array.isArray(value.items) || !Number.isSafeInteger(value.total)) throw Error('A consulta de Histórias está incompleta.'); setResult(value); } }).catch(failure => { if (!controller.signal.aborted) setError(failure.message); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [projectId, query, page, retry]);
-  return <section className="conversation-link-form" aria-label="Relacionar conversa a uma História"><h3>Relacionar a uma História existente</h3><p>A referência mantém a mensagem em seu contexto de origem. Relacionar não copia mensagens, não muda o escopo da História e não aprova G1.</p>
+  return <section className="conversation-link-form" aria-label="Relacionar conversa a uma História"><h3>Relacionar a uma História existente</h3><p>A referência mantém a mensagem em seu contexto de origem. Relacionar não copia mensagens, não muda o escopo da História e não aprova Gateway de Especificação.</p>
     <form onSubmit={event => { event.preventDefault(); setQuery(draft); setPage(1); }}><label>Buscar História deste Projeto<input type="search" value={draft} onChange={event => setDraft(event.target.value)} disabled={disabled} /></label><button type="submit" disabled={disabled}>Buscar Histórias</button></form>
     {loading && <LoadingState>Consultando Histórias do Projeto…</LoadingState>}{error && <ErrorState onRetry={() => setRetry(value => value + 1)}>{error}</ErrorState>}
     <p className="hint">Recorte aplicado: Histórias ativas deste Projeto{query && ` · Busca: ${query}`} · {result ? `${result.total} resultados` : 'Quantidade não confirmada'}. A seleção é preservada ao buscar e paginar.</p>

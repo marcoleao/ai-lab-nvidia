@@ -1,0 +1,10 @@
+{
+  "database": "portal_test",
+  "isolatedSchema": true,
+  "nullableMetadataPreservesLegacy": true,
+  "upDownUpPreservesRows": true,
+  "runtimeMetadataPrivileges": true,
+  "terminalDecisionImmutable": true,
+  "rollbackProtectsRecordedDecision": true,
+  "legacyAuditPreserved": true
+}

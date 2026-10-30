@@ -1,0 +1,330 @@
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+31 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+Applying migration `202610280005_merge_integration_reference`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+  └─ 202610280005_merge_integration_reference/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/app[39m
+
+ [31m❯[39m tests/merge-history-reconciliation.test.ts [2m([22m[2m26 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 2447[2mms[22m[39m
+   [31m❯[39m historical merge reconciliation [2m(26)[22m
+     [33m[2m✓[22m[39m preview is read only, stable and separately projects the original failed attempt[33m 304[2mms[22m[39m
+[31m     [31m×[31m confirmation records the old remote fact without approving or completing any current or original work[39m[32m 140[2mms[22m[39m
+     [32m✓[39m remote opened cannot be confirmed or converted to success[32m 115[2mms[22m[39m
+     [32m✓[39m remote closed cannot be confirmed or converted to success[32m 114[2mms[22m[39m
+     [32m✓[39m remote unknown cannot be confirmed or converted to success[32m 107[2mms[22m[39m
+     [32m✓[39m role and explicit acceptance are checked before provider access, with contextual rejection audit[32m 78[2mms[22m[39m
+     [32m✓[39m changed remote sourceSha invalidates reviewed confirmation[32m 85[2mms[22m[39m
+     [32m✓[39m changed remote targetBranch invalidates reviewed confirmation[32m 86[2mms[22m[39m
+     [32m✓[39m changed remote projectId invalidates reviewed confirmation[32m 86[2mms[22m[39m
+     [32m✓[39m changed remote iid invalidates reviewed confirmation[32m 86[2mms[22m[39m
+     [32m✓[39m changed remote mergeCommitSha invalidates reviewed confirmation[32m 86[2mms[22m[39m
+     [32m✓[39m local changes during HTTP or after review invalidate the context[32m 119[2mms[22m[39m
+[31m     [31m×[31m concurrent confirmations preserve one source and explicit NO_CHANGE; replay survives offline and changed context[39m[32m 118[2mms[22m[39m
+[31m     [31m×[31m late failing consultation recovers a concurrently committed receipt[39m[32m 119[2mms[22m[39m
+[31m     [31m×[31m recorder rollback restores operation, reference and key; same intent retries[39m[32m 155[2mms[22m[39m
+     [32m✓[39m unsafe local condition current prevents provider access[32m 56[2mms[22m[39m
+     [32m✓[39m unsafe local condition inactive prevents provider access[32m 50[2mms[22m[39m
+     [32m✓[39m unsafe local condition repository prevents provider access[32m 55[2mms[22m[39m
+     [32m✓[39m unsafe local condition queued prevents provider access[32m 59[2mms[22m[39m
+     [32m✓[39m unsafe local condition running prevents provider access[32m 51[2mms[22m[39m
+     [32m✓[39m unsafe local condition paused prevents provider access[32m 54[2mms[22m[39m
+     [32m✓[39m unsafe local condition cancelled prevents provider access[32m 61[2mms[22m[39m
+     [32m✓[39m unsafe local condition lease prevents provider access[32m 54[2mms[22m[39m
+     [32m✓[39m unsafe local condition work prevents provider access[32m 55[2mms[22m[39m
+     [32m✓[39m unsafe local condition preparation prevents provider access[32m 52[2mms[22m[39m
+[31m     [31m×[31m missing merge SHA remains partial and does not use current target or source SHA[39m[32m 97[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (26)[39m
+[2m   Start at [22m 00:35:48
+[2m   Duration [22m 2.92s[2m (tests 86%, import 9%, transform 4%)[22m
+
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+31 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+Applying migration `202610280005_merge_integration_reference`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+  └─ 202610280005_merge_integration_reference/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/merge-history-reconciliation.test.ts[2m > [22mhistorical merge reconciliation[2m > [22mconfirmation records the old remote fact without approving or completing any current or original work
+[31m[1mAssertionError[22m: {"error":{"code":"INTERNAL_ERROR","message":"Não foi possível concluir. Tente novamente com a mesma solicitação."}}: expected 500 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m tests/merge-history-reconciliation.test.ts:[2m22:77[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/merge-history-reconciliation.test.ts[2m > [22mhistorical merge reconciliation[2m > [22mconcurrent confirmations preserve one source and explicit NO_CHANGE; replay survives offline and changed context
+[31m[1mAssertionError[22m: expected [ 500, 500 ] to deeply equal [ 200, 200 ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[32m-   200,[39m
+[32m-   200,[39m
+[31m+   500,[39m
+[31m+   500,[39m
+[2m  ][22m
+
+[36m [2m❯[22m tests/merge-history-reconciliation.test.ts:[2m30:294[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/merge-history-reconciliation.test.ts[2m > [22mhistorical merge reconciliation[2m > [22mlate failing consultation recovers a concurrently committed receipt
+[31m[1mAssertionError[22m: {"error":{"code":"INTERNAL_ERROR","message":"Não foi possível concluir. Tente novamente com a mesma solicitação."}}: expected 500 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m tests/merge-history-reconciliation.test.ts:[2m31:343[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/merge-history-reconciliation.test.ts[2m > [22mhistorical merge reconciliation[2m > [22mrecorder rollback restores operation, reference and key; same intent retries
+[31m[1mAssertionError[22m: expected 500 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m tests/merge-history-reconciliation.test.ts:[2m32:1128[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/merge-history-reconciliation.test.ts[2m > [22mhistorical merge reconciliation[2m > [22mmissing merge SHA remains partial and does not use current target or source SHA
+[31m[1mAssertionError[22m: {"error":{"code":"INTERNAL_ERROR","message":"Não foi possível concluir. Tente novamente com a mesma solicitação."}}: expected 500 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 500[39m
+
+[36m [2m❯[22m tests/merge-history-reconciliation.test.ts:[2m34:263[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+file:///app/scripts/test-isolated.mjs:20
+  if(result.status!==0){process.stdout.write(result.stdout||'');process.stderr.write(result.stderr||'');throw new Error(`Isolated check failed: ${args.join(' ')}`);}
+                                                                                                              ^
+
+Error: Isolated check failed: node_modules/vitest/vitest.mjs run tests/merge-history-reconciliation.test.ts
+    at run (file:///app/scripts/test-isolated.mjs:20:111)
+    at file:///app/scripts/test-isolated.mjs:38:5
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.0

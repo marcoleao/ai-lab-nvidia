@@ -1,0 +1,60 @@
+{
+  "stats": {
+    "startTime": "2026-10-28T16:31:43.372Z",
+    "duration": 12073.834,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "specs": [
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase changes with an open editor refresh administrative concurrency without a content review at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "phase preserves planning; absent association and review filters preserve scope and pending fields at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "Story rejects changed context, preserves choice and requires explicit refreshed references at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "planning-references.spec.ts",
+      "title": "code-only drift blocks composition save until review and retains choices outside the changed reference",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "releases.spec.ts",
+      "title": "concurrent composition requires review and uncertain acknowledgement replays the original request once",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "reviewer": "ux_ra09a",
+  "scope": "RA-09a referência de integração atual e da tentativa histórica correspondente",
+  "viewports": [
+    1440,
+    390
+  ],
+  "screenshots": 6,
+  "materialBlockers": 0,
+  "result": "aprovada após aviso histórico e fuso explícito",
+  "observations": [
+    "Referência registrada/parcial/não capturada distinta do resultado de merge.",
+    "Fonte revisada e commit integrado identificados, com SHA quebrando linha no celular.",
+    "Histórico identifica limite de autorização da revisão atual e datas em America/Sao_Paulo."
+  ],
+  "limitations": [
+    "Não constitui validação assistiva integral.",
+    "Recuperação/captura histórica controlada e proveniência de candidata permanecem RA-09b e entregas próprias."
+  ]
+}

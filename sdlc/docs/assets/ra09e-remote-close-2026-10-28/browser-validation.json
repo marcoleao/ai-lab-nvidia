@@ -1,0 +1,956 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-29T02:45:24.302Z",
+    "duration": 240073.565,
+    "expected": 154,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "globalErrors": [],
+  "suites": [
+    "merge-history-remote-close",
+    "merge-history-closure",
+    "merge-history-reconciliation",
+    "merge-reference-capture",
+    "merge-integration-reference",
+    "development-cycle",
+    "code-destination",
+    "story-flow",
+    "story-workspace",
+    "story-execution",
+    "story-experience",
+    "story-task-planning",
+    "discussion",
+    "audit-history"
+  ],
+  "specs": [
+    {
+      "file": "audit-history.spec.ts",
+      "title": "audit separates execution outcome and domain decision, displays typed changes and safe provenance",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "missing-result query is explicit, pages on server, preserves URL and recovers query errors",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "audit-history.spec.ts",
+      "title": "mobile audit keeps the target, action and outcome visible and keyboard opens details without page overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "explicit development cycle preserves old delivery and tasks at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "changed context clears acceptance before a new development cycle at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "uncertain integration blocks a previously reviewed cycle at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "lost cycle acknowledgement replays the same intent after reload at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "explicit development cycle preserves old delivery and tasks at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "changed context clears acceptance before a new development cycle at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "uncertain integration blocks a previously reviewed cycle at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "development-cycle.spec.ts",
+      "title": "lost cycle acknowledgement replays the same intent after reload at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "discussion.spec.ts",
+      "title": "impediment conversation preserves history and confirms an explicit decision with safe retries and a new G1",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure review requires reason and persona and retains draft on return at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure success preserves old failure and current gate despite failed refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "context rejection and navigation retain reason and require a new acceptance at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "lost closure receipt survives reload and Audit with original reason key and persona at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "an old closure replay cannot hide a later confirmed integration at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "open MR stays blocked with the expected historical reference at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "failed consultation preserves reason and previous reading without confirming closure at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure review requires reason and persona and retains draft on return at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "closure success preserves old failure and current gate despite failed refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "context rejection and navigation retain reason and require a new acceptance at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "lost closure receipt survives reload and Audit with original reason key and persona at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "an old closure replay cannot hide a later confirmed integration at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "open MR stays blocked with the expected historical reference at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-closure.spec.ts",
+      "title": "failed consultation preserves reason and previous reading without confirming closure at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history review separates original failure and current consultation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history confirmation preserves original attempt and current gate with failed refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history opened retains expected reference and blocks confirmation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history closed retains expected reference and blocks confirmation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history changed observation preserves preview and requires explicit refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "lost history receipt survives reload, offline and Audit with original persona at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history review separates original failure and current consultation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history confirmation preserves original attempt and current gate with failed refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history opened retains expected reference and blocks confirmation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history closed retains expected reference and blocks confirmation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "history changed observation preserves preview and requires explicit refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-reconciliation.spec.ts",
+      "title": "lost history receipt survives reload, offline and Audit with original persona at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "merge and squash reference is readable without executing an action at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "partial reference keeps confirmed merge and never guesses integrated commit at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "legacy reference remains not captured and GET does not backfill at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "another cycle preserves exact reference on the historical Task at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "merge and squash reference is readable without executing an action at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "partial reference keeps confirmed merge and never guesses integrated commit at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "legacy reference remains not captured and GET does not backfill at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-integration-reference.spec.ts",
+      "title": "another cycle preserves exact reference on the historical Task at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "reference consultation requires explicit confirmation and respects persona at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "capture receipt survives a failed following query without altering the merge at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "changed remote reference preserves preview and requires another consultation at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "lost capture acknowledgement can be checked offline after reload with original persona at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "historical Task captures its old operation without authorizing the current cycle at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "pending capture remains recoverable while consulting Audit at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "partial historical metadata is announced before capture and preserved at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "reference consultation requires explicit confirmation and respects persona at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "capture receipt survives a failed following query without altering the merge at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "changed remote reference preserves preview and requires another consultation at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "lost capture acknowledgement can be checked offline after reload with original persona at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "historical Task captures its old operation without authorizing the current cycle at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "pending capture remains recoverable while consulting Audit at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-reference-capture.spec.ts",
+      "title": "partial historical metadata is announced before capture and preserved at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-execution.spec.ts",
+      "title": "story execution prepares specification, requires G1, recovers uncertain requests and links the MR",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-execution.spec.ts",
+      "title": "processing visibility preserves the confirmed execution during a lost update and recovers without resending",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a new Story without Tasks loads empty, filters and clears without submitting an empty status",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "45 real-portal Task fixtures use complete server queries, collapsed filters, URL and preserved drafts between tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "27 complete linked attempts paginate independently of the current phase and historical evidence cannot invoke current commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "current queued/running processing rotates, human wait and stale heartbeat remain static, and reduced motion is respected",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "a failed Task query preserves the previous page, shows a red error with retry, and never reports an empty successful result",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "desktop and mobile keep collapsed queries, complete count and a visible current phase without horizontal overflow",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-experience.spec.ts",
+      "title": "coding activity keeps its own spinner while a previous conversation stays static; discussion animates only in its confirmed stage",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "História preserva shell, seis abas e entrada em Tarefas; Execução concentra a decisão",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway usa confirmação inline com foco e preserva o comando, corpo e autoria originais",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "mudança de versão durante a confirmação exige revisar a decisão nova",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "editar mantém formulário e rascunho centrais, sem decisão concorrente ou escrita ao cancelar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "queued mostra a situação observada sem botão fictício de continuar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "running mostra a situação observada sem botão fictício de continuar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "persona de consulta e tentativa histórica não liberam aprovação por caminhos secundários",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Gateway permanece no shell e acessível por teclado em celular e altura reduzida",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Componentes legado consulta o repositório herdado sem escolhas e conserva filtros e retorno pelo Sistema",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "mais de um repositório legado permanece consultável sem escolha automática ou mutação",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "pedido incerto permite consultar o repositório herdado e retornar antes de reconciliar a intenção original",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "confirmação incerta reconcilia a mesma intenção após recarga sem repetir o efeito",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "nome Gateway não reescreve conteúdo de plano registrado pelo agente",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "acervo conserva o estado registrado e o destino em consulta sem ações operacionais",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "pendência de repositório conserva a razão do backend e leva ao Sistema com retorno ao recorte da História",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Projeto e Tarefa consultam o mesmo repositório do Sistema sem escopo ou seleção próprios",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-flow.spec.ts",
+      "title": "Ana solicita a criação única e neutra no Sistema ativo; consulta e inatividade não permitem criar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Story execution preserves actual phase, contextual decisions and detail access without status writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Manual Task planning uses the central process for transitions and justified reopening",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Managed Task planning keeps status controlled by process and exposes no manual status action",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "story preserves history query and current phase in its own audit navigation",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "task preserves history query and current phase in its own audit navigation",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-task-planning.spec.ts",
+      "title": "Story uses six tabs, preserves filters and resolves former Summary, delivery and repository links",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task editing uses a central mobile form and unique header actions, and Cancel restores its prior central process section",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Task edit preserves its draft across tabs, permission changes and a rejected save before confirming the versioned PATCH",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task edit acknowledgement retries the original PATCH identity without applying the update twice",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story creates a Task in the central form with one Save and Cancel in the header and preserves a cancelled draft across tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost central Task creation acknowledgement keeps its draft and retries the same idempotency identity",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "central Story editing retains a rejected draft across persona and tab changes and can be confirmed from the header",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story remains macro and task drill down keeps phase and one place for interaction",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 1440px without commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Story cycle stays visible across tabs, Task navigation and reload at 390px without commands",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and SECURITY SCAN without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and MERGE REQUEST without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and TESTING without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Merge Request indicator respects current journey and CANCELLED without changing lifecycle",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "blocked merge explains Draft and resolution before retry in Story and Task at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "merge failure requests reconciliation without claiming a confirmed blocker; resolved state clears old diagnosis",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Draft is released from the assistant with separate confirmation and no merge at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "assistant requests architect diagnosis inside the portal and preserves specialist attribution without release writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "unknown Draft release offers result verification without claiming Draft remains or requesting another release confirmation",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "the Specification Gateway requires review and confirmation, and an uncertain G1 request reuses its identity after reload",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "historical evidence and other tasks cannot execute the current review",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a lost correction confirmation can be reconciled with its original identity after the current task changes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "processing distinguishes screen connection, executor heartbeat and last real tool event",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "planned work binding has explicit scope and a completion criterion without silently completing tasks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "existing results remain readable without creating artificial process tasks",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a binding draft keeps its original concurrency token until the user reviews a newer selection",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "a newer assistant conversation never replaces the canonical blocked merge attempt",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "manual task status updates preserve the active central planning section from DOING through DONE",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "refreshing the same item preserves edit and binding drafts and the interaction section",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "desktop and mobile keep both Story and Task processes central without any interaction sidebar",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "legacy Task interaction URLs normalize to central process views and survive reload without writes",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "delivery destinations separate DEV from immutable release and retain current phase at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "Task destination consultation preserves historical attempt, current journey and read-only context",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "destination keyboard consultation keeps unsaved release choice separate from confirmed association across tabs",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 keeps development and completion separate with revision details collapsed",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 Task DONE and historical evidence keep the current parent Story reading on mobile",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 missing references and lost refresh retain uncertainty without approving or reopening legacy completion",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "story-workspace.spec.ts",
+      "title": "RA-03 collection keeps phase primary and the same reading as Story details",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

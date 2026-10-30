@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "scope": "Correções da plataforma durante a retomada da jornada JOIASC",
+  "acceptanceSeparation": "Este recibo protege mudanças do SDLC. Não comprova publicação DEV nem funcionamento do catálogo gerado.",
+  "publication": {
+    "id": "dev-unblocking-regex-validation-verified-20261030-5b5cfd7a",
+    "image": "sha256:808b35704c606c35d05ea0ebdae4fc5e27dfc2536eb0392c78a2f0d6a0df6f0f",
+    "source": "c42db88835a6abd1bc6b49c83f9fa42e03fa6479ac85ead82985c67bbeef694a",
+    "health": "ready",
+    "databaseMode": "preview",
+    "migrationsApplied": 0,
+    "tablesChecked": 49,
+    "preservation": "Preservadas sob as normalizações de projeção, lease e horários declaradas em correcao-fluxo-dev-2026-10-30.md.",
+    "privateBackupBytes": 495149,
+    "backupVerified": true,
+    "administrativeAuditRecords": 476,
+    "administrativePendingOperations": 0
+  },
+  "selectedLocalModel": "qwen3-coder:30b",
+  "currentPublication": {
+    "id": "dev-unblocking-focused-retry-verified-20261030-1f2f8a5c",
+    "image": "sha256:6cafca0107f97e07f3040d8c9a675e7667e2fb6a7b21e48a5e903ac30c9069c8",
+    "source": "ddf5eefc8cf093f59b983329c605aa818d88d5df7394d2da2b6973be06cbc30f",
+    "health": "ready",
+    "tablesChecked": 49,
+    "privateBackupBytes": 495794,
+    "backupVerified": true,
+    "administrativeAuditRecords": 480,
+    "administrativePendingOperations": 0,
+    "preservation": "Mesmas normalizações declaradas na publicação anterior."
+  },
+  "previousLocalModel": "qwen3:14b",
+  "credentialsUnchanged": true,
+  "newDependencies": false,
+  "directGeneratedApplicationEdits": false,
+  "latestDirectedInternalTests": {
+    "runId": "20261030T165221Z-18d6d9",
+    "database": "portal_test",
+    "providers": "isolated fixtures",
+    "ok": true,
+    "files": [
+      {"file": "code-validation.test.ts", "passed": 5, "failed": 0},
+      {"file": "correction-context.test.ts", "passed": 8, "failed": 0},
+      {"file": "llm.test.ts", "passed": 8, "failed": 0},
+      {"file": "quality.test.ts", "passed": 14, "failed": 0}
+    ],
+    "totalPassedThisRun": 35,
+    "coverage": [
+      "Regex inválida em JSX/TSX/TypeScript é recusada também após transpilação, sem executar fontes.",
+      "Transporte local usa prazo e cancelamento explícitos, Content-Length, corpo limitado e não segue redirecionamentos.",
+      "Correção mantém a referência autorizada; decisão confirmada é distinta da versão de concorrência da conversa.",
+      "Todo defeito atual bloqueia; recomendações permanecem nas evidências."
+    ]
+  },
+  "uxReceipts": ["ux-review.json", "quality-diagnosis-ux-review.json"],
+  "focusedRetryTests": {
+    "runId": "20261030T170441Z-a71411",
+    "ok": true,
+    "files": [
+      {"file": "code-line-edits.test.ts", "passed": 4, "failed": 0},
+      {"file": "correction-context.test.ts", "passed": 9, "failed": 0},
+      {"file": "foundation.test.ts", "passed": 25, "failed": 0}
+    ],
+    "totalPassedThisRun": 38,
+    "overlapsPreviousRuns": true,
+    "coverage": "Retomada técnica pede somente intervalos, limita a resposta a 4096 tokens, preserva revisão autorizada, valida/congela arquivos completos e mantém replay com uma inferência e uma publicação."
+  },
+  "regressionCatalogue": {"runId": "20261030T165036Z-ed8fc8", "browserCases": 565, "files": 54},
+  "limitations": [
+    "Rodadas anteriores têm casos sobrepostos e não são somadas a esta rodada.",
+    "A tentativa 20261030T164822Z-c57aed foi recusada antes dos casos por nomes com prefixo de diretório; preservada, seguida de execução válida por basename.",
+    "As recusas e pareceres reais anteriores permanecem no histórico; não foram substituídos por aprovações.",
+    "A aceitação real pelo navegador possui registro próprio, com publicação e casos funcionais observados."
+  ]
+}

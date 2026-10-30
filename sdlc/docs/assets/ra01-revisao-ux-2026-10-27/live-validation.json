@@ -1,0 +1,25 @@
+{
+  "readOnly": true,
+  "totalReleases": 1,
+  "releaseSampleSize": 1,
+  "auditReads": 6,
+  "checks": [
+    {
+      "width": 1440,
+      "auditInOwnTab": true,
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "auditInOwnTab": true,
+      "pageOverflow": false
+    }
+  ],
+  "pendingFieldsPreserved": true,
+  "appliedScopePreserved": true,
+  "compositionVersionUnchanged": true,
+  "compositionIdsUnchanged": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0
+}

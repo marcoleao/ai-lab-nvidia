@@ -1,0 +1,31 @@
+{
+  "id": "ra04b-cancel-20261028-cc9a0537",
+  "candidateImage": "sha256:6e271a5ce1b42618de578226d54849ebcd15b5aa9fa15c4c004805e519327fa6",
+  "source": "86f130d9e823fc9cfdae5365a4bd54c06e2bd6bc90c5cf6776acdb63325e8d3d",
+  "published": true,
+  "verifiedAt": "2026-10-28T03:21:05.265995+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "backupVerification": {
+    "backupId": "ra04b-cancel-20261028-cc9a0537",
+    "bytes": 171431,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "migration": "202610270006_release_cancellation",
+  "unchangedBusinessTables": 30,
+  "priorReleaseColumnsPreserved": true,
+  "newCancellationMetadataInitiallyNull": true,
+  "audit": {
+    "records": 170,
+    "head": "e732931f45a553b8c5ef4f27241f6cdd50c97c08c24cf72b1395b05cfdce2420",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

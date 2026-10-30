@@ -1,0 +1,33 @@
+{
+    "result":  "approved",
+    "reviewer":  "/root/ux_ra10b",
+    "source":  "8aea44cc660e3301094e2e03cb2d71352d47d4152d153d0b267d43ff80c4245f",
+    "image":  "sha256:012f738df0846d9604fea9fc29c2df1b9d58a8f9930237af0e49b7e7489021f0",
+    "reviewed":  "Production source and 12 desktop/mobile captures",
+    "captures":  [
+                     "queued",
+                     "questions",
+                     "reviewed",
+                     "ack-unknown",
+                     "context-changed",
+                     "failed"
+                 ],
+    "widths":  [
+                   1440,
+                   390
+               ],
+    "materialBlockers":  [
+
+                         ],
+    "findings":  [
+                     "Queue, questions, confirmed review, ACK without canonical follow-up, changed context and failure are distinct.",
+                     "Cancel and unchanged revisions have explicit receipts.",
+                     "Known request ID and positive review survive failed refresh; previous proposal is preserved.",
+                     "Mobile uses one column and wraps identifiers."
+                 ],
+    "limitations":  [
+                        "Several fullPage captures taken after scroll have sticky-header or skip-link overlays; not every identity or section start is unobstructed.",
+                        "Source complements the visual review; complete assistive technology and native hardware keyboard validation not performed."
+                    ],
+    "sourceChangesAfterReview":  "Only execution-contract browser expectation updated to reflect proposal availability; production UI unchanged."
+}

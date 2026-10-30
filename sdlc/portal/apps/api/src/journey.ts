@@ -1,3 +1,6 @@
+import {needsQualityDiagnosis} from './code-validation.ts';
+import {integrationReadings} from './merge-integration-reference.ts';
+import {destinationSummary} from './code-destination.ts';
 import type {FastifyInstance} from 'fastify';
 import {z} from 'zod';
 import {personas,statusLabels} from '@sdlc/shared';
@@ -5,12 +8,17 @@ import type {AssistantHelpers} from './assistant.ts';
 import type {GitProvider} from './gitlab.ts';
 import type {MergeProvider} from './merge-provider.ts';
 import {mergeReadiness,qualityPolicy} from './merge-readiness.ts';
+import {mergePreparationView} from './merge-preparation.ts';
 import {DomainError} from './errors.ts';
 import {ensureActivity,bindActivityTasks,listStoryActivities,workLinksVersion} from './work-activities.ts';
 import {checkExecutionScope,executionScope} from './execution.ts';
 import {hierarchyBlock} from './lifecycle-policy.ts';
+import {repositoriesOfSystem,inheritedRepository} from './system-repository.ts';
 import {pipelineStageOf} from './pipeline-tasks.ts';
 import {specificationContentFromStory,specificationReadiness,technicalPlanReadiness,storySpecificationContentSchema} from './story-specifications.ts';
+import {storyDeliveryReading} from '../../../packages/shared/src/story-delivery.ts';
+import {storyLifecycleViews} from './story-lifecycle-reading.ts';
+import {developmentCycleReview} from './development-cycle.ts';
 
 const labels:Record<string,string>={specification:'Especificação e G1',coding:'Codificação',code_review:'Code Review',security_scan:'Security Scan',merge:'Integração do código'};
 const upper=(value:string)=>statusLabels[value]||value.replaceAll('_',' ').toUpperCase();
@@ -18,7 +26,7 @@ const object=(value:unknown):Record<string,any>=>value&&typeof value==='object'&
 const publicItem=(item:any)=>({id:item.id,key:item.key,name:item.name,description:item.description,status:item.status,version:item.version,parentId:item.parentId,kind:item.kind});
 type Action={id:string;kind:string;label:string;enabled:boolean;reason?:string;method?:string;path?:string;href?:string;body?:Record<string,unknown>;confirmation?:{title:string;description:string;checkboxLabel:string}};
 
-export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{git?:GitProvider;merge?:MergeProvider;scannerUrl?:string}){
+export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{git?:GitProvider;merge?:MergeProvider;scannerUrl?:string;developmentDeploymentsConfigured?:boolean;developmentBuildsConfigured?:boolean}){
  app.get<{Params:{id:string}}>('/api/items/:id/journey',async request=>h.db.$transaction(async tx=>{
   const selected=await h.live(tx,request.params.id),story=selected.kind==='task'?await h.live(tx,selected.parentId!):selected;
   if(story.kind!=='story')throw new DomainError('STORY_REQUIRED','Consulte uma História ou uma de suas Tarefas.',409);
@@ -28,10 +36,26 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   const historicalChecks=await tx.qualityCheck.findMany({where:{storyId:story.id},orderBy:[{createdAt:'desc'},{id:'desc'}],take:200});
   const merge=run?await tx.mergeOperation.findUnique({where:{executionId:run.id}}):null;
   const repository=run?await tx.repository.findUnique({where:{id:run.repositoryId}}):null;
-  const links=await tx.itemRepository.findMany({where:{itemId:story.id},include:{repository:true}});
+  const systemRepositories=await repositoriesOfSystem(tx,story);
+  const links=systemRepositories.map(repository=>({repository}));
   const history=await tx.historyEvent.findMany({where:{OR:[{itemId:story.id},{ancestorIds:{has:story.id}}]},orderBy:{timestamp:'desc'},take:100});
   const work=await listStoryActivities(tx,story.id);
+  const pendingCloseIds=await tx.mergeHistoryCloseOperation.findMany({where:{storyId:story.id,state:{in:['queued','running','unknown','paused']}},select:{mergeOperationId:true}});
+  const integrationViews=await integrationReadings(tx,[...new Set([...(merge?[merge.id]:[]),...pendingCloseIds.map(v=>v.mergeOperationId),...work.flatMap(a=>a.attempts.filter(v=>v.sourceType==='merge').map(v=>v.sourceId))])]);
+  const historicalCloseReadings=pendingCloseIds.flatMap(v=>integrationViews.has(v.mergeOperationId)?[integrationViews.get(v.mergeOperationId)!]:[]);
+  const historicalMerges=await tx.mergeOperation.findMany({where:{id:{in:work.flatMap(a=>a.attempts.filter(v=>v.sourceType==='merge').map(v=>v.sourceId))},storyId:story.id,executionId:{not:run?.id??''},state:{in:['tracking','blocked','failed','succeeded','cancelled']}},select:{id:true,state:true}});
+  // Explicit immutable observation, independent of the history page/window loaded by the user.
+  const reconciled=await tx.historyEvent.findMany({where:{operationId:{in:historicalMerges.map(op=>op.id)},action:'MERGE_HISTORY_RECONCILED',outcome:'SUCCEEDED'},select:{operationId:true,timestamp:true}});
+  const historicalReference=(attempt:any)=>{
+   const value=integrationViews.get(attempt.sourceId);
+   if(attempt.state==='succeeded')return value;
+   if(!value||!historicalMerges.some(op=>op.id===attempt.sourceId))return undefined;
+   if(['recorded','partial'].includes(value.state)&&!reconciled.some(event=>event.operationId===attempt.sourceId&&event.timestamp>=new Date(attempt.finishedAt??attempt.queuedAt)))return undefined;
+   if(historicalMerges.some(op=>op.id===attempt.sourceId&&op.state==='cancelled')&&!value.resolution&&!value.remoteClosure)return undefined;
+   return {...value,state:value.state==='not_captured'?'unconfirmed' as const:value.state,historicalReconciliation:true};
+  };
   const readiness=run?await mergeReadiness(tx,run,object(object(run.snapshot).codeContext).sha):{ready:false,phases:[]};
+  const preparation=run?await mergePreparationView(tx,run.id,!!options.merge?.releaseDraft):{eligible:false,preparation:null};
   const scope=run?await checkExecutionScope(h,tx,run):{current:true};
   const person=personas.find(p=>p.id===request.headers['x-persona']);
   const parentBlock=hierarchyBlock(parents),block=hierarchyBlock([...parents,story]);
@@ -48,12 +72,12 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
    const check=historicalChecks.find(c=>attempt.sourceType==='quality'&&c.id===attempt.sourceId);
    if(check)return checkState(check)==='stale'?'stale':attempt.state;
    if(run&&attempt.sourceType==='execution'&&attempt.sourceId!==run.id)return 'stale';
-   if(merge&&attempt.sourceType==='merge'&&attempt.sourceId!==merge.id)return 'stale';
+   if(run&&attempt.sourceType==='merge'&&attempt.sourceId!==merge?.id)return 'stale';
    return attempt.state;
   };
   const activities:any[]=work.map((activity:any)=>({id:activity.id,kind:activity.kind,label:labels[activity.kind]||upper(activity.kind),taskId:activity.taskId,scopeKey:activity.scopeKey,currentAttemptId:activity.currentAttemptId,state:attemptState(activity.attempts.find((attempt:any)=>attempt.id===activity.currentAttemptId)),legacy:false,links:activity.taskLinks.map((link:any)=>({taskId:link.taskId,scope:link.scope,completion:link.completion})),attempts:[...activity.attempts].sort((a:any,b:any)=>Number(b.id===activity.currentAttemptId)-Number(a.id===activity.currentAttemptId)).map((attempt:any)=>{
    const check=historicalChecks.find(c=>attempt.sourceType==='quality'&&c.id===attempt.sourceId);
-   return {id:attempt.id,sourceType:attempt.sourceType,sourceId:attempt.sourceId,state:attemptState(attempt),recordedState:attempt.state,stage:attempt.stage,sha:attempt.revision,summary:attempt.summary,error:check?.error||null,category:attempt.errorCategory,findings:check?.findings||[],evidence:check?.evidence||null,createdAt:attempt.queuedAt,updatedAt:attempt.heartbeatAt||attempt.finishedAt||attempt.startedAt||attempt.queuedAt,finishedAt:attempt.finishedAt,queuedAt:attempt.queuedAt,startedAt:attempt.startedAt,waitingSince:attempt.waitingSince,heartbeatAt:attempt.heartbeatAt,heartbeatStaleAfterMs:attempt.heartbeatStaleAfterMs,provider:attempt.provider,events:attempt.events.map(normalizeEvent),legacy:false};
+   return {id:attempt.id,...(attempt.sourceType==='merge'?{integrationReference:historicalReference(attempt)}:{}),sourceType:attempt.sourceType,sourceId:attempt.sourceId,state:attemptState(attempt),recordedState:attempt.state,stage:attempt.stage,sha:attempt.revision,summary:attempt.summary,error:check?.error||null,category:attempt.errorCategory,findings:check?.findings||[],evidence:check?.evidence||null,createdAt:attempt.queuedAt,updatedAt:attempt.heartbeatAt||attempt.finishedAt||attempt.startedAt||attempt.queuedAt,finishedAt:attempt.finishedAt,queuedAt:attempt.queuedAt,startedAt:attempt.startedAt,waitingSince:attempt.waitingSince,heartbeatAt:attempt.heartbeatAt,heartbeatStaleAfterMs:attempt.heartbeatStaleAfterMs,provider:attempt.provider,events:attempt.events.map(normalizeEvent),legacy:false};
   })}));
   // Old records remain consultable without manufacturing tasks or approvals on GET.
   if(run&&!work.some((activity:any)=>activity.attempts.some((attempt:any)=>attempt.sourceType==='execution'&&attempt.sourceId===run.id))){
@@ -64,14 +88,14 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
    const old=historicalChecks.filter(check=>check.kind===kind&&!work.some((activity:any)=>activity.attempts.some((attempt:any)=>attempt.sourceType==='quality'&&attempt.sourceId===check.id)));
    if(old.length)activities.push({id:`legacy:${kind}`,kind,label:labels[kind],taskId:null,legacy:true,state:checkState(old[0]),attempts:old.map(check=>({id:`legacy:quality:${check.id}`,state:checkState(check),recordedState:check.state,stage:kind,sha:check.sha,summary:check.summary,error:check.error,findings:check.findings,evidence:check.evidence,createdAt:check.createdAt,updatedAt:check.finishedAt||check.createdAt,finishedAt:check.finishedAt,heartbeatAt:null,legacy:true,events:history.filter(e=>object(e.payload).checkId===check.id).reverse().map(normalizeEvent)}))});
   }
-  if(merge&&!activities.some(a=>a.kind==='merge'))activities.push({id:`legacy:merge:${merge.id}`,kind:'merge',label:labels.merge,taskId:null,state:merge.state,legacy:true,attempts:[{id:`legacy:merge:${merge.id}`,state:merge.state,stage:'merge',sha:merge.sha,summary:merge.message,error:null,findings:[],createdAt:merge.createdAt,updatedAt:merge.checkedAt,finishedAt:merge.finishedAt,heartbeatAt:null,legacy:true,events:[]} ]});
+  if(merge&&!activities.some(a=>a.kind==='merge'))activities.push({id:`legacy:merge:${merge.id}`,kind:'merge',label:labels.merge,taskId:null,state:merge.state,legacy:true,attempts:[{id:`legacy:merge:${merge.id}`,integrationReference:merge.state==='succeeded'?integrationViews.get(merge.id):undefined,state:merge.state,stage:'merge',sha:merge.sha,summary:merge.message,error:null,findings:[],createdAt:merge.createdAt,updatedAt:merge.checkedAt,finishedAt:merge.finishedAt,heartbeatAt:null,legacy:true,events:[]} ]});
   let kind='specification',state=run?.state||'not_started',title='A execução ainda não começou',message='Confira o escopo, os critérios e o repositório antes de preparar a execução.',who='Pessoa responsável pela entrega';
   const actions:Action[]=[];
   const add=(id:string,label:string,path:string,body:Record<string,unknown>,available=true,reason?:string,confirmation?:Action['confirmation'])=>{
    const action={id,kind:id,label,path,method:'POST',body,enabled:canAct&&available,...(!canAct?{reason:permissionReason}:reason?{reason}:{}),...(confirmation?{confirmation}:{})};actions.push(action);return action;
   };
   const runPath=run?`/api/executions/${run.id}`:'';
-  const retryTechnical=!!run&&run.stage==='generation'&&['failed','waiting_input'].includes(run.state)&&(!!object(run.snapshot).patchRepair||run.error==='Patch contém caminho não permitido ou duplicado.');
+  const retryTechnical=!!run&&!needsQualityDiagnosis(run.snapshot)&&run.stage==='generation'&&['failed','waiting_input'].includes(run.state)&&(!!object(run.snapshot).patchRepair||run.error==='Patch contém caminho não permitido ou duplicado.');
   const canDiscuss=!!run&&(run.state==='waiting_input'||run.state==='failed'&&['specification','generation','discussion'].includes(run.stage));
   if(story.status==='cancelled'){
    state='cancelled';title='História cancelada';message='Histórico, artefatos e Tarefas concluídas permanecem preservados. A reabertura exige justificativa e um novo G1; não reabre Tarefas automaticamente.';
@@ -84,6 +108,20 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
    const missing=[];
    try{await executionScope(h,tx,story.id);}catch(error){if(error instanceof DomainError)missing.push(error.message);else throw error;}
    add('prepare',manualTechnical?'Preparar G1 com plano técnico':'Preparar especificação',`/api/items/${story.id}/execution`,{expectedVersion:story.version},configured.preparation&&!missing.length&&story.status==='specification',missing.join(' ')||(!configured.preparation?'Configure o GitLab e informe um plano técnico ou conecte o modelo local.':undefined));
+  }else if(run.state==='succeeded'&&(story.status==='testing'||merge?.state==='succeeded')){
+   kind='merge';state=merge?.state==='succeeded'?'succeeded':'blocked';
+   title=merge?.state==='succeeded'?'Código integrado; desenvolvimento da História continua':'Confirme a integração antes de outro ciclo';
+   message='Para alterar esta História, inicie outro ciclo e revise a especificação. A codificação exige nova aprovação no Gateway de Especificação. A release é opcional em DEV; build, testes e implantação mantêm suas etapas próprias.';
+   const cycle=repository?await developmentCycleReview(tx,story,run,repository):{reason:'O repositório da entrega anterior não está disponível. Consulte o repositório do Sistema antes de preparar outro ciclo.',contextToken:null};
+   let unavailable=cycle.reason;
+   try{await executionScope(h,tx,story.id);}catch(error){if(error instanceof DomainError)unavailable=error.message;else throw error;}
+   if(preparation.preparation?.state==='failed'&&scope.current){
+    state='waiting_human';title='Confira a liberação antes de outro ciclo';
+    message='O resultado da liberação desta revisão ainda precisa ser consultado. Verificar o resultado não repete a escrita no GitLab nem inicia outro ciclo.';
+    add('release_draft','Verificar resultado da liberação',`${runPath}/merge/prepare`,{expectedVersion:story.version,expectedSha:run.commitSha,confirmed:true},!!options.merge?.releaseDraft,options.merge?.releaseDraft?undefined:'A consulta da liberação não está configurada nesta integração. Consulte a operação na Auditoria.');
+   }
+   if(options.developmentBuildsConfigured&&merge?.state==='succeeded'&&!actions.length)actions.push({id:'prepare_dev',kind:'prepare_dev',label:'Preparar versão DEV',enabled:true,href:`/stories/${story.id}?tab=planning&process=environment&environment=DEV`});
+   add('development_cycle','Iniciar novo ciclo de desenvolvimento',`${runPath}/replan`,{expectedVersion:story.version,confirmed:true,cycleContext:cycle.contextToken},configured.preparation&&!unavailable,unavailable||(!configured.preparation?'Configure o GitLab e informe um plano técnico ou conecte o modelo local.':undefined),{title:'Preparar outro ciclo desta História?',description:'A História voltará à especificação. Revise os requisitos e o plano técnico; a codificação exigirá nova aprovação no Gateway de Especificação. Tarefas, evidências e Merge Requests anteriores permanecerão registrados. Uma aprovação anterior de Desenvolvimento Finalizado ficará histórica e exigirá nova aprovação ao concluir este ciclo. A associação a release será preservada; sua composição não será alterada.',checkboxLabel:'Confirmo o novo ciclo e a revisão da especificação antes de autorizar outra codificação.'});
   }else if(run.state==='cancelled'||!scope.current||object(story.data).requiresNewG1&&['succeeded','cancelled'].includes(run.state)){
    kind=['specification','gate'].includes(run.stage)?'specification':'coding';state=run.state==='cancelled'?'cancelled':'stale';
    title=run.state==='cancelled'?'Execução cancelada; um novo ciclo exige outro G1':'O escopo mudou; as evidências anteriores permanecem no histórico';
@@ -132,6 +170,9 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
      kind='merge';state=merge?.state||'not_started';title=['queued','running'].includes(state)?'Merge solicitado; aguardando confirmação do GitLab':state==='blocked'?'Integração impedida; consulte o diagnóstico':state==='failed'?'Resultado da integração precisa ser reconciliado':'Verificações aprovadas; integração pendente';
      message=merge?.message||'Você pode integrar pelo GitLab ou solicitar ao assistente, mantendo as verificações e confirmações.';who=['queued','running'].includes(state)?'Assistente de merge':'Pessoa autorizada a integrar';
      if(!['queued','running'].includes(state))add('merge',state==='failed'?'Reconciliar resultado do merge':'Solicitar merge ao assistente',`${runPath}/merge`,{expectedVersion:story.version,expectedSha:run.commitSha},configured.merge,configured.merge?undefined:'A credencial exclusiva do agente de merge não está configurada.',{title:'Confirmar integração da revisão atual',description:`Integrar o commit ${run.commitSha} no destino do MR. Esta decisão não remove bloqueios, não conclui a História e não inicia implantação.`,checkboxLabel:'Confirmo a integração desta revisão aprovada.'});
+     if(preparation.preparation&&['queued','running'].includes(preparation.preparation.state)){state=preparation.preparation.state;title='Liberação para integração em andamento';message=preparation.preparation.message||'Consultando o resultado da liberação do rascunho.';actions.splice(0,actions.length);}
+     else if(preparation.eligible||preparation.preparation?.state==='failed'){message=preparation.preparation?.state==='failed'?'O resultado da liberação precisa ser consultado antes de outra operação.': 'O MR está em rascunho. Use Liberar para integração neste portal, revise a proposta e confirme. Isso não faz merge nem publica em ambiente.';actions.splice(0,actions.length);add('release_draft',preparation.preparation?.state==='failed'?'Verificar resultado da liberação':'Liberar para integração',`${runPath}/merge/prepare`,{expectedVersion:story.version,expectedSha:run.commitSha,confirmed:true},!!options.merge?.releaseDraft,undefined,preparation.preparation?.state==='failed'?undefined:{title:'Liberar para integração?',description:`Retirar Draft do MR !${merge?.iid} na revisão ${run.commitSha?.slice(0,12)}. Isso não faz merge, não dispensa verificações e não publica em ambiente.`,checkboxLabel:'Confirmo a liberação desta revisão para integração.'});}
+
     }
    }
   }
@@ -140,22 +181,26 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   const currentActivity=activities.find(a=>a.kind===kind&&!a.legacy&&a.currentAttemptId&&a.attempts.some((attempt:any)=>attempt.id===a.currentAttemptId&&attempt.sourceType==='execution'&&attempt.sourceId===run?.id))||activities.find(a=>a.kind===kind&&!a.legacy&&a.currentAttemptId)||activities.find(a=>a.kind===kind&&a.legacy)||activities.find(a=>a.kind===kind),attempt=currentActivity?.legacy?currentActivity?.attempts[0]:currentActivity?.attempts.find((attempt:any)=>attempt.id===currentActivity.currentAttemptId);
   const currentEvents=attempt?.events||[],latestEvent=currentEvents.at(-1);
   const workKinds=new Map<string,string>();for(const activity of activities){if(activity.taskId)workKinds.set(activity.taskId,activity.kind);for(const link of activity.links||[])workKinds.set(link.taskId,activity.kind);}
-  const taskViews=tasks.map(task=>{const activity=activities.find(a=>a.taskId===task.id||(a.links||[]).some((link:any)=>link.taskId===task.id));return {...publicItem(task),pipelineStage:pipelineStageOf(task),result:object(task.data).result??null,activityId:activity?.id||null,activityKind:workKinds.get(task.id)||pipelineStageOf(task),processOwned:!!object(task.data).workProcess,managed:!!object(task.data).workProcess||!!activity?.links?.some((link:any)=>link.taskId===task.id&&link.completion==='publish_code'),operationalState:activity?.state||null,attempts:activity?.attempts||[]};});
+  const devTest=await tx.developmentTest.findFirst({where:{storyId:story.id},orderBy:{number:'desc'}});
+  const taskViews=tasks.map(task=>{const activity=activities.find(a=>a.taskId===task.id||(a.links||[]).some((link:any)=>link.taskId===task.id));return {...publicItem(task),pipelineStage:pipelineStageOf(task),result:task.id===devTest?.taskId?(devTest.executionId===run?.id?devTest.message:'Resultado de outro ciclo; novos testes DEV continuam pendentes. '):object(task.data).result??null,activityId:activity?.id||null,activityKind:workKinds.get(task.id)||pipelineStageOf(task),processOwned:!!object(task.data).workProcess,managed:!!object(task.data).workProcess||!!activity?.links?.some((link:any)=>link.taskId===task.id&&link.completion==='publish_code'),operationalState:task.id===devTest?.taskId?(devTest.executionId!==run?.id?'stale':devTest.state==='failed'?'blocked':devTest.state):activity?.state||null,attempts:activity?.attempts||[]};});
   const codingActivity=work.find((a:any)=>a.kind==='coding');
   const bindingTasks=tasks.filter(task=>!object(task.data).workProcess).map(task=>{const link=codingActivity?.taskLinks.find((link:any)=>link.taskId===task.id);return {id:task.id,key:task.key,name:task.name,description:task.description,linked:!!link,scope:link?.scope||'',completion:link?.completion||'manual_evidence'};});
   const executionConversation=!!run&&(canDiscuss||run.stage==='discussion'||run.discussionVersion>0&&['specification','coding'].includes(kind));
   const chatMode=executionConversation?'execution':run?.state==='succeeded'&&merge?'merge':null;
   const chatEnabled=canAct&&scope.current&&!!h.llm&&(chatMode==='execution'?!!(canDiscuss||run?.stage==='discussion'):chatMode==='merge');
   const primaryAction=actions.find(action=>!['cancel','cancel_story'].includes(action.id))||null;
-  return {story:publicItem(story),selectedItem:publicItem(selected),current:{phase:upper(story.status),label:labels[kind],state,kind,taskId:currentActivity?.taskId||null,activityId:currentActivity?.id||null,title,message,who,updatedAt:latestEvent?.timestamp||attempt?.updatedAt||run?.updatedAt||story.updatedAt},nextAction:primaryAction,secondaryActions:actions.filter(action=>action!==primaryAction),tasks:taskViews,activities,run:run?{id:run.id,state:run.state,stage:run.stage,error:run.error,specification:run.specification,discussionVersion:run.discussionVersion,technicalRetryAvailable:retryTechnical,validationIssues:object(object(run.snapshot).patchRepair).issues||[],branch:run.branch,commitSha:run.commitSha,mergeRequestUrl:run.mergeRequestUrl,createdAt:run.createdAt,updatedAt:run.updatedAt}:null,merge:merge?{id:merge.id,state:merge.state,sha:merge.sha,message:merge.message,blocks:merge.blocks,origin:merge.origin,mergedBy:merge.mergedBy,finishedAt:merge.finishedAt}:null,readiness,permissions:{canAct,canManageLifecycle:authorized&&!parentBlock},configured,chat:{mode:chatMode,executionId:run?.id||null,enabled:chatEnabled,reason:!canAct?permissionReason:!h.llm?'Configure o modelo local.':chatMode==='execution'&&!chatEnabled?'A conversa permanece no histórico; a execução segue as decisões e aprovações vigentes.':undefined,guidance:message,contextLabel:`${labels[kind]} · ${story.key}`},signals:{lastEventAt:latestEvent?.timestamp||null,lastHeartbeatAt:attempt?.heartbeatAt||null,heartbeatStaleAfterMs:attempt?.heartbeatStaleAfterMs||45000,provider:attempt?.provider||null,stage:attempt?.stage||run?.stage||null,waitingSince:attempt?.waitingSince||null,queuedAt:attempt?.queuedAt||null,startedAt:attempt?.startedAt||null,queueReason:state==='queued'?'Aguarda recurso de execução compartilhado.':null,legacy:!!attempt?.legacy},events:currentEvents,binding:{activityId:codingActivity?.id||null,expectedLinksVersion:workLinksVersion(codingActivity?.taskLinks||[]),tasks:bindingTasks,path:`/api/items/${story.id}/work-links`,enabled:canAct&&!work.some((a:any)=>a.kind==='coding'&&a.attempts.some((attempt:any)=>['queued','running'].includes(attempt.state))),expectedVersion:story.version},history:history.map(normalizeEvent),repositoryName:repository?.name||links[0]?.repository.name||null};
- }));
+  const assignment=await tx.releaseStory.findUnique({where:{storyId:story.id},select:{release:{select:{id:true,key:true,name:true,compositionStatus:true}}}});
+  const delivery=storyDeliveryReading({publicationAvailable:!!options.developmentDeploymentsConfigured,status:story.status,mergeConfirmed:scope.current&&run?.state==='succeeded'&&!object(story.data).requiresNewG1&&merge?.state==='succeeded'&&merge.sha===run.commitSha,release:assignment?.release??null});
+  const storyLifecycle=(await storyLifecycleViews(tx,[story],{executionId:run?.id??null,current:scope.current})).get(story.id)!;
+  return {historicalCloseReadings,storyLifecycle,delivery,story:publicItem(story),selectedItem:publicItem(selected),current:{phase:upper(story.status),label:labels[kind],state,kind,taskId:currentActivity?.taskId||null,activityId:currentActivity?.id||null,title,message,who,updatedAt:latestEvent?.timestamp||attempt?.updatedAt||run?.updatedAt||story.updatedAt},nextAction:primaryAction,secondaryActions:actions.filter(action=>action!==primaryAction),tasks:taskViews,activities,run:run?{id:run.id,destinationReviewRequired:object(run.snapshot).destinationReviewRequired===true,codeDestination:destinationSummary(run.snapshot),state:run.state,stage:run.stage,error:run.error,specification:run.specification,discussionVersion:run.discussionVersion,technicalRetryAvailable:retryTechnical,validationIssues:object(object(run.snapshot).patchRepair).issues||[],branch:run.branch,commitSha:run.commitSha,mergeRequestUrl:run.mergeRequestUrl,createdAt:run.createdAt,updatedAt:run.updatedAt}:null,merge:merge?{id:merge.id,integrationReference:integrationViews.get(merge.id),state:merge.state,sha:merge.sha,message:merge.message,blocks:merge.blocks,origin:merge.origin,mergedBy:merge.mergedBy,finishedAt:merge.finishedAt}:null,readiness,preparation,permissions:{canAct,canManageLifecycle:authorized&&!parentBlock},configured,chat:{mode:chatMode,executionId:run?.id||null,enabled:chatEnabled,reason:!canAct?permissionReason:!h.llm?'Configure o modelo local.':chatMode==='execution'&&!chatEnabled?'A conversa permanece no histórico; a execução segue as decisões e aprovações vigentes.':undefined,guidance:message,contextLabel:`${labels[kind]} · ${story.key}`},signals:{lastEventAt:latestEvent?.timestamp||null,lastHeartbeatAt:attempt?.heartbeatAt||null,heartbeatStaleAfterMs:attempt?.heartbeatStaleAfterMs||45000,provider:attempt?.provider||null,stage:attempt?.stage||run?.stage||null,waitingSince:attempt?.waitingSince||null,queuedAt:attempt?.queuedAt||null,startedAt:attempt?.startedAt||null,queueReason:state==='queued'?'Aguarda recurso de execução compartilhado.':null,legacy:!!attempt?.legacy},events:currentEvents,binding:{activityId:codingActivity?.id||null,expectedLinksVersion:workLinksVersion(codingActivity?.taskLinks||[]),tasks:bindingTasks,path:`/api/items/${story.id}/work-links`,enabled:canAct&&!work.some((a:any)=>a.kind==='coding'&&a.attempts.some((attempt:any)=>['queued','running'].includes(attempt.state))),expectedVersion:story.version},history:history.map(normalizeEvent),repositoryName:repository?.name||links[0]?.repository.name||null};
+ },{isolationLevel:'RepeatableRead'}));
  app.post<{Params:{id:string}}>('/api/items/:id/work-links',async request=>{
   const body=z.object({expectedVersion:z.number().int().positive(),expectedLinksVersion:z.string().regex(/^[a-f0-9]{64}$/),links:z.array(z.object({taskId:z.string().min(1),scope:z.string().trim().min(1).max(1000),completion:z.enum(['publish_code','manual_evidence']).default('manual_evidence')})).max(100)}).strict().parse(request.body);
   return h.mutate(request,async(tx,person)=>{
    const story=await h.live(tx,request.params.id);if(story.kind!=='story')throw new DomainError('STORY_REQUIRED','Associe o trabalho no contexto de uma História.',409);await h.ensureNotArchived(tx,story);
    if(story.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A História mudou. Atualize antes de associar Tarefas.',409);
-   const links=await tx.itemRepository.findMany({where:{itemId:story.id}});if(links.length!==1)throw new DomainError('REPOSITORY_REQUIRED','Vincule um repositório à História antes de associar o trabalho.',409);
-   const activity=await ensureActivity(tx,h,{storyId:story.id,repositoryId:links[0].repositoryId,kind:'coding',person});
+   const repository=await inheritedRepository(tx,story);if(!repository)throw new DomainError('REPOSITORY_REQUIRED','O Sistema ainda não possui repositório. Crie-o na página do Sistema.',409);
+   const activity=await ensureActivity(tx,h,{storyId:story.id,repositoryId:repository.id,kind:'coding',person});
    await bindActivityTasks(tx,h,{activityId:activity.id,taskIds:body.links,expectedLinksVersion:body.expectedLinksVersion,person});
    return {linked:true,activityId:activity.id};
   });

@@ -1,0 +1,21 @@
+{
+  "reviewer": "ux_ra09c",
+  "result": "approved",
+  "source": "2aa4bef72464a8ca6ca5696ea3104b4a1193a84d16bd3a79710604ab302b8e97",
+  "image": "sha256:edf79b914b1ae2401616f069c6ec379265616e36c78549788ba4c13e77eb736e",
+  "viewports": [1440, 390],
+  "screenshots": 10,
+  "materialBlockers": 0,
+  "scope": "Verificação e confirmação positiva de merge histórico, separada da tentativa original e do ciclo atual.",
+  "observations": [
+    "Falha original aparece em vermelho antes do detalhe, sem herdar sucesso posterior.",
+    "Prévia identifica operação/execução/MR/branches/SHA, inclusive no impedimento.",
+    "MR aberto/fechado permanece não confirmável; nenhuma ação promete executar merge.",
+    "Recuperação mantém intenção original, persona e resultado observado separados.",
+    "Foco da prévia é aplicado após montagem; retorno e confirmação mantêm o contrato existente."
+  ],
+  "limitations": [
+    "Revisão visual e de fonte não constitui validação assistiva integral.",
+    "Resultados históricos sem merge confirmado e liberação incerta permanecem fora do comando positivo."
+  ]
+}

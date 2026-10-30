@@ -1,0 +1,22 @@
+{
+  "reviewer": "ux_ra09d",
+  "result": "approved",
+  "source": "68f44541bc8590e7d2c9489640338a6fc86848e1cc0dc2f380c01c85d2225465",
+  "image": "sha256:547a646e3c37879c28e0c0347b6b5ce222ca4d5210066806e3a7a36d9ddc992b",
+  "viewports": [1440, 390],
+  "screenshots": 10,
+  "materialBlockers": 0,
+  "scope": "Encerramento local de acompanhamento histórico, fonte da decisão e integração positiva posterior.",
+  "observations": [
+    "Motivo ocupa a largura disponível, com rótulo acima e foco nativo visível.",
+    "Encerramento identifica autor, data e motivo sem se apresentar como merge confirmado.",
+    "Resultado originalmente falho permanece separado da observação posterior.",
+    "Recuperação conserva solicitação original e autoria.",
+    "Merge posterior conhecido continua visível após replay do encerramento, com a fonte anterior preservada."
+  ],
+  "limitations": [
+    "recorded-top-390 repete o recorte inferior; esse topo específico não foi validado visualmente no celular.",
+    "Não constitui validação assistiva integral.",
+    "MR aberto e liberação incerta permanecem fora do comando de encerramento local."
+  ]
+}

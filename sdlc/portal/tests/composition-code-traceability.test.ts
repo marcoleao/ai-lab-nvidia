@@ -1,0 +1,62 @@
+import {afterAll,describe,expect,test,vi} from 'vitest';
+import {randomUUID} from 'node:crypto';
+import {database} from '../packages/db/client.ts';
+import {createApp} from '../apps/api/src/app.ts';
+import {repositoryFixture} from './repository-fixture';
+import {compositionMembers} from '../apps/api/src/release-compositions.ts';
+import {compositionCodeTraceability} from '../apps/api/src/composition-code-traceability.ts';
+
+const url=process.env.TEST_DATABASE_URL;
+if(url&&new URL(url).pathname!=='/portal_test')throw Error('Only disposable portal_test');
+describe.skipIf(!url)('code provenance for the exact planned composition execution',()=>{
+ const db=database(url!),provider={inspect:vi.fn(),merge:vi.fn()},runtime=createApp({db,demoMode:true,merge:provider}),source='a'.repeat(40),integrated='b'.repeat(40),later='c'.repeat(40);
+ afterAll(async()=>{await runtime.app.close();await db.$disconnect();});
+ const write=(path:string,payload:unknown)=>runtime.app.inject({method:'POST',url:'/api'+path,headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload});
+ async function fixture(options:{published?:boolean;execution?:boolean;integration?:'full'|'partial'|'squash'|'none';state?:string}={}){
+  const create=async(kind:any,parentId?:string,parentKind?:any)=>db.item.create({data:{kind,parentId,parentKind,key:randomUUID(),name:'Isolated provenance '+kind,status:kind==='story'?'merge_request':'active',...(kind==='project'?{projectLifecycle:'active'}:{}),data:{}}});
+  const system=await create('system'),project=await create('project',system.id,'system'),epic=await create('epic',project.id,'project'),story=await create('story',epic.id,'epic');
+  const repo=await repositoryFixture(db,{data:{systemId:system.id,key:randomUUID(),name:'Isolated code source',runtime:'node',state:'ready',gitlabProjectId:1000+await db.repository.count()}});
+  const run=options.execution===false?null:await db.storyExecution.create({data:{storyId:story.id,repositoryId:repo.id,storyVersion:story.version,state:'succeeded',stage:'completed',commitSha:options.published===false?null:source,branch:'sdlc/provenance',actorId:'admin',actorName:'Admin',snapshot:{prompt:'PRIVATE_PROMPT',code:'PRIVATE_CODE'}}});
+  const op=run&&options.published!==false?await db.mergeOperation.create({data:{executionId:run.id,storyId:story.id,projectId:repo.gitlabProjectId!,iid:1,sha:source,sourceBranch:run.branch!,targetBranch:'main',state:options.state??'succeeded'}}):null;
+  const releaseResult=await write('/releases',{systemId:system.id,name:'Isolated planned code'});expect(releaseResult.statusCode,releaseResult.body).toBe(200);const release=releaseResult.json().release;
+  const view=(await runtime.app.inject('/api/items/'+story.id+'/release')).json();const attached=await write('/items/'+story.id+'/release',{expectedVersion:story.version,expectedReferenceToken:view.story.referenceToken,releaseId:release.id,expectedCurrentReleaseId:null,expectedCurrentReleaseVersion:null,expectedReleaseVersion:1});expect(attached.statusCode,attached.body).toBe(200);
+  const composition=await db.releaseCompositionRevision.findFirstOrThrow({where:{releaseId:release.id},orderBy:{number:'desc'}});
+  const capture=async(mode='full')=>db.mergeIntegrationReference.create({data:{operationId:op!.id,executionId:run!.id,storyId:story.id,repositoryId:repo.id,repositoryVersion:repo.version,projectId:op!.projectId,iid:1,sourceBranch:op!.sourceBranch,targetBranch:'main',sourceSha:source,mergeCommitSha:mode==='full'?integrated:null,squashCommitSha:mode==='squash'?integrated:null,integrationSha:mode==='partial'?null:integrated,policyVersion:'gitlab-merge-reference-v1',observedAt:new Date(Math.max(Date.now(),composition.createdAt.getTime()+1)),mergedAt:new Date('2026-10-28T20:00:00Z')}});
+  if(op&&options.integration&&options.integration!=='none')await capture(options.integration);
+  const read=async(page=1)=>{const response=await runtime.app.inject(`/api/releases/${release.id}/composition-revisions/${composition.id}?page=${page}`);expect(response.statusCode,response.body).toBe(200);return response.json();};
+  const trace=async()=>(await read()).codeTraceability[story.id];
+  return {system,project,epic,story,repo,run,op,release,composition,capture,read,trace};
+ }
+ test.each(['full','squash'] as const)('reads exact %s integration without substituting the planned source SHA',async mode=>{
+  const f=await fixture({integration:mode}),value=await f.trace();expect(value).toMatchObject({state:'recorded',publication:{executionId:f.run!.id,sourceSha:source},integration:{sourceSha:source,integrationSha:integrated,capturedAfterComposition:true}});expect(value.integration.integrationSha).not.toBe(value.publication.sourceSha);expect(value.integration.mergeCommitSha).toBe(mode==='full'?integrated:null);expect(value.integration.squashCommitSha).toBe(mode==='squash'?integrated:null);
+ });
+ test('a newer cycle changes planning comparison but never substitutes the saved execution or merge',async()=>{
+  const f=await fixture({integration:'full'}),original=await f.trace();const next=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.repo.id,storyVersion:1,state:'succeeded',stage:'completed',commitSha:later,branch:'sdlc/next',snapshot:{},actorId:'admin',actorName:'Admin',createdAt:new Date(Date.now()+1000)}});await db.mergeOperation.create({data:{executionId:next.id,storyId:f.story.id,projectId:f.repo.gitlabProjectId!,iid:2,sourceBranch:next.branch!,targetBranch:'other',sha:later,state:'succeeded'}});
+  const value=await f.trace();expect(value.integration).toEqual(original.integration);expect(value.publication.executionId).toBe(f.run!.id);expect(value.planning.state).toBe('outdated');expect((await f.read()).stories).toEqual(compositionMembers(f.composition));
+ });
+ test('administrative status or a later execution with the same code does not invent a code change',async()=>{
+  const f=await fixture({integration:'full'});await db.item.update({where:{id:f.story.id},data:{status:'testing',version:{increment:1}}});await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.repo.id,storyVersion:2,state:'succeeded',stage:'completed',commitSha:source,branch:'sdlc/same-code',snapshot:{},actorId:'admin',actorName:'Admin',createdAt:new Date(Date.now()+1000)}});const value=await f.trace();expect(value.planning.state).toBe('current');expect(value.publication.executionId).toBe(f.run!.id);
+ });
+ test('later evidence enriches only the read; original composition, Story, keys and audit stay unchanged',async()=>{
+  const f=await fixture(),before=await f.read();expect(before.codeTraceability[f.story.id].state).toBe('not_captured');await f.capture();const counts={events:await db.historyEvent.count(),keys:await db.requestKey.count(),revisions:await db.releaseCompositionRevision.count()},story=await db.item.findUniqueOrThrow({where:{id:f.story.id}});
+  const selected=await f.read(),participations=(await runtime.app.inject(`/api/items/${f.story.id}/release-participations`)).json();expect(selected.stories).toEqual(before.stories);expect(selected.codeTraceability[f.story.id].integration.capturedAfterComposition).toBe(true);expect(participations.items[0].codeTraceability).toEqual(selected.codeTraceability[f.story.id]);expect(participations.traceabilityAsOf).toBeTruthy();expect(selected.traceabilityAsOf).toBeTruthy();expect(await db.releaseCompositionRevision.findUniqueOrThrow({where:{id:f.composition.id}})).toEqual(f.composition);expect(await db.item.findUniqueOrThrow({where:{id:f.story.id}})).toEqual(story);expect({events:await db.historyEvent.count(),keys:await db.requestKey.count(),revisions:await db.releaseCompositionRevision.count()}).toEqual(counts);expect(provider.inspect).not.toHaveBeenCalled();expect(provider.merge).not.toHaveBeenCalled();expect(JSON.stringify(selected)).not.toContain('PRIVATE_');
+ });
+ test('partial integration does not infer the integrated SHA from the source',async()=>{const f=await fixture({integration:'partial'}),value=await f.trace();expect(value.state).toBe('partial');expect(value.integration.integrationSha).toBeNull();expect(value.publication.sourceSha).toBe(source);});
+ test('no execution is not replaced by code published after planning',async()=>{const f=await fixture({execution:false}),value=await f.trace();expect(value.state).toBe('not_planned');expect(value).not.toHaveProperty('publication');expect(value).not.toHaveProperty('integration');});
+ test('publication after planning in the same execution requires an explicit planning revision',async()=>{const f=await fixture({published:false});await db.storyExecution.update({where:{id:f.run!.id},data:{commitSha:source}});const value=await f.trace();expect(value.state).toBe('not_published');expect(value).not.toHaveProperty('publication');expect(value.planning.state).toBe('outdated');});
+ test('an unresolved merge does not imply failure or a captured integrated SHA',async()=>{const f=await fixture({state:'blocked'}),value=await f.trace();expect(value.state).toBe('not_integrated');expect(value).not.toHaveProperty('integration');expect(value.message).toContain('não comprova falha');});
+ test('missing merge operation remains unconfirmed',async()=>{const f=await fixture();await db.mergeOperation.delete({where:{id:f.op!.id}});expect((await f.trace()).state).toBe('not_integrated');});
+ test.each(['execution','sourceBranch','targetBranch'] as const)('detects changed %s identity without exposing a wrong integrated reference',async part=>{
+  const f=await fixture({integration:'full'});if(part==='execution')await db.storyExecution.update({where:{id:f.run!.id},data:{commitSha:later}});else await db.mergeOperation.update({where:{id:f.op!.id},data:{[part]:'changed'}});const value=await f.trace();expect(value.state).toBe('divergent');expect(value).not.toHaveProperty('integration');
+ });
+ test('missing or cross-scope execution is explicit and cannot disclose another repository or run',async()=>{
+  const f=await fixture({integration:'full'}),other=await fixture({integration:'full'}),member=compositionMembers(f.composition)[0],read=(execution:typeof member.execution)=>db.$transaction(tx=>compositionCodeTraceability(tx,f.system.id,[{...member,execution,compositionCreatedAt:f.composition.createdAt}]));
+  expect((await read({...member.execution!,id:randomUUID()}))[0].state).toBe('unavailable');const wrong=(await read({...member.execution!,id:other.run!.id}))[0];expect(wrong.state).toBe('divergent');expect(JSON.stringify(wrong)).not.toContain(other.repo.id);expect(wrong).not.toHaveProperty('publication');expect(wrong).not.toHaveProperty('integration');
+ });
+ test('page boundaries expose traces only for the requested members while preserving the saved snapshot',async()=>{
+  const f=await fixture({integration:'full'}),member=compositionMembers(f.composition)[0],stories=[member];for(let n=0;n<20;n++){const row=await db.item.create({data:{kind:'story',parentId:f.epic.id,parentKind:'epic',key:randomUUID(),name:'Page provenance '+n,status:'specification'}});stories.push({...member,storyId:row.id,storyKey:row.key,storyName:row.name,execution:null});}
+  const revision=await db.releaseCompositionRevision.create({data:{...f.composition,id:randomUUID(),number:f.composition.number+1,storyCount:21,stories}});const response=(await runtime.app.inject(`/api/releases/${f.release.id}/composition-revisions/${revision.id}?page=2`)).json();expect(response.pagination).toMatchObject({page:2,total:21,totalPages:2});expect(response.stories).toHaveLength(1);expect(Object.keys(response.codeTraceability)).toEqual([stories[20].storyId]);expect(response.codeTraceability[stories[20].storyId].state).toBe('not_planned');expect((await f.read()).isCurrent).toBe(false);
+ });
+ test('another release cannot query a revision it does not own',async()=>{const f=await fixture(),other=await fixture();const response=await runtime.app.inject(`/api/releases/${other.release.id}/composition-revisions/${f.composition.id}`);expect(response.statusCode).toBe(404);expect(response.body).not.toContain(f.run!.id);});
+ test('runtime role reads provenance without requiring write privileges or a new action',async()=>{const f=await fixture({integration:'full'}),member=compositionMembers(f.composition)[0];const values=await db.$transaction(async tx=>{await tx.$executeRawUnsafe('SET LOCAL ROLE sdlc_portal_app');return compositionCodeTraceability(tx,f.system.id,[{...member,compositionCreatedAt:f.composition.createdAt}]);});expect(values[0].state).toBe('recorded');});
+});

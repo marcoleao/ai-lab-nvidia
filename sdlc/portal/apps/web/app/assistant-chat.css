@@ -87,3 +87,5 @@
 }
 @media(max-height:600px){.assistant-chat-empty{min-height:100px;padding:10px}.assistant-chat-empty>.assistant-chat-avatar,.assistant-chat-suggestions{display:none}.assistant-chat-empty h2{font-size:20px!important}.assistant-chat-help{margin-top:4px}.assistant-chat-compose textarea{max-height:75px}.assistant-chat-composer .assistant-current-state{max-height:29dvh}}
 @media(prefers-reduced-motion:reduce){.assistant-chat *{scroll-behavior:auto!important}}
+
+.assistant-chat-questions{border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:6px;background:#f5f9fc;padding:14px 16px;margin:16px 0;overflow-wrap:anywhere}.assistant-chat-questions h3{font-size:15px;margin:0 0 6px}.assistant-chat-questions p{font-size:13px;line-height:1.5}.assistant-chat-questions li{margin:8px 0;line-height:1.5}.assistant-chat-content details pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:280px;overflow:auto}

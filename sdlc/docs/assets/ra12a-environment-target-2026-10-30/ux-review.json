@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-12a",
+  "reviewProfile": "UX implementation, browser assertions and visual inspection",
+  "decision": "approved_with_documented_limits",
+  "scope": "System-owned DEV target preparation only. Every new browser scenario fully intercepts HTTP, preserving operational applications, resources, business records and agent results.",
+  "navigation": {
+    "entry": "System > Environments > Prepare DEV target",
+    "shellPreserved": true,
+    "newTabs": false,
+    "ordering": "The operational preparation panel precedes the existing DEV/QA/HML/PRD reference grid. The four references and their order remain unchanged.",
+    "recovery": "Component remains mounted across System tabs; an external banner returns to the same uncertain request. Reason, original request body, persona and idempotency key survive reload.",
+    "history": "The current operation and target proof are not a complete collection. Event history remains in Audit."
+  },
+  "behaviorReviewed": [
+    "Reference registration, prepared resources, current remote observation and application deployment are distinguished in words and facts. A prepared target does not claim an active application.",
+    "Context is checked before confirmation; source/contract/profile details are collapsed. Confirmation requires a reason and explicit checkbox.",
+    "System version, persona and operation changes invalidate a new decision while preserving the reason. Updating the target also refreshes the System header.",
+    "Lost acknowledgment reuses the original body, persona and key after reload. An unknown external result permits reconciliation of the same operation, without sending another prepare command.",
+    "Inactive/viewer contexts use real persona roles and read-only System state. Permission and source/ownership blockers are visible and link to the System repository without clearing unrelated URL parameters.",
+    "A failed reading preserves dated confirmed facts and blocks new decisions. Historical target proof is qualified separately from availability or deployment.",
+    "Pause/resume and pre-dispatch cancellation have separate confirmations; no resource removal is implied.",
+    "Eleven ENVIRONMENT_TARGET action labels and environment_operation target are translated; completion means DEV target prepared, not deployed or approved."
+  ],
+  "browser": {
+    "initialRun": {
+      "run": "20261030T035953Z-0b0dbe",
+      "passed": 26,
+      "failed": 0,
+      "scope": "20 new preparation cases plus six existing System-environment cases, before the operation-first panel reorder."
+    },
+    "finalRun": {
+      "run": "20261030T040322Z-1d4d62",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "scope": "All twenty new cases after operation-first ordering and its positional assertion; the six reference-registration cases were not rerun for this final ordering-only change."
+    },
+    "uniqueCasesAcrossRuns": 26,
+    "newCases": 20,
+    "runtimeHash": "c950cec4d1ca907ed627e65cb57a8da6335116290efb46a583c0c69223d818c6",
+    "testHash": "afa9f68c7b6721f53a270217006fca8648ac4d7355cf48913be8262297c6bc5e"
+  },
+  "accessibility": {
+    "viewports": [
+      1440,
+      390
+    ],
+    "assertions": [
+      "Confirmation focus and back-to-trigger focus",
+      "Focus return from an external recovery banner",
+      "Native label/textarea/checkbox associations and role-based disabled commands",
+      "No document horizontal overflow at 390px",
+      "Reason and unrelated query parameters retained across tabs"
+    ],
+    "limits": [
+      "No comprehensive screen-reader, keyboard-only or WCAG certification is claimed.",
+      "Full-page screenshots include the existing fixed shell/header and skip-link rendering at the capture scroll position, plus the Next development indicator. They do not establish an unobscured native viewport at every scroll position.",
+      "Primary/disabled button distinction, text wrapping, clear impediments and operation-before-reference ordering were inspected visually in six final captures."
+    ]
+  },
+  "sourceHashes": {
+    "apps/web/app/environment-target-preparation.tsx": "2fd0496d4cacfb838b97c397443930e7595a82c3835fece6357c2f49710f361d",
+    "apps/web/app/environment-target-preparation.css": "fd67b5aaf80ea91460140e04e3901106acd617f0b69f30e9dde6a2eefd546dc1",
+    "apps/web/app/portal.tsx": "998158ba4bb9b1d94f5ce23209c825adf8aa7649df5253cb0d6e943ad84228b9",
+    "apps/web/app/history-collection.tsx": "f6daa99e00f99930a59a9d231e9a5421c7d9fb1785822a5d20fc86604e8a779a",
+    "tests/e2e/environment-target-preparation.spec.ts": "7e43b00fce7e769252e10602248f867a0543dc2a9c0bd8e66647a85c450ed2d0"
+  },
+  "captures": [
+    {
+      "file": "environment-target-review-1440.png",
+      "width": 1440,
+      "state": "review",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "dc5453f4f20276edcf2e080d4a72f361077dcad35b1fe16cf641685aab30d34e"
+    },
+    {
+      "file": "environment-target-review-390.png",
+      "width": 390,
+      "state": "review",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "13f15bfbc2d9dc1e588c1658ef28b6e3a80c0ff1ad6b2d3822812eb150447ed9"
+    },
+    {
+      "file": "environment-target-blocked-1440.png",
+      "width": 1440,
+      "state": "blocked",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "3be7b6a4f87f5f8e93dee18e0f4223123d582e0654b21f085d6ece19477b35e0"
+    },
+    {
+      "file": "environment-target-blocked-390.png",
+      "width": 390,
+      "state": "blocked",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "215ddfbb8d09a4beb0ebd17c5bf07f18a9dfcc2cc4dde7eb2a42070831437c8f"
+    },
+    {
+      "file": "environment-target-stale-1440.png",
+      "width": 1440,
+      "state": "stale",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "4f4a21fcae36dacc71eaec51dc77a0a1c5989740bc5369753f7dda9d48fb36d6"
+    },
+    {
+      "file": "environment-target-stale-390.png",
+      "width": 390,
+      "state": "stale",
+      "sourceRun": "20261030T040322Z-1d4d62",
+      "visuallyInspected": true,
+      "sha256": "507293fdaf92e21a6b31aa9cbac073a8197cccf5e828d127c284c7daaee43926"
+    }
+  ],
+  "manualApproval": "pending-user-review",
+  "outsideScope": [
+    "DEV application deployment, live URL and active-version proof",
+    "Assistant forwarding of target operations",
+    "Functional test execution or Development Finished approval",
+    "QA/HML/PRD promotion and production completion"
+  ],
+  "postTestSourceReview": {
+    "file": "apps/web/app/portal.tsx",
+    "change": "The production TypeScript check required role:string, while Portal can hold string|undefined. The parent restricted the mount to role={role||''}: absent role remains unauthorized. No domain, command, layout or API behavior broadened.",
+    "browserRunPortalHash": "998158ba4bb9b1d94f5ce23209c825adf8aa7649df5253cb0d6e943ad84228b9",
+    "correctedPortalHash": "2666417debd63d0c0603411e900b65ad7bb12cc7e217288818634add1c5bed6a",
+    "validation": "Source-reviewed after the final browser run; no byte-exact browser rerun is claimed for this one-line restrictive default. Production TypeScript/Next validation belongs to the parent publication receipt."
+  }
+}

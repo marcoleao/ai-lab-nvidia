@@ -1,0 +1,66 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T19:46:20.279Z",
+    "duration": 8503.545,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "epic-execution"
+  ],
+  "specs": [
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic focuses Stories, preserves scope and drafts, and confirms pause explicitly at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic detects changed closure conditions before writing and retains justification at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic read failure identifies previous facts and disables operations at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic lost acknowledgement replays original body and persona after reload without another status event",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "epic-execution.spec.ts",
+      "title": "Epic resumes only after its own confirmation and reports queued work without claiming execution",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

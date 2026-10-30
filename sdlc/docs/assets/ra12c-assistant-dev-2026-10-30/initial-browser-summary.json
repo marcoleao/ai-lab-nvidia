@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-10-30T05:05:56.561Z",
+  "runtimeHash": "dce2f99bab9b93ab098c618ef03d889ff96c4c2b431acff4f23312398876821b",
+  "testHash": "2f85fa4746874733d318bc9402cb869cb9e6e241e5bec08f61fa3d0a2a61a620",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 1031
+    },
+    {
+      "name": "browser",
+      "exitCode": 1,
+      "durationMs": 149304
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-30T05:05:58.745Z",
+      "duration": 148548.701,
+      "expected": 89,
+      "skipped": 0,
+      "unexpected": 4,
+      "flaky": 0
+    },
+    "total": 93,
+    "failed": [
+      {
+        "id": "UI-100b11596a96",
+        "file": "assistant-dev-actions.spec.ts",
+        "title": "assistant DEV system shares pending request and reason with its regular page at 1440px"
+      },
+      {
+        "id": "UI-31dcc00638e3",
+        "file": "assistant-dev-actions.spec.ts",
+        "title": "assistant DEV story shares pending request and reason with its regular page at 1440px"
+      },
+      {
+        "id": "UI-7e069cd47e80",
+        "file": "assistant-dev-actions.spec.ts",
+        "title": "assistant DEV system shares pending request and reason with its regular page at 390px"
+      },
+      {
+        "id": "UI-f3114a84c6dc",
+        "file": "assistant-dev-actions.spec.ts",
+        "title": "assistant DEV story shares pending request and reason with its regular page at 390px"
+      }
+    ],
+    "errors": [],
+    "scope": "selected"
+  },
+  "finishedAt": "2026-10-30T05:08:15.361Z",
+  "sourceStable": true,
+  "ok": false
+}

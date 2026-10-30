@@ -1,0 +1,12 @@
+.development-build{min-width:0;margin:20px 0;padding-top:16px;border-top:1px solid var(--line)}
+.development-build[hidden]{display:none}.development-build h3{font-size:16px}.development-build h4{font-size:14px;margin:18px 0 8px}
+.development-build p,.development-build li{font-size:13px;line-height:1.65}.development-build code,.development-build dd{overflow-wrap:anywhere;word-break:break-word}
+.development-build dl{display:grid;gap:12px;margin:14px 0}.development-build dt{font-size:11px;color:var(--muted)}.development-build dd{margin:4px 0 0;font-size:12px}
+.development-build details{margin:12px 0}.development-build summary{cursor:pointer;font-size:12px;font-weight:600}
+.development-build .actions{display:flex;gap:8px;flex-wrap:wrap}.development-build button{max-width:100%;white-space:normal}
+.development-build-result:focus,.development-build [tabindex="-1"]:focus{outline:2px solid var(--blue);outline-offset:4px}
+.development-build-confirmation{margin-top:20px;padding:16px;border:1px solid var(--line);border-radius:6px;scroll-margin-top:var(--sw-sticky)}
+.development-build-confirmation>label:not(.development-build-accept){display:block;font-size:12px;margin:16px 0}
+.development-build-confirmation textarea{display:block;width:100%;box-sizing:border-box;margin-top:7px}.development-build-accept{display:flex;align-items:flex-start;gap:7px;margin:14px 0;font-size:12px;line-height:1.6}
+.development-build-accept input{flex-shrink:0}.development-build-artifact{border-left:3px solid var(--blue);padding-left:12px;margin-top:18px}.development-build-recovery{margin:16px 0}.development-build-recovery button{white-space:normal;max-width:100%}
+@media(max-width:767px){.development-build-confirmation{padding:12px}.development-build-confirmation textarea{font-size:16px}.development-build .actions{align-items:stretch}.development-build .actions button{flex:1 1 180px}}

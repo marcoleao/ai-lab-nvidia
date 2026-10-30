@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "slice": "RA-11",
+  "scope": "First controlled Node24/React development-build profile; application preparation, deployment and QA candidate are separate.",
+  "backend": {
+    "run": "20261029T195450Z-d260a3",
+    "files": 8,
+    "passed": 92,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "run": "20261029T195645Z-ad64f9",
+    "passed": 60,
+    "failed": 0,
+    "newCases": 20,
+    "viewports": [
+      1440,
+      390
+    ],
+    "registeredTotal": 405,
+    "registeredFiles": 47,
+    "stats": {
+      "startTime": "2026-10-29T19:57:02.032Z",
+      "duration": 127466.719,
+      "expected": 60,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "supportChecks": [
+    {
+      "name": "admin-audit",
+      "exitCode": 0,
+      "durationMs": 630
+    },
+    {
+      "name": "relay",
+      "exitCode": 0,
+      "durationMs": 716
+    },
+    {
+      "name": "controller",
+      "exitCode": 0,
+      "durationMs": 124
+    },
+    {
+      "name": "build-executor",
+      "exitCode": 0,
+      "durationMs": 317
+    }
+  ],
+  "supportRun": "ra11-support-343cbd27",
+  "realExecutor": {
+    "version": 1,
+    "operationId": "f58f90ce-45f8-469d-89d1-97b40132668e",
+    "policy": "node24-react-v1",
+    "baseImageId": "sha256:30be75845c83e83a196377d5eccf4c16b999546398e29d2dddc7a3d293b02244",
+    "passed": true,
+    "checks": [
+      {
+        "name": "real-react-build-and-sandbox",
+        "passed": true
+      },
+      {
+        "name": "packaged-image-contains-real-compiled-react",
+        "passed": true
+      },
+      {
+        "name": "real-nonzero-failure-no-artifact-or-output-leak",
+        "passed": true
+      },
+      {
+        "name": "same-request-recovers-same-artifact",
+        "passed": true
+      }
+    ],
+    "artifact": {
+      "archiveDigest": "68015718b2b042bf2721c0fa8f8cc2a3cb88d4f6825540bccd412736cf68b07d",
+      "id": "executor-live-775730d1-positive",
+      "imageId": "sha256:9bb762f1475e2eb8069a3f255314b0f16e4a2707fcb13a5bd0b3cd140c6402aa",
+      "size": 92095488,
+      "state": "succeeded"
+    },
+    "removedImages": true,
+    "scope": "Actual local containers using only isolated source fixtures; no GitLab archive fetch, application deployment, pilot code or portal database is exercised here."
+  },
+  "source": {
+    "runtimeHash": "aaba74b3d6244979404264e98a8826ce694ec7fb84baecf6111d4cb352cea59f",
+    "testHash": "05f4e080ab8c062467a6ec7f002472d7f59d1e95e7da5582b1db375497791c0c",
+    "preparedSource": "35af802b8f924e21ce0f6a8492832a88d9eb0fd003d100299c6c85c372abfc38",
+    "publishedImage": "sha256:b75f650344ae2a51f42a98c9ceea0b7f16539f3bb7641ecdea693a624776e898",
+    "installedExecutorSource": "abe7bce1a2e2e1ac3e342cf913ff203d3863ad60974afdaead014b4ffaae52ce",
+    "sourceStable": true
+  },
+  "publication": {
+    "published": true,
+    "verifiedAt": "2026-10-29T19:58:00.730117+00:00",
+    "existingTablesChecked": 42,
+    "tablesChecked": 43,
+    "newTables": [
+      "DevelopmentBuild"
+    ],
+    "existingRowsUnchangedAfterReadOnlyChecks": true,
+    "newBuildTableEmpty": true,
+    "normalization": "Only previously introduced nullable resolution fields and volatile MergeOperation lease/read fields are excluded from row comparison.",
+    "backup": {
+      "backupId": "ra11-development-build-verified-20261029-3d0fa118",
+      "bytes": 289078,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "administrativeAudit": {
+      "records": 332,
+      "head": "ed0fbd8bc55ad59541ec2c1aa36c696acbaa7a0711bf8d941960180e07c5b474",
+      "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+      "pendingOperations": []
+    }
+  },
+  "liveReadOnly": {
+    "browser": {
+      "ok": true,
+      "mode": "GET/HEAD-only",
+      "blockedWrites": 0,
+      "results": [
+        {
+          "width": 1440,
+          "systemRead": true,
+          "storyRead": true,
+          "phase": "SPECIFICATION",
+          "missingIntegrationBlocksBuild": true,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "systemRead": true,
+          "storyRead": true,
+          "phase": "SPECIFICATION",
+          "missingIntegrationBlocksBuild": true,
+          "overflow": false
+        }
+      ]
+    },
+    "runtime": {
+      "ok": true,
+      "mode": "read-only",
+      "uid": 1000,
+      "dockerSocketExposed": false,
+      "buildCount": 0,
+      "role": {
+        "role": "sdlc_portal_app",
+        "insert": true,
+        "update": true,
+        "delete": false,
+        "truncate": false
+      },
+      "executor": {
+        "id": "executor",
+        "label": "Construção DEV (Node 24/React)",
+        "status": "ready",
+        "message": "Perfil de construção preparado. Implantação de aplicações continua uma capacidade separada."
+      }
+    }
+  },
+  "pilot": {
+    "system": {
+      "id": "cmvtxl4ve000001payfklcdhw",
+      "key": "CURSOS",
+      "kind": "system",
+      "name": "Venda de Cursos On-line",
+      "status": "active",
+      "version": 1
+    },
+    "project": {
+      "id": "cmvtxl4xb000901pazsea31mm",
+      "key": "CURSOS-VENDAS",
+      "kind": "project",
+      "name": "Loja de Cursos On-line",
+      "status": "active",
+      "version": 1
+    },
+    "epic": {
+      "id": "cmvty4yki000f01pa7jmteff0",
+      "key": "CURSOS-VENDAS-E1",
+      "kind": "epic",
+      "name": "Compra de cursos sem cobrança",
+      "status": "active",
+      "version": 1
+    },
+    "catalogStory": {
+      "id": "cmvty4yl7000h01pa10pp48gw",
+      "key": "CURSOS-VENDAS-1",
+      "kind": "story",
+      "name": "Consultar catálogo e detalhes de cursos",
+      "status": "specification",
+      "version": 1
+    },
+    "orderStory": {
+      "id": "cmvty4yne000v01pathye5gwx",
+      "key": "CURSOS-VENDAS-2",
+      "kind": "story",
+      "name": "Registrar pedido de curso sem cobrança",
+      "status": "specification",
+      "version": 1
+    },
+    "repository": [
+      {
+        "id": "cmvtxl4vw000201paeq076xfx",
+        "name": "Venda de Cursos On-line",
+        "state": "ready",
+        "gitlabProjectId": 9,
+        "gitlabPath": "sdlc/cursos/app"
+      }
+    ]
+  },
+  "manualApproval": "pending-user-OK-RA-11",
+  "limitations": [
+    "This is a targeted regression, not a rerun of every one of the 405 browser cases or all repository jobs.",
+    "The final actual-container test compiles React from isolated fixtures. GitLab archive through build and application deployment is not yet the real pilot acceptance.",
+    "The initially failed recorder-policy and navigation checks, and failed experimental packaging probes, remain in raw reports/private validation directories and ledgers; they were not rewritten to green.",
+    "Cold public-registry toolchain preparation is provided but was not executed; the current image reuses inspected cached dependencies.",
+    "Service restart marks interrupted execution unknown without automatically repeating code. General uncertain-job resolution, global artifact quota/retention and WORM custody remain separate.",
+    "No compiler-output viewer or full screen-reader certification is claimed.",
+    "The new courses pilot has real planning records and a new provisioned repository, but no application code, approved Gateway, build, deployment or payment is fabricated."
+  ],
+  "finalSmoke": {
+    "run": "20261029T200358Z-26c0b8",
+    "passed": 4,
+    "failed": 0,
+    "persistentEnvironment": "fast"
+  },
+  "regressionAdministrativeAudit": {
+    "records": 120,
+    "head": "846c3f41fc24c4f202a32d786694d5c2e4d157ea4ae9259102363217d4130d8d",
+    "epochId": "7f58c90d-8dce-416c-bf3d-f7aab4bdec97",
+    "pendingOperations": []
+  },
+  "environments": {
+    "fast": "running exclusively for automation",
+    "ui": "removed through owned-resource controller",
+    "verify": "removed through owned-resource controller"
+  }
+}

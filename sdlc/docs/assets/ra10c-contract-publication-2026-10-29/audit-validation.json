@@ -1,0 +1,21 @@
+{
+  "passed": 8,
+  "failed": 0,
+  "files": [
+    "audit.test.ts",
+    "audit-guard.test.ts"
+  ],
+  "newBusinessActions": [
+    "EXECUTION_CONTRACT_SEND_REQUESTED",
+    "EXECUTION_CONTRACT_SEND_STARTED",
+    "EXECUTION_CONTRACT_COMMIT_OBSERVED",
+    "EXECUTION_CONTRACT_SENT",
+    "EXECUTION_CONTRACT_SEND_BLOCKED",
+    "EXECUTION_CONTRACT_SEND_UNCONFIRMED",
+    "EXECUTION_CONTRACT_SEND_OBSERVED",
+    "EXECUTION_CONTRACT_SEND_CONTINUED",
+    "EXECUTION_CONTRACT_SEND_CANCELLED",
+    "EXECUTION_CONTRACT_SEND_PAUSED"
+  ],
+  "scope": "Shared transactional recorder; rollback/retry and frozen-intent permissions tested in contract-publications.test.ts; external administrative publication recorder."
+}

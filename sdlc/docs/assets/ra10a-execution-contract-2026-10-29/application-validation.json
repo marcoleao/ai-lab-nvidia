@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "file": "execution-contract-provider.test.ts",
+      "exitCode": 0,
+      "passed": 35
+    },
+    {
+      "file": "execution-contract.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "system-repository.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    },
+    {
+      "file": "environments.test.ts",
+      "exitCode": 0,
+      "passed": 10
+    },
+    {
+      "file": "code-destination-provider.test.ts",
+      "exitCode": 0,
+      "passed": 7
+    }
+  ]
+}

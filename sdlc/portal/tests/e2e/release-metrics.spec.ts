@@ -9,8 +9,8 @@ const weeks=[0,1,2,3].map(index=>({start:['2026-09-28','2026-10-05','2026-10-12'
 const completedReason='O encerramento da composição ainda não fornece eventos de conclusão.';
 const reworkReason='Os fluxos de rejeição em QA e homologação ainda não estão integrados.';
 const releaseMetrics:ReleaseMetricsData={
- total:6,stages:[{stage:'DRAFT',label:'Em composição',count:3},{stage:'QA',label:'QA',count:1},{stage:'HML',label:'Homologação',count:1},{stage:'PRODUCTION',label:'Produção',count:1},{stage:'REJECTED',label:'Rejeitadas',count:0}],
- composition:{samples:3,medianHours:48,oldestHours:192,buckets:[{key:'under7',label:'Menos de 7 dias',count:2},{key:'7to15',label:'7 a menos de 15 dias',count:1},{key:'15to30',label:'15 a menos de 30 dias',count:0},{key:'30plus',label:'30 dias ou mais',count:0}],definition:'Idade atual desde a criação das releases ainda em DRAFT.'},
+ total:6,stages:[{compositionStatus:'OPEN',label:'OPEN · Aberta',count:3},{compositionStatus:'CLOSED',label:'CLOSED · Fechada',count:2},{compositionStatus:'CANCELED',label:'CANCELED · Cancelada',count:1}],
+ composition:{samples:3,medianHours:48,oldestHours:192,buckets:[{key:'under7',label:'Menos de 7 dias',count:2},{key:'7to15',label:'7 a menos de 15 dias',count:1},{key:'15to30',label:'15 a menos de 30 dias',count:0},{key:'30plus',label:'30 dias ou mais',count:0}],definition:'Idade atual desde a criação das releases ainda em OPEN.'},
  weeks:weeks.map((week,index)=>({...week,created:index,compositionCompleted:{value:null,samples:0,unavailableReason:completedReason},rejectionCycles:{value:null,unavailableReason:reworkReason}})),
  rework:{available:false,total:null,unavailableReason:reworkReason,categories:[{key:'qaRejection',label:'Ciclos após rejeição em QA',total:null,weeks:weeks.map(week=>({start:week.start,value:null})),unavailableReason:reworkReason},{key:'hmlRejection',label:'Ciclos após rejeição em homologação',total:null,weeks:weeks.map(week=>({start:week.start,value:null})),unavailableReason:reworkReason}]},
  notes:['O filtro por Projeto considera Histórias na composição atual da release.','Contagens por etapa refletem o estado persistido; as integrações de QA e homologação ainda não estão disponíveis.']
@@ -20,6 +20,11 @@ function fixture():DashboardData{return {
  inventory:[{kind:'system',total:1,archivedTotal:0,statuses:[{status:'active',count:1}]}],weeks,aging:[],dora:[],releaseMetrics:structuredClone(releaseMetrics)
 };}
 function snapshot(name:string){const directory=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(directory,{recursive:true});return join(directory,name);}
+
+for(const width of [1440,390])test(`branch preparation metrics keep scope, URL and absence distinct at ${width}px`,async({page})=>{
+ const value=fixture();value.generatedAt='2026-10-28T15:00:00Z';value.weeks=value.weeks.map((w,i)=>({...w,start:new Date(Date.UTC(2026,9,5+i*7,3)).toISOString(),end:new Date(Date.UTC(2026,9,12+i*7,3)).toISOString()}));value.releaseMetrics!.branchPreparation={requested:6,unknown:2,confirmation:{samples:3,medianHours:2},weeks:value.weeks.map((w,i)=>({...w,requested:i,confirmation:{samples:i===3?3:0,medianHours:i===3?2:null}})),definition:'Uma preparação por operação persistida; reenvios e consultas de recuperação não aumentam a contagem.',coverage:'Cobertura desde a adoção da preparação controlada. Sem metas definidas.'};
+ await page.route('**/api/personas',route=>route.fulfill({json:{personas:[]}}));await page.route('**/api/integrations/health',route=>route.fulfill({json:{checks:[]}}));await page.route('**/api/metrics/dashboard*',route=>route.fulfill({json:value}));await page.setViewportSize({width,height:1000});await page.goto('/?userId=qa&systemId=system-a&projectId=project-a&releaseView=branches#dashboard-releases');const p=page.getByTestId('release-metrics');await expect(p.getByRole('link',{name:'Preparação de branches',exact:true})).toHaveAttribute('aria-current','page');await expect(p.locator('.release-metrics-age-values dd')).toHaveText(['6','2 h','2']);await expect(p.getByRole('row',{name:/Mediana até confirmação/})).toContainText('Sem medição');await expect(p).toContainText('Sem metas definidas');await p.screenshot({path:snapshot(`branch-preparation-metrics-${width}.png`)});expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);await p.getByRole('link',{name:'Composições atuais',exact:true}).click();await page.goBack();await expect(p.getByRole('heading',{name:'Preparação de branches das releases'})).toBeVisible();expect(new URL(page.url()).searchParams.get('projectId')).toBe('project-a');
+});
 
 test('release dashboard separates observed quantities and open age from unmeasured outcomes on desktop and mobile',async({page})=>{
  let requests=0;
@@ -32,9 +37,9 @@ test('release dashboard separates observed quantities and open age from unmeasur
  await expect(page.locator('.dashboard-filters > details')).not.toHaveAttribute('open','');
  await expect(page.locator('.dashboard-filter-scope')).toBeVisible();
  await expect(releases.getByTestId('release-metrics-total')).toHaveText('6');
- await expect(releases.getByTestId('release-metric-stage-DRAFT').locator('strong')).toHaveText('3');
- await expect(releases.getByTestId('release-metric-stage-REJECTED').locator('strong')).toHaveText('0');
- await expect(releases.getByRole('link',{name:'Etapas atuais',exact:true})).toHaveAttribute('aria-current','page');
+ await expect(releases.getByTestId('release-metric-stage-OPEN').locator('strong')).toHaveText('3');
+ await expect(releases.getByTestId('release-metric-stage-CANCELED').locator('strong')).toHaveText('1');
+ await expect(releases.getByRole('link',{name:'Composições atuais',exact:true})).toHaveAttribute('aria-current','page');
  await expect(releases.getByTestId('release-composition-median')).toHaveCount(0);
  await expect(releases.getByRole('table')).toHaveCount(0);
  await releases.screenshot({path:snapshot('release-metrics-desktop.png')});
@@ -57,7 +62,7 @@ test('release dashboard separates observed quantities and open age from unmeasur
  await expect(releases.getByText(completedReason,{exact:false})).toBeVisible();
  await expect(releases.getByText(reworkReason,{exact:false})).toBeVisible();
  await expect(table.getByText('PARCIAL',{exact:true})).toHaveCount(1);
- await expect(releases.getByText(/Ajustar uma composição em DRAFT não é contado como retrabalho/)).toBeVisible();
+ await expect(releases.getByText(/Ajustar uma composição em OPEN não é contado como retrabalho/)).toBeVisible();
  await expect(page).toHaveURL(/userId=qa&systemId=system-a&projectId=project-a&releaseView=weekly#dashboard-releases$/);
  await expect(releases.getByText(releaseMetrics.notes[0],{exact:true})).not.toBeVisible();
  await releases.getByText('Como interpretar os indicadores de releases',{exact:true}).click();
@@ -77,7 +82,7 @@ test('release dashboard separates observed quantities and open age from unmeasur
  await expect(releases.getByText('Deslize a tabela para comparar todas as semanas e o total.',{exact:true})).toBeVisible();
  expect(await region.evaluate(element=>element.scrollWidth>element.clientWidth)).toBe(true);
  await releases.screenshot({path:snapshot('release-metrics-mobile.png')});
- for(const label of ['Etapas atuais','Tempo em composição','Comparação semanal']){
+ for(const label of ['Composições atuais','Tempo em composição','Comparação semanal']){
   await releases.getByRole('link',{name:label,exact:true}).click();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  }
@@ -92,7 +97,7 @@ test('release indicators inherit combined dashboard filters and hide the old sco
  await page.route('**/api/integrations/health',route=>route.fulfill({json:{checks:[]}}));
  await page.route('**/api/metrics/dashboard*',async route=>{
   const query=new URL(route.request().url()).search;requests.push(query);const result=fixture();
-  if(query){confirmStarted();await gate;const metrics=result.releaseMetrics!;metrics.total=0;metrics.stages.forEach(stage=>stage.count=0);metrics.composition.samples=0;metrics.composition.medianHours=null;metrics.composition.oldestHours=null;metrics.composition.buckets.forEach(bucket=>bucket.count=0);metrics.weeks.forEach(week=>week.created=0);}
+  if(query){confirmStarted();await gate;const metrics=result.releaseMetrics!;metrics.total=0;metrics.stages.forEach(compositionStatus=>compositionStatus.count=0);metrics.composition.samples=0;metrics.composition.medianHours=null;metrics.composition.oldestHours=null;metrics.composition.buckets.forEach(bucket=>bucket.count=0);metrics.weeks.forEach(week=>week.created=0);}
   await route.fulfill({json:result});
  });
  await page.goto('/#dashboard-releases');
@@ -112,7 +117,7 @@ test('release indicators inherit combined dashboard filters and hide the old sco
  await releases.getByRole('link',{name:'Tempo em composição',exact:true}).click();
  await expect(releases.getByTestId('release-composition-median')).toHaveText('Sem amostras');
  await expect(releases.getByTestId('release-composition-oldest')).toHaveText('Sem amostras');
- await expect(releases.getByText('Nenhuma release em DRAFT neste recorte.',{exact:true})).toBeVisible();
+ await expect(releases.getByText('Nenhuma release em OPEN neste recorte.',{exact:true})).toBeVisible();
  await releases.getByRole('link',{name:'Comparação semanal',exact:true}).click();
  await expect(releases.getByRole('table').getByRole('row',{name:/Releases criadas/}).getByRole('cell')).toHaveText(['0','0','0','0','0']);
  await expect(releases.getByRole('table').getByRole('row',{name:/Ciclos após rejeição em QA/}).getByRole('cell')).toHaveText(Array(5).fill('Sem medição'));
@@ -146,12 +151,12 @@ test('persisted releases feed the dashboard with empty drafts and actual Project
   const createDraft=async(name:string)=>{
    const response=await request.post('/api/releases',{headers:headers('elisa'),data:{systemId:system.id,name}});expect(response.ok(),await response.text()).toBe(true);return (await response.json()).release;
   };
-  await createDraft('DRAFT vazio contado no Sistema');
-  const planned=await createDraft('DRAFT com História do Projeto');
-  const compose=await request.put(`/api/releases/${planned.id}/stories`,{headers:headers('elisa'),data:{expectedVersion:planned.version,stories:[{id:story.id,expectedVersion:story.version,expectedReleaseId:null,expectedReleaseVersion:null}]}});expect(compose.ok(),await compose.text()).toBe(true);
+  await createDraft('OPEN vazio contado no Sistema');
+  const planned=await createDraft('OPEN com História do Projeto');
+  const compose=await request.put(`/api/releases/${planned.id}/stories`,{headers:headers('elisa'),data:{expectedVersion:planned.version,stories:[{id:story.id,expectedVersion:story.version,expectedReferenceToken:(await(await request.get(`/api/items/${story.id}/release`)).json()).story.referenceToken,expectedReleaseId:null,expectedReleaseVersion:null}]}});expect(compose.ok(),await compose.text()).toBe(true);
   const metrics=async(query:string)=>{const response=await request.get(`/api/metrics/dashboard?${query}`);expect(response.ok(),await response.text()).toBe(true);return (await response.json()).releaseMetrics as ReleaseMetricsData;};
   const all=await metrics(`systemId=${system.id}`);
-  expect(all.total).toBe(2);expect(all.stages.find(row=>row.stage==='DRAFT')?.count).toBe(2);expect(all.composition.samples).toBe(2);expect(all.composition.medianHours).toBeGreaterThanOrEqual(0);expect(all.composition.oldestHours).toBeGreaterThanOrEqual(all.composition.medianHours!);expect(all.rework.total).toBeNull();expect(all.weeks.every(week=>week.compositionCompleted.value===null&&week.rejectionCycles.value===null)).toBe(true);expect(all.weeks.reduce((sum,week)=>sum+week.created,0)).toBe(2);
+  expect(all.total).toBe(2);expect(all.stages.find(row=>row.compositionStatus==='OPEN')?.count).toBe(2);expect(all.composition.samples).toBe(2);expect(all.composition.medianHours).toBeGreaterThanOrEqual(0);expect(all.composition.oldestHours).toBeGreaterThanOrEqual(all.composition.medianHours!);expect(all.rework.total).toBeNull();expect(all.weeks.every(week=>week.compositionCompleted.value===null&&week.rejectionCycles.value===null)).toBe(true);expect(all.weeks.reduce((sum,week)=>sum+week.created,0)).toBe(2);
   expect((await metrics(`systemId=${system.id}&projectId=${project.id}`)).total).toBe(1);
   expect((await metrics(`systemId=${system.id}&userId=elisa`)).total).toBe(2);
   expect((await metrics(`systemId=${system.id}&userId=bruno`)).total).toBe(0);
@@ -169,7 +174,6 @@ test('persisted releases feed the dashboard with empty drafts and actual Project
   await releases.getByRole('link',{name:'Tempo em composição',exact:true}).click();
   await expect(releases.getByTestId('release-composition-median')).toHaveText('Sem amostras');
  }finally{
-  const current=await (await request.get(`/api/items/${system.id}`)).json();
-  const archived=await request.delete(`/api/items/${system.id}`,{headers:headers(),data:{expectedVersion:current.item.version}});expect(archived.ok(),await archived.text()).toBe(true);
+  // The entire disposable portal_test database is removed after validation.
  }
 });

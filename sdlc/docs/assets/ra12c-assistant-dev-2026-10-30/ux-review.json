@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "timezone": "America/Sao_Paulo",
+  "slice": "RA-12c",
+  "reviewProfile": "UX implementation, browser assertions and visual inspection",
+  "decision": "approved_with_documented_limits",
+  "scope": "Conversation handoff to the existing System target-preparation and Story DEV-publication flows. All new interface scenarios intercept HTTP; synthetic fixtures do not alter operational applications, host resources, business records or agent results.",
+  "navigation": {
+    "entries": [
+      "System conversation > Prepare/follow DEV destination",
+      "Story contextual conversation, including its current Task > Publish/follow DEV"
+    ],
+    "newTabs": false,
+    "shellPreserved": true,
+    "urlPreservedDuringReview": true,
+    "dialog": "Native modal, persistent operation component while the contextual conversation is visible, fixed header/context/return and a single scroll area. Existing domain reviews, confirmations and observation sources are reused.",
+    "recovery": "Reason and original body/persona/idempotency key survive dialog close, reload, persona changes and handoff to regular System Environments or Story DEV. Story scopes mount only one publication controller at a time; System assistant and detail are separate Portal branches."
+  },
+  "behaviorReviewed": [
+    "Structured server navigation metadata selects only System destination preparation or owning-Story publication. Model output, typing, historical messages and opening the dialog do not authorize or dispatch effects.",
+    "Context id/kind/version, owning System, nullable Story tuple, complete blockers, operation metadata and observation date are validated before the action mounts. A foreign, incomplete or Project descriptor cannot open an operation.",
+    "The child components issue the same real preview/context and commands as regular pages; no duplicate tool, arbitrary shell, secret field or independent queue was introduced.",
+    "A failed conversation reading preserves the last valid metadata and reason while blocking decisions. The optional local review signature invalidates the old checkbox after freshness loss or changed metadata without destroying the draft.",
+    "Real role, current Story/Task context, descriptor read-only state and confirmed query freshness govern decisions. Historical/off-current Task contexts keep their existing restrictions.",
+    "Acknowledgment loss is recoverable outside the dialog. Only the original persona can repeat the exact fixed body/key; switching into System Environments or Story DEV does not create another intention.",
+    "Task conversation resolves to the owning current Story. Preparation, immutable work artifact, deployment, current health and test/development approval remain separate facts. DEV continues to require no release.",
+    "The final hint distinguishes an authorized Ana blocked by inactive/unconfirmed context from a persona whose role cannot confirm decisions. Authorization remains the identical role-and-readOnly condition."
+  ],
+  "tests": {
+    "catalogue": {
+      "cases": 509,
+      "files": 52,
+      "newCases": 20
+    },
+    "initial": {
+      "run": "20261030T050544Z-772126",
+      "passed": 89,
+      "failed": 4,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "runtimeHash": "dce2f99bab9b93ab098c618ef03d889ff96c4c2b431acff4f23312398876821b",
+      "testHash": "2f85fa4746874733d318bc9402cb869cb9e6e241e5bec08f61fa3d0a2a61a620",
+      "cases": 93,
+      "countByFile": {
+        "assistant-application-preparation.spec.ts": 20,
+        "assistant-dev-actions.spec.ts": 20,
+        "assistant-workspace.spec.ts": 8,
+        "development-deployment.spec.ts": 20,
+        "environment-target-preparation.spec.ts": 20,
+        "story-workspace.spec.ts": 5
+      },
+      "summary": "initial-browser-summary.json"
+    },
+    "baseline": {
+      "run": "20261030T051019Z-7a621e",
+      "passed": 93,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "runtimeHash": "81ab6c9302f5251ca44ec3ddb7c0460d2ebdbc0d068cb2aef6bafda78f15f0dc",
+      "testHash": "c39b88125b84f6c3346f35fd32c268df5256cee50b9f44f337cd5e3c643621f0",
+      "cases": 93,
+      "countByFile": {
+        "assistant-application-preparation.spec.ts": 20,
+        "assistant-dev-actions.spec.ts": 20,
+        "assistant-workspace.spec.ts": 8,
+        "development-deployment.spec.ts": 20,
+        "environment-target-preparation.spec.ts": 20,
+        "story-workspace.spec.ts": 5
+      },
+      "summary": "baseline-browser-summary.json"
+    },
+    "finalAffectedScope": {
+      "run": "20261030T051359Z-76f5ae",
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "sourceStable": true,
+      "runtimeHash": "ece366c436fe0e14316cb29d1ef7647e4341e07affb858a9106b866e4f82eda8",
+      "testHash": "21a1766388c94efb0a56fe6b4651162074cd22f9734fd634af3de9c502871381",
+      "cases": 65,
+      "countByFile": {
+        "assistant-dev-actions.spec.ts": 20,
+        "development-deployment.spec.ts": 20,
+        "environment-target-preparation.spec.ts": 20,
+        "story-workspace.spec.ts": 5
+      },
+      "summary": "final-browser-summary.json"
+    },
+    "uniqueCasesAcrossPassingRuns": 93,
+    "coverageQualification": "The baseline passed 93 unique cases. The final text refinement reran the 65 affected cases; the 28 application-preparation/assistant-workspace cases were not rerun on the final bytes. Repeated cases are not added.",
+    "initialFindings": "Two System handoffs failed because the new fixture omitted the real four-environment reference response. Two Story handoffs exposed the Assistant remaining mounted in a hidden process section; the DEV dialog now suspends its operation controller whenever the conversation is not visible. The same case titles were retained and all 93 passed after these corrections."
+  },
+  "accessibility": {
+    "viewports": [
+      1440,
+      390
+    ],
+    "assertions": [
+      "Native dialog heading focus, Enter/Escape and return-to-entry focus",
+      "Labeled reason/checkbox and explicit confirmation",
+      "Current role/read-only/unavailable feedback; no document horizontal overflow",
+      "Conversation draft and unrelated URL state preserved",
+      "Original request and reason retained across reload and real interface handoffs"
+    ],
+    "visual": "Six final viewport captures inspected for identity, readable wrapping, blue primary actions, disabled states and visible header/context/return.",
+    "limits": [
+      "No comprehensive screen-reader, WCAG, keyboard-only or cross-browser certification is claimed.",
+      "Viewport captures show the visible portion of the scrollable body, not every artifact/reference or the entire confirmation at once.",
+      "Operational deployment and live-source acceptance are separate parent receipts; mocked browser observations do not attest real DEV/QA/HML/PRD effects."
+    ]
+  },
+  "sourceHashes": {
+    "apps/web/app/assistant.tsx": "9d73b2cf9b6493de203e5b39643f596dcc5301f9f92595be84e16ef3e5028635",
+    "apps/web/app/assistant-dev-action.tsx": "6da3ced348afce357a5fabc68eec207cdb034e28cee9a21a9b950b42df998f4f",
+    "apps/web/app/assistant-dev-action.css": "8e6f67ff09e072bd61b9d4d948039a2ca2cb56bbce5f01c6ad60788763b068db",
+    "apps/web/app/story-workspace.tsx": "a05bac9d69a80c5b7d2003ebda81a0b04871f837f141bafe5977a1d1794deed6",
+    "apps/web/app/environment-target-preparation.tsx": "77035e1f6ff54c2c6bea6c2fb630c74687e7f97dc4e024e5cafab09134a04a23",
+    "apps/web/app/development-deployment.tsx": "be1f2d18539b6dc7180cb9a305cdb1474b11ab9ab5ff4e390fbb9deec7c6b009",
+    "tests/e2e/assistant-dev-actions.spec.ts": "8a9c3000153025042c4ff84f204227ffe9f17e6bb33107d597b810f577a11619"
+  },
+  "captures": [
+    {
+      "file": "assistant-dev-target-review-1440.png",
+      "width": 1440,
+      "state": "target-review",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "27eb69732f0d2ff6bf7b38f09fbf54df9869f833321e842fe596110774c8ac37"
+    },
+    {
+      "file": "assistant-dev-target-review-390.png",
+      "width": 390,
+      "state": "target-review",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "652fd3d7782745288b67d983c42b4d98acfb9a1aa19aa139eac91907662e5335"
+    },
+    {
+      "file": "assistant-dev-deployment-review-1440.png",
+      "width": 1440,
+      "state": "deployment-review",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "6d4dc3cd86685dfb78021ffdab46c94e737254f48e6f01c32014f30c764b6feb"
+    },
+    {
+      "file": "assistant-dev-deployment-review-390.png",
+      "width": 390,
+      "state": "deployment-review",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "1b2264b23b7d9aef2420cbdb33a5c2ec5a9c2ef81cbcd29e00ec38fc40bd28e6"
+    },
+    {
+      "file": "assistant-dev-unavailable-1440.png",
+      "width": 1440,
+      "state": "unavailable",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "2dbdab40bdd8165c804fc41ef24c1b132361306b76840051b8d11411589f34ce"
+    },
+    {
+      "file": "assistant-dev-unavailable-390.png",
+      "width": 390,
+      "state": "unavailable",
+      "sourceRun": "20261030T051359Z-76f5ae",
+      "visuallyInspected": true,
+      "sha256": "c31fc803fbec2a4e2e2945d9ff123a1043ac695be8f943861fdf4be23fe78b9c"
+    }
+  ],
+  "metrics": "Existing indicators retained; no new indicator or target.",
+  "manualApproval": "pending-user-review",
+  "outsideScope": [
+    "New API/shared/audit implementations, owned by the parent slice",
+    "Automatic command authorization by conversation text",
+    "Build generation or functional-test execution inside the new dialog",
+    "Development Finished approval, release promotion or production completion",
+    "RA-13 or later implementation"
+  ]
+}

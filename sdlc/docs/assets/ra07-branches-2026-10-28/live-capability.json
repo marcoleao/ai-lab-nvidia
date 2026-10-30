@@ -1,0 +1,18 @@
+{
+  "readOnly": true,
+  "username": "sdlc-agent-for-merge",
+  "nonAdmin": true,
+  "adminField": null,
+  "active": true,
+  "projectId": 6,
+  "managed": true,
+  "scopeConfirmed": true,
+  "accessLevel": 40,
+  "defaultBranch": "main",
+  "adapterInspection": {
+    "branchSha": null,
+    "protectionReady": false,
+    "blockers": [],
+    "observedAt": "2026-10-28T20:25:27.953Z"
+  }
+}

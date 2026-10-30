@@ -1,0 +1,30 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "readOnly": true,
+      "reviewRequired": true,
+      "overflow": false,
+      "filterPreserved": true
+    },
+    {
+      "width": 390,
+      "readOnly": true,
+      "reviewRequired": true,
+      "overflow": false,
+      "filterPreserved": true
+    }
+  ],
+  "systemVersion": 1,
+  "storyVersion": 18,
+  "sourceSha": "121384d5b07e12837018e62ae1ca71eb9f8752c7",
+  "sourceState": "missing",
+  "operation": null,
+  "gitlabWrites": 0,
+  "llmInvoked": false,
+  "executionAvailable": false
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ra07-branches-ready-20261028-dccb53fb",
+  "source": "0a90ec5444ed5c7fb04875cfe1bbebe360f2be4493e0cd28e03354d88beaa730",
+  "candidateImage": "sha256:104f7ae5da9662d701f62c33e30973a6ab8197259b1bb89eb73ccc844acdc7a1",
+  "verifiedAt": "2026-10-28T20:42:49.112894+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202610280004_release_branch_preparation"
+  ],
+  "existingTablesChecked": 33,
+  "newTables": [
+    "ReleaseBranchPreparation"
+  ],
+  "tablesChecked": 34,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "ra07-branches-ready-20261028-dccb53fb",
+    "bytes": 193637,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 224,
+    "head": "eabf51e89aa33171339c864018c86280662155ca952c0c784f95903b264b5f92",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

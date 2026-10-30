@@ -4,7 +4,7 @@ import {DomainError} from './errors.ts';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 export const qualityRulesDigest=createHash('sha256').update(readFileSync(new URL('../../../security/rules.yaml',import.meta.url))).digest('hex');
-export const qualityPolicy='quality-v2-syntax-memory-zero-findings-'+qualityRulesDigest;
+export const qualityPolicy='quality-v8-qualified-current-zero-defects-'+qualityRulesDigest;
 type Reference={id:string;storyId:string;commitSha:string|null};
 // Only durable results produced by the quality workers may satisfy this gate.
 // Story status, a conversation, a successful pipeline or a manual MR approval

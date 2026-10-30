@@ -1,4 +1,9 @@
-export function runtimeFiles(runtime:'node'|'python',name:string):Record<string,string> {
+export function runtimeFiles(runtime:'node'|'python'|'generic',name:string):Record<string,string> {
+  if(runtime==='generic')return {
+    'README.md':`# ${name.replace(/[\r\n]/g,' ')}\n\nRepositório único do Sistema, criado pelo Portal SDLC.\n\nA arquitetura define as pastas de APIs, frontend, backend, batch e infraestrutura conforme necessário. Nenhuma aplicação, linguagem, framework ou estrutura de pastas foi imposta pelo cadastro.\n`,
+    '.gitignore':'.env\n.env.*\n!.env.example\nnode_modules/\n__pycache__/\n',
+    '.sdlc/contract.md':'# Repositório do Sistema\n\nProjetos e Histórias compartilham este repositório. A arquitetura e a especificação aprovada definem linguagens, pastas, contratos e testes. Criar o repositório não executa build, testes ou deploy e não aprova o Gateway de Especificação.\n'
+  };
   const common = {
     'README.md':`# ${name.replace(/[\r\n]/g,' ')}\n\nProjeto criado pelo usuário no Portal SDLC. Nenhuma regra de negócio foi gerada.\n`,
     '.gitignore':'node_modules/\n__pycache__/\n.env\n',

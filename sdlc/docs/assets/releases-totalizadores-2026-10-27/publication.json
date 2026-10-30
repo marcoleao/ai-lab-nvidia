@@ -1,0 +1,22 @@
+{
+  "id": "release-totals-20261027-b4390d08",
+  "candidateImage": "sha256:4a2b806f352136c07479cc2c7cb21943e284caf182ac2b9ae1d3ba93a860ee0e",
+  "source": "888413786b1af2e96c9f12056cdca75119a53a5432c7c9c5e80efadf6bd4e8fc",
+  "published": true,
+  "verifiedAt": "2026-10-28T02:35:08.190491+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true,
+  "migrationsApplied": false,
+  "audit": {
+    "records": 162,
+    "head": "7db2d0541947a7b12ae1232951da83ed43bd0973c581495148ab9eb2feb4033c",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

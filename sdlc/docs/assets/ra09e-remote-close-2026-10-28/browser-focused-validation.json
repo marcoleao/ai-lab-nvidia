@@ -1,0 +1,103 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-29T02:33:47.002Z",
+    "duration": 62992.024,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "globalErrors": [],
+  "suites": [
+    "merge-history-remote-close"
+  ],
+  "specs": [
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "remote close acceptance identifies MR and persists as durable work across Audit at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "confirmed remote close leads to separate local ending with preserved reason at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost acceptance replay cannot regress a newer completed remote job at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "lost provider response is uncertain and same job verification performs no second write at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "changed MR blocks execution and a new closing requires another explicit review at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "a merged MR is observed as integration rather than successful closure at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "merge-history-remote-close.spec.ts",
+      "title": "newer journey fact clears obsolete polling error without erasing the last reading at 390px",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

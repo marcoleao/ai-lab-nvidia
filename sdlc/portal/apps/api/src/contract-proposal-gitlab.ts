@@ -1,0 +1,16 @@
+import {readExecutionContract} from './execution-contract-gitlab.ts';
+import {fullSha,safeContractPath} from '../../../packages/shared/src/execution-contract.ts';
+import type {ContractProposalContext,ContractInventory} from '../../../packages/shared/src/contract-proposal.ts';
+import {DomainError} from './errors.ts';
+export async function readContractProposalContext(config:{base:string;token:string;root:string},projectId:number,sha?:string):Promise<ContractProposalContext>{
+ const started=Date.now(),observation=await readExecutionContract(config,projectId,sha);
+ const unavailable=()=>new DomainError('CONTRACT_PROPOSAL_CONTEXT_UNAVAILABLE','Não foi possível conferir o contexto completo da proposta. Consulte novamente; nenhuma proposta foi preparada com dados parciais.',503);
+ async function get(path:string){const left=25000-(Date.now()-started);if(left<=0)throw unavailable();let response:Response;try{response=await fetch(`${config.base.replace(/\/$/,'')}/api/v4/${path}`,{method:'GET',redirect:'error',headers:{'PRIVATE-TOKEN':config.token},signal:AbortSignal.timeout(Math.min(left,8000))});}catch{throw unavailable();}if(!response.ok)throw unavailable();const reader=response.body?.getReader();if(!reader)throw unavailable();let size=0;const chunks:Uint8Array[]=[];try{while(true){const v=await reader.read();if(v.done)break;size+=v.value.length;if(size>262144){await reader.cancel();throw unavailable();}chunks.push(v.value);}return JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw unavailable();}}
+ const rows:{path:string;type:string;mode:string}[]=[];let complete=false;
+ for(let page=1;page<=3;page++){const query=new URLSearchParams({ref:observation.sha,recursive:'true',per_page:'100',page:String(page)}),body=await get(`projects/${projectId}/repository/tree?${query}`);if(!Array.isArray(body)||body.length>100||body.some(v=>typeof v.path!=='string'||typeof v.type!=='string'||typeof v.mode!=='string'||!fullSha.safeParse(v.id).success))throw unavailable();rows.push(...body);if(rows.length>200)throw new DomainError('CONTRACT_PROPOSAL_CONTEXT_LIMIT','Esta preparação aceita até 200 entradas na árvore. O contexto não será truncado como se fosse completo.',409);if(body.length<100){complete=true;break;}}
+ if(!complete)throw unavailable();
+ const entries:ContractInventory['entries']=rows.filter(v=>safeContractPath(v.path)).map(v=>({path:v.path,kind:v.type==='tree'?'directory':'file',regular:v.type==='tree'?v.mode==='040000':v.type==='blob'&&['100644','100755'].includes(v.mode)}));
+ const project=await get(`projects/${projectId}`),head=await get(`projects/${projectId}/repository/branches/${encodeURIComponent(observation.branch)}`);
+ if(project?.id!==projectId||project.archived||!project.path_with_namespace?.startsWith(config.root+'/')||!Array.isArray(project.topics)||!project.topics.includes('sdlc-managed')||project.default_branch!==observation.branch||head?.name!==observation.branch||!fullSha.safeParse(head.commit?.id).success)throw unavailable();
+ return {observation:{...observation,observedHeadSha:head.commit.id,headChanged:observation.headChanged||head.commit.id!==observation.sha,observedAt:new Date().toISOString()},inventory:{entries,totalEntries:rows.length,excludedEntries:rows.length-entries.length,complete:true,policy:'safe-path-metadata-v1'}};
+}

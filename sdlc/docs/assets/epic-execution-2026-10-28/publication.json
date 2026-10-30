@@ -1,0 +1,30 @@
+{
+  "id": "epic-execution-final-20261028-ba5e9f4b",
+  "source": "612435ff921703a61f39b0dc418a7bd415de8fdd82a8556d3c6a633dec55140b",
+  "candidateImage": "sha256:af23ce67981061bff7b8bdc196d5eec6f4bdfe1c3edc055ed850e14f465c87db",
+  "verifiedAt": "2026-10-28T19:47:45.155653+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [],
+  "existingTablesChecked": 33,
+  "newTables": [],
+  "tablesChecked": 33,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "epic-execution-final-20261028-ba5e9f4b",
+    "bytes": 193637,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 214,
+    "head": "519ef6b2fcb796206b023522b1d8986aeebc13ece560484434ec54344b7cb7f0",
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+    "pendingOperations": []
+  }
+}

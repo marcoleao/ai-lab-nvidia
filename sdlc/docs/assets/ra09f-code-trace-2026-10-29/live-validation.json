@@ -1,0 +1,30 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "readOnly": true,
+      "confirmationNotRequested": true,
+      "overflow": false,
+      "membersShown": 1
+    },
+    {
+      "width": 390,
+      "readOnly": true,
+      "confirmationNotRequested": true,
+      "overflow": false,
+      "membersShown": 1
+    }
+  ],
+  "storyVersion": 18,
+  "releaseVersion": 2,
+  "compositionId": "observed:cmvr2weuq000001pbiu4yy847",
+  "compositionRevision": 1,
+  "traceStates": [
+    "not_planned"
+  ],
+  "participationsRead": 1
+}

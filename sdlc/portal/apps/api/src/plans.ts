@@ -11,11 +11,14 @@ import type {AuditOptions} from './audit.ts';
 import {hierarchyBlock} from './lifecycle-policy.ts';
 import {ensurePipelineTasks,applyPipelineTaskPlan,pipelineStageOf} from './pipeline-tasks.ts';
 import {initializeStorySpecification} from './story-specifications.ts';
+import {repositoriesOfSystem} from './system-repository.ts';
 
 export async function projectFingerprint(tx:Transaction,projectId:string){
   const tree=await tx.$queryRaw<{id:string;version:number;archived:boolean;status:string;parentId:string|null;projectLifecycle:string|null}[]>`WITH RECURSIVE tree AS (SELECT * FROM "Item" WHERE id=${projectId} UNION ALL SELECT i.* FROM "Item" i JOIN tree t ON i."parentId"=t.id) SELECT id,version,archived,status,"parentId","projectLifecycle" FROM tree ORDER BY id`;
   const links=await tx.itemRepository.findMany({where:{itemId:{in:tree.map(i=>i.id)}},orderBy:[{itemId:'asc'},{repositoryId:'asc'}],select:{itemId:true,repositoryId:true}});
-  return createHash('sha256').update(JSON.stringify([tree,links])).digest('hex');
+  const project=await tx.item.findUniqueOrThrow({where:{id:projectId}});
+  const repository=await repositoriesOfSystem(tx,project);
+  return createHash('sha256').update(JSON.stringify([tree,links,repository.map(r=>({id:r.id,version:r.version}))])).digest('hex');
 }
 export async function proposalList(tx:Transaction,item:Item,sessionVersion:number,page=1){
   if(item.kind!=='project')return [];
@@ -56,7 +59,7 @@ export async function projectProposalProjection(tx:Transaction,item:Item,session
   const receipts=await creationReceipts(tx,proposals);
   return proposals.map(p=>({...p,project:projectReference(item),stale:p.status==='draft'&&(p.projectVersion!==item.version||p.sessionVersion!==sessionVersion||p.contextFingerprint!==fingerprint),creationReceipt:receipts.get(p.id)??null}));
 }
-export const planInstructions='Gere somente um objeto JSON válido, sem markdown: {"summary":"...","epics":[{"title":"...","description":"...","stories":[{"title":"...","description":"...","acceptanceCriteria":["..."],"repositoryIds":[],"tasks":[{"title":"...","description":"...","repositoryIds":[],"pipelineStage":"coding"}]}]}]}. Use apenas objetivos e restrições informados pelo usuário; não invente domínio, demandas ou aprovações. Se faltarem informações, retorne {"error":"entrevista insuficiente"}. Respeite quantidades explicitamente solicitadas pelo usuário. Na ausência delas, proponha uma fatia pequena de um épico e uma História. Seja conciso: descrições de uma frase, resumo de até 300 caracteres, sem repetir o título na descrição. Preserve o escopo já combinado na entrevista. Cada História recebe automaticamente seis Tarefas fixas: Codificação (coding), Teste (test), Revisão de Código (code_review), Revisão de Segurança (security_scan), Teste Final (final_test), Merge de Código (merge). Para detalhar uma dessas Tarefas, use pipelineStage com a etapa correspondente; não crie uma equivalente em paralelo e não repita a etapa. Tarefas adicionais de trabalho humano podem omitir pipelineStage; tasks pode ser vazio. A existência das Tarefas não inicia executores nem comprova testes/revisões. Limites: títulos 120 caracteres, descrições 1000, resumo 2000, critérios até 6 de 200 caracteres; no máximo 30 itens incluindo as seis Tarefas padrão de cada História. Cada História e Tarefa deve conter repositoryIds, mesmo vazio. Use somente IDs do contexto; Tarefas usam subconjunto da História. Se não informado, use []. Não execute operações. Tudo será revisado antes de criar itens.';
+export const planInstructions='Gere somente um objeto JSON válido, sem markdown: {"summary":"...","epics":[{"title":"...","description":"...","stories":[{"title":"...","description":"...","acceptanceCriteria":["..."],"repositoryIds":[],"tasks":[{"title":"...","description":"...","repositoryIds":[],"pipelineStage":"coding"}]}]}]}. Use apenas objetivos e restrições informados pelo usuário; não invente domínio, demandas ou aprovações. Se faltarem informações, retorne {"error":"entrevista insuficiente"}. Respeite quantidades explicitamente solicitadas pelo usuário. Na ausência delas, proponha uma fatia pequena de um épico e uma História. Seja conciso: descrições de uma frase, resumo de até 300 caracteres, sem repetir o título na descrição. Preserve o escopo já combinado na entrevista. Cada História recebe automaticamente seis Tarefas fixas: Codificação (coding), Teste (test), Revisão de Código (code_review), Revisão de Segurança (security_scan), Teste Final (final_test), Merge de Código (merge). Para detalhar uma dessas Tarefas, use pipelineStage com a etapa correspondente; não crie uma equivalente em paralelo e não repita a etapa. Tarefas adicionais de trabalho humano podem omitir pipelineStage; tasks pode ser vazio. A existência das Tarefas não inicia executores nem comprova testes/revisões. Limites: títulos 120 caracteres, descrições 1000, resumo 2000, critérios até 6 de 200 caracteres; no máximo 30 itens incluindo as seis Tarefas padrão de cada História. O Sistema possui um repositório único herdado por todos os Projetos, Histórias e Tarefas. A arquitetura define pastas de APIs, frontend, backend, batch e infraestrutura. repositoryIds é apenas compatibilidade: omita ou use []; não peça escolha de repositório nem crie componentes separados. Se houver IDs legados, use somente o repositório do Sistema informado no contexto. Não execute operações. Tudo será revisado antes de criar itens.';
 
 export function parsePlan(output:string,allowedIds:string[],formal=false):Plan{
   let parsed:unknown;
@@ -93,7 +96,7 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const session=await tx.chatSession.findUnique({where:{contextId:source.id}});
       if(!session||session.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A conversa mudou; revise antes de concluir.',409);
       if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running','paused']}}}))throw new DomainError('CHAT_BUSY','Aguarde, retome ou cancele a geração pendente.',409);
-      const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded'},orderBy:{sequence:'desc'}});
+      const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded',kind:{in:['chat','plan']}},orderBy:{sequence:'desc'}});
       if(!latest)throw new DomainError('INTERVIEW_REQUIRED','Converse sobre o objetivo antes de concluir.',409);
       const latestSnapshot=latest.contextSnapshot as Record<string,unknown>;
       const brief=latestSnapshot.interviewBrief as {openQuestions?:unknown[]}|undefined;
@@ -117,7 +120,7 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       if(session.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A conversa foi atualizada; revise antes de gerar.',409);
       if(await tx.chatTurn.count({where:{sessionId:session.id,status:{in:['queued','running','paused']}}}))throw new DomainError('CHAT_BUSY','Aguarde, retome ou cancele a geração pendente.',409);
       const repositories=await tx.repository.findMany({where:{links:{some:{itemId:item.id}}},select:{id:true,key:true,name:true},take:20});
-      const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded'},orderBy:{sequence:'desc'}});
+      const latest=await tx.chatTurn.findFirst({where:{sessionId:session.id,status:'succeeded',kind:{in:['chat','plan']}},orderBy:{sequence:'desc'}});
       const snapshot={contextId:item.id,kind:'project',name:item.name,description:item.description.slice(0,1000),version:item.version,repositories,fingerprint:await projectFingerprint(tx,item.id),...(body.requirementsMode||(latest?.contextSnapshot as Record<string,unknown>)?.requirementsVersion===1?{requirementsVersion:1}:{} )};
       const turn=await tx.chatTurn.create({data:{sessionId:session.id,sequence:session.nextTurn,kind:'plan',input:'Gerar plano estruturado a partir desta entrevista para revisão humana.',actorId:person.id,actorName:person.name,contextSnapshot:snapshot},select:{id:true,input:true,output:true,status:true,model:true,error:true,actorName:true,createdAt:true,kind:true}});
       await tx.chatSession.update({where:{id:session.id},data:{version:{increment:1},nextTurn:{increment:1}}});
@@ -130,8 +133,8 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       const proposal=await tx.planProposal.findUnique({where:{id:request.params.id}});if(!proposal)throw new DomainError('PLAN_NOT_FOUND','Proposta não encontrada.',404);
       const item=await h.live(tx,proposal.projectId);await h.ensureNotArchived(tx,item);
       if(proposal.status!=='draft'||proposal.version!==body.expectedVersion)throw new DomainError('VERSION_CONFLICT','A proposta foi alterada ou aplicada. Atualize sem sobrescrever seu rascunho.',409);
-      const allowed=await tx.itemRepository.findMany({where:{itemId:item.id}});
-      if(!validatePlanScope(body.content,allowed.map(r=>r.repositoryId)))throw new DomainError('INVALID_REPOSITORY_SCOPE','Repositórios fora do escopo do Projeto ou da História.',409);
+      const allowed=await repositoriesOfSystem(tx,item);
+      if(!validatePlanScope(body.content,allowed.map(r=>r.id)))throw new DomainError('INVALID_REPOSITORY_SCOPE','Repositórios fora do escopo do Projeto ou da História.',409);
       const version=proposal.version+1;
       const changed=await tx.planProposal.update({where:{id:proposal.id},data:{content:body.content,version}});
       await tx.planRevision.create({data:{proposalId:proposal.id,version,content:body.content,source:'human',actorId:person.id,actorName:person.name}});
@@ -147,9 +150,9 @@ export function registerPlans(app:FastifyInstance,h:AssistantHelpers,context:(tx
       if(proposal.status==='applied')throw new DomainError('PLAN_ALREADY_APPLIED','Esta proposta já foi aplicada. Consulte os itens criados.',409);
       const item=await h.live(tx,proposal.projectId);await h.ensureNotArchived(tx,item);
       if(proposal.version!==body.expectedVersion||proposal.projectVersion!==body.expectedProjectVersion||proposal.sessionVersion!==body.expectedSessionVersion||item.version!==proposal.projectVersion||proposal.turn.session.version!==proposal.sessionVersion||await projectFingerprint(tx,item.id)!==proposal.contextFingerprint)throw new DomainError('PLAN_STALE','Proposta ou contexto alterado. Revise a conversa e gere uma nova proposta; nenhum item foi criado.',409);
-      const plan=planSchema.parse(proposal.content);const allowed=await tx.itemRepository.findMany({where:{itemId:item.id}});
+      const plan=planSchema.parse(proposal.content);const allowed=await repositoriesOfSystem(tx,item);
       if((proposal.turn.contextSnapshot as Record<string,unknown>).requirementsVersion===1){try{assertFormalPlan(plan);}catch(error){throw new DomainError('REQUIREMENTS_INCOMPLETE',error instanceof Error?error.message:'Requisitos incompletos.',409);}}
-      if(!validatePlanScope(plan,allowed.map(r=>r.repositoryId)))throw new DomainError('INVALID_REPOSITORY_SCOPE','Repositórios fora do escopo.',409);
+      if(!validatePlanScope(plan,allowed.map(r=>r.id)))throw new DomainError('INVALID_REPOSITORY_SCOPE','Repositórios fora do escopo.',409);
       const ids=await createPlanItems(tx,h,person,item.id,plan,proposal.id,proposal.version,proposal.turnId);
       const changed=await tx.planProposal.update({where:{id:proposal.id},data:{status:'applied',appliedItemIds:ids}});
       await tx.item.update({where:{id:item.id},data:{version:{increment:1}}});

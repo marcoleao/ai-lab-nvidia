@@ -1,0 +1,245 @@
+{
+  "version": 1,
+  "date": "2026-10-29",
+  "slice": "RA-11b",
+  "scope": "Controlled System-owned application starter, actual exact-source build/HTTP technical verification, own required-pipeline status and separately confirmed Draft release/merge; no pilot application code or environment deployment manufactured.",
+  "backend": {
+    "run": "20261029T211034Z-8e145e",
+    "files": 10,
+    "passed": 126,
+    "failed": 0,
+    "skipped": 0,
+    "sourceStable": true
+  },
+  "browser": {
+    "run": "20261029T211336Z-9c623b",
+    "passed": 41,
+    "newCases": 24,
+    "viewports": [
+      1440,
+      390
+    ],
+    "registeredTotal": 429,
+    "registeredFiles": 48,
+    "stats": {
+      "startTime": "2026-10-29T21:13:48.539Z",
+      "duration": 64772.679000000004,
+      "expected": 41,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "sourceStable": true
+  },
+  "supportChecks": [
+    {
+      "name": "admin-audit",
+      "exitCode": 0,
+      "durationMs": 597
+    },
+    {
+      "name": "relay",
+      "exitCode": 0,
+      "durationMs": 1205
+    },
+    {
+      "name": "controller",
+      "exitCode": 0,
+      "durationMs": 117
+    },
+    {
+      "name": "build-executor",
+      "exitCode": 0,
+      "durationMs": 405
+    }
+  ],
+  "supportRun": "ra11b-support",
+  "realGitLabAndExecutor": {
+    "version": 1,
+    "operationId": "5a31a891-7453-4399-ab41-f277849c4442",
+    "passed": true,
+    "provider": {
+      "scope": "owned-temporary-GitLab-project-no-portal-database",
+      "name": "regression-application-3a269d56-918b-4932-a094-353794174c29",
+      "passed": true,
+      "removed": false,
+      "checks": [
+        "nine-file-exclusive-commit-and-draft-MR",
+        "actual-build-http-test-and-source-bound-external-status",
+        "separate-Draft-release",
+        "protected-main-merge-fixed-SHA-complete-tree-and-content-proof",
+        "read-only-effect-reconciliation"
+      ],
+      "projectId": 13,
+      "validationOperationId": "ac7f3645-e53e-4df7-90eb-dbf8856c88d1",
+      "verification": {
+        "state": "passed",
+        "imageId": "sha256:4309aff95a4bd27817cc0d6d65feb8ccb863eab377202a79b9a30eeee3d43fcd",
+        "archiveDigest": "b0909fe6365a02fde0ef0452cbb4faade074dbca74bc5308389fc14b86a34dfc",
+        "size": 92157952,
+        "technicalTestPassed": true,
+        "pipelineId": 22,
+        "statusId": 56
+      },
+      "commitSha": "6418b3a4a9be4e127fa87a5eda5c1550bdf159a5",
+      "pipelinePolicy": {
+        "required": true,
+        "allowSkipped": null,
+        "pipeline": {
+          "sha": "6418b3a4a9be4e127fa87a5eda5c1550bdf159a5",
+          "status": "success"
+        },
+        "mergeStatus": "mergeable"
+      },
+      "integrationSha": "d2c308dbf10caaa270bb69543cde0dd9bfad9f82",
+      "markers": [
+        "commit",
+        "merge_request",
+        "validation",
+        "pipeline_status",
+        "release_draft",
+        "merge"
+      ],
+      "contractDigest": "af5ac8375c55565d55617aa509046bc67f71485b5404aab4be23a2251f6e5c9d",
+      "unitId": "web"
+    },
+    "artifact": {
+      "archiveDigest": "b25529cb5a394b8d836c2d168213532494ecf6146c3efda05f96adc8d0cabd3f",
+      "id": "regression-application-8c0ea955",
+      "imageId": "sha256:b2b72ebfe0f0d9ede3914c429d92f866043ec8bf231ab02dd0baad7cba146ad1",
+      "size": 92157952,
+      "state": "succeeded"
+    },
+    "technicalSmokeExitCode": 0,
+    "scope": "Owned GitLab project and isolated executor only; required pipeline approved by actual exact-source build/HTTP test; no pilot/database or DEV/QA deployment altered.",
+    "cleanup": {
+      "scope": "owned-temporary-GitLab-project-no-portal-database",
+      "name": "regression-application-3a269d56-918b-4932-a094-353794174c29",
+      "passed": true,
+      "removed": true,
+      "checks": [
+        "owned-project-permanent-cleanup"
+      ],
+      "projectId": 13
+    },
+    "removedOwnImagesAndContainers": true
+  },
+  "source": {
+    "runtimeHash": "e29c2c622d7709473c7baa12a43a8217522e1bc1cb7d59d5670d0235971e24e7",
+    "testHash": "4f8df6b47f65b6358a8c701338153d21ca09a1a212cb0427363f5ba20971dd5e",
+    "preparedSource": "c701a84bfe14a225828e647a4141782507835780ab82721bde57e966b9d9499c",
+    "publishedImage": "sha256:c77ad66f38368074230334a31531051cdd3c4ac5758fc12edcd4ab29c5af2e60",
+    "installedExecutorSource": "77996b2ae12401ce3e8397f11fbf7cac3d653b70a958f70b6e452fd03747b16e"
+  },
+  "publication": {
+    "published": true,
+    "verifiedAt": "2026-10-29T21:14:54.156530+00:00",
+    "existingTablesChecked": 43,
+    "tablesChecked": 44,
+    "newTables": [
+      "ApplicationPreparation"
+    ],
+    "existingRowsUnchangedAfterReadOnlyChecks": true,
+    "newPreparationTableEmpty": true,
+    "normalization": "Comparison excludes only nullable ExecutionContractPublication resolution fields and volatile MergeOperation lease/read fields, as declared by the publication helper.",
+    "migrations": [
+      "202610290005_application_preparation",
+      "202610290006_application_technical_verification"
+    ],
+    "backup": {
+      "backupId": "ra11b-application-preparation-verified-20261029-60c4721b",
+      "bytes": 300109,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "administrativeAudit": {
+      "records": 342,
+      "head": "fd5db70e241e65bdc798fa3d549c92661b50d62a2434a2e814cb2dc0593001ea",
+      "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9",
+      "pendingOperations": []
+    }
+  },
+  "liveReadOnly": {
+    "run": "ra11b-live-readonly-6375a688",
+    "live-readonly.json": {
+      "ok": true,
+      "mode": "GET/HEAD-only",
+      "blockedWrites": 0,
+      "results": [
+        {
+          "width": 1440,
+          "systemRead": true,
+          "nineFilesEligible": true,
+          "explicitConfirmation": true,
+          "overflow": false
+        },
+        {
+          "width": 390,
+          "systemRead": true,
+          "nineFilesEligible": true,
+          "explicitConfirmation": true,
+          "overflow": false
+        }
+      ]
+    },
+    "runtime-readonly.json": {
+      "ok": true,
+      "mode": "read-only",
+      "uid": 1000,
+      "dockerSocketExposed": false,
+      "preparationCount": 0,
+      "role": {
+        "role": "sdlc_portal_app",
+        "insert": true,
+        "update": true,
+        "delete": false,
+        "truncate": false
+      },
+      "capability": {
+        "ready": true,
+        "policyVersion": "node24-react-v1",
+        "baseImageId": "sha256:30be75845c83e83a196377d5eccf4c16b999546398e29d2dddc7a3d293b02244",
+        "preparationVerification": true
+      },
+      "stories": [
+        {
+          "key": "CURSOS-VENDAS-1",
+          "status": "specification",
+          "version": 1
+        },
+        {
+          "key": "CURSOS-VENDAS-2",
+          "status": "specification",
+          "version": 1
+        }
+      ]
+    }
+  },
+  "finalSmoke": {
+    "run": "20261029T211554Z-39f061",
+    "passed": 4,
+    "sourceStable": true,
+    "scope": "persistent automation-only environment"
+  },
+  "regressionAdministrativeAudit": {
+    "records": 170,
+    "head": "69b12b4dcb90a339e69dbdda3425767a97ec768ab1f3ae307a851304e19faeed",
+    "epochId": "7f58c90d-8dce-416c-bf3d-f7aab4bdec97",
+    "pendingOperations": []
+  },
+  "environments": {
+    "fast": "running exclusively for automation",
+    "ui": "removed by owned-resource controller",
+    "verify": "removed by owned-resource controller"
+  },
+  "manualApproval": "pending-user-OK-RA-11b",
+  "limitations": [
+    "Directed regression only; not all 429 interface cases or all backend files were rerun.",
+    "Real integration probe used a temporary owned GitLab project, actual provider and Unix-socket executor, with required pipeline and real build/HTTP test. It did not execute the complete human pilot journey or a DEV/QA/HML/PRD deployment.",
+    "API persistence/worker and browser coverage use isolated provider fixtures; no synthetic business data, agent results, approvals or application source were inserted in the operational pilot.",
+    "Earlier failed fixtures/assertions, missing Content-Length probe and unregistered CLI file argument remain in raw reports/ledgers. The first live UI probe waited for a file inside collapsed details; corrected probe explicitly opens the details, with no product change.",
+    "Cold toolchain installation, global artifact quota/retention and general administrative recovery remain separate. Host executor is trusted and is not a VM per build.",
+    "UX receipt documents screenshot/fullPage and assistive coverage limits. No complete screen-reader certification is claimed."
+  ]
+}

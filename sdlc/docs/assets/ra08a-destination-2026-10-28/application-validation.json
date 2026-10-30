@@ -1,0 +1,59 @@
+{
+  "results": [
+    {
+      "file": "code-destination.test.ts",
+      "exitCode": 0,
+      "passed": 8
+    },
+    {
+      "file": "code-destination-provider.test.ts",
+      "exitCode": 0,
+      "passed": 6
+    },
+    {
+      "file": "code.test.ts",
+      "exitCode": 0,
+      "passed": 6
+    },
+    {
+      "file": "story-specifications.test.ts",
+      "exitCode": 0,
+      "passed": 16
+    },
+    {
+      "file": "correction-context.test.ts",
+      "exitCode": 0,
+      "passed": 4
+    },
+    {
+      "file": "foundation.test.ts",
+      "exitCode": 0,
+      "passed": 25
+    },
+    {
+      "file": "work-activities.test.ts",
+      "exitCode": 0,
+      "passed": 15
+    },
+    {
+      "file": "pipeline-planning.test.ts",
+      "exitCode": 0,
+      "passed": 8
+    },
+    {
+      "file": "quality.test.ts",
+      "exitCode": 0,
+      "passed": 9
+    },
+    {
+      "file": "merge-worker.test.ts",
+      "exitCode": 0,
+      "passed": 19
+    },
+    {
+      "file": "journey.test.ts",
+      "exitCode": 0,
+      "passed": 22
+    }
+  ]
+}

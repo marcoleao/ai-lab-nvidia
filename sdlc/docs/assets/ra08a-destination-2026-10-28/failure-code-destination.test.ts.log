@@ -1,0 +1,243 @@
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+30 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.5 [39m[90m/app[39m
+
+ [31m❯[39m tests/code-destination.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 2408[2mms[22m[39m
+   [31m❯[39m explicit development destination in G1 [2m(8)[22m
+     [33m[2m✓[22m[39m read-only metadata does not load files, approve a destination or require Release[33m 448[2mms[22m[39m
+     [32m✓[39m fresh G1 requires the reviewed tuple and freezes it with safe audit fields[32m 290[2mms[22m[39m
+     [32m✓[39m HEAD or branch drift after review rejects G1 and preserves Story, run, and absence of approval[32m 241[2mms[22m[39m
+     [32m✓[39m repository mutation during the network reading cannot be approved[32m 210[2mms[22m[39m
+     [32m✓[39m lost acknowledgement replays the accepted body/key offline without another gate event[32m 252[2mms[22m[39m
+[31m     [31m×[31m worker reads the fixed revision and supplies the same destination to publication without Release[39m[33m 336[2mms[22m[39m
+     [33m[2m✓[22m[39m HEAD drift after approval prevents generation and publication rather than silently following HEAD[33m 306[2mms[22m[39m
+     [33m[2m✓[22m[39m audit recorder failure rolls back destination, approval and RequestKey, then same intent retries[33m 322[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 21:01:17
+[2m   Duration [22m 2.87s[2m (tests 87%, import 9%, transform 4%)[22m
+
+Datasource "db": PostgreSQL database "portal_test", schema "public" at "127.0.0.1:55433"
+
+30 migrations found in prisma/migrations
+
+Applying migration `202610200001_foundation`
+Applying migration `202610200002_product_repositories`
+Applying migration `202610200003_assistant_conversations`
+Applying migration `202610200004_reviewable_plans`
+Applying migration `202610200005_system_interview_completion`
+Applying migration `202610200006_story_execution`
+Applying migration `202610200007_execution_discussion`
+Applying migration `202610220008_discussion_completion`
+Applying migration `202610220009_release_planning`
+Applying migration `202610220010_merge_operations`
+Applying migration `202610230001_merge_discussion`
+Applying migration `202610230002_quality_checks`
+Applying migration `202610240001_work_activities`
+Applying migration `202610240002_system_status`
+Applying migration `202610240003_audit_contract`
+Applying migration `202610240004_audit_runtime_role`
+Applying migration `202610240005_conversation_scope`
+Applying migration `202610250001_story_specification`
+Applying migration `202610250002_lifecycle_contract`
+Applying migration `202610260001_system_repository`
+Applying migration `202610270001_merge_preparation`
+Applying migration `202610270002_merge_preparation_runtime`
+Applying migration `202610270003_environment_dev`
+Applying migration `202610270004_release_composition_story_phase`
+Applying migration `202610270005_release_open_closed_canceled`
+Applying migration `202610270006_release_cancellation`
+Applying migration `202610280001_release_composition_revisions`
+Applying migration `202610280002_story_planning_reference`
+Applying migration `202610280003_release_branch_plan_decisions`
+Applying migration `202610280004_release_branch_preparation`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 202610200001_foundation/
+    └─ migration.sql
+  └─ 202610200002_product_repositories/
+    └─ migration.sql
+  └─ 202610200003_assistant_conversations/
+    └─ migration.sql
+  └─ 202610200004_reviewable_plans/
+    └─ migration.sql
+  └─ 202610200005_system_interview_completion/
+    └─ migration.sql
+  └─ 202610200006_story_execution/
+    └─ migration.sql
+  └─ 202610200007_execution_discussion/
+    └─ migration.sql
+  └─ 202610220008_discussion_completion/
+    └─ migration.sql
+  └─ 202610220009_release_planning/
+    └─ migration.sql
+  └─ 202610220010_merge_operations/
+    └─ migration.sql
+  └─ 202610230001_merge_discussion/
+    └─ migration.sql
+  └─ 202610230002_quality_checks/
+    └─ migration.sql
+  └─ 202610240001_work_activities/
+    └─ migration.sql
+  └─ 202610240002_system_status/
+    └─ migration.sql
+  └─ 202610240003_audit_contract/
+    └─ migration.sql
+  └─ 202610240004_audit_runtime_role/
+    └─ migration.sql
+  └─ 202610240005_conversation_scope/
+    └─ migration.sql
+  └─ 202610250001_story_specification/
+    └─ migration.sql
+  └─ 202610250002_lifecycle_contract/
+    └─ migration.sql
+  └─ 202610260001_system_repository/
+    └─ migration.sql
+  └─ 202610270001_merge_preparation/
+    └─ migration.sql
+  └─ 202610270002_merge_preparation_runtime/
+    └─ migration.sql
+  └─ 202610270003_environment_dev/
+    └─ migration.sql
+  └─ 202610270004_release_composition_story_phase/
+    └─ migration.sql
+  └─ 202610270005_release_open_closed_canceled/
+    └─ migration.sql
+  └─ 202610270006_release_cancellation/
+    └─ migration.sql
+  └─ 202610280001_release_composition_revisions/
+    └─ migration.sql
+  └─ 202610280002_story_planning_reference/
+    └─ migration.sql
+  └─ 202610280003_release_branch_plan_decisions/
+    └─ migration.sql
+  └─ 202610280004_release_branch_preparation/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/code-destination.test.ts[2m > [22mexplicit development destination in G1[2m > [22mworker reads the fixed revision and supplies the same destination to publication without Release
+[31m[1mAssertionError[22m: generation: expected 'queued' to be 'succeeded' // Object.is equality[39m
+
+Expected: [32m"[7msucceed[27med"[39m
+Received: [31m"[7mqueu[27med"[39m
+
+[36m [2m❯[22m tests/code-destination.test.ts:[2m31:471[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+file:///app/scripts/test-isolated.mjs:20
+  if(result.status!==0){process.stdout.write(result.stdout||'');process.stderr.write(result.stderr||'');throw new Error(`Isolated check failed: ${args.join(' ')}`);}
+                                                                                                              ^
+
+Error: Isolated check failed: node_modules/vitest/vitest.mjs run tests/code-destination.test.ts
+    at run (file:///app/scripts/test-isolated.mjs:20:111)
+    at file:///app/scripts/test-isolated.mjs:38:5
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.0

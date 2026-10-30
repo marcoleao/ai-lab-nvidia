@@ -1,0 +1,6 @@
+FROM node:24.22.0-bookworm-slim
+USER root
+WORKDIR /app
+RUN npm install --ignore-scripts --no-audit --no-fund --save-exact react@19.3.1 react-dom@19.3.1 scheduler@0.28.0 esbuild@0.28.2 @esbuild/linux-x64@0.28.2 && chown node:node /app
+LABEL org.sdlc.toolchain=node24-react-v1
+USER node

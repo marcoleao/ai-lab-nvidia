@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "file": "development-cycle.test.ts",
+      "exitCode": 0,
+      "passed": 14
+    },
+    {
+      "file": "merge-worker.test.ts",
+      "exitCode": 0,
+      "passed": 19
+    }
+  ]
+}

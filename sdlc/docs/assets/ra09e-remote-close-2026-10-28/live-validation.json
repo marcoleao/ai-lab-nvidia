@@ -1,0 +1,28 @@
+{
+  "readOnly": true,
+  "fixturesCreated": false,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "checks": [
+    {
+      "width": 1440,
+      "previewReadOnly": true,
+      "confirmationRequired": true,
+      "backWithoutRecording": true,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "previewReadOnly": true,
+      "confirmationRequired": true,
+      "backWithoutRecording": true,
+      "overflow": false
+    }
+  ],
+  "storyVersion": 18,
+  "releaseVersion": 2,
+  "executionId": "cmvpr9rig000201qsry08a5zu",
+  "operationId": "cmvprecy2001301qsctfcp7vc",
+  "realReferenceCaptured": false,
+  "currentExecutionRejectedByHistoricalRoute": true
+}

@@ -1,0 +1,11 @@
+{
+  "readOnly": true,
+  "tablesChecked": 40,
+  "allRowsPreserved": true,
+  "newBusinessRows": 0,
+  "newSourceCounts": {
+    "ExecutionContractRequest": 0,
+    "ExecutionContractProposal": 0,
+    "ExecutionContractReview": 0
+  }
+}

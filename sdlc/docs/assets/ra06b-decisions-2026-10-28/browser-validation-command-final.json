@@ -1,0 +1,54 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T19:01:18.727Z",
+    "duration": 7140.296,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "suites": [
+    "branch-plan-decisions"
+  ],
+  "specs": [
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "explicit local decision preserves drafts, policy review, audit and fixed base at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "changed context blocks confirmation and preserves justification through explicit refresh at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "branch-plan-decisions.spec.ts",
+      "title": "lost acknowledgement reconciles original intent after reload even if plan GET fails at 390px",
+      "ok": true,
+      "errors": []
+    }
+  ]
+}

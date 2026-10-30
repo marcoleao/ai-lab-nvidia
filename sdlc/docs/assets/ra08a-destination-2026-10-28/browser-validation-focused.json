@@ -1,0 +1,82 @@
+{
+  "target": "http://127.0.0.1:3390",
+  "database": "portal_test",
+  "realIntegrations": false,
+  "stats": {
+    "startTime": "2026-10-28T21:27:03.793Z",
+    "duration": 16350.444,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "suites": [
+    "code-destination",
+    "discussion"
+  ],
+  "specs": [
+    {
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "G1 reviews destination explicitly, preserves navigation and publishes fixed base without Release at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "changed base requires explicit refresh and another acceptance at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "destination read failure preserves last context and blocks G1 at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 1440px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "code-destination.spec.ts",
+      "title": "lost G1 acknowledgement replays same destination and persona after reload without a destination GET at 390px",
+      "ok": true,
+      "errors": []
+    },
+    {
+      "file": "discussion.spec.ts",
+      "title": "impediment conversation preserves history and confirms an explicit decision with safe retries and a new G1",
+      "ok": false,
+      "errors": [
+        {
+          "location": {
+            "file": "/app/tests/e2e/discussion.spec.ts",
+            "column": 86,
+            "line": 95
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Requisitos revisados após a conversa.', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Requisitos revisados após a conversa.', { exact: true }) resolved to 2 elements:\n    1) <p class=\"description\">Requisitos revisados após a conversa.</p> aka getByLabel('Plano técnico consultado').getByText('Requisitos revisados após a')\n    2) <textarea rows=\"4\">Requisitos revisados após a conversa.</textarea> aka getByLabel('Requisitos técnicosRequisitos')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Requisitos revisados após a conversa.', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Requisitos revisados após a conversa.', { exact: true })\u001b[22m\n\n\n  93 |   await page.setViewportSize({width:1440,height:1000});\n  94 |   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Especificação',exact:true}).click();\n> 95 |   await expect(page.getByText('Requisitos revisados após a conversa.',{exact:true})).toBeVisible();\n     |                                                                                      ^\n  96 |   expect(data.messages.filter((message: any) => message.role === 'user')).toHaveLength(1);\n  97 | });\n  98 |\n    at /app/tests/e2e/discussion.spec.ts:95:86"
+        }
+      ]
+    }
+  ]
+}

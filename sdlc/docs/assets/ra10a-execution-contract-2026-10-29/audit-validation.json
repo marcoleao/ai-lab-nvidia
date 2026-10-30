@@ -1,0 +1,10 @@
+{
+  "passed": 8,
+  "failed": 0,
+  "files": [
+    "audit.test.ts",
+    "audit-guard.test.ts"
+  ],
+  "newBusinessActions": 0,
+  "scope": "Read-only contract consultation; existing external administrative publication recorder."
+}

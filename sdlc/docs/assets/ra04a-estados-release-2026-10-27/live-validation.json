@@ -1,0 +1,39 @@
+{
+  "readOnly": true,
+  "writesAttempted": 0,
+  "pageErrors": 0,
+  "release": {
+    "id": "cmvr2weuq000001pbiu4yy847",
+    "status": "OPEN",
+    "flowEnvironment": "DEV",
+    "version": 2,
+    "storyCount": 1
+  },
+  "story": {
+    "status": "merge_request",
+    "version": 18,
+    "taskCount": 6
+  },
+  "oldAuditPayloadRetained": true,
+  "oldStateFilterRefused": true,
+  "checks": [
+    {
+      "width": 1440,
+      "statesVisible": true,
+      "openDEVConfirmed": true,
+      "noDeploymentInvented": true,
+      "releaseAuditReadable": true,
+      "storyAssociationCoherent": true,
+      "pageOverflow": false
+    },
+    {
+      "width": 390,
+      "statesVisible": true,
+      "openDEVConfirmed": true,
+      "noDeploymentInvented": true,
+      "releaseAuditReadable": true,
+      "storyAssociationCoherent": true,
+      "pageOverflow": false
+    }
+  ]
+}

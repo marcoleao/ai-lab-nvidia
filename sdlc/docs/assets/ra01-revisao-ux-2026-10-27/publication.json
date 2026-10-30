@@ -1,0 +1,33 @@
+{
+  "published": true,
+  "verifiedAt": "2026-10-27T19:59:37.303299+00:00",
+  "apiAndWebImage": "sha256:c130a99f096186dd1ccc75a5164971c2e950c63311e6a72274cdd45b51dbf15f",
+  "source": "05539ae4f3a5001a7b9c08959d9964027720f2dd7c8486f4d25de05870d97495",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 31,
+  "exactTablesPreserved": true,
+  "migrationsApplied": false,
+  "businessCommandsAdded": false,
+  "fixturesCreatedInLive": false,
+  "backup": {
+    "backupId": "ra01-review-20261027-bc738e67",
+    "bytes": 167826,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "audit": {
+    "records": 126,
+    "pendingOperations": []
+  },
+  "validation": {
+    "applicationPassed": 46,
+    "browserPassed": 47,
+    "failures": 0
+  }
+}
