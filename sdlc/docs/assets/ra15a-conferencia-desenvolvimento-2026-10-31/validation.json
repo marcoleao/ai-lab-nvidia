@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "date": "2026-10-31",
+  "slice": "RA-15a",
+  "scope": "Complete saved-composition development-source conference. Does not authorize QA or inspect actual HEAD/package content.",
+  "backend": {
+    "run": "20261031T161050Z-575397",
+    "passed": 73,
+    "failed": 0,
+    "files": 3,
+    "sourceStable": true,
+    "runtimeHash": "da6b0ff466baa931c7403117ef5b08f72145c422ea81709f388d14798c316fd1"
+  },
+  "browser": {
+    "run": "20261031T161430Z-30e0da",
+    "passed": 42,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "newCases": 18,
+    "viewports": [
+      1440,
+      390
+    ],
+    "sourceStable": true,
+    "runtimeHash": "da6b0ff466baa931c7403117ef5b08f72145c422ea81709f388d14798c316fd1",
+    "testHash": "3b6acb658de12ea3add23ff5be16681aa5bb9f967195dab670b165409a3c64a4"
+  },
+  "catalog": {
+    "cases": 604,
+    "files": 55,
+    "enumerationRun": "20261031T161115Z-86db73",
+    "fullRunClaimed": false
+  },
+  "checks": {
+    "typescript": true,
+    "apiWebBuild": true,
+    "modelsOrInferenceInvoked": false,
+    "frozenFilesUnchanged": 8,
+    "nativeWorkerReinstalled": false,
+    "businessDataSeeded": false,
+    "qaPreparationAvailable": false
+  },
+  "publication": {
+    "image": "sha256:37fae7b9c0e585b240b9bf1c1331ccb5a8bf9402e7c46cd64f6141c9ce15196d",
+    "source": "a99c481bc08e4bcce1b6095c2d5068b0dbf974f3407186bad27750a91f27d0b7",
+    "existingTablesChecked": 49,
+    "exactTablesPreserved": true,
+    "newTables": [],
+    "migrationsPlanned": [],
+    "backup": {
+      "backupId": "release-readiness-final-verified-20261031-a8934172",
+      "bytes": 748148,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    },
+    "verifiedAt": "2026-10-31T16:18:42.628534+00:00",
+    "comparisonQualification": "Existing release/agent/domain data preserved. Existing publication helper excludes volatile MergeOperation lease/read fields and prior nullable contract-resolution fields in both snapshots."
+  },
+  "liveUI": {
+    "ok": true,
+    "method": "Browser UI against actual Portal; GET/HEAD only; no fixtures or business writes",
+    "cases": 2,
+    "viewports": [
+      1440,
+      390
+    ],
+    "writes": 0,
+    "pageErrors": 0,
+    "horizontalOverflow": false,
+    "qaCommandOffered": false,
+    "preservedEarlierRuns": [
+      "release-readiness-ui-ef5d0422",
+      "release-readiness-ui-a9c41830"
+    ],
+    "earlierRunDiagnosis": "The scripted Enter closed details already opened by the refreshed URL. Final run asserts close and open from the actual UI state; no product expectation was removed."
+  },
+  "ux": {
+    "reviewer": "ux_ra15",
+    "materialBlockers": 0,
+    "limits": [
+      "FullPage captures do not certify absence of fixed-bar occlusion or complete assistive accessibility.",
+      "Synthetic Detail fixtures omit old lifecycle fields; real read-only UI checked separately."
+    ]
+  },
+  "sourceHashes": {
+    "apps/api/src/release-development-readiness.ts": "beac4ae53d211f9a34c91bb3301fa96903cbfbc7fbfc92d437e09b12fce53dca",
+    "apps/api/src/releases.ts": "04131b17cd55af75e1797dd94e05ed7873c3ce29a85d9f41444584936b44c475",
+    "apps/web/app/release-development-readiness.tsx": "9c3825c22acd403a89d944214212287fce57b640bf7ad1430de42904681fc256",
+    "apps/web/app/releases.tsx": "d3d65ed7251b9f09e527fef736946e858ee6aa97c2f010514d1d75a4b25ae96a",
+    "packages/shared/src/release-development-readiness.ts": "aa356f25605bd7ef9b104df8cb862bf8ee1642a6a1a918f7570995d45c505aa5"
+  },
+  "preservedEarlierReports": [
+    "20261031T155246Z-c5b500",
+    "20261031T160122Z-f495ab",
+    "20261031T160125Z-e34fd4",
+    "20261031T161050Z-fadd62",
+    "20261031T161151Z-70e552"
+  ],
+  "remaining": [
+    "RA-15b real code/base/dependency provenance",
+    "DE-08 closing policy and RA-16a/b candidate preparation",
+    "Immutable package/build and QA/HML/PRD executors",
+    "Full jewelry pilot acceptance and clean complete regression",
+    "Manual user OK for this slice"
+  ],
+  "administrativeAudit": {
+    "records": 770,
+    "pendingOperations": 0,
+    "epochId": "98205aaf-afbe-42fb-a530-7ca6652694b9"
+  }
+}

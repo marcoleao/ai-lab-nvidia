@@ -39,7 +39,7 @@ async function fillBusiness(editor:ReturnType<Page['getByRole']>){
 test('manual Story creates the six Tasks and supports draft, manual technical plan and historical consultation',async({page,request})=>{
  const f=await setup(request);await page.goto(`/stories/${f.story.id}?tab=tasks`);await chooseAdmin(page);
  const tasks=page.getByTestId('journey-task-list');await expect(tasks.locator('tbody tr')).toHaveCount(6);
- for(const name of ['Codificação','Teste','Revisão de Código','Revisão de Segurança','Teste Final','Merge de Código'])await expect(tasks.getByRole('link',{name:new RegExp(`${name}$`)})).toBeVisible();
+ for(const name of ['Codificação','Teste em DEV','Revisão de Código','Revisão de Segurança','Teste em QA','Merge de Código'])await expect(tasks.getByRole('link',{name:new RegExp(`${name}$`)})).toBeVisible();
  const editor=await specification(page,f.story.id);await fillBusiness(editor);
  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:/^Tarefas/}).click();
  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Especificação',exact:true}).click();

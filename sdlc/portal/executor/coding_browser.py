@@ -9,7 +9,8 @@ def validate_ui_steps(steps):
   if 'dialog' in step and (step['op']!='click' or step['dialog'] not in ['accept','dismiss']):raise ValueError('UI probe dialog')
   if step['op'] in ['fill','select','expect_text'] and (not isinstance(step.get('value'),str) or len(step['value'])>500):raise ValueError('UI probe value')
   if step['op']=='expect_text' and not step['value'].strip():raise ValueError('UI probe empty assertion')
-  if 'value' in step and step['op'] not in ['fill','select','expect_text']:raise ValueError('UI probe unused value')
+  if step['op']=='expect_image' and 'value' in step and (not isinstance(step['value'],str) or len(step['value'])>500):raise ValueError('UI image source value')
+  if 'value' in step and step['op'] not in ['fill','select','expect_text','expect_image']:raise ValueError('UI probe unused value')
   target=step.get('target')
   if step['op']=='reload':
    if set(step)!={'op'}:raise ValueError('UI probe reload')

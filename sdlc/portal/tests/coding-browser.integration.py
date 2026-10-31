@@ -5,6 +5,16 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 from coding_browser import check_candidate,LiveBrowser
 
 class BrowserCandidate(unittest.TestCase):
+ def test_image_assertion_checks_original_url_instead_of_accepting_a_loaded_fallback(self):
+  source="import React from 'react';import{createRoot}from'react-dom/client';createRoot(document.getElementById('root')).render(<img alt='Foto' src={location.origin+'/__sdlc_test__/image.svg'}/>);"
+  steps=[{'op':'expect_image','target':{'by':'role','role':'img','name':'Foto'},'value':'$ORIGIN/__sdlc_test__/image.svg'}]
+  self.assertTrue(self.check(source,steps)['passed'])
+  fallback='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20"/></svg>'
+  broken=source.replace("location.origin+'/__sdlc_test__/image.svg'",json.dumps(fallback))
+  self.assertTrue(self.check(broken,[{key:value for key,value in steps[0].items() if key!='value'}])['passed'])
+  self.assertFalse(self.check(broken,steps)['passed'])
+  # A loaded image at a different URL must fail the immutable URL assertion.
+  self.assertFalse(self.check(source,[{**steps[0],'value':'$ORIGIN/different.svg'}])['passed'])
  def check(self,source,steps=None):
   with tempfile.TemporaryDirectory(prefix='sdlc-browser-fixture-') as directory:
    path=Path(directory);path.chmod(0o755)

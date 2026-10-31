@@ -1,0 +1,71 @@
+{
+  "names": {
+    "test": "Teste em DEV",
+    "final_test": "Teste em QA"
+  },
+  "image": "sha256:17169357f2e936314ca012bf8c4b55f72efe812f54cb0e867110601676b90762",
+  "source": "cdfb8a81d1dd82246fff2acb0b202b73a369dc01f9b3a3930e90808ab4c917ab",
+  "tablesPreservedByPublication": 49,
+  "exactTablesPreservedByPublication": true,
+  "migrationsApplied": 0,
+  "backup": {
+    "backupId": "test-stage-names-verified-20261031-f01e1158",
+    "bytes": 690807,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "renamedTasks": 14,
+  "customTitlesPreserved": 2,
+  "taskFieldsPreservedExceptNameVersionUpdatedAt": true,
+  "domainCommand": "PATCH /api/items/:id",
+  "auditAction": "ITEM_UPDATED",
+  "auditFactsVerified": 14,
+  "directedChecks": [
+    {
+      "report": "20261031T131904Z-0f6cfb",
+      "passed": true,
+      "sourceStable": true,
+      "backendPassed": 20,
+      "browserPassed": 0
+    },
+    {
+      "report": "20261031T131943Z-e98ebf",
+      "passed": true,
+      "sourceStable": true,
+      "backendPassed": 0,
+      "browserPassed": 47
+    }
+  ],
+  "liveUi": {
+    "ok": true,
+    "scope": "Live Portal UI label confirmation only",
+    "method": "UI navigation, no direct backend requests",
+    "blockedWrites": 0,
+    "observations": [
+      {
+        "width": 1440,
+        "taskNames": [
+          "Teste em DEV",
+          "Teste em QA"
+        ],
+        "storyList": true,
+        "taskDetails": true
+      },
+      {
+        "width": 390,
+        "taskNames": [
+          "Teste em DEV",
+          "Teste em QA"
+        ],
+        "storyList": true,
+        "taskDetails": true
+      }
+    ]
+  },
+  "limits": [
+    "Naming change only; pipeline stage identities, sequence and gates unchanged.",
+    "QA executor and release validation remain pending RA-19.",
+    "Directed checks are not a full system regression or business acceptance."
+  ]
+}

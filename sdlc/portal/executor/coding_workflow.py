@@ -82,7 +82,7 @@ def execute_focused(e,intent,directory,receipt):
   scope='Implementation syntax and independent UI recipe replay; not complete business acceptance' if proof['applicable'] else 'Implementation syntax/imports; UI explicitly not applicable'
   finish({'state':'succeeded','patch':combined,'validation':{'valid':True,'scope':scope}})
  except ValueError as error:finish({'state':'failed','error':str(error)[:1500]})
- except (OSError,RuntimeError,subprocess.SubprocessError) as error:
+ except Exception as error:
   e.dump(directory/'interruption-private.json',{'type':type(error).__name__,'message':str(error)[:2000]})
   finish({'state':'unknown','error':'Execução de especialista interrompida; candidata não confirmada e não repetida automaticamente.'})
  finally:

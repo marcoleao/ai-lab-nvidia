@@ -1,5 +1,7 @@
 # Plano incremental: desenvolvimento, releases e ambientes
 
+**RA-15a publicada — 31/10/2026:** conferência integral das fontes de desenvolvimento da composição salva, com impedimentos e ações por História, sem autorizar QA. O usuário autorizou retomar a implementação após a entrega focal de fotos em DEV e congelou os modelos do LAB; oito fontes/configurações conferidas permaneceram iguais. 73 testes backend, 42 cenários de interface e duas navegações reais somente leitura aprovados. A RA-15 agregada continua parcial: inventário/proveniência do código (RA-15b), fechamento e pacote são entregas próprias. A retomada não aprova os testes/OKs pendentes do piloto. [Recibo corrente e roteiro](#50-ra-15a--conferência-integral-do-desenvolvimento).
+
 **RA-11c publicada — preparação pelo assistente:** ação junto à conversa do Sistema, painel/confirmações e pedido compartilhados com o repositório, metadados atuais e recuperação preservada. 83 testes backend e 59 cenários únicos no runtime final verificados em rodadas dirigidas. [Recibo e roteiro](#41-ra-11c--preparação-da-aplicação-pelo-assistente). OK manual pendente. Próxima fatia: RA-12a, destino DEV do Sistema.
 
 **Correção de conceito — 29/10/2026:** operação por Sistema deve ser conduzida pelo próprio SDLC, com assistente, serviços de domínio e executores separados. A RA-11b está entregue pelos controles do portal; seu encaminhamento pela conversa ainda falta e passa a ser a **RA-11c**. RA-12 foi dividida em destino DEV, implantação e encaminhamento pelo assistente, cada um testável. Cadastro de ambiente, estrutura técnica, provisionamento e deploy são fatos distintos. [Decisão, cobertura e roteiro](#40-correção-de-conceito--assistente-executores-e-ambientes). Essa atualização prevalece sobre indicações anteriores de próxima fatia; não altera os recibos ou os OKs pendentes.
@@ -269,6 +271,8 @@ A RA-12 é o aceite conjunto das três fatias abaixo. O fluxo final conduz a pre
 
 ### RA-15 — Conferir todas as Histórias para DEV → QA
 
+- **RA-15a — Fontes de desenvolvimento:** conferência integral da composição salva, aprovação exata RA-14, rastreabilidade registrada e dependências declaradas. Leitura paginada com resultado global, sem liberar preparação QA. [Contrato](conferencia-desenvolvimento-release-v1.md).
+- **RA-15b — Composição real do código:** ainda pendente. Conferir base/HEAD, código extra, reversões, proveniência e dependências presentes no código. A ausência dessa prova mantém QA indisponível, mesmo com RA-15a atendida.
 - **Alterar:** readiness calculada no backend sobre composição integral, dependências, proveniência e versão; lista/contagem/ação de preparar QA.
 - **Teste do usuário:** release com três Histórias, duas aprovadas e uma pendente: bloquear e apontar a terceira. Repetir com a pendente fora da página/filtro. Aprovar todas e ver elegibilidade, ainda sem pacote ou deploy.
 - **Negativo:** cancelada/retirada apenas do cadastro/código extra ou teste da composição anterior não satisfazem o gate. **Depende de:** RA-05/14 e DE-07.
@@ -399,7 +403,9 @@ Marcar cada coluna somente com sua evidência. **Disponível** significa acessí
 | RA-12c | [x] | [x] | [x] | [ ] | Assistente reutiliza preparação/publicação DEV; seção 44 |
 | RA-13 | [x] | [x] | [x] | [ ] | Testes HTTP versionados DEV, Tarefa e correção com G1; seção 45 |
 | RA-14 | [x] | [x] | [x] | [ ] | Publicada; aprovação humana por revisão; OK manual pendente — seção 46 |
-| RA-15 | [ ] | [ ] | [ ] | [ ] | Planejada |
+| RA-15 | Parcial | Parcial | Parcial | [ ] | RA-15a publicada; recibo na seção 50. RA-15b pendente; não libera QA |
+| RA-15a | [x] | [x] | [x] | [ ] | Conferência de desenvolvimento publicada; OK manual pendente — seção 50 |
+| RA-15b | [ ] | [ ] | [ ] | [ ] | Inventário/proveniência do código, base e dependências efetivas |
 | RA-16 | [ ] | [ ] | [ ] | [ ] | Planejada |
 | RA-17 | [ ] | [ ] | [ ] | [ ] | Planejada |
 | RA-18 | [ ] | [ ] | [ ] | [ ] | Planejada |
@@ -2075,3 +2081,73 @@ Na rechecagem independente da aplicação, exclusivamente pela interface e em co
 Portal publicado na imagem `sha256:4596f95059f31757b0dfdbb03cccb778898f436ed49018fa2062d56e2556df09`, fonte `55c8022f3111494227ed69c70a1b49ee3922fd619cd47078967ffa91ca8730c2`. **49 tabelas exatamente preservadas**, backup privado de 685960 bytes com digest/leitura conferidos e zero migrations. Os 82 + 41 testes dirigidos de backend e dois cenários UI novos passaram com fonte estável; compilação TypeScript e build web passaram. Catálogo registrado: 586 casos/54 arquivos, sem declarar full executada nessa fonte. [Recibo de publicação](assets/avaliacao-modelos-lab-2026-10-30/publicacao-agentes-atomicos-locais-20261031.json).
 
 O LAB recebeu política auditada de cache de prompts e preservou memória, modelos, rede e volumes. Após a recriação, 220 chamadas de qualificação não registraram novo OOM; o primeiro timeout a frio e o OOM anterior continuam preservados. Isso é uma amostra, sem promessa de estabilidade geral. Cinco contratos da manutenção e a conferência do manifesto offline passaram. Notas de navegação deste operador: retomada técnica conhecida 4/5, incerteza na versão anterior 2/5, revisão/merge 4/5, construção/publicação DEV 4/5; não são indicadores agregados. [Plano LP atualizado, evidências e próximos recortes](agentes-locais-escopo-reduzido-2026-10-31.md).
+
+### Nomes das tarefas de teste — 31/10/2026
+
+Por decisão explícita do usuário, **Teste** passa a **Teste em DEV** e **Teste Final** passa a **Teste em QA**. As chaves `test` e `final_test` são preservadas, assim como a ordem existente, os vínculos, estados, resultados e gates. A renomeação não implementa o executor QA da RA-19 nem movimenta ambiente ou release.
+
+Metadados compartilhados de criação manual/por agente, instruções dos agentes e referências da interface foram atualizados. As 14 tarefas existentes com nomes padrão antigos foram renomeadas pelo comando auditado `PATCH /api/items/:id`, com versão e chave de idempotência por pedido; dois títulos personalizados foram preservados. A conferência posterior constatou que todos os demais campos das tarefas, exceto versão/data administrativa da edição, permaneceram iguais. Eventos anteriores e conteúdo das descrições não foram reescritos.
+
+**Verificação dirigida:** 20 testes backend de criação/ciclo/planejamento passaram em `20261031T131904Z-0f6cfb`; 47 cenários de interface de hierarquia, estabilização, fluxo e painel de testes DEV passaram em `20261031T131943Z-e98ebf`, sem falhas, skips ou flakiness e com fonte estável. Não foram criados novos casos espelhando uma mudança de texto; foram atualizadas e executadas as expectativas existentes. O catálogo continua 586/54.
+
+**Publicada e conferida no portal real:** imagem `sha256:17169357f2e936314ca012bf8c4b55f72efe812f54cb0e867110601676b90762`, fonte `cdfb8a81d1dd82246fff2acb0b202b73a369dc01f9b3a3930e90808ab4c917ab`. Backup de 690807 bytes com digest/leitura conferidos, zero migrations e 49 tabelas exatamente preservadas durante a publicação. Os 14 comandos de edição anteriores têm um fato `ITEM_UPDATED` cada, com autoria, correlação e nomes antes/depois conferidos. Navegação real em 1440/390 px confirmou os dois nomes na lista da História e nos detalhes das Tarefas, sem requisições mutantes pelo navegador. [Recibo seguro](assets/test-task-names-2026-10-31/publication.json).
+
+A primeira tentativa de publicação foi revertida porque o identificador administrativo do backup foi recusado pelo filtro de metadados. O rollback da imagem/preparação foi confirmado e a tentativa permanece preservada; identificadores foram adequados sem enfraquecer a política, e a mesma fonte testada foi publicada com sucesso. A evidência visual anterior foi arquivada antes da nova conferência. Isso não declara regressão integral, aceite do catálogo ou implementação da validação QA.
+
+### Continuação do piloto local — 31/10/2026, fotos em DEV
+
+As RAs posteriores continuam aguardando o aceite do piloto. A correção foi recortada pela interface na JOIASC-CATLOG-5, com G1 sobre `a0597b8cdaf03abe0a15cc6f97a480f626170a47`; revisão humana limita o trabalho ao cadastro com foto e preserva React/localStorage. A proposta anterior de backend do agente não foi autorizada, reescrita ou apresentada como implementação.
+
+O coordenador ganhou localização fundamentada em ocorrências, exatamente uma correção de fonte por chamada de planejamento, exemplos literais conferidos antes da escrita e reparo sintático limitado. As tentativas locais reprovadas permanecem preservadas. Raciocínio no editor genérico passou nos oito controles, mas interrompeu no catálogo real por prazo; não se confunde essa qualificação com aceite. A capacidade seguinte `web_url` reduz a saída a opções limitadas e deixa a montagem lexical com a ferramenta, sujeita a exemplos/sintaxe/UI/replay e mesmos gates. Erro inesperado conclui como incerto, sem patch ou repetição automática. [Acompanhamento e limites LP-01h–LP-01l](agentes-locais-escopo-reduzido-2026-10-31.md#continuação-focal-de-fotos--31102026).
+
+Os seis casos focais de foto estão versionados e podem ser repetidos contra DEV sem recriar LAB/base; somente Chromium/contexto são descartáveis. A referência MR !7 reprovou três casos, bloqueou um e passou em dois. Evidências por caso, capturas, vídeos, identidade observada no Portal e ledger externo são preservados. Não houve alteração manual da aplicação, dados de negócio ou resultado de agente. Aceite dos 28 casos, edição/classificações/arquivamento, Desenvolvimento Finalizado e regressão completa continuam pendentes até prova posterior. [Como reproduzir](reexecucao-ui-joias-2026-10-30.md#recorte-reproduzível-de-fotos--31102026).
+
+**Entrega focal concluída para revisão do usuário:** a C5 passou por codificação/UI/replay local, revisão, segurança, MR !8, build e publicação pelo portal. Fonte integrada `1c24d0a564e6c5facbe3a27e3a23131502429a57`, imagem `5cbbd2877fb2`, DEV `http://localhost:44781`. Os seis casos focais passaram na aplicação publicada; domínio com porta e preservação do registro anterior foram conferidos em outra sessão. [Recibo, cobertura e falhas preservadas](assets/avaliacao-modelos-lab-2026-10-30/jornada-fotos-DEV-20261031.json).
+
+Portal API/web atualizado para `sha256:dd1addf4f9838b7ac29124c4ea9715ba8711f2407be8f77f580be1df8321c24a`, fonte `34e8504ac59272504f5895d3436269dc77550c6931fe54ec3410c61a3d3e228c`. **49 tabelas exatamente preservadas**, backup de 748148 bytes com digest/permissões/leitura conferidos, zero migrations. Executor `81fd499e94b2`, ferramenta `c8a6f2ede503` e navegador `3a8d2184d35a`, iguais à qualificação 9/9. TypeScript/build web passaram. A ferramenta Qwen do LAB e o manifesto offline foram atualizados, sem reiniciar inferência. [Recibo de publicação](assets/avaliacao-modelos-lab-2026-10-30/publicacao-perfil-fotos-local-20261031.json).
+
+- [x] Coordenador local qualificado e publicado; sem API externa.
+- [x] C5 integrada e publicada em DEV; 6/6 testes focais de UI aprovados.
+- [x] Roteiro, hashes, navegador, capturas/vídeos e resultados por caso registrados.
+- [ ] OK do usuário nesta entrega focal.
+- [ ] Próximo recorte: edição de fotos e correções C3/C4, cada uma com seus próprios gates e testes.
+- [ ] Protocolo completo de 28 casos, Teste em DEV e Desenvolvimento Finalizado.
+- [ ] Regressão completa em ambiente limpo e descartável.
+- [ ] Retomar as RAs posteriores de releases/QA/HML/PRD após o aceite do piloto.
+
+A primeira rodada da nova publicação teve cinco aprovações e uma falha de seletor: HTTP também encontrava o registro HTTPS. Esse resultado foi preservado; a identidade exata foi corrigida sem reduzir expectativas. As evidências externas de UI não aprovam automaticamente o gate do portal ou Desenvolvimento Finalizado. A navegação de revisão/merge e construção/publicação recebeu 4/5 deste operador; o diagnóstico da falha interna do agente recebeu 2/5. Não são KPIs ou estudo com usuários de negócio; os problemas de continuidade e editor seguem no backlog de experiência.
+
+## 50. RA-15a — conferência integral do desenvolvimento
+
+Data: 31/10/2026. Implementada, testada e publicada; OK manual pendente. Esta retomada segue a instrução posterior do usuário e substitui a espera indicada nos recibos anteriores, sem declarar concluído o aceite do piloto. Modelos e configurações do LAB congelados.
+
+**Resultado:** o detalhe da release recebe **Conferência para QA**, antes das Histórias. O resumo calcula toda a composição salva, identifica impedimentos e oferece ação contextual por História. Busca, filtros e página não mudam o gate global. Aprovação RA-14 válida só conta se corresponder à especificação, execução/SHA e integração da composição. Dependência fora da composição não é considerada presente na base apenas por estar declarada confirmada. [Contrato de domínio e reexecução](conferencia-desenvolvimento-release-v1.md).
+
+A leitura é transacional, com instante do banco e digest de avaliação. Mudança das fontes durante continuação devolve 409; atualização integral é explícita. Erro, HTTP 200 parcial e versão/estado/ambiente divergentes retiram a confirmação da situação atual, preservando a leitura datada. Contexto divergente bloqueia decisões da página até atualização. Histórico consultado, filtros do seletor e escolhas não salvas ficam independentes. Resultado atendido explica que ainda não libera QA; não há botão de preparar/promover nesta entrega.
+
+**Verificação dirigida:** 73 testes backend (37 de aprovação/conferência, 26 releases, 10 composições) passaram em `20261031T161050Z-575397`; 42 cenários de navegador (18 novos e 24 de aprovação existentes), em 1440/390 px, passaram em `20261031T161430Z-30e0da`, sem falhas, skips ou flakiness e com fonte estável. TypeScript e build API/web aprovados. Catálogo versionado: **604 cenários/55 arquivos**. Não foi executada regressão integral nesta fonte.
+
+Rodadas anteriores permanecem preservadas: os primeiros testes adicionados antes dos testes de base vazia quebravam suas precondições; foram movidos ao fim da suíte. Fixtures tentaram ultrapassar os próprios guards de escopo/metadados da composição; os testes foram adequados para comprovar a recusa, sem relaxar banco ou permissões. O cenário de rascunho selecionava Ana, sem papel para editar composição; passou com Elisa/Release Manager. Uma rodada foi interrompida pelo catálogo desatualizado antes de executar navegador; registro atualizado sem trocar expectativas.
+
+**Auditoria/escopo:** GET não grava aprovação, revisão, chave de idempotência ou evento; a conta runtime executou a leitura. Sem migration, novo comando, fila ou worker. Publicação usa o ledger administrativo existente. Indicadores existentes mantidos; as contagens da consulta não são novos KPIs. Oito hashes de modelos/configurações/ferramenta/executor foram comparados ao início e permanecem iguais. Não houve inferência, instalação ou alteração de modelo nesta fatia.
+
+**Roteiro para o usuário:**
+
+1. Abra Releases → uma release → Composição → Conferência para QA.
+2. Consulte os impedimentos e use o link da História para revisar seu desenvolvimento. Uma pendência fora da página ou excluída pelo filtro continua no resumo global.
+3. Alterne busca/filtro e depois consulte uma revisão histórica da composição. A conferência continua sobre a composição salva vigente; a revisão histórica permanece identificada separadamente.
+4. Escolha Histórias como Elisa ou Admin, volte ao detalhe sem salvar e atualize a conferência. Ao retornar ao seletor, confira o rascunho preservado. A consulta não inclui essas escolhas não salvas.
+5. Quando todas as fontes corresponderem e os controles forem atendidos, confira a mensagem de atendimento e seu limite explícito: ainda falta composição real do código e preparação do pacote.
+
+- [x] RA-15a implementada e testada de forma dirigida.
+- [x] Publicação local e conferência somente leitura na interface real.
+- [ ] OK manual do usuário para RA-15a.
+- [ ] RA-15b: código/base/proveniência e dependências efetivas.
+- [ ] DE-08 e RA-16a/b: fechamento e preparação da candidata QA.
+- [ ] Aceitação integral do catálogo de joias e regressão limpa final, sem aprovações fabricadas.
+
+**Publicação conferida:** API/web `sha256:37fae7b9c0e585b240b9bf1c1331ccb5a8bf9402e7c46cd64f6141c9ce15196d`, fonte `a99c481bc08e4bcce1b6095c2d5068b0dbf974f3407186bad27750a91f27d0b7`. Backup privado de 748148 bytes, digest/permissões/leitura conferidos, zero migrations e 49 tabelas preservadas segundo a comparação documentada no recibo. A trilha administrativa foi validada sem operações pendentes. A imagem preparada anterior e o primeiro candidato de build foram conservados; só o candidato final, que inclui a persona corrigida no teste, foi publicado.
+
+Na interface real, a release existente exibiu corretamente composição ainda não conferida, sem inventar aprovação a partir de dados antigos. Consulta, atualização, abertura/fechamento por teclado e ausência de overflow passaram em 1440/390; nenhuma requisição mutante ou erro de página. Duas primeiras verificações externas pressionavam Enter presumindo detalhes fechados, mas a URL atualizada já os abrira; o roteiro foi corrigido para conferir fechar e abrir a partir do estado observado. Não houve alteração de produto ou expectativa para esse resultado. [Recibo seguro de validação/publicação](assets/ra15a-conferencia-desenvolvimento-2026-10-31/validation.json).
+
+**Próxima implementação:** RA-15b, prova da composição real do código/base e dependências efetivas. Fechar e preparar o pacote QA permanecem RA-16a/b e exigem resolver a política DE-08. O estado técnico desta entrega não fornece OK manual nem substitui regressão completa ou aceitação do piloto.

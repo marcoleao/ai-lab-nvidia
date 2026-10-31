@@ -531,6 +531,15 @@
             "isolation": "fresh-database",
             "providers": "simulated",
             "required": true
+        },
+        {
+            "id": "UIFILE-release-development-readiness",
+            "file": "release-development-readiness.spec.ts",
+            "area": "releases",
+            "requirements": ["RA-15a"],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
         }
     ],
     "smoke": {

@@ -1,0 +1,20 @@
+{
+  "qualification": "qualificacao-perfis-locais-20261031T150832Z-6a26bc.json",
+  "qualificationSha256": "7243539923f4c08c300ec60abbb1007769bdac29d6df7a09e95a9288c6fabb50",
+  "workerImageId": "sha256:c8a6f2ede503898269ea24b57e84344e90188a58ec7e208670d997564df5e901",
+  "browserImageId": "sha256:3a8d2184d35af2bbd3be3f85ee34e655a93947ff987c8089d61cf49fc8e598bc",
+  "workerSourceDigest": "7dbfe9564ff73a171367a9ca9ceae9b8cd7b28228d465a78376d83073cc8026c",
+  "model": "qwen3:14b",
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "microThinking": false,
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "gatesPreserved": true,
+  "applicationEditedManually": false,
+  "businessAcceptance": "Pending real UI journey. This receipt proves worker installation only, not Portal publication or a DEV deployment."
+}

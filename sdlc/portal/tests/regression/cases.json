@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "runtimeHash": "795da706e7a1dd65ac5adaafa0fcbbd3471d41cf1cc1b0318375fd9e05ee01e3",
-  "testHash": "a976c0ee7bfa55c5130367a032cd3d53e0a36fe47a6a91f06733daa7e8f48ca0",
+  "runtimeHash": "da6b0ff466baa931c7403117ef5b08f72145c422ea81709f388d14798c316fd1",
+  "testHash": "57ff736e21f9d6d35225f2ed4700ebc16cb05a90b6688ee66f5ad90bf19f7220",
   "database": "portal_test",
   "externalProviders": "simulated",
   "workers": "manual",
@@ -3273,6 +3273,132 @@
       "file": "release-compositions.spec.ts",
       "title": "composition revision pagination and member query preserve selected historical snapshot and the current composition",
       "line": 26,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e9d29e6080f9",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 whole composition remains blocked outside page and filter at 1440px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f61a623d9479",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 all approved and empty never claim QA package or deployment at 1440px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d135b0ec8596",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 failed refresh preserves dated evidence without current ready label at 1440px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6ffdf749edbc",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 incomplete successful response preserves the prior reading without crashing at 1440px",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-35b1ba2dd991",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 new release state with the same composition requires page refresh at 1440px",
+      "line": 74,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-6746bb3c060c",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 changed evidence rejects anchored paging and refresh retains independent URL context at 1440px",
+      "line": 77,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-86a64183a912",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 mismatch updates page context without treating history as the current gate at 1440px",
+      "line": 82,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bfb10de854c0",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 late response from another release cannot replace its identity at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0136e0615364",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 query refresh preserves an unsaved composition selection at 1440px",
+      "line": 91,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e4bdd09ecea7",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 whole composition remains blocked outside page and filter at 390px",
+      "line": 53,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-12bbada967ec",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 all approved and empty never claim QA package or deployment at 390px",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fd8326f34185",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 failed refresh preserves dated evidence without current ready label at 390px",
+      "line": 67,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-013beccd6e6f",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 incomplete successful response preserves the prior reading without crashing at 390px",
+      "line": 71,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a893c52021b2",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 new release state with the same composition requires page refresh at 390px",
+      "line": 74,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-375337864911",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 changed evidence rejects anchored paging and refresh retains independent URL context at 390px",
+      "line": 77,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-7874c9e26499",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 mismatch updates page context without treating history as the current gate at 390px",
+      "line": 82,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-87766d591c5c",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 late response from another release cannot replace its identity at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-fce9e72fca0c",
+      "file": "release-development-readiness.spec.ts",
+      "title": "RA15 query refresh preserves an unsaved composition selection at 390px",
+      "line": 91,
       "expected": "passed"
     },
     {

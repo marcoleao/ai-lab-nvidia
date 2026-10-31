@@ -1,0 +1,35 @@
+{
+  "portalImageId": "sha256:dd1addf4f9838b7ac29124c4ea9715ba8711f2407be8f77f580be1df8321c24a",
+  "portalSource": "34e8504ac59272504f5895d3436269dc77550c6931fe54ec3410c61a3d3e228c",
+  "tablesChecked": 49,
+  "exactTablesPreserved": true,
+  "backup": {
+    "backupId": "local-photo-profile-verified-20261031-8cc83694",
+    "bytes": 748148,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsApplied": 0,
+  "workerImageId": "sha256:c8a6f2ede503898269ea24b57e84344e90188a58ec7e208670d997564df5e901",
+  "workerSourceDigest": "81fd499e94b27e0ee1e41e9a480136fce32ea9827c1ae3a17e122540cf641f0a",
+  "browserImageId": "sha256:3a8d2184d35af2bbd3be3f85ee34e655a93947ff987c8089d61cf49fc8e598bc",
+  "model": "qwen3:14b",
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "qualification": "qualificacao-perfis-locais-20261031T151952Z-b88fba.json",
+  "qualificationSha256": "fc9d506002f592f7704cfea19f3f80b3906e5aaf2f7a3958f51c68cce72fc8ee",
+  "scope": "Portal/worker publication only. Business acceptance is recorded separately from the browser UI journey; not full regression or Development Finalized."
+}

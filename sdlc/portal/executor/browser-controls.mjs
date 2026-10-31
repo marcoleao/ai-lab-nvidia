@@ -34,9 +34,9 @@ export class ControlRegistry{
   const entry=this.active.get(action.control);if(!entry)throw Error('Controle não observado ou desatualizado. Escolha um ID da observação atual.');
   const allowed={fill:['textbox','spinbutton'],select:['combobox'],click:['button','link'],check:['checkbox'],expect_image:['img']};
   if(!allowed[action.op]?.includes(entry.role))throw Error('A operação não corresponde ao controle observado.');
-  if(!['fill','select'].includes(action.op)&&action.value)throw Error('Esta ação não recebe value.');
+  if(!['fill','select','expect_image'].includes(action.op)&&action.value)throw Error('Esta ação não recebe value.');
   if(action.op==='select'&&!entry.options.includes(action.value))throw Error('Opção ainda não existe. Cadastre o pré-requisito pela UI ou escolha uma opção observada.');
   if(action.dialog!=='none'&&action.op!=='click')throw Error('Diálogo permitido somente em clique.');
-  return {op:action.op,target:{by:'role',role:entry.role,name:entry.name,index:entry.index},...(['fill','select'].includes(action.op)?{value:action.value}:{}),...(action.dialog!=='none'?{dialog:action.dialog}:{})};
+  return {op:action.op,target:{by:'role',role:entry.role,name:entry.name,index:entry.index},...(['fill','select'].includes(action.op)||action.op==='expect_image'&&action.value?{value:action.value}:{}),...(action.dialog!=='none'?{dialog:action.dialog}:{})};
  }
 }

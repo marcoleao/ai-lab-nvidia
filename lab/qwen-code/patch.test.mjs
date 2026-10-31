@@ -3,10 +3,30 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {applyCandidate,sourceSlots,inspectCandidate,missingComponents} from './patch.mjs';
+import {applyCandidate,sourceSlots,inspectCandidate,missingComponents,webUrlPattern} from './patch.mjs';
 import {digest} from './workspace.mjs';
 const original='export const a=1;\nexport const b=2;\nexport const c=3;\n';
 const request=edits=>({expectedSha:'a'.repeat(40),files:[{path:'a.js',content:original},{path:'b.js',content:'export const untouched=7;'}],allowDependencies:false,writePaths:['a.js'],edits:edits.map(e=>({path:'a.js',expectedDigest:digest(original),...e}))});
+test('web URL policy builds bounded host, port, extension and query syntax without project code',()=>{
+ const policy={schemes:['http','https'],allowPort:true,allowQuery:true,extensions:['svg','png']};const regex=new RegExp(webUrlPattern(policy),'i');
+ for(const url of ['http://127.0.0.1:8049/a.svg','https://another.test/folder/a.png?x=2','http://localhost/a.svg'])assert.equal(regex.test(url),true,url);
+ for(const url of ['javascript:alert(1)','https://user@another.test/a.svg','https://another.test/a.exe','https://another.test/a.svg\n','https://another.test/a.svg#fragment','https://another.test:xx/a.svg','https://[::1]/a.svg'])assert.equal(regex.test(url),false,url);
+ const restricted=new RegExp(webUrlPattern({...policy,schemes:['https'],allowPort:false,allowQuery:false}));
+ for(const url of ['http://another.test/a.svg','https://another.test:8049/a.svg','https://another.test/a.svg?x=2'])assert.equal(restricted.test(url),false,url);
+ assert.equal(new RegExp(webUrlPattern({...policy,extensions:[]})).test('https://another.test'),true);
+ for(const invalid of [{...policy,schemes:['javascript']},{...policy,extensions:["svg);evil()"]},{...policy,allowPort:1},{...policy,host:'fixed.test'},{...policy,schemes:['http','http']}])assert.throws(()=>webUrlPattern(invalid));
+});
+test('URL policy edits only the observed regex, refuses mismatches/stale source and is replayable',async()=>{
+ const content='export const validate=/^https:\\/\\/.*\\.png$/i;export const keep=7;',slot=sourceSlots(content,'a.js').find(s=>s.kind==='RegExpLiteral');
+ const urlPolicy={schemes:['http','https'],allowPort:true,allowQuery:true,extensions:['svg','png']};
+ const edit={path:'a.js',slot:slot.slot,urlPolicy,flags:'i',expectedDigest:digest(content),examples:[{value:'http://127.0.0.1:8049/a.svg',expected:true},{value:'javascript:alert(1)',expected:false}]};
+ const input={...request([]),files:[{path:'a.js',content}],edits:[edit]};let patch;
+ await scenario(input,async value=>{assert.equal(value.state,'succeeded');patch=value.patch;assert.equal(value.patch.files[0].content,content.replace(slot.code,new RegExp(webUrlPattern(urlPolicy),'i').toString()));});
+ await scenario(input,async value=>assert.deepEqual(value.patch,patch));
+ for(const change of [{expectedDigest:'f'.repeat(64)},{urlPolicy:{...urlPolicy,schemes:['https']}},{flags:'m'}])await scenario({...input,edits:[{...edit,...change}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);assert.equal(await fs.readFile(path.join(root,'a.js'),'utf8'),content);assert.equal(value.tools.some(event=>event.tool==='write_file'),false);});
+ const nonRegex='export const sum=(a,b)=>a-b;',other=sourceSlots(nonRegex,'a.js').find(s=>s.kind==='BinaryExpression');
+ await scenario({...input,files:[{path:'a.js',content:nonRegex}],edits:[{...edit,slot:other.slot,expectedDigest:digest(nonRegex)}]},async value=>assert.equal(value.state,'failed'));
+});
 async function scenario(input,run){const directory=await fs.mkdtemp(path.join(os.tmpdir(),'sdlc-micro-'));const root=path.join(directory,'workspace');try{await run(await applyCandidate(input,root),root);}finally{await fs.rm(directory,{recursive:true,force:true});}}
 test('micro edits use one frozen revision and apply descending ranges without changing siblings',()=>scenario(request([{startLine:1,endLine:1,content:'export const a=10;\nexport const extra=4;'},{startLine:3,endLine:3,content:'export const c=30;'}]),async(value,root)=>{
  assert.equal(value.state,'succeeded');assert.equal(value.validation.valid,true);assert.equal(value.expectedSha,'a'.repeat(40));assert.deepEqual(value.patch.files,[{path:'a.js',content:'export const a=10;\nexport const extra=4;\nexport const b=2;\nexport const c=30;\n'}]);assert.equal(await fs.readFile(path.join(root,'b.js'),'utf8'),'export const untouched=7;');
@@ -61,6 +81,20 @@ test('pattern proposals compile as data, preserve flags and keep surrounding sou
 test('a pattern capability cannot target another expression kind',async()=>{
  const content='export const sum=(a,b)=>a-b;';const slot=sourceSlots(content,'a.js').find(s=>s.kind==='BinaryExpression');
  await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,pattern:'x',flags:'',expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);});
+});
+
+test('fragment parse failures retain bounded parser location for a scoped syntax repair without writing',async()=>{
+ const content='export const result=sum(1,2);';const slot=sourceSlots(content,'a.js').find(s=>s.kind==='CallExpression');
+ await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,content:'sum(1,2',expectedDigest:digest(content)}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);assert.ok(value.fragmentSyntaxIssue.message.length<=300);assert.equal(value.fragmentSyntaxIssue.line,1);assert.equal(typeof value.fragmentSyntaxIssue.column,'number');assert.equal(await fs.readFile(path.join(root,'a.js'),'utf8'),content);});
+});
+
+test('pattern examples refuse semantic mismatches before writing and preserve global flags independently',async()=>{
+ const content='globalThis.PATTERN_PROJECT_EXECUTED=true;export const accepts=/^old$/g;';
+ const slot=sourceSlots(content,'a.js').find(s=>s.kind==='RegExpLiteral');
+ const base={...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,pattern:'^https?://',flags:'g',expectedDigest:digest(content),examples:[{value:'http://127.0.0.1:8049/jewel.svg',expected:true},{value:'http://127.0.0.1:8049/jewel.svg',expected:true},{value:'javascript:alert(1)',expected:false}]}]};
+ await scenario(base,async value=>{assert.equal(value.state,'succeeded');assert.equal(value.patternChecks.length,3);assert.ok(value.patternChecks.every(check=>check.passed));assert.equal(globalThis.PATTERN_PROJECT_EXECUTED,undefined);});
+ await scenario({...base,edits:[{...base.edits[0],pattern:'^https://'}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);assert.equal(value.patternChecks[0].observed,false);assert.equal(await fs.readFile(path.join(root,'a.js'),'utf8'),content);assert.equal(value.tools.some(event=>event.tool==='write_file'),false);});
+ for(const examples of [[{value:'x',expected:1}],[{value:'x',expected:true,pattern:'override'}],Array.from({length:9},()=>({value:'x',expected:true}))])await scenario({...base,edits:[{...base.edits[0],examples}]},async value=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);});
 });
 test('a single expression statement normalizes its semicolon without admitting declarations',async()=>{
  const content='export const sum=(a,b)=>a-b;';const slot=sourceSlots(content,'a.js').find(s=>s.kind==='BinaryExpression');

@@ -16,6 +16,8 @@ test('IDs never grant code, URLs, forged roles, hidden options or mismatched act
  for(const a of [action('evaluate',controls[0].id,'process.env'),action('goto','','http://remote'),action('click','c999'),action('fill',controls[1].id,'x'),{...action('click',controls[1].id),selector:'body'},action('fill',controls[0].id,'x','accept'),action('reload',controls[0].id),action('expect_text','','')])assert.throws(()=>r.step(a));
  assert.deepEqual(r.step(action('fill',controls[0].id,'0')),{op:'fill',target:{by:'role',role:'textbox',name:'Preço',index:0},value:'0'});
  assert.deepEqual(r.step(action('expect_image',controls[2].id)),{op:'expect_image',target:{by:'role',role:'img',name:'Foto',index:0}});
+ assert.deepEqual(r.step(action('expect_image',controls[2].id,'$ORIGIN/__sdlc_test__/image.svg')),{op:'expect_image',target:{by:'role',role:'img',name:'Foto',index:0},value:'$ORIGIN/__sdlc_test__/image.svg'});
+ assert.throws(()=>r.step(action('click',controls[1].id,'http://unexpected.test')));
 });
 test('catalog limits and duplicate indices are explicit; row context is preserved',()=>{
  const r=new ControlRegistry(),catalog=r.update('- heading "Produtos" [level=1]\n- list:\n  - listitem:\n    - strong: Anel\n    - button "Editar"\n  - listitem:\n    - strong: Colar\n    - button "Editar"');

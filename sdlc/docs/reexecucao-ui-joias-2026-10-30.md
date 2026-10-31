@@ -31,3 +31,19 @@ O servidor opt-in `lab/tests/serve_ui_photo.py` entrega somente o arquivo versio
 As URLs padrão são `http://127.0.0.1:8049/jewel.svg` e `https://127.0.0.1:8449/jewel.svg`. Abrir cada uma no navegador e conferir a imagem antes de usá-la no formulário. Para o certificado local autoassinado, usar um contexto de teste separado com `ignoreHTTPSErrors: true`; isso permite testar a aceitação da URL HTTPS no catálogo, mas não comprova confiança TLS. Não alterar o contexto ou as credenciais de uma pessoa.
 
 O arquivo privado `ready.json` identifica owner, PID e URLs. Não sobrescrever uma instância existente. Para encerrar, conferir owner, PID e linha de comando do processo e enviar SIGTERM somente à instância própria; aguardar a remoção de `ready.json`. Subida, falha e encerramento usam `PORTAL_REGRESSION_ENVIRONMENT` no ledger externo do controlador. Recibos funcionais continuam baseados exclusivamente na interação com a UI; a disponibilidade desta imagem não aprova nenhum caso do catálogo.
+
+## Recorte reproduzível de fotos — 31/10/2026
+
+O runner opt-in `scripts/validate-jewelry-photo-ui.py` executa os seis casos versionados de `tests/pilot-ui/jewelry-photos.mjs` em Chromium e contexto novo: cadastro/foto HTTP, HTTPS, querystring, protocolo inseguro, persistência após recarregar e preço zero sem foto. Todos os registros e classificações são criados pela interface, sem API, SQL, scripts de armazenamento ou edição da aplicação. Casos dependentes ficam BLOCKED se o cadastro não foi confirmado. Cada execução recebe diretório próprio, resultado por caso, capturas e vídeo.
+
+No WSL `agentic-sdlc`, em `sdlc/portal`, com a fixture HTTP/HTTPS acima já iniciada:
+
+```text
+python3 scripts/validate-jewelry-photo-ui.py --dev-url http://localhost:44781 --source-sha <commit-integrado-confirmado-no-portal> --image-id sha256:<digest-confirmado-no-portal>
+```
+
+A identidade fornecida é a observada pela pessoa/agente no Portal; o runner não consulta backend para atestar o artefato. Não executa pipeline, merge ou deploy e não aprova Desenvolvimento Finalizado. Usa a imagem de dependências/navegador já preparada, sem recriar LAB ou bases. A infraestrutura efêmera é somente o navegador; saída e código do roteiro são preservados. O controlador usa as ações administrativas existentes `PORTAL_REGRESSION_RUN` e `PORTAL_REGRESSION_ENVIRONMENT` fora da base, com autoria/correlação e conferência de propriedade antes de encerrar recursos remanescentes.
+
+Esse recorte tem cobertura parcial dos critérios da C1 e não substitui os 28 casos do piloto, edição/arquivamento/classificações ou a regressão integral do Portal. Sua execução e resultado corrente ficam no plano LP; código preparado sem resultado observado não recebe aprovação.
+
+**Resultado em 31/10:** `photo-ui-20261031T152938Z-2fac3a` passou em 6/6 casos na integração `1c24d0a564e6c5facbe3a27e3a23131502429a57` do MR !8, imagem `5cbbd2877fb2`. [Recibo seguro](assets/avaliacao-modelos-lab-2026-10-30/jornada-fotos-DEV-20261031.json). O diretório contém `run-manifest.json` com hashes do roteiro/controlador/resultado, imagem imutável do navegador, argumentos e fonte estável; o controlador confere os seis IDs/resultados e a identidade fornecida pelo Portal. O roteiro localiza SKUs por limites exatos, evitando sobreposição HTTP/HTTPS. A rodada anterior `photo-ui-20261031T152900Z-cf43ba` com essa ambiguidade permanece preservada; não representa falha funcional de persistência confirmada. HTTPS usa somente a confiança relaxada do contexto de teste na fixture própria.

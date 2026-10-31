@@ -7,6 +7,14 @@ class CodingContract(unittest.TestCase):
  def intent(self):return {'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':'src/a.js','content':'export const a=1;'}],'prompt':'Escopo aprovado','allowDependencies':False}
  def request(self):return {'model':'local:9b','messages':[{'role':'user','content':[{'type':'text','text':'Approved scope'}]}],'tools':[{'type':'function','function':{'name':name,'parameters':{'type':'object'}}} for name in service.TOOLS],'stream':True}
  def setUp(self):service.CONFIG={'model':'local:9b'};self.job={'calls':0,'started':time.monotonic()}
+ def test_unexpected_specialist_error_finishes_unknown_and_releases_the_job_without_a_patch(self):
+  import coding_workflow
+  service.CONFIG={'model':'local:9b','workflow':'focused-local-v1','imageId':'synthetic-tools','browserImageId':'synthetic-browser'}
+  with tempfile.TemporaryDirectory() as temporary:
+   root=Path(temporary);intent=self.intent();slot=Mock()
+   with patch.object(coding_workflow,'implementation',side_effect=UnboundLocalError('private diagnostic')),patch.object(service,'check_candidate',return_value={'applicable':False,'passed':True}),patch.object(service.subprocess,'run',return_value=Mock(returncode=1)),patch.object(service,'SLOT',slot):service.execute(intent,root,{'id':intent['id'],'expectedSha':intent['expectedSha']})
+   receipt=json.loads((root/'receipt.json').read_text())
+   self.assertEqual(receipt['state'],'unknown');self.assertNotIn('patch',receipt);self.assertNotIn('private diagnostic',receipt['error']);self.assertEqual(json.loads((root/'interruption-private.json').read_text())['type'],'UnboundLocalError');self.assertNotIn(intent['id'],service.JOBS);slot.release.assert_called_once()
  def test_identity_paths_duplicates_and_capability_are_strict(self):
   service.validate_intent(self.intent())
   for change in [{'expectedSha':'main'},{'allowDependencies':'true'},{'extra':'anything'},{'files':[{'path':'../app.js','content':'x'}]},{'files':[{'path':'x.js','content':'x'},{'path':'X.js','content':'x'}]}]:

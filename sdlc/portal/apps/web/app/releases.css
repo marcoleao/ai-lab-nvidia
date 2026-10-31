@@ -22,6 +22,7 @@
 .release-branch-plan section{border-top:1px solid var(--line);margin-top:20px;padding-top:12px}
 .release-branch-plan code{overflow-wrap:anywhere;word-break:break-word}
 .release-branch-plan .experience-pagination{flex-wrap:wrap}
+.release-development-readiness{min-width:0;overflow-wrap:anywhere}.release-development-readiness details{margin-top:16px}.release-development-readiness summary{cursor:pointer;font-weight:600}.release-development-readiness code{white-space:normal;overflow-wrap:anywhere}.release-development-readiness dd{margin:0 0 8px}.release-development-readiness .experience-pagination{flex-wrap:wrap}.release-readiness-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin:16px 0;align-items:end}.release-readiness-filters label{display:grid;gap:6px;min-width:0}.release-readiness-filters input,.release-readiness-filters select{width:100%;min-width:0}.release-readiness-filters .actions{grid-column:1/-1;flex-wrap:wrap}
 
 .branch-plan-decision{margin-top:20px;border-top:1px solid var(--line);padding-top:12px}
 .branch-plan-decision textarea{width:100%;margin:8px 0 12px}

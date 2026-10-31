@@ -40,6 +40,7 @@ try{
   const target=spec=>{if(!spec||Object.keys(spec).some(key=>!['by','name','role','index'].includes(key))||typeof spec.name!=='string'||(spec.name.length===0&&!(spec.by==='role'&&spec.role==='textbox'&&Number.isInteger(spec.index)&&spec.index>=0&&spec.index<=5))||spec.name.length>160)throw Error('Alvo de interface inválido.');let locator;if(spec.by==='role'){if(!['button','textbox','spinbutton','combobox','checkbox','heading','link','img','status','region','form','listitem'].includes(spec.role))throw Error('Papel de interface inválido.');locator=page.getByRole(spec.role,{name:accessibleName(spec.name)});}else if(spec.by==='label')locator=page.getByLabel(accessibleName(spec.name));else if(spec.by==='text')locator=page.getByText(accessibleName(spec.name));else throw Error('Seletor de interface inválido.');if(spec.index!==undefined){if(!Number.isInteger(spec.index)||spec.index<0||spec.index>5)throw Error('Índice de interface inválido.');locator=locator.nth(spec.index);}return locator;};
   const perform=async step=>{
    if(['fill','select','expect_text'].includes(step.op)&&(typeof step.value!=='string'||step.value.length>500))throw Error('Valor de interface inválido.');
+   if(step.op==='expect_image'&&'value'in step&&(typeof step.value!=='string'||step.value.length>500))throw Error('URL esperada de imagem inválida.');
    const value=step.value?.replaceAll('$ORIGIN',origin);dialogAction=step.dialog??'dismiss';
    if(!['accept','dismiss'].includes(dialogAction)||step.dialog&&step.op!=='click')throw Error('Diálogo fora do contrato.');
    if(step.op==='reload'){if(Object.keys(step).length!==1)throw Error('Reload fora do contrato.');await page.reload({waitUntil:'networkidle'});}
@@ -49,7 +50,7 @@ try{
    else if(step.op==='check')await target(step.target).check();
    else if(step.op==='expect_text')await expect(step.target?target(step.target):page.locator('body')).toContainText(value,{timeout:1000});
    else if(step.op==='expect_visible')await expect(target(step.target)).toBeVisible({timeout:1000});
-   else if(step.op==='expect_image')await expect.poll(()=>target(step.target).evaluate(image=>image.tagName==='IMG'&&image.complete&&image.naturalWidth>0),{timeout:1000}).toBe(true);
+   else if(step.op==='expect_image'){if(value)await expect(target(step.target)).toHaveAttribute('src',value,{timeout:1000});await expect.poll(()=>target(step.target).evaluate(image=>image.tagName==='IMG'&&image.complete&&image.naturalWidth>0),{timeout:1000}).toBe(true);}
    else throw Error('Operação de interface não permitida.');
    proof.uiProbe.executed++;if(step.op.startsWith('expect_'))proof.uiProbe.assertions++;
   };

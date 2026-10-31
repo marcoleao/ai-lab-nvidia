@@ -1,0 +1,103 @@
+{
+  "deliveryObservedInPortalUI": {
+    "storyId": "cmvwhb4i3002501qllbhojizh",
+    "mr": 8,
+    "sourceSha": "02408e4bd738473e83e3716de3e0f86efb4f60d6",
+    "method": "Identities observed in Portal UI",
+    "integratedSha": "1c24d0a564e6c5facbe3a27e3a23131502429a57",
+    "imageId": "sha256:5cbbd2877fb2b50fffb36a366a4d76e6a88ae6d30870e7f559cb88a90a955f68",
+    "devUrl": "http://localhost:44781"
+  },
+  "nativeJob": "f2df8edfc0696f41f7e5a83ed8c0f191bbd033cecfe8adbb7659f00c001ebf35",
+  "localModel": "qwen3:14b",
+  "nativeInferenceCalls": 19,
+  "nativeUiActions": 12,
+  "nativeIndependentReplayPassed": true,
+  "focalUi": {
+    "report": "photo-ui-20261031T152938Z-2fac3a",
+    "reportSha256": "7554362081c5ed7e422330f342924bd8de9898ba07d41ac5beb3d5841d13050b",
+    "harnessSha256": "0e8caedc34fb789ea8abb31af01a6a74d337185a7b4ef14ee0f02bfd6fef3a16",
+    "browserImageId": "sha256:95ebb415588d8607b49043ebc8cb500536100b6534767ec324cf95f0157d9e15",
+    "sourceStable": true,
+    "cases": [
+      {
+        "id": "PHOTO-UI-01",
+        "name": "Cadastrar e carregar foto http",
+        "status": "PASSED"
+      },
+      {
+        "id": "PHOTO-UI-02",
+        "name": "Cadastrar e carregar foto https",
+        "status": "PASSED"
+      },
+      {
+        "id": "PHOTO-UI-03",
+        "name": "Cadastrar e carregar foto query",
+        "status": "PASSED"
+      },
+      {
+        "id": "PHOTO-UI-04",
+        "name": "Recusar protocolo javascript sem cadastrar",
+        "status": "PASSED"
+      },
+      {
+        "id": "PHOTO-UI-05",
+        "name": "Persistir joias e fotos após recarregar",
+        "status": "PASSED"
+      },
+      {
+        "id": "PHOTO-UI-06",
+        "name": "Preservar cadastro sem foto e preço zero BRL",
+        "status": "PASSED"
+      }
+    ],
+    "passed": 6,
+    "failed": 0,
+    "blocked": 0
+  },
+  "extraUiObservations": [
+    {
+      "id": "PHOTO-PRESERVED-AFTER-DEPLOY",
+      "status": "PASSED",
+      "observed": "Registro de preço zero criado antes do deploy continua visível após recarregar.",
+      "at": "2026-10-31T15:29:44.367Z"
+    },
+    {
+      "id": "PHOTO-DOMAIN-01",
+      "status": "PASSED",
+      "observed": "Foto HTTP com nome de domínio localhost e porta carregou antes e depois de recarregar.",
+      "at": "2026-10-31T15:30:09.218Z"
+    }
+  ],
+  "preservedEarlierRuns": {
+    "baseline": {
+      "report": "photo-ui-20261031T140135Z-37b4f9",
+      "passed": 2,
+      "failed": 3,
+      "blocked": 1
+    },
+    "ambiguousLocator": {
+      "report": "photo-ui-20261031T152900Z-cf43ba",
+      "passed": 5,
+      "failed": 1,
+      "classification": "Automation selector matched HTTP and HTTPS SKUs; original result preserved. Exact record boundaries fixed without changing expectations."
+    }
+  },
+  "method": "Isolated browser contexts; records created only via UI; no application backend tests, storage/DOM injection, manual application edits or rewritten agent results. Portal identity supplied from visible build/publication references.",
+  "tlsLimit": "Self-signed local fixture trusted only inside the test context; not TLS trust acceptance.",
+  "navigationAssessment": {
+    "scope": "Single informed operator, qualitative notes, not a KPI or business user study",
+    "technicalRetry": 4,
+    "understandingInternalAgentFailure": 2,
+    "reviewAndMerge": 4,
+    "constructionAndDevPublication": 4,
+    "scale": "1 difficult to 5 clear"
+  },
+  "pending": [
+    "Photo editing and C3/C4",
+    "Complete 28-case pilot acceptance",
+    "Portal DEV test gate and Development Finalized approval",
+    "Final clean full regression",
+    "QA/HML/PRD plan continuation"
+  ]
+}

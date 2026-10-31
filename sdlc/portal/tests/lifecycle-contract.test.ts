@@ -42,7 +42,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('lifecycle contract through the 
     const f=await fixture();expect([f.project.status,f.epic.status,f.story.status]).toEqual(['active','active','specification']);
     const tasks=await db.item.findMany({where:{parentId:f.story.id},orderBy:{createdAt:'asc'}});
     expect(tasks).toHaveLength(6);expect(new Set(tasks.map(t=>(t.data as any).pipelineStage)).size).toBe(6);
-    expect(tasks.map(t=>t.name)).toEqual(['Codificação','Teste','Revisão de Código','Revisão de Segurança','Teste Final','Merge de Código']);
+    expect(tasks.map(t=>t.name)).toEqual(['Codificação','Teste em DEV','Revisão de Código','Revisão de Segurança','Teste em QA','Merge de Código']);
     expect((f.story.data as any).creationOrigin).toBe('manual');
     expect((await post(`/items/${f.project.id}/approve`,{expectedVersion:1})).json().error.code).toBe('PLANNING_APPROVAL_REMOVED');
     const protectedStatus=await post(`/items/${tasks[0].id}/status`,{expectedVersion:tasks[0].version,status:'doing'});expect(protectedStatus.statusCode).toBe(409);

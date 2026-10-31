@@ -22,7 +22,7 @@ const developmentTestActionNames:Record<string,string>={
  DEVELOPMENT_TEST_FAILED:'Testes DEV reprovados ou execução sem resultado',DEVELOPMENT_TEST_BLOCKED:'Testes DEV impedidos',
  DEVELOPMENT_TEST_UNCONFIRMED:'Testes DEV sem confirmação',DEVELOPMENT_TEST_OBSERVED:'Resultado dos testes DEV observado',
  DEVELOPMENT_TEST_PAUSED:'Testes DEV pausados',DEVELOPMENT_TEST_RESUMED:'Retomada dos testes DEV solicitada',
- DEVELOPMENT_TEST_CANCELLED:'Pedido de testes DEV cancelado',DEVELOPMENT_TEST_TASK_UPDATED:'Acompanhamento da Tarefa Teste atualizado',
+ DEVELOPMENT_TEST_CANCELLED:'Pedido de testes DEV cancelado',DEVELOPMENT_TEST_TASK_UPDATED:'Acompanhamento da Tarefa Teste em DEV atualizado',
  DEVELOPMENT_TEST_STORY_UPDATED:'História em testes de desenvolvimento'
 };
 const developmentDeploymentActionNames:Record<string,string>={

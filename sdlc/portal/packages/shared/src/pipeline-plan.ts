@@ -4,10 +4,10 @@ export const pipelineStages=['coding','test','code_review','security_scan','fina
 export type PipelineStage=typeof pipelineStages[number];
 export const pipelineTasks:ReadonlyArray<{stage:PipelineStage;name:string;description:string}>=[
  {stage:'coding',name:'Codificação',description:'Implementar o escopo aprovado no G1 e publicar o código com commit, branch e Merge Request em rascunho. Registrar resultado e evidências nesta Tarefa.'},
- {stage:'test',name:'Teste',description:'Registrar o planejamento, as tentativas, o resultado e as evidências dos testes desta etapa. O executor desta etapa será definido na revisão posterior à codificação.'},
+ {stage:'test',name:'Teste em DEV',description:'Registrar o planejamento, as tentativas, o resultado e as evidências dos testes desta etapa. O executor desta etapa será definido na revisão posterior à codificação.'},
  {stage:'code_review',name:'Revisão de Código',description:'Registrar a revisão de código, seus achados e a evidência aplicável à revisão analisada.'},
  {stage:'security_scan',name:'Revisão de Segurança',description:'Registrar a análise de segurança, seus achados e a evidência aplicável à revisão analisada.'},
- {stage:'final_test',name:'Teste Final',description:'Registrar o planejamento, as tentativas, o resultado e as evidências do teste final. O executor desta etapa será definido na revisão posterior à codificação.'},
+ {stage:'final_test',name:'Teste em QA',description:'Registrar o planejamento, as tentativas, o resultado e as evidências do teste final. O executor desta etapa será definido na revisão posterior à codificação.'},
  {stage:'merge',name:'Merge de Código',description:'Registrar as tentativas e a confirmação da integração do código no GitLab. Integração não conclui a História nem promove uma release.'},
 ];
 export const planLimits={maxEpics:3,maxStoriesPerEpic:3,maxTaskDetailsPerStory:12,maxItems:30,maxBytes:40000} as const;

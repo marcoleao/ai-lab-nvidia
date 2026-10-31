@@ -18,7 +18,7 @@ async function fixture(page:Page) {
   const project = {...base,id:'flow-project',kind:'project',key:'FLOWPR',name:'Projeto da fixture de fluxo',status:'active',projectLifecycle:'active',parentId:system.id};
   const epic = {...base,id:'flow-epic',kind:'epic',key:'FLOWEP',name:'Épico da fixture de fluxo',status:'active',parentId:project.id};
   const story = {...base,id:storyId,kind:'story',key:'FLOW-001',name:'Consultar endereço do cliente',status:'specification',parentId:epic.id};
-  const tasks = ['Codificação','Teste','Revisão de Código','Revisão de Segurança','Teste Final','Merge de Código'].map((name,index)=>({...base,id:`flow-task-${index+1}`,kind:'task',key:`FLOW-T${index+1}`,name,status:'todo',parentId:story.id,managed:true,processOwned:true}));
+  const tasks = ['Codificação','Teste em DEV','Revisão de Código','Revisão de Segurança','Teste em QA','Merge de Código'].map((name,index)=>({...base,id:`flow-task-${index+1}`,kind:'task',key:`FLOW-T${index+1}`,name,status:'todo',parentId:story.id,managed:true,processOwned:true}));
   const repositories:Repository[] = [
     {id:'flow-repository',systemId:system.id,key:'app',name:system.name,runtime:'generic',gitlabProjectId:42,gitlabPath:'lab/flow/app',gitlabUrl:'http://gitlab.invalid/lab/flow/app',state:'ready',message:null,version:2},
   ];

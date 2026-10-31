@@ -1,4 +1,5 @@
 import {storyLifecycleViews} from './story-lifecycle-reading.ts';
+import {registerReleaseDevelopmentReadiness} from './release-development-readiness.ts';
 import {planningReferences,requirePlanningReference} from './planning-references.ts';
 import {planningReferenceReading,type PlanningReference} from '../../../packages/shared/src/planning-reference.ts';
 import {registerReleaseCompositions,recordComposition,currentComposition,compositionMembers,compositionSummary,type CompositionStory} from './release-compositions.ts';
@@ -28,12 +29,13 @@ const direction=z.enum(['asc','desc']);
 const pattern=(text:string)=>`%${text.replace(/[\\%_]/g,'\\$&')}%`;
 type StoryRow=Prisma.ItemGetPayload<{include:typeof storyInclude}>;
 type SummaryRow=Prisma.ReleaseGetPayload<{include:typeof summaryInclude}>;
-const capabilities={canBuild:false,canPromote:false,qualityChecksAvailable:false,cancellationAvailable:true};
+const capabilities={canBuild:false,canPromote:false,qualityChecksAvailable:false,cancellationAvailable:true,developmentReadinessAvailable:true};
 
 // All future gates/deployments must be backed by real executions and immutable
 // manifests. Planning never supplies substitute evidence or advances a Story.
 export function registerReleases(app:FastifyInstance,h:Helpers){
   registerReleaseCompositions(app,h);
+  registerReleaseDevelopmentReadiness(app,h);
   const reference=(row:{id:string;number:number;digest:string|null})=>({compositionRevisionId:row.id,compositionRevisionNumber:row.number,compositionDigest:row.digest});
   async function mutate(request:FastifyRequest,roles:Set<string>,fn:(tx:Transaction,person:Persona)=>Promise<unknown>){
     const person=h.actor(request);

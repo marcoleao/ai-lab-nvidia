@@ -6,7 +6,19 @@ import {Workspace} from './workspace.mjs';
 import {parse,parseExpression} from '@babel/parser';
 const file=z.object({path:z.string(),content:z.string()}).strict();
 const identity={path:z.string(),content:z.string().max(6000),expectedDigest:z.string().regex(/^[a-f0-9]{64}$/)};
-const edit=z.union([z.object({...identity,startLine:z.number().int().min(1),endLine:z.number().int().min(0)}).strict(),z.object({...identity,slot:z.string().regex(/^s\d+$/)}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),pattern:z.string().min(1).max(1500),flags:z.string().max(8),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),text:z.string().max(2000),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),locale:z.string().min(2).max(64),expectedDigest:identity.expectedDigest}).strict()]);
+const patternExample=z.object({value:z.string().min(1).max(300),expected:z.boolean()}).strict();
+const urlPolicy=z.object({schemes:z.array(z.enum(['http','https'])).min(1).max(2),allowPort:z.boolean(),allowQuery:z.boolean(),extensions:z.array(z.string().regex(/^[a-z0-9]{1,10}$/)).max(8)}).strict();
+const patternIdentity={path:z.string(),slot:z.string().regex(/^s\d+$/),flags:z.string().max(8),examples:z.array(patternExample).max(8).optional(),expectedDigest:identity.expectedDigest};
+const edit=z.union([z.object({...identity,startLine:z.number().int().min(1),endLine:z.number().int().min(0)}).strict(),z.object({...identity,slot:z.string().regex(/^s\d+$/)}).strict(),z.object({...patternIdentity,pattern:z.string().min(1).max(1500)}).strict(),z.object({...patternIdentity,urlPolicy}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),text:z.string().max(2000),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),locale:z.string().min(2).max(64),expectedDigest:identity.expectedDigest}).strict()]);
+// Bounded lexical HTTP URL policy, not a complete RFC parser or network trust check.
+// Hosts are ASCII names/IPv4; no userinfo, IPv6, fragments or stateful flags.
+export function webUrlPattern(raw){
+ const policy=urlPolicy.parse(raw);
+ if(new Set(policy.schemes).size!==policy.schemes.length||new Set(policy.extensions).size!==policy.extensions.length)throw Error('Opções de URL duplicadas.');
+ const label='[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?',host=label+'(?:\\.'+label+')*';
+ const path=policy.extensions.length?'\\/[^\\s?#]*\\.(?:'+policy.extensions.join('|')+')':'(?:\\/[^\\s?#]*)?';
+ return '^(?:'+policy.schemes.join('|')+'):\\/\\/'+host+(policy.allowPort?'(?::[0-9]{1,5})?':'')+path+(policy.allowQuery?'(?:\\?[^\\s#]*)?':'')+'(?![\\s\\S])';
+}
 const request=z.object({expectedSha:z.string().regex(/^[a-f0-9]{40}$/),files:z.array(file).max(32),allowDependencies:z.boolean(),writePaths:z.array(z.string()).max(2).nullable(),edits:z.array(edit).min(1).max(3)}).strict();
 const inspection=z.object({expectedSha:z.string().regex(/^[a-f0-9]{40}$/),files:z.array(file).max(32),inspectPath:z.string()}).strict();
 function dialogNode(node){return node.type==='ArrowFunctionExpression'&&node.body.type==='CallExpression'?node.body:node;}
@@ -54,7 +66,7 @@ export async function inspectCandidate(raw,root){
  return {state:'inspected',expectedSha:input.expectedSha,path:input.inspectPath,expectedDigest:source.sha256,slots:slots.slice(0,160).map(({start,end,...slot})=>slot),complete:slots.length<=160,totalSlots:slots.length};
 }
 export async function applyCandidate(raw,root){
- let input,workspace;
+ let input,workspace,patternChecks=[];
  try{
   input=request.parse(raw);workspace=new Workspace(root,input.files,{dependencies:input.allowDependencies,writePaths:input.writePaths});await workspace.seed();
   if(new Set(input.edits.map(e=>e.path)).size!==1)throw Error('Uma microproposta altera somente um arquivo.');
@@ -64,7 +76,14 @@ export async function applyCandidate(raw,root){
    const slots=sourceSlots(source.content,source.path),edits=input.edits.map(e=>{
     const slot=slots.find(s=>s.slot===e.slot);if(!slot||slot.slot.slice(1)>159)throw Error('Trecho não observado.');if(e.expectedDigest!==source.sha256)throw Error('A fonte da proposta mudou.');
     let content=e.content;
-    if('pattern'in e){if(slot.kind!=='RegExpLiteral'||e.flags!==slot.flags)throw Error('O perfil de padrões altera somente o literal RegExp observado, preservando flags.');content=new RegExp(e.pattern,e.flags).toString();}
+    if('pattern'in e||'urlPolicy'in e){
+     if(slot.kind!=='RegExpLiteral'||e.flags!==slot.flags)throw Error('O perfil de padrões altera somente o literal RegExp observado, preservando flags.');
+     if('urlPolicy'in e&&!/^[iu]*$/.test(e.flags))throw Error('Política de URL exige flags sem estado ou multilinha.');
+     const regex=new RegExp('urlPolicy'in e?webUrlPattern(e.urlPolicy):e.pattern,e.flags);content=regex.toString();
+     const checks=(e.examples??[]).map((example,index)=>{regex.lastIndex=0;const observed=regex.test(example.value);return {exampleIndex:index,expected:example.expected,observed,passed:observed===example.expected};});
+     patternChecks.push(...checks);
+     if(checks.some(check=>!check.passed))throw Error('O padrão não atende aos exemplos de entrada e resultado esperado do recorte aprovado.');
+    }
     if('text'in e){
      const node=parseExpression(slot.code,{plugins:['jsx']});if(!dialogCall(node))throw Error('O perfil de mensagens exige uma chamada de diálogo com texto literal observado.');const argument=dialogNode(node).arguments[0];content=slot.code.slice(0,argument.start)+JSON.stringify(e.text)+slot.code.slice(argument.end);
     }
@@ -81,10 +100,10 @@ export async function applyCandidate(raw,root){
      if(!parse(content,{sourceType:'module'}).program.body.every(n=>n.type==='ImportDeclaration'))throw Error('O trecho de imports aceita apenas declarações import.');
     }else{
      const options={plugins:[...( /\.[cm]?tsx?$/.test(source.path)?['typescript']:[]),...(/\.[jt]sx$/.test(source.path)?['jsx']:[])]};
-     let expression;try{expression=parseExpression(content,options);}catch{
+     let expression;try{expression=parseExpression(content,options);}catch(firstError){
       // Models commonly terminate an expression with a semicolon. Accept one
       // expression statement, never an entire program or a declaration.
-      try{const program=parse(content,{...options,sourceType:'module'}).program;if(program.body.length!==1||program.directives.length||program.body[0].type!=='ExpressionStatement')throw Error();expression=program.body[0].expression;content=content.slice(expression.start,expression.end);}catch{throw Error('O trecho '+slot.kind+' exige somente uma expressão completa, sem arquivo, declaração ou delimitadores externos.');}
+      try{const program=parse(content,{...options,sourceType:'module'}).program;if(program.body.length!==1||program.directives.length||program.body[0].type!=='ExpressionStatement')throw Error();expression=program.body[0].expression;content=content.slice(expression.start,expression.end);}catch{const error=Error('O trecho '+slot.kind+' exige somente uma expressão completa, sem arquivo, declaração ou delimitadores externos.');error.fragmentSyntaxIssue={message:String(firstError.message).slice(0,300),line:firstError.loc?.line??null,column:firstError.loc?.column??null};throw error;}
      }
      if(slot.kind==='RegExpLiteral'&&expression.type!=='RegExpLiteral')throw Error('RegExpLiteral exige somente o padrão; use o perfil de expressões regulares.');
     }
@@ -108,8 +127,8 @@ export async function applyCandidate(raw,root){
   const validation=await workspace.invoke('validate_candidate',{});
   if(!validation.valid)return {state:'failed',expectedSha:input.expectedSha,validation,tools:workspace.events,error:'A proposta não passou em sintaxe/imports.'};
   const final=await workspace.read(input.edits[0].path);
-  return {state:'succeeded',expectedSha:input.expectedSha,patch:await workspace.patch(),validation,missingComponents:missingComponents(final.content,final.path),tools:workspace.events};
- }catch(error){return {state:'failed',expectedSha:input?.expectedSha??raw?.expectedSha,error:String(error.message).slice(0,1500),tools:workspace?.events??[]};}
+  return {state:'succeeded',expectedSha:input.expectedSha,patch:await workspace.patch(),validation,missingComponents:missingComponents(final.content,final.path),tools:workspace.events,...(patternChecks.length?{patternChecks}:{})};
+ }catch(error){return {state:'failed',expectedSha:input?.expectedSha??raw?.expectedSha,error:String(error.message).slice(0,1500),tools:workspace?.events??[],...(patternChecks.length?{patternChecks}:{}),...(error.fragmentSyntaxIssue?{fragmentSyntaxIssue:error.fragmentSyntaxIssue}:{})};}
 }
 if(process.argv[1]===fileURLToPath(import.meta.url)){
  const input=JSON.parse(await fs.readFile('/request/patch.json','utf8'));

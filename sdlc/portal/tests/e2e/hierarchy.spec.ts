@@ -77,7 +77,7 @@ test('user creates an active hierarchy, inherits its System repository and recor
   expect(storyDetail.item.status).toBe('specification');
   expect(storyDetail.repositories.map((repository:{id:string})=>repository.id)).toEqual([systemRepository.id]);
   const pipelineTasks=storyDetail.children.filter((item:{kind:string})=>item.kind==='task');
-  expect(pipelineTasks.map((task:{name:string})=>task.name).sort()).toEqual(['Codificação','Teste','Revisão de Código','Revisão de Segurança','Teste Final','Merge de Código'].sort());
+  expect(pipelineTasks.map((task:{name:string})=>task.name).sort()).toEqual(['Codificação','Teste em DEV','Revisão de Código','Revisão de Segurança','Teste em QA','Merge de Código'].sort());
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();
   await expect(page.getByTestId('story-process')).toBeVisible();
   await expect(page.getByRole('list',{name:'Ciclo da História'})).toBeVisible();
