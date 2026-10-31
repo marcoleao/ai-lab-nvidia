@@ -138,6 +138,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Complete installation guards without Docker or inference
         run: python3 sdlc/portal/tests/installation-check.test.py
+      - name: Pinned SDLC image cache and failed registry contracts
+        run: python3 -m unittest discover -s sdlc/tests -p 'test_pinned_images.py' -v
       - name: Shell, Compose, lock, Python and Docker build gates
         run: bash lab/scripts/linux/quality-gates.sh
       # GPU smoke tests are executed by bootstrap/ai test on the workstation.

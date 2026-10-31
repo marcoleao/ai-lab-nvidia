@@ -208,10 +208,11 @@ PY
     [[ $forgejo_image =~ ^codeberg.org/forgejo/forgejo@sha256:[a-f0-9]{64}$ ]] || exit 1
     fingerprint=$(python3 "$root/source/services/control/package_fingerprint.py" "$root/source")
     app_image="agentic-sdlc/control:$fingerprint"
-    docker pull "$python_image"
-    docker pull "$postgres_image"
-    docker pull "$nginx_image"
-    docker pull "$forgejo_image"
+    source "$root/source/scripts/linux/pinned-images.sh"
+    ensure_pinned_image "$python_image"
+    ensure_pinned_image "$postgres_image"
+    ensure_pinned_image "$nginx_image"
+    ensure_pinned_image "$forgejo_image"
     docker build --build-arg "PYTHON_IMAGE=$python_image" -t "$app_image" -f "$root/source/docker/control.Dockerfile" "$root/source"
     cp "$root/source/compose.yaml" "$root/compose.yaml"
     printf 'SDLC_APP_IMAGE=%s\nSDLC_POSTGRES_IMAGE=%s\nSDLC_NGINX_IMAGE=%s\nSDLC_FORGEJO_IMAGE=%s\nSDLC_PORT=%s\nSDLC_FORGEJO_PORT=%s\n' "$app_image" "$postgres_image" "$nginx_image" "$forgejo_image" "$port" "$((port+1))" >"$root/runtime.env"

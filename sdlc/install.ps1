@@ -40,7 +40,12 @@ try {
         # Read-only checks must pass before starting or reconfiguring this stack.
         Invoke-PortalInstaller 'installation-check.py' @('preflight','--general-model',$GeneralModel,'--coding-model',$CodingModel)
         & "$PSScriptRoot/bootstrap.ps1" up
-        & "$PSScriptRoot/portal/bootstrap.ps1" up
+        # Existing overrides may reference credentials/sockets from a previous distro.
+        # Only the database consumes this base model; retain its networks so the
+        # relay can be configured before the API starts processing any queues.
+        Invoke-SdlcNative wsl.exe ($native+@('docker','compose','--all-resources',
+            '--project-directory',$portalPath,'-f',"$portalPath/compose.yaml",
+            'up','-d','--wait','--pull','never','--no-build','db'))
         Invoke-PortalInstaller 'installation-check.py' @('idle')
         Invoke-PortalInstaller 'connect-gitlab.py'
         Invoke-PortalInstaller 'connect-llm.py' @('--model',$GeneralModel)
