@@ -1,8 +1,10 @@
 # SDLC agêntico
 
+**LAB e SDLC do zero até DEV:** primeiro execute `lab/bootstrap.ps1 prepare sdlc`, `up sdlc` e `doctor`. Depois use `sdlc/install.ps1 prepare`, `up` e `doctor`. O entrypoint SDLC reúne núcleo/GitLab, Portal, scanner, conexões e executores de código, construção, destinos e testes DEV; ele não instala o LAB. Os modelos declarados permanecem os mesmos. [Pré-requisitos, comandos, downloads e roteiro manual](docs/instalacao-manual-ate-dev-2026-10-31.md). A instalação limpa dos dois nesta fonte ainda aguarda execução manual.
+
 Execute o bootstrap em PowerShell como administrador, na mesma conta Windows usada para instalar. Sem elevação, ele interrompe com orientação ao usuário.
 
-O bootstrap inicia sem dados de negócio, independentemente de marcadores de instalações anteriores. O usuário cria seu projeto durante a apresentação. `doctor` verifica a instalação sem criar exemplos; aceitação sintética fica restrita ao [ensaio descartável](docs/construcao-fase-0-2026-10-20.md). O comando de demo pré-fabricada foi removido.
+Uma instalação nova nasce sem dados de negócio. Reexecutar o bootstrap preserva os dados existentes e não cria exemplos; clonar o código em outra pasta não limpa a distro/volumes. O usuário cria seu projeto durante a apresentação. `doctor` verifica a instalação sem criar exemplos; aceitação sintética fica restrita ao [ensaio descartável](docs/construcao-fase-0-2026-10-20.md). O comando de demo pré-fabricada foi removido.
 
 A [nova fundação do Portal SDLC](portal/README.md) está em `sdlc/portal`, com navegação hierárquica, status e planejamento na porta 3310. Tem bootstrap e banco próprios; não substitui o portal legado ou migra seus dados nesta etapa. Veja a [revisão de UX](docs/ux-fundacao-2026-10-20.md).
 

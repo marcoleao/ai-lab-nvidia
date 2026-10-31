@@ -1,0 +1,50 @@
+{
+    "version":  1,
+    "date":  "2026-10-31",
+    "scope":  "Complete standard local SDLC installation path through DEV; manual execution pending",
+    "baseCommit":  "7558b80",
+    "workingTreeChangesIncluded":  true,
+    "validation":  {
+                       "sourcePresence":  "passed",
+                       "frozenModelAndExecutorFilesUnchanged":  8,
+                       "pythonInstallationContracts":  11,
+                       "powershellOrchestrationContracts":  "passed",
+                       "configurationAndPowerShellSyntax":  "passed"
+                   },
+    "execution":  {
+                      "operationalDataChanged":  false,
+                      "cleanInstallationExecuted":  false,
+                      "inferenceExecuted":  false,
+                      "businessJourneyExecuted":  false,
+                      "operationalContainersCreated":  false,
+                      "completeRegressionExecuted":  false
+                  },
+    "entrypoint":  "sdlc/install.ps1",
+    "commands":  [
+                     "prepare",
+                     "up",
+                     "doctor"
+                 ],
+    "models":  {
+                   "downloadsOrSelectionChangesInLab":  false,
+                   "general":  "qwen3.5:9b",
+                   "coding":  "qwen3:14b"
+               },
+    "sourceHashes":  {
+                         "sdlc/portal/scripts/regression.py":  "a0fac0411b338eb5c10e4abb9a85beabf8056fa6ab67761f3d8400505ef959f3",
+                         "sdlc/portal/scripts/prepared.py":  "22b86842a2facee14c225985e35692620b12d24437efaf60a5f5c714b2b8edb3",
+                         ".github/workflows/validate.yaml":  "df50e6821d2f73216b16ea5cfb3bd25a72bf3da866ccb51f923e5e9f40777c39",
+                         "sdlc/portal/scripts/installation-check.py":  "d85a6d14cc27a1e582a4a06d2a4814c77b2a0a0d6ac0c8a69eeaaf6eb53ce269",
+                         "sdlc/portal/bootstrap.ps1":  "d32d8bafe022f6b2903272a722027845d1f6c0a19909af2c7a5db357fd7b937d",
+                         "sdlc/portal/tests/installation-check.test.py":  "8e7d717bd5dfe20cd9e763984b16e9664257a6c8c43eee9c0460dd5569e5b347",
+                         "sdlc/install.ps1":  "ef4390afa7025a03caa792f107e98ef84051ab9b0d20b132f97deac51b2a6ff6",
+                         "sdlc/tests/install.tests.ps1":  "8c6fb8a417e25354f6d17359957d215a9a58f66b3a1c39d03f693c217d385c77"
+                     },
+    "limits":  [
+                   "Lightweight tests simulate external installers; real bootstrap and memory adequacy require manual acceptance.",
+                   "Existing WSL data/volumes are preserved; running prepare/up does not produce an empty installation.",
+                   "Current working tree including new files must be committed or copied before testing a fresh checkout.",
+                   "Profile uses core 3100, GitLab 3180 and Portal 3310. QA/HML/PRD and external OCI registry are outside this DEV installation receipt.",
+                   "Failure and intermediate test fixture corrections were not reclassified as successful infrastructure runs."
+               ]
+}

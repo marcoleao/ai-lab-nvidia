@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 source /opt/ai-local-lab/scripts/linux/common.sh
-has_profile core || exit 0
+if ! has_profile core && ! has_profile sdlc; then exit 0; fi
 installed=$(retry_command 'ollama list' "$MODEL_PULL_ATTEMPTS" "$MODEL_PULL_RETRY_DELAY_SECONDS" \
   dc exec -T ollama ollama list </dev/null | awk 'NR>1 {print $1}')
 while IFS= read -r model || [[ -n $model ]]; do

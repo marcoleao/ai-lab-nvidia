@@ -21,7 +21,7 @@ function Test-LabHost([switch]$Provision) {
             Write-Lab WARN 'GPU has less than 24 GB VRAM. Large declared models may offload to CPU or exhaust memory; start with qwen3:14b and a small context.'
         }
     }
-    if (($gpu -join '') -notmatch 'RTX 5000 Ada') { Write-Lab WARN 'GPU differs from RTX 5000 Ada; runtime CUDA tests remain mandatory.' }
+    if (($gpu -join '') -notmatch 'RTX 5000 Ada') { Write-Lab WARN 'GPU differs from RTX 5000 Ada; GPU computation checks for the selected profile remain mandatory.' }
     $driveRoot = [IO.Path]::GetPathRoot($script:Config.distro_directory)
     $drive = New-Object IO.DriveInfo $driveRoot
     $freeGB = $drive.AvailableFreeSpace / 1GB

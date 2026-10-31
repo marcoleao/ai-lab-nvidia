@@ -27,7 +27,9 @@ dc() {
   docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" "${flags[@]}" "$@"
 }
 has_profile() { [[ ,$LAB_PROFILES, == *",$1,"* ]]; }
+has_inference() { has_profile core || has_profile sdlc; }
 active_services() {
+  if has_profile sdlc; then printf '%s\n' ollama; fi
   if has_profile core; then printf '%s\n' ollama open-webui; fi
   if has_profile rag; then printf '%s\n' qdrant; fi
   if has_profile dev; then printf '%s\n' ai-dev jupyter; fi
@@ -39,4 +41,4 @@ service_state() {
   [[ -n $cid ]] || { echo 'missing'; return 0; }
   docker inspect --format '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' "$cid"
 }
-all_dc() { docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" --profile core --profile rag --profile dev --profile agents "$@"; }
+all_dc() { docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" --profile core --profile rag --profile dev --profile agents --profile sdlc "$@"; }

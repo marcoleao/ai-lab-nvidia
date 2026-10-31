@@ -56,7 +56,7 @@ services:
   ollama:
     <<: *gpu
     image: ${OLLAMA_IMAGE:?}
-    profiles: [core]
+    profiles: [core, sdlc]
     restart: unless-stopped
     mem_limit: ${OLLAMA_MEMORY_LIMIT:-8g}
     memswap_limit: ${OLLAMA_MEMORY_SWAP_LIMIT:-10g}

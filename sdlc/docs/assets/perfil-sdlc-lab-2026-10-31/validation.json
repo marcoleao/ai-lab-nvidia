@@ -1,0 +1,92 @@
+{
+    "version":  1,
+    "date":  "2026-10-31",
+    "scope":  "Exclusive minimal LAB profile for the current SDLC flow; code and lightweight contracts only",
+    "commands":  [
+                     "lab/bootstrap.ps1 prepare sdlc",
+                     "lab/bootstrap.ps1 up sdlc",
+                     "lab/bootstrap.ps1 doctor"
+                 ],
+    "runtimeServices":  [
+                            "ollama"
+                        ],
+    "preparedImageKeys":  [
+                              "OLLAMA_IMAGE"
+                          ],
+    "selectedModels":  [
+                           "qwen3.5:9b",
+                           "qwen3:14b"
+                       ],
+    "fullModelInventorySha256":  "f58b67b7404bf010bdc2f4e7f41df677612a72a5d76aa7d4f7a93688a16c6b9c",
+    "fullModelInventoryChanged":  false,
+    "existingWeightsDeleted":  false,
+    "modelsAndVersionsChanged":  false,
+    "nativeAgentAlgorithmsChanged":  false,
+    "resourceBudgetChanged":  false,
+    "excludedAssets":  [
+                           "open-webui",
+                           "qdrant",
+                           "jupyter",
+                           "ai-dev/PyTorch",
+                           "diagnostic CUDA image",
+                           "embedding/tokenizer caches",
+                           "permanent LAB qwen-code container"
+                       ],
+    "toolingLocation":  "Qwen Code/SDK and Chromium remain in the SDLC installer",
+    "checks":  {
+                   "newPythonContractsPassed":  19,
+                   "shellSyntaxEntryPointsChecked":  6,
+                   "composeLegacyCoreAgentsServices":  [
+                                                           "ollama",
+                                                           "open-webui",
+                                                           "qwen-code"
+                                                       ],
+                   "existingOfflineManifestContractsPassed":  3,
+                   "existingAgentToolContractsPassed":  4,
+                   "modelPullMockContract":  "passed",
+                   "composeSdlcServices":  [
+                                               "ollama"
+                                           ],
+                   "frozenModelAndExecutorFilesUnchanged":  8,
+                   "powershellProfileHostConfigurationContracts":  "passed"
+               },
+    "auditActions":  [
+                         "LAB_PROFILE_SELECTED",
+                         "LAB_SDLC_PROFILE_PREPARED"
+                     ],
+    "offlineManifestSchema":  3,
+    "execution":  {
+                      "cleanInstallationExecuted":  false,
+                      "weightsDownloaded":  false,
+                      "operationalContainersCreated":  false,
+                      "realInferenceExecuted":  false,
+                      "ciRunClaimed":  false,
+                      "realGpuSmokeExecuted":  false
+                  },
+    "sourceHashes":  {
+                         "lab/tests/test_sdlc_profile.py":  "4581182a5ae19ffe41ec9625658b245d6453e03eb6fda86eb1450ce9b0f3ca6f",
+                         "lab/compose.yaml":  "c48bbb008654e93b321ca09deeda7262b2ebeb2213dfb7c40769e6d57c026d67",
+                         "lab/scripts/linux/offline-manifest.py":  "2ad3a18ccf12d6d34d59c386abfca89f8d38b551e5f04632f18da69de4fc8fe0",
+                         "lab/scripts/linux/doctor.sh":  "3df954b71f4adc8d733b8b0a0419332b8eb024a1870b2e139bc124d0a0793528",
+                         "lab/bootstrap.ps1":  "6a43e74650ef1dfb11e6a00efe8048eb8358cbfb688fe69125d1b93be1310ed1",
+                         "lab/scripts/linux/sync.sh":  "64370c92c6cc0b1c8172d47da87a83a838791e7ad5218c43f06a0d5121676be4",
+                         "lab/config/sdlc-profile.json":  "cb72166be72ed968752c8a18ed36d40d75506bbedd6ab47b51af4d6b045a2e69",
+                         "lab/scripts/linux/profile_assets.py":  "9b1c949ef827d3d2c2b5703fa168757c101a26fe5d63e125d344b179cd7be71a",
+                         "lab/tests/test_ollama.py":  "d7dff3a392788a32b2ad4029342d052553839a046f5f88ed755cb73c3dc56547",
+                         "lab/scripts/linux/common.sh":  "f3fcb5faf1de94e98ce4c99f69d9809249ce3b0b3b582e58d46c12036e727bb1",
+                         "lab/scripts/windows/helpers.ps1":  "61dde29af7cc9dccac331befacec91add9bb8039301de0ff77787637aa5c8860",
+                         "lab/scripts/linux/lab.sh":  "7cba704b1e6cbffe5a0631212542c2d021e472bbea96734ca2dddffe050f0e3c",
+                         "lab/tests/sdlc-profile.tests.ps1":  "e90bd267a502cfdff0c8e0531e37b7749c99ded81713bea59ef45459dd4e3ef5",
+                         "lab/tests/smoke-test.sh":  "32d2240f12910281af799fae54b601f50b75dbe693651cbc4b057a8a2c56b89f",
+                         "lab/scripts/windows/doctor.ps1":  "2186afbeda9bbe3a60b7fcb840a9ed85c435e87a19313ed8c3a19a68346d12dd",
+                         "lab/scripts/linux/pull-models.sh":  "a5cd616d8e5f2a20fd5506422507f0c85ec764bac1edd000719d3086fa2b22d8"
+                     },
+    "limits":  [
+                   "All new Docker/HTTP/GPU operations were mocked in unit tests; Compose was rendered without launching services.",
+                   "Real clean installation, model download availability and application acceptance remain manual.",
+                   "Installed extra weights/images/volumes are retained. Profile change does not make an existing installation empty.",
+                   "Legacy active LAB services must be stopped before switching; doctor refuses a minimal-profile readiness claim while they remain active.",
+                   "Full machine memory adequacy and local model construction quality are not certified by reducing installed assets.",
+                   "The working tree including all new files must be included in the version used for manual acceptance."
+               ]
+}

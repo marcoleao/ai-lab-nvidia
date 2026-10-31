@@ -29,17 +29,12 @@ try {
     $rest = @($Options | Where-Object { $_ -notin '--yes','--ephemeral','-f' })
     if (($yes -and $Command -notin 'nuke','reset','destroy') -or ($ephemeral -and $Command -ne 'up') -or ($follow -and $Command -ne 'logs')) { throw 'Option is not valid for this command.' }
     $profiles = @($script:Config.profiles)
-    if ($Command -in 'up','prepare' -and $rest.Count) {
-        if ($rest.Count -ne 1) { throw 'Usage: ai up [core|rag|dev|agents|all]' }
-        switch ($rest[0]) {
-            'all' { $profiles = @('core','rag','dev','agents') }
-            'core' { $profiles = @('core') }
-            'rag' { $profiles = @('core','rag') }
-            'dev' { $profiles = @('core','dev') }
-            'agents' { $profiles = @('core','agents') }
-            default { throw 'Choose core, rag, dev, agents or all. Observability remains reserved.' }
-        }
+    if ($Command -in 'up','prepare') {
+        $profiles = @(Resolve-LabProfiles -Requested $rest -Configured $profiles -RuntimeFile (Join-Path $script:Repo '.state/runtime.env'))
     } elseif ($Command -ne 'logs' -and $rest.Count) { throw 'Unexpected command arguments.' }
+    if ($Command -notin 'up','prepare') {
+        $profiles = @(Resolve-LabProfiles -Requested @() -Configured $profiles -RuntimeFile (Join-Path $script:Repo '.state/runtime.env'))
+    }
     if ($Command -eq 'logs' -and ($rest.Count -gt 1 -or ($rest.Count -eq 1 -and $rest[0] -notin 'ollama','open-webui','qdrant','ai-dev','jupyter','qwen-code'))) { throw 'Invalid log service.' }
     foreach ($directory in '.state','.logs') {
         $target = Join-Path $script:Repo $directory
@@ -58,7 +53,7 @@ try {
         Sync-Lab $profiles $ephemeral
         Set-Step 'Prepare local images, model caches and offline manifest'
         Invoke-Linux @('bash','/opt/ai-local-lab/scripts/linux/lab.sh','prepare')
-        Show-Endpoints
+        Show-Endpoints $profiles
     } else {
         if ($Command -eq 'doctor') { Test-LabHost }
         if ($script:Config.distro_name -notin (Get-Distros)) { throw 'Dedicated distro not found. Run .\bootstrap.ps1 prepare all first.' }
@@ -83,7 +78,7 @@ try {
             if ($Command -eq 'logs') { if ($follow) { $linuxArgs += '-f' }; $linuxArgs += $rest }
             Set-Step "Run $Command"
             Invoke-Linux $linuxArgs
-            if ($Command -in 'up','restart','reset','rebuild','update','jupyter') { Show-Endpoints }
+            if ($Command -in 'up','restart','reset','rebuild','update','jupyter') { Show-Endpoints $profiles }
         }
     }
 } catch {

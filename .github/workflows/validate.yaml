@@ -125,11 +125,19 @@ jobs:
       - name: SDLC configuration and governance contracts
         shell: powershell
         run: ./sdlc/bootstrap.ps1 validate
+      - name: Complete SDLC installer contracts without provisioning
+        shell: powershell
+        run: ./sdlc/tests/install.tests.ps1
+      - name: Minimal LAB profile selection contracts
+        shell: powershell
+        run: ./lab/tests/sdlc-profile.tests.ps1
   linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+      - name: Complete installation guards without Docker or inference
+        run: python3 sdlc/portal/tests/installation-check.test.py
       - name: Shell, Compose, lock, Python and Docker build gates
         run: bash lab/scripts/linux/quality-gates.sh
       # GPU smoke tests are executed by bootstrap/ai test on the workstation.

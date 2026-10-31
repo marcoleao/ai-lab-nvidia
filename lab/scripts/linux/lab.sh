@@ -65,6 +65,9 @@ start_stack() {
 case "$action" in
   prepare)
     configure_override
+    if has_profile sdlc; then
+      python3 scripts/linux/profile_assets.py prepare-sdlc
+    else
     for image in "$OLLAMA_IMAGE" "$OPEN_WEBUI_IMAGE" "$QDRANT_IMAGE" "$CUDA_IMAGE" "$PYTORCH_IMAGE" "$UV_IMAGE" "$NODE_IMAGE"; do
       docker pull "$image"
     done
@@ -76,6 +79,7 @@ case "$action" in
       -e TIKTOKEN_CACHE_DIR=/app/backend/data/cache/tiktoken "$OPEN_WEBUI_IMAGE" python -c \
       "from huggingface_hub import snapshot_download; snapshot_download('sentence-transformers/all-MiniLM-L6-v2', cache_dir='/app/backend/data/cache/embedding/models'); import tiktoken; tiktoken.get_encoding('cl100k_base')"
     python3 scripts/linux/offline-manifest.py prepare
+    fi
     ;;
   up) configure_override; start_stack ;;
   down) all_dc down --remove-orphans ;;
@@ -85,15 +89,20 @@ case "$action" in
     docker info --format 'Docker {{.ServerVersion}}; runtime {{json .Runtimes}}'
     all_dc ps -a
     /usr/lib/wsl/lib/nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv
-    if has_profile core; then dc exec -T ollama ollama list; fi
+    if has_inference; then dc exec -T ollama ollama list; fi
     df -h /; docker system df -v
-    printf 'Configured bind: %s; WebUI http://localhost:%s; Qdrant http://localhost:%s; Jupyter http://localhost:%s\n' "$BIND_ADDRESS" "$WEBUI_PORT" "$QDRANT_PORT" "$JUPYTER_PORT"
+    if has_profile sdlc; then
+      echo '[INFO] SDLC profile: only internal Ollama; no optional LAB web interfaces.'
+    else
+      printf 'Configured bind: %s; WebUI http://localhost:%s; Qdrant http://localhost:%s; Jupyter http://localhost:%s\n' "$BIND_ADDRESS" "$WEBUI_PORT" "$QDRANT_PORT" "$JUPYTER_PORT"
+    fi
     ;;
   doctor) bash scripts/linux/doctor.sh ;;
   test) bash tests/smoke-test.sh ;;
   logs) dc logs --tail 100 "$@" ;;
   models) has_profile core || { echo '[ERROR] Activate core first'; exit 1; }; dc exec -T ollama ollama list ;;
   dev|jupyter)
+    if has_profile sdlc; then echo '[ERROR] Prepare the dev profile explicitly before enabling Python/Jupyter.' >&2; exit 1; fi
     if ! has_profile dev; then
       LAB_PROFILES="$LAB_PROFILES,dev"; export LAB_PROFILES
       sed -i "s/^LAB_PROFILES=.*/LAB_PROFILES=$LAB_PROFILES/" .runtime.env

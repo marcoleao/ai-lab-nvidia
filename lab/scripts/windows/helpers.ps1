@@ -53,10 +53,37 @@ function Read-LabConfig {
         if ($uri.Scheme -ne 'https' -or $uri.Host -ne 'cloud-images.ubuntu.com') { throw 'Rootfs must use official Canonical HTTPS URLs.' }
     }
     if ($result.rootfs_sha256 -and $result.rootfs_sha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Invalid rootfs SHA256.' }
-    foreach ($profile in $result.profiles) { if ($profile -notin 'core','rag','dev','agents','observability') { throw "Unknown profile: $profile" } }
+    foreach ($profile in $result.profiles) { if ($profile -notin 'core','rag','dev','agents','observability','sdlc') { throw "Unknown profile: $profile" } }
+    if ('sdlc' -in $result.profiles -and @($result.profiles).Count -ne 1) { throw 'Select sdlc alone; other LAB profiles remain separate.' }
     $result.distro_directory = [IO.Path]::GetFullPath([Environment]::ExpandEnvironmentVariables($result.distro_directory))
     Assert-LabPath $result.distro_directory $result.distro_name
     return $result
+}
+function Resolve-LabProfiles([string[]]$Requested,[string[]]$Configured,[string]$RuntimeFile) {
+    if ($Requested.Count -gt 1) { throw 'Usage: bootstrap prepare|up [sdlc|core|rag|dev|agents|all]' }
+    if ($Requested.Count -eq 1) {
+        switch ($Requested[0]) {
+            'sdlc' { return @('sdlc') }
+            'all' { return @('core','rag','dev','agents') }
+            'core' { return @('core') }
+            'rag' { return @('core','rag') }
+            'dev' { return @('core','dev') }
+            'agents' { return @('core','agents') }
+            default { throw 'Choose sdlc, core, rag, dev, agents or all.' }
+        }
+    }
+    # Retrying without a profile preserves the last explicit selection.
+    $selected=@($Configured)
+    if (Test-Path -LiteralPath $RuntimeFile) {
+        if ((Get-Item -LiteralPath $RuntimeFile -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Runtime profile cannot be a link.' }
+        $profileDeclarations=@(Get-Content -LiteralPath $RuntimeFile | Where-Object {$_ -match '^LAB_PROFILES='})
+        if ($profileDeclarations.Count -ne 1) { throw 'Expected one persisted LAB_PROFILES declaration.' }
+        $selected=@($profileDeclarations[0].Substring('LAB_PROFILES='.Length).Split(','))
+    }
+    if (-not $selected.Count -or @($selected | Sort-Object -Unique).Count -ne $selected.Count) { throw 'Invalid persisted LAB profiles.' }
+    foreach ($profile in $selected) { if ($profile -notin 'core','rag','dev','agents','observability','sdlc') { throw 'Unknown persisted LAB profile.' } }
+    if ('sdlc' -in $selected -and $selected.Count -ne 1) { throw 'Select sdlc alone.' }
+    return $selected
 }
 function Assert-LabPath([string]$Path, [string]$Name) {
     $full = [IO.Path]::GetFullPath($Path).TrimEnd('\','/')
@@ -247,8 +274,9 @@ function Sync-Lab([string[]]$Profiles, [bool]$Ephemeral) {
     $source = Convert-ToLinuxPath $script:Repo
     Invoke-Linux -Root @('bash', '/opt/ai-local-lab/scripts/linux/sync.sh', $source)
 }
-function Show-Endpoints {
-    Write-Lab OK "Open WebUI: http://localhost:$($script:Config.webui_port) (core)"
-    Write-Lab OK "Qdrant: http://localhost:$($script:Config.qdrant_port) (rag; API key required)"
-    Write-Lab OK "Jupyter: http://localhost:$($script:Config.jupyter_port) (dev; token in .env, never printed)"
+function Show-Endpoints([string[]]$Profiles) {
+    if ('sdlc' -in $Profiles) { Write-Lab OK 'SDLC profile: internal Ollama and the two declared SDLC models. Continue with sdlc/install.ps1.' }
+    if ('core' -in $Profiles) { Write-Lab OK "Open WebUI: http://localhost:$($script:Config.webui_port) (core)" }
+    if ('rag' -in $Profiles) { Write-Lab OK "Qdrant: http://localhost:$($script:Config.qdrant_port) (rag; API key required)" }
+    if ('dev' -in $Profiles) { Write-Lab OK "Jupyter: http://localhost:$($script:Config.jupyter_port) (dev; token in .env, never printed)" }
 }

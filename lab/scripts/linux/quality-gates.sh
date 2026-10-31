@@ -5,6 +5,7 @@ for file in scripts/linux/*.sh tests/*.sh; do bash -n "$file"; done
 bash tests/test_resilience.sh
 bash tests/test_pull_models.sh
 python3 tests/test_offline_manifest.py
+python3 tests/test_sdlc_profile.py
 python3 tests/test_agent_tools.py
 python3 tests/test_offline_network.py
 python3 tests/test_network_migration.py

@@ -1,8 +1,10 @@
 # AI Local Lab — NVIDIA / WSL2
 
+**Para instalar somente o necessário ao SDLC:** execute `lab/bootstrap.ps1 prepare sdlc`, depois `up sdlc` e `doctor`. O novo perfil inicia apenas Ollama e prepara `qwen3.5:9b`/`qwen3:14b`; não prepara WebUI, Qdrant, PyTorch/Jupyter, embeddings ou ferramentas de código no LAB. Qwen Code e Chromium ficam no instalador do SDLC. [Escopo, mudança de perfil, testes e limites](docs/sdlc-profile.md). Modelos já instalados são preservados; instalação real desta opção aguarda teste manual.
+
 Laboratório em distro exclusiva ai-local-lab: Docker, NVIDIA Container Toolkit, Ollama, Open WebUI, Qdrant, Python/PyTorch e Jupyter.
 
-O perfil padrão é `core,agents`: Ollama, WebUI e ferramenta Qwen Code preparada. Use `prepare agents` e `up agents` para esse recorte; `rag`, `dev` e `all` continuam disponíveis. A mudança de perfil preserva volumes e não garante que serviços anteriormente iniciados tenham sido parados. Não aumente memória WSL automaticamente: as distros compartilham a VM e a pressão do Windows também precisa ser conferida.
+O perfil geral padrão continua `core,agents`: Ollama, WebUI e ferramenta Qwen Code preparada. Use `sdlc` para o Portal; `agents`, `rag`, `dev` e `all` atendem aos usos gerais do LAB. A mudança de perfil preserva volumes; pare o LAB antes de trocar se houver serviços ativos. O perfil `sdlc` recusa confirmar prontidão com serviços opcionais ainda ativos. Não aumente memória WSL automaticamente: as distros compartilham a VM e a pressão do Windows também precisa ser conferida.
 
 Correções locais com escopo menor (31/10): o Portal prepara `micro-json-v1`, com localizador, seletor de trechos, um editor por capacidade e perfil de imports, seguidos de planejamento, pré-requisitos e operação da UI. Padrões, mensagens e localidade decimal são propostas de dados com montagem pelo coordenador; os demais casos usam expressão validada. O bootstrap de codificação seleciona `qwen3:14b`, com raciocínio somente no editor de padrões e sem raciocínio nos demais papéis; o modelo geral continua no 9B. Nove controles sintéticos passaram com fonte estável; executor e portal foram publicados. O MR !8 do catálogo chegou a DEV e os seis casos focais de fotos passaram pela interface. Edição, C3/C4, os 28 casos completos e a regressão limpa continuam pendentes, acompanhado no [plano LP](../sdlc/docs/agentes-locais-escopo-reduzido-2026-10-31.md). O coder 7B/UI 14B foi avaliado e reprovado, sem adoção operacional. Qwen Code/SDK permanecem fixados; o parser Babel também usa versão e integridade no lock. Ferramentas não executam código de projeto durante edição/sintaxe. Os testes de UI só rodam a candidata no Chromium isolado; um controle sem nome usa correspondência exata e índice entre anônimos, sem atingir campos nomeados.
 
@@ -29,7 +31,7 @@ A partir da raiz do repositório:
 .\lab\bootstrap.ps1 up all
 ```
 
-Prepare valida o SHA256 do rootfs Ubuntu datado, importa a distro própria, instala Docker/Toolkit, baixa imagens/modelos declarados, constrói Python pelo lock e preenche os caches MiniLM e cl100k_base. Registra configurações, IDs de imagens e modelos no manifesto privado. Se interrompido, repita prepare all.
+Prepare valida o SHA256 do rootfs Ubuntu datado, importa a distro própria e instala Docker/Toolkit. Nos perfis gerais, baixa imagens/modelos declarados, constrói Python pelo lock e preenche MiniLM/cl100k_base. No perfil `sdlc`, prepara só Ollama e os dois modelos existentes selecionados. Registra configurações e ativos por perfil no manifesto privado. Se interrompido, repita prepare com o mesmo perfil; a seleção explícita é preservada quando o argumento é omitido.
 
 Up exige preparação válida, usa --no-build/--pull never e executa doctor/smoke. Configuração alterada ou imagem ausente exige novo prepare. Containers têm saída externa bloqueada; comunicação local e respostas às portas publicadas permanecem permitidas. O bloqueio é reaplicado nas operações e na inicialização do Docker. Prepare libera temporariamente a saída e restaura o bloqueio ao terminar, inclusive em falha.
 
@@ -43,8 +45,8 @@ Use bootstrap.ps1 ou ai.cmd dentro de lab/.
 
 | Comando | Comportamento |
 | --- | --- |
-| prepare [all/core/rag/dev/agents] | Preparar explicitamente com internet |
-| sem argumento / up [all/core/rag/dev/agents] | Iniciar e validar artefatos locais |
+| prepare [sdlc/all/core/rag/dev/agents] | Preparar explicitamente com internet |
+| sem argumento / up [sdlc/all/core/rag/dev/agents] | Iniciar e validar artefatos locais; preservar a seleção persistida |
 | down | Remover containers/rede; preservar volumes/imagens |
 | restart | Reiniciar e validar usando imagens locais |
 | status / doctor / test | Estado, diagnóstico e testes locais |

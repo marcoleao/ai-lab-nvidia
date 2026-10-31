@@ -38,18 +38,42 @@ def scanner_matches_source():
     return actual == {name:hashlib.sha256((ROOT/'security'/name).read_bytes()).hexdigest() for name in ['service.py','rules.yaml']}
 
 
-if __name__ == '__main__':
-    command = sys.argv[1] if len(sys.argv) == 2 else ''
-    manifest = ROOT / '.prepared/manifest.json'
-    if command == 'prepare':
-        snapshot = fingerprint()
+def prepare():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
+    from audit_admin import administrative_operation, atomic_json, runtime_root
+    snapshot = fingerprint()
+    def manifest_state():
+        path = ROOT / '.prepared/manifest.json'
+        if path.is_symlink() or path.parent.is_symlink():
+            raise RuntimeError('Prepared manifest cannot be a symbolic link')
+        return json.loads(path.read_text()) if path.exists() else None
+    with administrative_operation('PORTAL_IMAGES_PREPARED', source='portal/prepared',
+                                  details={'scope':'portal-api-web-scanner-no-business-data','manifestDigest':snapshot}) as operation:
+        private = runtime_root() / 'portal/preparation-operations' / operation.id
+        if private.resolve() != private.absolute():
+            raise RuntimeError('Preparation evidence cannot traverse symbolic links')
+        private.mkdir(parents=True, mode=0o700, exist_ok=False)
+        private.parent.chmod(0o700)
+        atomic_json(private / 'before.json', {'source':snapshot,'preparedManifest':manifest_state()})
         subprocess.run(['docker', 'pull', POSTGRES], check=True)
         subprocess.run(['docker', 'pull', SCANNER], check=True)
         subprocess.run(['docker', 'build', '--network=none', '-t', 'sdlc-security-scanner:prepared', str(ROOT / 'security')], check=True)
         subprocess.run(['docker', 'build', '--build-arg', 'SOURCE_SHA256=' + snapshot, '-t', 'sdlc-portal:prepared', '-f', str(ROOT / 'infra/Dockerfile'), str(ROOT)], check=True)
         if snapshot != fingerprint() or snapshot != image_source():
-            raise SystemExit('Source changed during preparation; repeat prepare')
-        command = 'record'
+            raise RuntimeError('Source changed during preparation; repeat prepare')
+        # The result is only confirmed after scanner/source verification and the
+        # prepared manifest have been recorded by the same public CLI.
+        subprocess.run([sys.executable, str(Path(__file__).resolve()), 'record'], check=True)
+        atomic_json(private / 'after.json', {'source':snapshot,'preparedManifest':manifest_state()})
+        operation.result(imageId=image_id('sdlc-portal:prepared'))
+
+
+if __name__ == '__main__':
+    command = sys.argv[1] if len(sys.argv) == 2 else ''
+    manifest = ROOT / '.prepared/manifest.json'
+    if command == 'prepare':
+        prepare()
+        sys.exit(0)
     if command == 'record':
         if image_source() != fingerprint():
             raise SystemExit('Image does not match current source; run prepare')

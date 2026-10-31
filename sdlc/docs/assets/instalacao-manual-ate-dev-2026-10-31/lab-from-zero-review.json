@@ -1,0 +1,43 @@
+{
+    "version":  1,
+    "date":  "2026-10-31",
+    "scopeCorrection":  "Manual acceptance includes both LAB and SDLC from an empty state; previous receipt covered SDLC with LAB already available",
+    "labEntrypoint":  "lab/bootstrap.ps1",
+    "labCommands":  [
+                        "prepare agents",
+                        "up agents",
+                        "doctor"
+                    ],
+    "sdlcEntrypoint":  "sdlc/install.ps1",
+    "sdlcCommands":  [
+                         "prepare",
+                         "up",
+                         "doctor"
+                     ],
+    "checks":  {
+                   "lockClosure":  "149 registry packages and artifact hashes checked",
+                   "labSourceChanged":  false,
+                   "inferenceExecuted":  false,
+                   "hostPrerequisiteContracts":  "passed with mocks",
+                   "labStaticConfigurationAndPathContracts":  "passed",
+                   "cleanInstallationExecuted":  false,
+                   "modelsOrVersionsChanged":  false
+               },
+    "preparationScope":  "Existing LAB preparation still processes all declared models and common image/Python/tokenizer caches; agents limits runtime profile, not model download inventory",
+    "sourceHashes":  {
+                         "lab/compose.yaml":  "d31230b1b6a33526f423f49ce7c3f92c807d46e0781f9ea4067517a6bba4f04f",
+                         "lab/scripts/linux/lab.sh":  "825bdeed19fae1646af880094d2fc26b50f435c825989e8af53afdb86cd93b93",
+                         "lab/scripts/linux/pull-models.sh":  "73e8ce5ab122465a9d648e780689fe34138d779bbc894d678f0e74b0925a4b7f",
+                         "lab/config/models.yaml":  "f58b67b7404bf010bdc2f4e7f41df677612a72a5d76aa7d4f7a93688a16c6b9c",
+                         "lab/scripts/windows/create-wsl.ps1":  "d6f41dcd5b0aabeeb268a5fdbf3ceb07635f6d8a0a4c0b740099887808fb9697",
+                         "lab/bootstrap.ps1":  "d5485372895e865cff0238e7bea4e8495c0ea189e1fae45c175fb627e3143039",
+                         "lab/config/lab.yaml":  "ac0bd65cea7d4d538b48e8a35b77503904dae06bcfcf09b3929eff5a659df101",
+                         "lab/config/versions.env":  "0188b5fb443e3bc5c08aad078c6fbd75e8124c241f62f195bcb4fd0dbf98c3bb",
+                         "lab/scripts/linux/bootstrap.sh":  "8e21de689bcd22553e9c445430851588a7607e0b59c0a5aa77478f9646020c00"
+                     },
+    "remaining":  [
+                      "Manual clean LAB installation including actual model downloads and GPU smoke",
+                      "Manual clean SDLC installation and readiness",
+                      "New System journey through agents to DEV"
+                  ]
+}

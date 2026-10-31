@@ -28,9 +28,13 @@ class OfflinePrerequisites(unittest.TestCase):
             root = Path(directory)
             (root / 'config').write_text('changed' if changed_file else 'prepared')
             (root / '.offline-manifest.json').write_text(json.dumps({
+                'version':manifest.SCHEMA_VERSION,'profiles':['core'],
                 'files': {'config': hashlib.sha256(b'prepared').hexdigest()},
                 'images': {'local:image': 'sha256:prepared'}, 'models': {}}))
             with patch.object(manifest, 'ROOT', root), patch.object(manifest, 'FILES', ('config',)), \
+                    patch.object(manifest,'runtime_profiles',return_value=['core']), \
+                    patch.object(manifest,'image_plan',return_value=['local:image']), \
+                    patch.object(manifest,'selected_models',return_value=[]), \
                     patch.object(sys, 'argv', ['manifest', 'verify']), \
                     patch.object(manifest, 'output', return_value='[{"Id":"sha256:changed"}]') as command:
                 with self.assertRaisesRegex(RuntimeError, 'prepare'):

@@ -21,7 +21,9 @@ if ($Command -eq 'prepare-agents') {
     Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/prepared.py",'prepare'))
 } else {
     if ($Command -in 'up','doctor') {
-        Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/../scripts/reconcile-docker-networks.py"))
+        if ($Command -eq 'up') {
+            Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/../scripts/reconcile-docker-networks.py"))
+        }
         Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/prepared.py",'verify'))
     }
     $composeArguments = $wslArguments + @('docker','compose','--project-directory',$portalPath,'-f',"$portalPath/compose.yaml")

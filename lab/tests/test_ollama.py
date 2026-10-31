@@ -1,13 +1,21 @@
 import json
 import os
 import urllib.request
+import urllib.parse
+import ipaddress
 
 
 def request(path, payload=None):
+    base=os.environ.get('OLLAMA_SMOKE_URL','http://ollama:11434')
+    parsed=urllib.parse.urlsplit(base)
+    if parsed.scheme!='http' or parsed.username or parsed.password or parsed.path not in ['','/'] or parsed.query or parsed.fragment or parsed.port!=11434:
+        raise ValueError('Expected the internal Ollama endpoint')
+    if parsed.hostname!='ollama' and not ipaddress.ip_address(parsed.hostname).is_private:
+        raise ValueError('Expected the private LAB address')
     data = None if payload is None else json.dumps(payload).encode()
-    req = urllib.request.Request("http://ollama:11434" + path, data=data,
+    req = urllib.request.Request(base.rstrip('/') + path, data=data,
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=600) as response:
+    with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(req, timeout=600) as response:
         return json.load(response)
 
 

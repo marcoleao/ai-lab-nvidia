@@ -1,5 +1,7 @@
 # Plano incremental: desenvolvimento, releases e ambientes
 
+**Pausa para instalação/teste manual — 31/10/2026:** por orientação do usuário e limitação de recursos, não recriar o ambiente nem executar regressão/inferência nesta rodada. O teste será de **LAB e SDLC do zero**: primeiro o bootstrap público do LAB (`prepare sdlc/up sdlc/doctor`), depois `sdlc/install.ps1 prepare/up/doctor`. O instalador SDLC isolado não instala o LAB; a premissa anterior foi corrigida. Onze contratos Python, contratos PowerShell de orquestração/host e validação estática aprovados; instalação limpa dos dois e jornada real continuam pendentes para o usuário. [Roteiro, downloads e limites](instalacao-manual-ate-dev-2026-10-31.md). Próximas RAs funcionais permanecem aguardando esse teste; as definições dos modelos do LAB estão congeladas.
+
 **RA-15a publicada — 31/10/2026:** conferência integral das fontes de desenvolvimento da composição salva, com impedimentos e ações por História, sem autorizar QA. O usuário autorizou retomar a implementação após a entrega focal de fotos em DEV e congelou os modelos do LAB; oito fontes/configurações conferidas permaneceram iguais. 73 testes backend, 42 cenários de interface e duas navegações reais somente leitura aprovados. A RA-15 agregada continua parcial: inventário/proveniência do código (RA-15b), fechamento e pacote são entregas próprias. A retomada não aprova os testes/OKs pendentes do piloto. [Recibo corrente e roteiro](#50-ra-15a--conferência-integral-do-desenvolvimento).
 
 **RA-11c publicada — preparação pelo assistente:** ação junto à conversa do Sistema, painel/confirmações e pedido compartilhados com o repositório, metadados atuais e recuperação preservada. 83 testes backend e 59 cenários únicos no runtime final verificados em rodadas dirigidas. [Recibo e roteiro](#41-ra-11c--preparação-da-aplicação-pelo-assistente). OK manual pendente. Próxima fatia: RA-12a, destino DEV do Sistema.
@@ -2151,3 +2153,35 @@ Rodadas anteriores permanecem preservadas: os primeiros testes adicionados antes
 Na interface real, a release existente exibiu corretamente composição ainda não conferida, sem inventar aprovação a partir de dados antigos. Consulta, atualização, abertura/fechamento por teclado e ausência de overflow passaram em 1440/390; nenhuma requisição mutante ou erro de página. Duas primeiras verificações externas pressionavam Enter presumindo detalhes fechados, mas a URL atualizada já os abrira; o roteiro foi corrigido para conferir fechar e abrir a partir do estado observado. Não houve alteração de produto ou expectativa para esse resultado. [Recibo seguro de validação/publicação](assets/ra15a-conferencia-desenvolvimento-2026-10-31/validation.json).
 
 **Próxima implementação:** RA-15b, prova da composição real do código/base e dependências efetivas. Fechar e preparar o pacote QA permanecem RA-16a/b e exigem resolver a política DE-08. O estado técnico desta entrega não fornece OK manual nem substitui regressão completa ou aceitação do piloto.
+
+## 51. Instalação consolidada para teste manual
+
+Data: 31/10/2026. Usuário pediu interromper a criação de ambientes/testes pesados, completar o código de instalação e executar pessoalmente o aceite. `sdlc/install.ps1 prepare/up/doctor` passa a reunir os passos públicos de núcleo/GitLab, Portal, conexões e executores. O diagnóstico valida as seis integrações de DEV, fontes instaladas, serviços e conta dedicada de merge; recusa falta de modelos/imagens e troca silenciosa da seleção instalada. Modelos, ferramentas/algoritmos dos agentes e dados de negócio não foram alterados. Não instala infraestrutura QA/HML/PRD.
+
+**Verificação:** onze contratos Python, contratos PowerShell de orquestração e validação de configuração/sintaxe passaram. Falha injetada interrompe antes das próximas etapas; retentativa libera/reutiliza o lock e preserva o resultado anterior. Auditoria de preparação pública inclui falha e mudança de fonte antes da confirmação. Oito arquivos congelados do LAB/executor continuam com os mesmos hashes. Rodadas intermediárias tiveram erro no mock de argumentos sem parâmetros e no caminho do módulo de auditoria em fixture isolada; ambos foram corrigidos no teste/caminho de importação, sem rodar instalação real.
+
+Não foram criados containers operacionais, ambiente limpo, inferência, dados de negócio ou publicação nesta entrega. Instalação realmente limpa, adequação da memória, jornada dos agentes e regressão completa continuam pendentes. `prepare/up` preservam os volumes existentes; a cópia usada no teste precisa conter os novos arquivos desta árvore de trabalho, ainda sem commit automático.
+
+- [x] Instalação necessária ao perfil DEV descrita no código público.
+- [x] Contratos leves, diagnóstico e roteiro registrados.
+- [ ] Usuário: executar instalação em estado limpo e conferir doctor.
+- [ ] Usuário: criar novo Sistema pela interface e percorrer até DEV/Teste em DEV/Desenvolvimento Finalizado.
+- [ ] Regressão completa e próximas RAs, após o aceite.
+
+[Roteiro manual e pré-requisitos](instalacao-manual-ate-dev-2026-10-31.md). [Recibo seguro dos contratos](assets/instalacao-manual-ate-dev-2026-10-31/validation.json).
+
+## 52. Perfil mínimo de instalação do LAB para o SDLC
+
+Data: 31/10/2026. Implementação autorizada após o usuário identificar que o LAB geral preparava recursos além do necessário. Nova opção `lab/bootstrap.ps1 prepare sdlc` e `up sdlc`, mantendo os nomes/versões atuais `qwen3.5:9b` e `qwen3:14b`. A declaração geral de sete modelos permanece intacta. No LAB, só Ollama é selecionado; Qwen Code/SDK e Chromium continuam preparados pelo SDLC. Não há download de imagens opcionais, construção Python/PyTorch ou preparação de embeddings nesse perfil.
+
+A seleção exclusiva fica persistida e uma repetição sem argumento conserva o perfil. O manifesto offline v3 identifica os ativos exigidos e recusa manifesto de outro perfil. Doctor não exige CUDA/PyTorch/WebUI nem confirma recorte mínimo com serviços opcionais ainda ativos. Smoke confere resposta do modelo geral e VRAM por Python padrão do host; não qualifica o modelo de código nem a aplicação. Alteração de seleção preserva pesos extras e tem rollback/retentativa auditados. Perfis gerais mantêm suas capacidades.
+
+**Verificação dirigida:** 19 contratos Python novos, três existentes do manifesto e quatro da ferramenta passaram; contratos PowerShell de perfil/host/configuração passaram. Download com entrada isolada e modelos existentes foi conferido por mocks. Compose renderizado sem criar recursos: `sdlc` → somente `ollama`; `core,agents` → `ollama`, `open-webui`, `qwen-code`. Testes registrados no CI/gates e no suporte da regressão completa; não houve execução de full, instalação real, downloads ou inferência. CPU/GPU/HTTP dos contratos foram simulados. A primeira suíte Python adicionada passou; os guards e asserções adicionais foram incorporados em rodadas dirigidas, sem retentativas automáticas de cenário reprovado.
+
+- [x] Perfil mínimo implementado e testado sem recriar o LAB.
+- [x] Manifesto, diagnóstico, comandos, auditoria e roteiro manual adaptados.
+- [ ] Usuário: preparar LAB do zero com `sdlc`, depois instalar SDLC e percorrer a jornada até DEV.
+- [ ] Aceitação funcional, regressão completa e próximas RAs.
+
+[Contrato do perfil](../../lab/docs/sdlc-profile.md). [Roteiro completo](instalacao-manual-ate-dev-2026-10-31.md). Os limites de memória e algoritmos dos agentes não foram alterados; esta entrega reduz o recorte instalado, sem prometer resolver todos os limites da máquina.
+[Recibo seguro do perfil mínimo](assets/perfil-sdlc-lab-2026-10-31/validation.json).
