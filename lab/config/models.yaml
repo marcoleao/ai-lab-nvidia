@@ -1,5 +1,8 @@
 ollama:
   models:
+    - qwen3.5:9b
+    - qwen2.5-coder:7b-instruct-q4_K_M
+    - gemma4:12b
     - qwen3:14b
     - gpt-oss:20b
     - qwen3-coder:30b

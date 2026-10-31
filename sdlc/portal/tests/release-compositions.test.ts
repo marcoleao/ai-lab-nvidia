@@ -66,7 +66,9 @@ describe.skipIf(!url)('independent immutable Release compositions',()=>{
   const f=await fixture();for(let n=0;n<22;n++){expect((await attach(f.story.id,f.a.id)).statusCode).toBe(200);expect((await attach(f.story.id,null)).statusCode).toBe(200);}
   const history=(await runtime.app.inject(`/api/releases/${f.a.id}/composition-revisions`)).json(),participation=(await runtime.app.inject(`/api/items/${f.story.id}/release-participations`)).json();expect(history.pagination.total).toBe(45);expect(history.items).toHaveLength(20);expect(participation.pagination.total).toBe(22);
   expect((await runtime.app.inject(`/api/items/${f.story.id}/release-participations?page=2&asOf=${encodeURIComponent(participation.asOf)}`)).json().items).toHaveLength(2);
-  await attach(f.story.id,f.a.id);const old=(await runtime.app.inject(`/api/releases/${f.a.id}/composition-revisions?page=3&asOf=${encodeURIComponent(history.asOf)}`)).json();expect(old.pagination.total).toBe(45);expect(old.items).toHaveLength(5);expect(old.currentRevisionNumber).toBe(46);
+  await attach(f.story.id,f.a.id);const old=(await runtime.app.inject(`/api/releases/${f.a.id}/composition-revisions?page=3&asOf=${encodeURIComponent(history.asOf)}`)).json();
+  const timing=old.pagination.total===45?undefined:JSON.stringify({cutoff:history.asOf,newest:await db.releaseCompositionRevision.findFirst({where:{releaseId:f.a.id},orderBy:{number:'desc'},select:{number:true,createdAt:true}}),databaseClock:await db.$queryRaw`SELECT CURRENT_TIMESTAMP(3) AS at`,apiClock:new Date().toISOString()});
+  expect(old.pagination.total,timing).toBe(45);expect(old.items).toHaveLength(5);expect(old.currentRevisionNumber).toBe(46);
  });
  test('member pagination reads the full immutable set and refuses a revision belonging to another Release',async()=>{
   const f=await fixture(),stories=[f.story];for(let n=1;n<25;n++)stories.push(await create('story',f.epic.id));

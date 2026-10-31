@@ -1,0 +1,55 @@
+{
+    "model":  "qwen3.5:9b",
+    "imageId":  "sha256:9c21e98d3fc9bcf9c95f987a15463761135b8da1072daea94ada0acb8f90625a",
+    "applicationDataUsed":  false,
+    "productionConfigurationChanged":  false,
+    "scope":  "Synthetic iterative coding qualification, not business UI acceptance",
+    "fixtures":  [
+                     {
+                         "fixture":  "literal-edit",
+                         "state":  "succeeded",
+                         "elapsedMs":  28140,
+                         "inferenceCalls":  6,
+                         "toolCalls":  3,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     },
+                     {
+                         "fixture":  "react-provider",
+                         "state":  "succeeded",
+                         "elapsedMs":  25627,
+                         "inferenceCalls":  5,
+                         "toolCalls":  5,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     },
+                     {
+                         "fixture":  "ui-price",
+                         "state":  "succeeded",
+                         "elapsedMs":  21599,
+                         "inferenceCalls":  4,
+                         "toolCalls":  3,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "uiProbe":  {
+                                         "planned":  2,
+                                         "executed":  2,
+                                         "assertions":  1
+                                     },
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     }
+                 ],
+    "browserImageId":  "sha256:bb2500021f0064c92d6c17a3e28698ce8fab584a9539bd41d5cd33b96e4749dc",
+    "workspaceTestsPassed":  14,
+    "executorContractTestsPassed":  10,
+    "isolatedBrowserTestsPassed":  5,
+    "limitation":  "Três cenários sintéticos, sem aceitação do catálogo; diagnósticos de inferência recusada foram preservados."
+}

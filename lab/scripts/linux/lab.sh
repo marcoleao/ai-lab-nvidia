@@ -65,10 +65,11 @@ start_stack() {
 case "$action" in
   prepare)
     configure_override
-    for image in "$OLLAMA_IMAGE" "$OPEN_WEBUI_IMAGE" "$QDRANT_IMAGE" "$CUDA_IMAGE" "$PYTORCH_IMAGE" "$UV_IMAGE"; do
+    for image in "$OLLAMA_IMAGE" "$OPEN_WEBUI_IMAGE" "$QDRANT_IMAGE" "$CUDA_IMAGE" "$PYTORCH_IMAGE" "$UV_IMAGE" "$NODE_IMAGE"; do
       docker pull "$image"
     done
     UV_OFFLINE=0 PIP_NO_INDEX=0 dc build ai-dev
+    python3 scripts/linux/agent-tools.py prepare
     dc up -d --no-build --pull never --wait --wait-timeout "$HEALTH_TIMEOUT_SECONDS" ollama
     bash scripts/linux/pull-models.sh
     docker run --rm --pull never -v ai-local-lab_open_webui_data:/app/backend/data \

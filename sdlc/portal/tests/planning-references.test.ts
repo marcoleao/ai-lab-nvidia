@@ -20,7 +20,7 @@ describe.skipIf(!url)('planning reference identity and reviewed command context'
   const second=(await view(f.story.id)).story.referenceToken;expect(second).toBe(first);
   await db.$transaction(async tx=>{await tx.$executeRawUnsafe('SET LOCAL ROLE sdlc_portal_app');expect((await planningReferences(tx,[f.story.id])).get(f.story.id)?.referenceToken).toBe(first);});
  });
- async function execution(f:any,sha:string|null,offset=0){const repo=await db.repository.findUniqueOrThrow({where:{systemId:f.system.id}});return db.storyExecution.create({data:{storyId:f.story.id,repositoryId:repo.id,storyVersion:f.story.version,state:'succeeded',stage:'completed',commitSha:sha,snapshot:{private:'PRIVATE_CONTEXT'},actorId:'admin',actorName:'Admin',createdAt:new Date(Date.now()+offset)}});}
+ async function execution(f:any,sha:string|null,offset=0){const repo=await db.repository.findUniqueOrThrow({where:{systemId:f.system.id}});return db.storyExecution.create({data:{storyId:f.story.id,repositoryId:repo.id,storyVersion:f.story.version,state:'succeeded',stage:'completed',commitSha:sha,snapshot:{private:'PRIVATE_CONTEXT'},actorId:'admin',actorName:'Admin',createdAt:new Date(new Date(f.story.createdAt).getTime()+1+offset)}});}
  test('phase and record version do not invalidate planning or create another composition on save',async()=>{
   const f=await fixture();expect((await attach(f)).statusCode).toBe(200);const before=await latest(f.release.id),token=(await view(f.story.id)).story.referenceToken;
   await db.item.update({where:{id:f.story.id},data:{status:'testing',version:{increment:1},data:{administrativeFlag:'unrelated'}}});const v=await view(f.story.id);

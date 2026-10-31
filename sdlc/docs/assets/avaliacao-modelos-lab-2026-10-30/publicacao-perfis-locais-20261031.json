@@ -1,0 +1,23 @@
+{
+    "id":  "local-specialists-verified-20261031-30ceb594",
+    "image":  "sha256:296dbe4e2a0a5a7bf23bcee314febe2893d72ee74ce3eea87552f68ad3966f6b",
+    "source":  "934b4bf37cca707883525c83b9bda9175e6f84a13c3bede7688e3ba159282572",
+    "published":  true,
+    "verifiedAt":  "2026-10-31T03:51:35.398460+00:00",
+    "health":  {
+                   "status":  "ready",
+                   "scope":  "portal-foundation",
+                   "demoMode":  true,
+                   "databaseMode":  "preview"
+               },
+    "tablesChecked":  49,
+    "exactTablesPreserved":  true,
+    "backup":  {
+                   "backupId":  "local-specialists-verified-20261031-30ceb594",
+                   "bytes":  658771,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "scope":  "Portal and local specialist executor; no generated application source or business data edited manually"
+}

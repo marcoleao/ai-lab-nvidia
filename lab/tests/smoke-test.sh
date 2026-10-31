@@ -20,4 +20,5 @@ if has_profile core; then
 fi
 if has_profile rag; then probe /opt/lab/tests/test_qdrant.py; fi
 if has_profile dev; then dc exec -T jupyter python /opt/lab/jupyter-health.py; echo '[OK] Jupyter authenticated health'; fi
+if has_profile agents; then python3 scripts/linux/agent-tools.py verify; fi
 echo '[OK] Smoke tests passed'

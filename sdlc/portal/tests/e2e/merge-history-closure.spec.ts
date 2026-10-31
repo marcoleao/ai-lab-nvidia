@@ -13,8 +13,12 @@ async function fixture(mode:'recorded'|'partial'|'legacy'='recorded'){
 }
 
 async function historyFixture(){
- const f=await fixture('legacy');await db.mergeOperation.update({where:{id:f.op.id},data:{state:'failed',origin:'assistant',actorId:'bruno',actorName:'Bruno',message:'Resultado original sem confirmação.'}});await db.item.update({where:{id:f.task.id},data:{status:'todo'}});await db.workAttempt.updateMany({where:{sourceType:'merge',sourceId:f.op.id},data:{state:'failed',summary:'Resultado original sem confirmação.'}});
- const latest=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.run.repositoryId,storyVersion:1,state:'waiting_approval',stage:'gate',snapshot:{},actorId:'admin',actorName:'Admin',createdAt:new Date(Date.now()+1000)}});return {...f,latest};
+ // The original attempt must predate later API observations. Do not race the
+ // fixture process clock against the API recorder's clock to establish history.
+ const f=await fixture('legacy'),createdAt=new Date('2026-10-28T19:59:00Z'),finishedAt=new Date('2026-10-28T20:00:00Z');
+ await db.storyExecution.update({where:{id:f.run.id},data:{createdAt,updatedAt:finishedAt}});
+ await db.mergeOperation.update({where:{id:f.op.id},data:{state:'failed',origin:'assistant',actorId:'bruno',actorName:'Bruno',message:'Resultado original sem confirmação.',createdAt,updatedAt:finishedAt,finishedAt}});await db.item.update({where:{id:f.task.id},data:{status:'todo'}});await db.workAttempt.updateMany({where:{sourceType:'merge',sourceId:f.op.id},data:{state:'failed',summary:'Resultado original sem confirmação.',queuedAt:createdAt,finishedAt}});
+ const latest=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.run.repositoryId,storyVersion:1,state:'waiting_approval',stage:'gate',snapshot:{},actorId:'admin',actorName:'Admin'}});return {...f,latest};
 }
 const box=(page:any)=>page.locator('details[aria-label="Referência da integração"]'),consult=(page:any)=>box(page).getByRole('button',{name:'Verificar resultado no GitLab',exact:true}),review=(page:any)=>box(page).getByRole('region',{name:'Revisar registro da referência'}),accept=(page:any)=>box(page).getByRole('checkbox',{name:/Revisei/}),record=(page:any)=>box(page).getByRole('button',{name:'Registrar confirmação de merge',exact:true});
 async function open(page:any,f:any,persona='ana'){await page.goto('/tasks/'+f.task.id+'?tab=evidence');await page.getByRole('combobox',{name:/Persona/}).selectOption(persona);await box(page).locator('summary').first().click();}

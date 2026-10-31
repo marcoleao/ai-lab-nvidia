@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "startedAt": "2026-10-30T18:32:25Z",
+  "scope": "Synthetic isolated model capacity probe, not application acceptance",
+  "productionSelectedModel": "qwen3-coder:30b",
+  "configurationChanged": false,
+  "businessDataUsed": false,
+  "applicationEdited": false,
+  "downloads": false,
+  "contextTokens": 32768,
+  "outputTokenLimit": 256,
+  "samplesPerFixturePerModel": 1,
+  "results": [
+    {
+      "model": "qwen3-coder:30b",
+      "fixture": "inclusive-line-edit",
+      "done": true,
+      "doneReason": "stop",
+      "loadMs": 74324,
+      "promptTokens": 136,
+      "outputTokens": 94,
+      "promptMs": 4269,
+      "generationMs": 4859,
+      "generationTokensPerSecond": 19.35,
+      "fixturePassed": true,
+      "loadedModels": [
+        {
+          "name": "qwen3-coder:30b",
+          "sizeBytes": 22090505198,
+          "vramBytes": 14605027900,
+          "contextLength": 32768,
+          "quantization": "Q4_K_M"
+        }
+      ],
+      "gpuMemoryMiBAndUtilizationPercent": "15203, 29",
+      "elapsedMs": 83857
+    },
+    {
+      "model": "qwen3-coder:30b",
+      "fixture": "cross-module-review",
+      "done": true,
+      "doneReason": "stop",
+      "loadMs": 6,
+      "promptTokens": 179,
+      "outputTokens": 87,
+      "promptMs": 1134,
+      "generationMs": 3476,
+      "generationTokensPerSecond": 25.03,
+      "fixturePassed": false,
+      "loadedModels": [
+        {
+          "name": "qwen3-coder:30b",
+          "sizeBytes": 22090505198,
+          "vramBytes": 14605027900,
+          "contextLength": 32768,
+          "quantization": "Q4_K_M"
+        }
+      ],
+      "gpuMemoryMiBAndUtilizationPercent": "15223, 44",
+      "elapsedMs": 4764
+    },
+    {
+      "model": "qwen3:14b",
+      "fixture": "inclusive-line-edit",
+      "done": true,
+      "doneReason": "stop",
+      "loadMs": 11430,
+      "promptTokens": 144,
+      "outputTokens": 87,
+      "promptMs": 350,
+      "generationMs": 3001,
+      "generationTokensPerSecond": 28.99,
+      "fixturePassed": true,
+      "loadedModels": [
+        {
+          "name": "qwen3:14b",
+          "sizeBytes": 14383820307,
+          "vramBytes": 14383820307,
+          "contextLength": 32768,
+          "quantization": "Q4_K_M"
+        }
+      ],
+      "gpuMemoryMiBAndUtilizationPercent": "14984, 91",
+      "elapsedMs": 14938
+    },
+    {
+      "model": "qwen3:14b",
+      "fixture": "cross-module-review",
+      "done": true,
+      "doneReason": "stop",
+      "loadMs": 5,
+      "promptTokens": 187,
+      "outputTokens": 82,
+      "promptMs": 165,
+      "generationMs": 2617,
+      "generationTokensPerSecond": 31.33,
+      "fixturePassed": true,
+      "loadedModels": [
+        {
+          "name": "qwen3:14b",
+          "sizeBytes": 14383820307,
+          "vramBytes": 14383820307,
+          "contextLength": 32768,
+          "quantization": "Q4_K_M"
+        }
+      ],
+      "gpuMemoryMiBAndUtilizationPercent": "14988, 96",
+      "elapsedMs": 2906
+    }
+  ],
+  "limitations": [
+    "Tiny synthetic samples are not a coding benchmark or proof of success on the jewelry catalog.",
+    "Native provider qualification does not replace the UI-only business acceptance.",
+    "Cache residency is temporary (60 seconds); no LAB service or configuration is changed."
+  ],
+  "finishedAt": "2026-10-30T18:34:06Z"
+}

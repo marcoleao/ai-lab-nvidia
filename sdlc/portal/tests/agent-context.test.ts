@@ -1,5 +1,5 @@
 import {expect,test} from 'vitest';
-import {agentContextMessages,executionAgentReference,generationReferenceMessages,reviewReferenceMessages} from '../apps/api/src/agent-context.ts';
+import {agentContextMessages,executionAgentReference,generationReferenceMessages,nativeGenerationReferenceMessages,nativeUiTestContext,reviewReferenceMessages} from '../apps/api/src/agent-context.ts';
 test('authoritative context preserves every criterion while removing duplicate snapshots and old code',()=>{
  const criteria=Array.from({length:12},(_,i)=>`Critério único ${i}: `+'regra '.repeat(25)),approved={architecture:'Plano aprovado',testCases:criteria.map((_,criterionIndex)=>({criterionIndex,description:'Teste de interface'}))};
  const snapshot={name:'Catálogo',description:'Texto duplicado',requirements:{objective:'Objetivo',behavior:'Comportamento',functionalCriteria:criteria,businessRules:['Regra complementar']},criteria,technicalPlan:{architecture:'Plano antigo'},codeContext:{files:[{path:'old.js',content:'Código antigo'}]},tasks:[],decisions:[],codeDestination:{baseSha:'a'.repeat(40)}};
@@ -39,5 +39,30 @@ test('large review uses numbered current source and excludes historical findings
 test('review includes unchanged runtime entry points and module bodies needed to assess integration',()=>{
  const entry='import App from "./App.jsx"; createRoot(root).render(<App/>);',app='export default function App(){return useContext(Context).value;}';
  const messages=reviewReferenceMessages({criteria:['Interface abre sem erro']},{architecture:'Módulos existentes'},{sha:'a',baseSha:'b',files:[{path:'src/main.jsx',content:entry},{path:'src/App.jsx',content:app},{path:'package.json',content:'{"name":"isolated-test"}'}],changes:[{path:'src/App.jsx',content:app,diff:'+'+app}]});
- const reference=JSON.parse(messages[0].content);expect(reference.files).toContainEqual({path:'src/main.jsx',content:entry,changed:false,removedSourceLines:[]});expect(reference.files.find(f=>f.path==='src/App.jsx').changed).toBe(true);expect(reference.files.some(f=>f.path==='package.json')).toBe(true);
+ const reference=JSON.parse(messages[0].content);expect(reference.files).toContainEqual({path:'src/main.jsx',content:'1|'+entry,changed:false,removedSourceLines:[]});expect(reference.files.find(f=>f.path==='src/App.jsx').changed).toBe(true);expect(reference.files.some(f=>f.path==='package.json')).toBe(true);
+});
+
+test('small review carries exact source line numbers including empty lines',()=>{
+ const content='export const amount = 0;\n\nexport const label = String(amount);';
+ const messages=reviewReferenceMessages({criteria:['Representar o valor']},{},{sha:'a',baseSha:'b',files:[{path:'display.js',content}],changes:[{path:'display.js',content,diff:''}]});
+ const reference=JSON.parse(messages[0].content);expect(reference.sourceLineFormat).toContain('number|original line');expect(reference.files[0].content).toBe('1|export const amount = 0;\n2|\n3|export const label = String(amount);');
+});
+
+test('native coding receives every approved fact once and reads complete source from the workspace manifest',()=>{
+ const content='// SOURCE_ONLY_IN_WORKSPACE\n'+'x'.repeat(17000),files=[{path:'src/App.jsx',content},{path:'src/store.jsx',content:content+'2'},{path:'src/main.jsx',content:content+'3'}];
+ const criteria=Array.from({length:12},(_,i)=>`Obrigação aprovada ${i}`),finding={path:'src/App.jsx',line:1,severity:'HIGH',message:'Corrigir a operação aprovada'};
+ const messages=nativeGenerationReferenceMessages({criteria,requirements:{objective:'Objetivo aprovado',behavior:'Comportamento aprovado',functionalCriteria:criteria},decisions:[{summary:'Não adicionar dependências'}],qualityFindings:[finding]},{architecture:'Preservar a solução'},{sha:'b',targetBranch:'main',files},'a',false,{maxFiles:6});
+ const value=JSON.parse(messages[0].content),text=messages.map(m=>m.content).join('');expect(value.story.criteria).toEqual(criteria);expect(value.story.decisions).toEqual([{summary:'Não adicionar dependências'}]);expect(value.story.qualityFindings).toEqual([finding]);expect(value.currentCodeRevision).toBe('b');expect(value.baseRevision).toBe('a');expect(value.capabilities.dependencies).toBe(false);
+ expect(value.story.codeContext.files).toHaveLength(3);expect(value.story.codeContext.files[0]).toMatchObject({path:'src/App.jsx',bytes:Buffer.byteLength(content),sha256:expect.stringMatching(/^[a-f0-9]{64}$/)});expect(text).not.toContain('SOURCE_ONLY_IN_WORKSPACE');expect(text.match(/Obrigação aprovada 11/g)).toHaveLength(1);expect(files[0].content).toBe(content);expect(value.story.codeContext.sourceAccess).toContain('read_file');expect(value.specialistContract.implementation).toMatchObject({maxChangedFiles:2,maxChangedBytes:24000});expect(value.specialistContract.uiValidation.readOnly).toBe(true);
+});
+
+test('native manifest rejects missing source instead of pretending the workspace is complete',()=>{
+ expect(()=>nativeGenerationReferenceMessages({}, {},{sha:'a',files:[{path:'a.js'}]},'a',false,{})).toThrow('não contém arquivos completos');
+});
+test('small UI specialists receive all approved criteria and approved test cases without source or historic plans',()=>{
+ const snapshot={name:'Catálogo',requirements:{objective:'Cadastrar',behavior:'Conferir o preço',functionalCriteria:['BRL','Foto']},technicalPlan:{testCases:[{criterionIndex:0,description:'Antigo'}]},codeContext:{files:[{path:'src/main.jsx',content:'privado'}]}};
+ const approved={testCases:[{criterionIndex:0,description:'Conferir zero'},{criterionIndex:1,description:'Conferir imagem'}]};
+ expect(nativeUiTestContext(snapshot,approved)).toEqual({objective:'Cadastrar',behavior:'Conferir o preço',criteria:['BRL','Foto'],testCases:approved.testCases});
+ for(const index of [-1,2,0.5])expect(()=>nativeUiTestContext(snapshot,{testCases:[{criterionIndex:index,description:'Fora'}]})).toThrow('casos aprovados');
+ expect(nativeUiTestContext({scopeRevision:2,fingerprint:'preservado'},approved)).toBeUndefined();expect(()=>nativeUiTestContext({scopeRevision:3},approved)).toThrow('casos aprovados');
 });

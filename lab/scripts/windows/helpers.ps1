@@ -28,7 +28,7 @@ function Read-LabConfig {
     $required = 'distro_name','distro_directory','rootfs_url','rootfs_checksum_url','rootfs_sha256','profiles','bind_address','allow_lan_access','webui_port','qdrant_port','jupyter_port','expose_ollama','ollama_port','expose_grpc','grpc_port','preserve_models','ephemeral_models','gpu_validation','minimum_free_disk_gb','health_timeout_seconds'
     $retryDefaults = @{ model_pull_attempts=3; model_pull_retry_delay_seconds=5 }
     foreach ($key in $retryDefaults.Keys) { if (-not $result.ContainsKey($key)) { $result[$key] = $retryDefaults[$key] } }
-    $required += 'model_pull_attempts','model_pull_retry_delay_seconds'
+    $required += 'model_pull_attempts','model_pull_retry_delay_seconds','lab_network_subnet','lab_network_dynamic_range','ollama_address','ollama_memory_limit_gb','ollama_memory_swap_limit_gb'
     foreach ($key in $required) { if (-not $result.ContainsKey($key)) { throw "Missing setting: $key" } }
     foreach ($key in $result.Keys) { if ($key -notin $required) { throw "Unknown setting: $key" } }
     foreach ($key in 'allow_lan_access','expose_ollama','expose_grpc','preserve_models','ephemeral_models','gpu_validation') {
@@ -42,6 +42,12 @@ function Read-LabConfig {
     }
     if ($result.health_timeout_seconds -lt 30 -or $result.minimum_free_disk_gb -lt 1) { throw 'Invalid timeout/disk threshold.' }
     if ($result.model_pull_attempts -isnot [int] -or $result.model_pull_attempts -lt 1 -or $result.model_pull_attempts -gt 10 -or $result.model_pull_retry_delay_seconds -isnot [int] -or $result.model_pull_retry_delay_seconds -lt 0 -or $result.model_pull_retry_delay_seconds -gt 300) { throw 'Invalid model pull retry settings.' }
+    foreach ($key in 'lab_network_subnet','lab_network_dynamic_range') {
+        if ($result[$key] -notmatch '^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$') { throw "Invalid private network setting: $key" }
+        $null = [Net.IPAddress]::Parse($result[$key].Split('/')[0])
+    }
+    $null = [Net.IPAddress]::Parse($result.ollama_address)
+    if ($result.ollama_memory_limit_gb -isnot [int] -or $result.ollama_memory_limit_gb -lt 2 -or $result.ollama_memory_limit_gb -gt 32 -or $result.ollama_memory_swap_limit_gb -isnot [int] -or $result.ollama_memory_swap_limit_gb -lt $result.ollama_memory_limit_gb -or $result.ollama_memory_swap_limit_gb -gt 40) { throw 'Invalid Ollama memory/swap budget.' }
     foreach ($key in 'rootfs_url','rootfs_checksum_url') {
         $uri = [Uri]$result[$key]
         if ($uri.Scheme -ne 'https' -or $uri.Host -ne 'cloud-images.ubuntu.com') { throw 'Rootfs must use official Canonical HTTPS URLs.' }
@@ -97,9 +103,11 @@ function Get-Distros {
 function Invoke-Linux([string[]]$Arguments, [switch]$Root) {
     $user = 'lab'; if ($Root) { $user = 'root' }
     $isRuntime = $Arguments.Count -ge 3 -and $Arguments[1] -eq '/opt/ai-local-lab/scripts/linux/lab.sh'
+    try {
     if ($isRuntime) {
         $guardArgs = @('--distribution',$script:Config.distro_name,'--user','root','--exec','python3','/opt/ai-local-lab/scripts/linux/offline-network.py')
-        if ($Arguments[2] -eq 'prepare') { Invoke-Native wsl.exe ($guardArgs + @('remove')) }
+        if ($Arguments[2] -eq 'prepare') { Invoke-Native wsl.exe ($guardArgs + @('migrate')) }
+        if ($Arguments[2] -eq 'prepare') { Invoke-Native wsl.exe ($guardArgs + @('prepare')) }
         elseif ($Arguments[2] -in 'up','restart','dev','jupyter') { Invoke-Native wsl.exe ($guardArgs + @('ensure')) }
         else { Invoke-Native wsl.exe $guardArgs }
     }
@@ -109,12 +117,13 @@ function Invoke-Linux([string[]]$Arguments, [switch]$Root) {
             Start-Process -FilePath wsl.exe -ArgumentList @('-d',$script:Config.distro_name,'-u','root','--exec','bash','-c','"exec -a ai-local-lab-keepalive sleep infinity"') -WindowStyle Hidden | Out-Null
         } elseif ($running.ExitCode -ne 0) { throw 'Cannot check laboratory WSL keepalive.' }
     }
-    try {
         Invoke-Native wsl.exe (@('--distribution', $script:Config.distro_name, '--user', $user, '--exec') + $Arguments)
     } finally {
         if ($isRuntime) {
-            if ($Arguments[2] -in 'down','destroy') { Invoke-Native wsl.exe ($guardArgs + @('remove')) }
-            else { Invoke-Native wsl.exe $guardArgs }
+            try {
+                if ($Arguments[2] -in 'down','destroy') { Invoke-Native wsl.exe ($guardArgs + @('remove')) }
+                else { Invoke-Native wsl.exe $guardArgs }
+            } finally { Repair-RunningSdlcNetwork }
         }
     }
     if ($Arguments.Count -ge 3 -and $Arguments[1] -eq '/opt/ai-local-lab/scripts/linux/lab.sh' -and $Arguments[2] -in 'down','destroy') {
@@ -127,6 +136,17 @@ function Convert-ToLinuxPath([string]$Path) {
     $converted = & wsl.exe -d $script:Config.distro_name -u root --exec wslpath -a -u $Path
     if ($LASTEXITCODE -ne 0) { throw 'Cannot translate Windows path.' }
     return ($converted -join '').Trim()
+}
+function Repair-RunningSdlcNetwork {
+    $reconciler = [IO.Path]::GetFullPath((Join-Path $script:Repo '../sdlc/scripts/reconcile-docker-networks.py'))
+    if (-not (Test-Path -LiteralPath $reconciler)) { return }
+    if ((Get-Item -LiteralPath $reconciler -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'SDLC reconciler cannot be a symbolic link.' }
+    $running = Invoke-NativeCapture wsl.exe @('--list','--running','--quiet')
+    if ($running.ExitCode -ne 0) { throw 'Cannot check whether SDLC networking needs reconciliation.' }
+    if ('agentic-sdlc' -notin @($running.Output | ForEach-Object { $_.Trim() })) { return }
+    $translated = Invoke-NativeCapture wsl.exe @('-d','agentic-sdlc','-u','root','--exec','wslpath','-a','-u',$reconciler)
+    if ($translated.ExitCode -ne 0) { throw 'Cannot translate the SDLC network reconciler path.' }
+    Invoke-Native wsl.exe @('-d','agentic-sdlc','-u','root','--exec','python3',($translated.Output -join '').Trim())
 }
 function New-Secret {
     $bytes = New-Object byte[] 32
@@ -218,6 +238,8 @@ function Sync-Lab([string[]]$Profiles, [bool]$Ephemeral) {
     if ($script:Config.allow_lan_access) { $bind = '0.0.0.0'; Write-Lab WARN 'LAN exposure enabled; secure the network and firewall explicitly.' }
     $envLines += "BIND_ADDRESS=$bind"
     foreach ($key in 'webui_port','qdrant_port','jupyter_port','ollama_port','grpc_port','health_timeout_seconds','model_pull_attempts','model_pull_retry_delay_seconds') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key])" }
+    foreach ($key in 'lab_network_subnet','lab_network_dynamic_range','ollama_address') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key])" }
+    $envLines += "OLLAMA_MEMORY_LIMIT=$($script:Config.ollama_memory_limit_gb)g", "OLLAMA_MEMORY_SWAP_LIMIT=$($script:Config.ollama_memory_swap_limit_gb)g"
     $envLines += "LAB_PROFILES=$($Profiles -join ',')", "EPHEMERAL=$($Ephemeral.ToString().ToLowerInvariant())"
     foreach ($key in 'expose_ollama','expose_grpc','preserve_models','ephemeral_models','gpu_validation') { $envLines += "$($key.ToUpperInvariant())=$($script:Config[$key].ToString().ToLowerInvariant())" }
     if (-not $script:Config.gpu_validation) { Write-Lab WARN 'Optional GPU telemetry disabled; mandatory passthrough and computation checks remain enabled.' }

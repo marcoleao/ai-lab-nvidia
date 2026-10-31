@@ -1,0 +1,19 @@
+{
+    "source":  "82b1c0ad59a4d38996e5c3ae53610c5ff6cadc0e14691f0b9b177e6bc4bfdcaa",
+    "image":  "sha256:2e64c590d03463326e43d7ae378092c95185eaabf32e4bc3db8615e6a107ade5",
+    "published":  true,
+    "verifiedAt":  "2026-10-30T23:02:49.762659+00:00",
+    "generalModel":  "gemma4:12b",
+    "codingModel":  "qwen3.5:9b",
+    "backup":  {
+                   "backupId":  "dev-plan-criteria-verified-20261030-01505963",
+                   "bytes":  566175,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "audit":  null,
+    "businessAcceptance":  "separate UI run"
+}

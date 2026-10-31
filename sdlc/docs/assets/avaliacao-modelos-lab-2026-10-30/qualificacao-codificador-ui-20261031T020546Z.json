@@ -1,0 +1,72 @@
+{
+    "model":  "qwen3.5:9b",
+    "thinking":  false,
+    "imageId":  "sha256:27dda598515e048bbd141137c46404f8841cbb25cbd68e56193b1163a4b92664",
+    "executorDigest":  "bb43fa5955db1629eb2a7242e6627cff9b28cbf964b4280daeccbdb043ced62b",
+    "completeSuite":  true,
+    "applicationDataUsed":  false,
+    "productionConfigurationChanged":  false,
+    "scope":  "Synthetic iterative coding qualification, not business UI acceptance",
+    "fixtures":  [
+                     {
+                         "fixture":  "literal-edit",
+                         "state":  "succeeded",
+                         "elapsedMs":  34681,
+                         "inferenceCalls":  8,
+                         "toolCalls":  3,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     },
+                     {
+                         "fixture":  "react-provider",
+                         "state":  "succeeded",
+                         "elapsedMs":  27668,
+                         "inferenceCalls":  5,
+                         "toolCalls":  5,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     },
+                     {
+                         "fixture":  "ui-price",
+                         "state":  "succeeded",
+                         "elapsedMs":  28129,
+                         "inferenceCalls":  5,
+                         "toolCalls":  4,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "uiProbe":  {
+                                         "planned":  2,
+                                         "executed":  2,
+                                         "assertions":  1
+                                     },
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     },
+                     {
+                         "fixture":  "ui-prerequisites",
+                         "state":  "succeeded",
+                         "elapsedMs":  38705,
+                         "inferenceCalls":  6,
+                         "toolCalls":  4,
+                         "validationPassed":  true,
+                         "passed":  true,
+                         "uiProbe":  {
+                                         "planned":  6,
+                                         "executed":  6,
+                                         "assertions":  1
+                                     },
+                         "diagnostics":  [
+                                             "Tool registry outside policy"
+                                         ]
+                     }
+                 ],
+    "sourceStable":  true,
+    "runId":  "coding-live-20261031T020546Z-777e38"
+}

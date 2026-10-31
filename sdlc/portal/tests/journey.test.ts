@@ -174,9 +174,19 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('canonical story journey and tas
   await db.qualityCheck.create({data:{storyId:f.story.id,executionId:f.run.id,kind:'code_review',sha:f.sha,baseSha:f.baseSha,policyVersion:qualityPolicy,state:'running',actorId:'admin',actorName:'Admin'}});
   expect((await f.get(f.story.id,'admin')).json().nextAction.enabled).toBe(false);
  });
- test('stale G1 requires cancellation before another cycle and does not enable old approval',async()=>{
+ test('stale G1 presents the required interruption as its primary action without enabling old approval or cancelling the Story',async()=>{
   const f=await fixture();await db.storyExecution.update({where:{id:f.run.id},data:{state:'waiting_approval',stage:'gate'}});await db.item.update({where:{id:f.story.id},data:{version:{increment:1}}});
-  const view=(await f.get(f.story.id,'admin')).json();expect(view.current.state).toBe('stale');expect(view.nextAction).toBeNull();expect(view.secondaryActions.map((action:any)=>action.id)).toEqual(['cancel','cancel_story']);
+  const view=(await f.get(f.story.id,'admin')).json();expect(view.current.state).toBe('stale');
+  expect(view.nextAction).toMatchObject({id:'cancel',label:'Interromper tentativa',enabled:true,path:`/api/executions/${f.run.id}/cancel`,method:'POST',body:{},confirmation:{title:'Interromper tentativa',checkboxLabel:'Confirmo a interrupção desta tentativa.'}});
+  expect(view.current.message).toContain('Use Interromper tentativa');expect(view.current.message).not.toContain('Cancele a execução vigente');
+  expect(view.secondaryActions.map((action:any)=>action.id)).toEqual(['cancel_story']);
+  const readOnly=(await f.get(f.story.id,'carla')).json();expect(readOnly.nextAction).toMatchObject({id:'cancel',enabled:false});expect(readOnly.nextAction.reason).toBeTruthy();
+  expect((await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).state).toBe('waiting_approval');expect((await db.item.findUniqueOrThrow({where:{id:f.story.id}})).status).toBe('coding');
+ });
+ test('stale publication in progress waits for reconciliation instead of offering an unavailable interruption',async()=>{
+  const f=await fixture();await db.storyExecution.update({where:{id:f.run.id},data:{state:'running',stage:'publishing'}});await db.item.update({where:{id:f.story.id},data:{version:{increment:1}}});
+  const view=(await f.get(f.story.id,'admin')).json();expect(view.current).toMatchObject({state:'stale',who:'GitLab'});expect(view.current.message).toContain('Aguarde a reconciliação da publicação no GitLab');expect(view.current.message).not.toContain('Use Interromper tentativa');
+  expect(view.nextAction).toBeNull();expect(view.secondaryActions.map((action:any)=>action.id)).toEqual(['cancel_story']);
  });
  test('checks for another base cannot approve the current delivery',async()=>{
   const f=await fixture();for(const kind of ['code_review','security_scan'])await db.qualityCheck.create({data:{storyId:f.story.id,executionId:f.run.id,kind,sha:f.sha,baseSha:'d'.repeat(40),policyVersion:qualityPolicy,state:'passed',actorId:'admin',actorName:'Admin',evidence:{digest:'e'.repeat(64)}}});

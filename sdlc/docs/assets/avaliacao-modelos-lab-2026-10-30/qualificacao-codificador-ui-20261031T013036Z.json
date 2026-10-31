@@ -1,0 +1,20 @@
+{
+  "runId": "coding-live-20261031T013036Z-2d933d",
+  "scope": "Controles sintéticos isolados; não é aceite funcional da JOIASC",
+  "applicationDataUsed": false,
+  "model": "qwen3.5:9b",
+  "qwenCode": "0.26.4",
+  "sdk": "0.1.26",
+  "imageId": "sha256:564d750f562c380a55d676a1de75beb9f999bb34375908075856fde2bcf353cd",
+  "fixtures": [
+    {"id":"literal-edit","passed":true,"elapsedMs":18182,"inferenceCalls":6,"toolCalls":3},
+    {"id":"react-provider","passed":true,"elapsedMs":25766,"inferenceCalls":6,"toolCalls":5},
+    {"id":"ui-price","passed":true,"elapsedMs":19621,"inferenceCalls":4,"toolCalls":3,"uiProbe":{"planned":2,"executed":2,"assertions":1}}
+  ],
+  "limits": [
+    "Uma execução por controle, sem comparação estatística de modelos.",
+    "As três tentativas registraram uma recusa de registro de ferramenta fora da política e recuperaram sem conceder essa capacidade.",
+    "Rodadas anteriores com endereço indisponível ou interrupção do WSL estão preservadas e não foram somadas a este resultado.",
+    "O resultado não comprova os 28 casos do catálogo nem qualifica um novo modelo de revisão."
+  ]
+}

@@ -17,7 +17,17 @@ describe.skipIf(!url)('immutable merge integration references',()=>{
   return {system,story,repo,run,op,integration,observation};
  }
  test('empty rollback succeeds and reapply restores constraints without manufacturing references',async()=>{
-  const c=new pg.Client({connectionString:url});await c.connect();try{await c.query(readFileSync(new URL('../prisma/migrations/202610280005_merge_integration_reference/rollback.sql',import.meta.url),'utf8'));await c.query(readFileSync(new URL('../prisma/migrations/202610280005_merge_integration_reference/migration.sql',import.meta.url),'utf8'));}finally{await c.end();}expect(await db.mergeIntegrationReference.count()).toBe(0);
+  // Test this historical layer independently from the later build/approval FKs.
+  if(new URL(url!).pathname!=='/portal_test')throw Error('Rollback fixture requires portal_test');
+  const schema='merge_ref_'+randomUUID().replaceAll('-',''),c=new pg.Client({connectionString:url});await c.connect();
+  try{
+   await c.query(`CREATE SCHEMA "${schema}"`);await c.query(`SET search_path TO "${schema}",public`);
+   for(const table of ['MergeOperation','StoryExecution','Item','Repository'])await c.query(`CREATE TABLE "${schema}"."${table}" (LIKE public."${table}" INCLUDING ALL)`);
+   const migration=readFileSync(new URL('../prisma/migrations/202610280005_merge_integration_reference/migration.sql',import.meta.url),'utf8'),rollback=readFileSync(new URL('../prisma/migrations/202610280005_merge_integration_reference/rollback.sql',import.meta.url),'utf8');
+   await c.query(migration);await c.query(rollback);expect((await c.query('SELECT to_regclass($1) AS relation',[schema+'."MergeIntegrationReference"'])).rows[0].relation).toBeNull();
+   await c.query(migration);expect((await c.query('SELECT count(*)::int AS count FROM "MergeIntegrationReference"')).rows[0].count).toBe(0);
+   expect((await c.query('SELECT count(*)::int AS count FROM pg_trigger WHERE tgrelid=$1::regclass AND NOT tgisinternal',[schema+'."MergeIntegrationReference"'])).rows[0].count).toBe(3);
+  }finally{await c.query('ROLLBACK');await c.query('SET search_path TO public');await c.query(`DROP SCHEMA "${schema}" CASCADE`);await c.end();}expect(await db.mergeIntegrationReference.count()).toBe(0);
  });
  test.each([{mergeCommitSha:mergeSha,squashCommitSha:null,expected:mergeSha},{mergeCommitSha:mergeSha,squashCommitSha:squash,expected:mergeSha},{mergeCommitSha:null,squashCommitSha:squash,expected:squash}])('records exact merge/squash output without substituting source or current HEAD: %j',async values=>{
   const f=await fixture(values);await runtime.processMergeJobs();const row=await db.mergeIntegrationReference.findUniqueOrThrow({where:{operationId:f.op.id}});

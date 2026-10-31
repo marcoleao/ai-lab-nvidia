@@ -1,0 +1,425 @@
+{
+    "scope":  "Controles sintéticos de revisão, sem aceitação de aplicação",
+    "selectedNewReviewer":  false,
+    "productionReviewer":  "gemma4:12b",
+    "observations":  [
+                         "Nenhuma configuração ensaiada aprovou os quatro controles com as linhas corretas.",
+                         "Uma rodada teve fonte substituída durante o ensaio e é apenas exploratória.",
+                         "Raciocínio habilitado também teve resposta truncada; não foi adotado no runtime.",
+                         "Os ensaios usam instruções/contextos diferentes conforme sourceDigest; não constituem ranking geral."
+                     ],
+    "runs":  [
+                 {
+                     "runId":  "review-live-20261031T000226Z-5c7464",
+                     "sourceDigest":  "fc4cb382678aa4ee2d072d2ad2313221ea0a7b6d144c4666832792376e5968dd",
+                     "sourceStable":  true,
+                     "synthetic":  true,
+                     "applicationDataUsed":  false,
+                     "productionConfigurationChanged":  false,
+                     "results":  [
+                                     {
+                                         "model":  "gemma4:12b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  7973
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "elapsedMs":  5702
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2,
+                                                                                       4,
+                                                                                       4
+                                                                                   ],
+                                                           "elapsedMs":  11524
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  5509
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     },
+                                     {
+                                         "model":  "qwen3.5:9b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  11322
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  5102
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1,
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  14860
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  5708
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     }
+                                 ]
+                 },
+                 {
+                     "runId":  "review-live-20261031T000352Z-3096c2",
+                     "sourceDigest":  "fc4cb382678aa4ee2d072d2ad2313221ea0a7b6d144c4666832792376e5968dd",
+                     "sourceStable":  false,
+                     "synthetic":  true,
+                     "applicationDataUsed":  false,
+                     "productionConfigurationChanged":  false,
+                     "results":  [
+                                     {
+                                         "model":  "qwen3:14b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  17369
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  8716
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  7956
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  6940
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     },
+                                     {
+                                         "model":  "gpt-oss:20b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  false,
+                                                           "error":  "Incomplete output",
+                                                           "elapsedMs":  65574
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "elapsedMs":  30134
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  23284
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  false,
+                                                           "error":  "Incomplete output",
+                                                           "elapsedMs":  31484
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     }
+                                 ]
+                 },
+                 {
+                     "runId":  "review-live-20261031T000732Z-054616",
+                     "sourceDigest":  "3f9a8354253ff5e057713e1f3e293b234e61a2763de0948d5e339eef6f9cd888",
+                     "sourceStable":  true,
+                     "synthetic":  true,
+                     "applicationDataUsed":  false,
+                     "productionConfigurationChanged":  false,
+                     "results":  [
+                                     {
+                                         "model":  "gemma4:12b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "thinking":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "elapsedMs":  20933
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "elapsedMs":  7633
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       1,
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  10240
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  5600
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     },
+                                     {
+                                         "model":  "qwen3:14b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "thinking":  false,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  19034
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  4780
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  8094
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  6833
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     }
+                                 ]
+                 },
+                 {
+                     "runId":  "review-live-20261031T000911Z-47a0dc",
+                     "sourceDigest":  "3f9a8354253ff5e057713e1f3e293b234e61a2763de0948d5e339eef6f9cd888",
+                     "sourceStable":  true,
+                     "synthetic":  true,
+                     "applicationDataUsed":  false,
+                     "productionConfigurationChanged":  false,
+                     "results":  [
+                                     {
+                                         "model":  "qwen3.5:9b",
+                                         "synthetic":  true,
+                                         "applicationDataUsed":  false,
+                                         "thinking":  true,
+                                         "temperature":  0.2,
+                                         "contextTokens":  32768,
+                                         "cases":  [
+                                                       {
+                                                           "id":  "current-valid",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+
+                                                                                   ],
+                                                           "observedDefectLines":  [
+
+                                                                                   ],
+                                                           "elapsedMs":  33372
+                                                       },
+                                                       {
+                                                           "id":  "invalid-format-method",
+                                                           "passed":  false,
+                                                           "expectedDefectLines":  [
+                                                                                       1
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  21850
+                                                       },
+                                                       {
+                                                           "id":  "rejects-http-svg",
+                                                           "passed":  true,
+                                                           "expectedDefectLines":  [
+                                                                                       2
+                                                                                   ],
+                                                           "observedDefectLines":  [
+                                                                                       2,
+                                                                                       2,
+                                                                                       2
+                                                                                   ],
+                                                           "elapsedMs":  16904
+                                                       },
+                                                       {
+                                                           "id":  "historical-failure-fixed",
+                                                           "passed":  false,
+                                                           "error":  "Incomplete output",
+                                                           "elapsedMs":  86959
+                                                       }
+                                                   ],
+                                         "passed":  false
+                                     }
+                                 ]
+                 }
+             ]
+}

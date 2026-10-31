@@ -1,0 +1,34 @@
+{
+  "model": "qwen3.5:9b",
+  "productionChanged": false,
+  "scope": "Synthetic schema/review/planning qualification, not complete benchmark",
+  "results": [
+    {
+      "fixture": "cross-module-review",
+      "passed": true,
+      "elapsedMs": 7427,
+      "loadMs": 6869,
+      "promptTokens": 140,
+      "outputTokens": 6,
+      "generationTokensPerSecond": 41.3
+    },
+    {
+      "fixture": "criterion-coverage",
+      "passed": true,
+      "elapsedMs": 2780,
+      "loadMs": 1,
+      "promptTokens": 103,
+      "outputTokens": 97,
+      "generationTokensPerSecond": 38.6
+    },
+    {
+      "fixture": "vertical-slicing",
+      "passed": true,
+      "elapsedMs": 4615,
+      "loadMs": 1,
+      "promptTokens": 120,
+      "outputTokens": 185,
+      "generationTokensPerSecond": 41.73
+    }
+  ]
+}

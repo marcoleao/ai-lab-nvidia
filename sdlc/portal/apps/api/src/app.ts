@@ -19,6 +19,7 @@ import type {Prisma,Item} from '../../../packages/db/generated/client.ts';
 import {DomainError} from './errors.ts';
 import type {GitProvider} from './gitlab.ts';
 import type {LLMProvider} from './llm.ts';
+import type {CodingProvider} from './coding-provider.ts';
 import {registerAssistant} from './assistant.ts';
 import {registerConversations} from './conversations.ts';
 import {registerExecution} from './execution.ts';
@@ -49,7 +50,7 @@ import {requestSystemRepository} from './system-repository.ts';
 import {environmentContext,registerEnvironmentReferences} from './environments.ts';
 import {environmentCodes} from '../../../packages/shared/src/environments.ts';
 
-type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
+type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;coding?:CodingProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
 const labels:Record<ItemKind,string>={system:'Sistema',project:'Projeto',epic:'Épico',story:'História',task:'Tarefa'};
 const dataOf=(item:Item):Record<string,Prisma.JsonValue>=>item.data as Record<string,Prisma.JsonValue>;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -433,8 +434,10 @@ export function createApp(options:Options){
     let buildCheck:IntegrationCheck|undefined;
     if(options.developmentBuilds?.health){try{const value=await options.developmentBuilds.health();buildCheck={id:'executor',label:'Construção DEV (Node 24/React)',status:value.ready?'ready':'unavailable',message:value.ready?'Perfil de construção preparado. Implantação de aplicações continua uma capacidade separada.':'A imagem de ferramentas não foi confirmada.'};}catch{buildCheck={id:'executor',label:'Construção DEV (Node 24/React)',status:'unavailable',message:'O executor local não confirmou sua prontidão.'};}}
     let runtimeCheck:IntegrationCheck|undefined;
+    let codingCheck:IntegrationCheck|undefined;
+    if(options.coding?.health){try{const value=await options.coding.health();codingCheck={id:'coding',label:'Agente de codificação',status:value.ready?'ready':'unavailable',message:value.ready?`Qwen Code disponível com o modelo local ${value.model}. As candidatas continuam sujeitas aos gates da História.`:'O executor de codificação não confirmou sua preparação.'};}catch{codingCheck={id:'coding',label:'Agente de codificação',status:'unavailable',message:'O executor não respondeu. Confira a preparação de agentes no laboratório.'};}}
     if(options.runtime){try{const value=await options.runtime.health();runtimeCheck={id:'runtime',label:'Destinos DEV',status:value.ready?'ready':'unavailable',message:value.ready?'Executor de destinos controlados disponível; a prontidão de cada Sistema é consultada na aba Ambientes.':'O executor de destinos não confirmou prontidão.'};}catch{runtimeCheck={id:'runtime',label:'Destinos DEV',status:'unavailable',message:'Não foi possível conferir o executor de destinos DEV.'};}}
-    const checks=[gitCheck,llmCheck,...(runtimeCheck?[runtimeCheck]:[]),...await Promise.all([healthCheck('registry','Repositório de artefatos',options.registryUrl,'/v2/'),buildCheck??healthCheck('executor','Executor e roteamento',options.workerUrl,'/health'),healthCheck('security','Scanner de segurança',options.scannerUrl,'/health')])];
+    const checks=[gitCheck,llmCheck,...(codingCheck?[codingCheck]:[]),...(runtimeCheck?[runtimeCheck]:[]),...await Promise.all([healthCheck('registry','Repositório de artefatos',options.registryUrl,'/v2/'),buildCheck??healthCheck('executor','Executor e roteamento',options.workerUrl,'/health'),healthCheck('security','Scanner de segurança',options.scannerUrl,'/health')])];
     return {checks,ready:checks.every(c=>c.status==='ready')};
   });
   app.get('/api/integrations/models',async()=>{
@@ -468,7 +471,7 @@ export function createApp(options:Options){
   });
   let processing=false;
   async function processJobs(){if(processing)return;processing=true;try{const jobs=await db.provisioningJob.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3}},orderBy:{updatedAt:'asc'},take:10});for(const job of jobs)await provision(job.itemId);const repositories=await db.repository.findMany({where:{state:{in:['pending','failed','running']},attempts:{lt:3},system:{archived:false}},orderBy:{updatedAt:'asc'},take:10});for(const repository of repositories)await provisionRepository(repository.id);}finally{processing=false;}}
-  const assistantHelpers={db,llm:options.llm,actor,canPlan,mutate,live,ancestors,ensureNotArchived,event,createItem,isProbeRunning:()=>inferenceRunning};
+  const assistantHelpers={db,llm:options.llm,coding:options.coding,actor,canPlan,mutate,live,ancestors,ensureNotArchived,event,createItem,isProbeRunning:()=>inferenceRunning};
   registerEpicExecution(app,assistantHelpers);
   registerStoryLifecycle(app,assistantHelpers);
   registerStorySpecifications(app,assistantHelpers);

@@ -9,6 +9,7 @@ import {requirementsDraftSchema,requirementsReadiness,pendingBlockingDependencie
 import {specificationSchema} from './code-schema.ts';
 import {currentAttempt,finishAttempt} from './work-activities.ts';
 import {currentAuditContext} from './audit.ts';
+import {currentSpecificationReadiness} from './planning-dependencies.ts';
 
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value));
 const object=(value:unknown):Record<string,any>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,any>:{};
@@ -80,7 +81,7 @@ export function registerStorySpecifications(app:FastifyInstance,h:AssistantHelpe
    let writable=true,reason:string|undefined;
    try{await h.ensureNotArchived(tx,story);}catch(error){if(!(error instanceof DomainError))throw error;writable=false;reason=error.message;}
    let authorized=false;try{const person=h.actor(request);h.canPlan(person);authorized=true;}catch(error){if(!(error instanceof DomainError))throw error;}
-   return {story:{id:story.id,version:story.version},storyId:story.id,expectedVersion:story.version,content,revision,draft,readOnly:!writable||!authorized,canApply:writable&&authorized,readiness:specificationReadiness(content),draftStale:!!draft&&draft.baseRevision!==(revision?.number??0),revisions,history:{items:revisions,page,pageSize:20,total,asOf},pagination:{page,pageSize:20,total,totalPages,asOf},capabilities:{canEdit:writable&&authorized,canApply:writable&&authorized},reason:reason??(!authorized?'Selecione PO, Arquiteto ou Admin para editar.':undefined),coverage:revision?'versioned':'legacy_observed_fields'};
+   return {story:{id:story.id,version:story.version},storyId:story.id,expectedVersion:story.version,content,revision,draft,readOnly:!writable||!authorized,canApply:writable&&authorized,readiness:await currentSpecificationReadiness(tx,story,content),draftStale:!!draft&&draft.baseRevision!==(revision?.number??0),revisions,history:{items:revisions,page,pageSize:20,total,asOf},pagination:{page,pageSize:20,total,totalPages,asOf},capabilities:{canEdit:writable&&authorized,canApply:writable&&authorized},reason:reason??(!authorized?'Selecione PO, Arquiteto ou Admin para editar.':undefined),coverage:revision?'versioned':'legacy_observed_fields'};
   },{isolationLevel:'RepeatableRead'});
  });
  app.get<{Params:{id:string;revisionId:string}}>('/api/items/:id/specification/revisions/:revisionId',async request=>h.db.$transaction(async tx=>{
@@ -103,7 +104,7 @@ export function registerStorySpecifications(app:FastifyInstance,h:AssistantHelpe
    }
    const draft=await tx.storySpecificationDraft.upsert({where:{storyId:story.id},create:{storyId:story.id,baseRevision,version:1,content:json(body.content),actorId:person.id,actorName:person.name,source:'human'},update:{baseRevision,version:{increment:1},content:json(body.content),actorId:person.id,actorName:person.name,source:'human'}});
    await h.event(tx,story,person,'STORY_SPECIFICATION_DRAFT_SAVED','Rascunho da especificação salvo; a revisão em execução permanece preservada.',{draftVersion:draft.version,baseRevision},'human',{before:old?{draftVersion:old.version,baseRevision:old.baseRevision}:null,after:{draftVersion:draft.version,baseRevision},operationId:`specification-draft:${story.id}:${draft.version}`});
-   return {draft,changed:true,readiness:specificationReadiness(body.content)};
+   return {draft,changed:true,readiness:await currentSpecificationReadiness(tx,story,body.content)};
   });
  });
  app.post<{Params:{id:string}}>('/api/items/:id/specification/apply',async request=>{

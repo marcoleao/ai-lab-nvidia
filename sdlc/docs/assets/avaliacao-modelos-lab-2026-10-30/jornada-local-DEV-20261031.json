@@ -1,0 +1,187 @@
+{
+  "scope": "Authorized UI-only continuation of an existing jewelry System and approved G1 #4; not a new end-to-end System creation or full catalog acceptance",
+  "method": "Browser interaction and visible UI assertions only; no backend requests, direct database writes or manual application-code edits",
+  "codingJob": "b1b80a6d1c8aa2b0c3218afb9ccda3ebee5ab72e3d9e6cc8e1335f681e791918",
+  "codingModel": "qwen3:14b",
+  "codingInferenceCalls": 20,
+  "codingBrowserActions": 11,
+  "mergeRequest": 7,
+  "sourceSha": "5635c3e653a7c5225dce1e04e6be131570210ea5",
+  "integratedSha": "a0597b8cdaf03abe0a15cc6f97a480f626170a47",
+  "imageId": "sha256:478831e17a6c8665913bdf1b4f2e3b569e493255ba8c01020f81e28679eacae5",
+  "devUrl": "http://localhost:44781",
+  "publicationConfirmedByPortal": true,
+  "httpHealthConfirmedByPortal": true,
+  "testContext": "New isolated browser context, synthetic records created through UI; previous context read only for preservation. Own HTTP/HTTPS SVG fixture; self-signed fixture certificate trusted only in test context.",
+  "cases": [
+    {
+      "id": "LP-C1-01",
+      "title": "Preservar dado anterior e separar contexto vazio",
+      "status": "PASSED",
+      "observation": "O navegador anterior conserva a joia e 199,90; o contexto novo começa vazio.",
+      "at": "2026-10-31T07:50:31.744Z"
+    },
+    {
+      "id": "LP-C1-02",
+      "title": "Criar pré-requisitos pela interface em contexto vazio",
+      "status": "PASSED",
+      "observation": "Categoria e coleção criadas e disponíveis nos controles de cadastro.",
+      "at": "2026-10-31T07:53:50.427Z"
+    },
+    {
+      "id": "LP-C1-03",
+      "title": "Cadastrar preço zero com foto HTTP SVG",
+      "status": "FAILED",
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('listitem').filter({ hasText: 'LP-HTTP-001' })\nExpected substring: \"R$ 0,00\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" getByRole('listitem').filter({ hasText: 'LP-HTTP-001' }) with timeout 5000ms\n  - waiting for getByRole('listitem').filter({ hasText: 'LP-HTTP-001' })\n",
+      "screenshot": "/reports/LP-C1-03-failed.png",
+      "at": "2026-10-31T07:54:27.786Z"
+    },
+    {
+      "id": "LP-C1-04",
+      "title": "Cadastrar preço zero sem foto e atualizar a lista",
+      "status": "PASSED",
+      "observation": "Anel local HTTP - LP-HTTP-001 - Anéis de teste - Prata - R$ 0,00Sem fotoEditarArquivarExcluir",
+      "at": "2026-10-31T07:57:09.623Z"
+    },
+    {
+      "id": "LP-C1-05",
+      "title": "Cadastrar preço não zero e preservar ao recarregar",
+      "status": "PASSED",
+      "observation": "Ambas as joias reapareceram sem ajustar filtros, com 0,00 e 199,90.",
+      "at": "2026-10-31T07:57:44.545Z"
+    },
+    {
+      "id": "LP-C1-06",
+      "title": "Cadastrar foto HTTPS SVG com porta explícita",
+      "status": "FAILED",
+      "error": "A interface recusou uma URL HTTPS válida da fixture própria: URL da foto inválida. Por favor, insira uma URL válida.",
+      "screenshot": "/reports/LP-C1-06-failed.png",
+      "at": "2026-10-31T07:57:47.802Z"
+    },
+    {
+      "id": "LP-C1-07",
+      "title": "Recusar protocolo javascript sem criar registro",
+      "status": "PASSED",
+      "observation": "URL da foto inválida. Por favor, insira uma URL válida.",
+      "at": "2026-10-31T07:58:51.410Z"
+    }
+  ],
+  "passed": 5,
+  "failed": 2,
+  "businessAccepted": false,
+  "developmentFinalizedApproved": false,
+  "remaining": "HTTP/HTTPS SVG URLs with explicit port rejected by product validation; original 28-case protocol and C3/C4 remain pending",
+  "uiEvidenceSha256": "64d13f6b6b47487663ebabbfa5021d6adb4b57b5bd149c792bcc2c22a8390498",
+  "journal": [
+    {
+      "id": "6f6fb88c29",
+      "started": "2026-10-31T07:36:57.847Z",
+      "lineSha256": "56d095ad34c3082717ab8feb75cb719dd382fe7e6c4d174c24686e82d039f901",
+      "ok": true
+    },
+    {
+      "id": "9fe4ccc74c",
+      "started": "2026-10-31T07:38:55.555Z",
+      "lineSha256": "821fed70c710e4dced08a29c05161af76409270549610d571b19cc32baeb0abe",
+      "ok": true
+    },
+    {
+      "id": "9599249a59",
+      "started": "2026-10-31T07:40:16.065Z",
+      "lineSha256": "1f52c65ceccd1f37d591375f06f15d5cac370d1afaef5af37ea288e1322b25dc",
+      "ok": true
+    },
+    {
+      "id": "3c08dc8be0",
+      "started": "2026-10-31T07:40:35.331Z",
+      "lineSha256": "8064e2471e4acd439b743fb15af0ff25430ad212d73b3ac8fffd75294ffdf62d",
+      "ok": true
+    },
+    {
+      "id": "3da798dbc7",
+      "started": "2026-10-31T07:42:02.468Z",
+      "lineSha256": "800f387332c388d168b0a86092d9ebf62f82b589cc9c9863b1631d0279e53897",
+      "ok": true
+    },
+    {
+      "id": "fc3981989e",
+      "started": "2026-10-31T07:42:13.873Z",
+      "lineSha256": "fb569083f585de397c374d56d7d146d7e10e64df93095e27b085c010fc89cce6",
+      "ok": true
+    },
+    {
+      "id": "7b1c701086",
+      "started": "2026-10-31T07:43:42.939Z",
+      "lineSha256": "717e3e67d0adbd3c00b4e65575e0d1baf120ce9841f554d5a40902da9681e806",
+      "ok": true
+    },
+    {
+      "id": "6da2e568dd",
+      "started": "2026-10-31T07:44:18.094Z",
+      "lineSha256": "597ae1464f511cde2513ea4310c783fe914845a906ce0eae4558b8dd356228e6",
+      "ok": true
+    },
+    {
+      "id": "6a7b681266",
+      "started": "2026-10-31T07:45:15.541Z",
+      "lineSha256": "a7b40831f1de01d208424eed8d9cbe3773cdaeda8acf6342dc7014a1b38d5675",
+      "ok": true
+    },
+    {
+      "id": "ca69d396a5",
+      "started": "2026-10-31T07:45:57.406Z",
+      "lineSha256": "4e685be08e5691938e56bd9fe555b6424b8761ece79b71fd1e6bd350e628f941",
+      "ok": true
+    },
+    {
+      "id": "97a9038b60",
+      "started": "2026-10-31T07:46:39.830Z",
+      "lineSha256": "7b448d7df3eb726a8007465f28bb88060d78d28e85b5c533d454edb32963bb24",
+      "ok": true
+    },
+    {
+      "id": "b17c57c41c",
+      "started": "2026-10-31T07:46:50.605Z",
+      "lineSha256": "65701f21f2056ce8c8ce3e9d0644c05c273c52bbe2600529b231eeb0665c1a05",
+      "ok": true
+    },
+    {
+      "id": "18208beca8",
+      "started": "2026-10-31T07:47:48.438Z",
+      "lineSha256": "315b4f84e9af7b16a50b6f7c7ba90ee4c027e3c5e52c9e65cd52234cfc7da48a",
+      "ok": true
+    },
+    {
+      "id": "23754f8d49",
+      "started": "2026-10-31T08:01:31.784Z",
+      "lineSha256": "b493421355d7994ed3f531265faa888188447a56a66e8baa83a2de1cd33e8f9c",
+      "ok": true
+    }
+  ],
+  "images": {
+    "LP-C1-03-failed.png": {
+      "sha256": "1113890d94334700052b07abc711dba042c305b3b077ac6c4a33b963c8aab8ee"
+    },
+    "LP-C1-06-failed.png": {
+      "sha256": "61ac189c7e8d6e868c4e776dd29906f0665e97640ff954b37160b70db0d08891"
+    },
+    "LP-C1-final-DEV.png": {
+      "sha256": "b0e9443038f27d046eb8f5ee5072e6bd76f947515a1a6e6b8a0a239f0caa32dc"
+    },
+    "LP-portal-DEV-publicado.png": {
+      "sha256": "8b27e78035a0cbcbaa366a14d9c6ef553360f3fc831bd1a0c3a2e078e6ceee8e"
+    }
+  },
+  "navigationAssessment": {
+    "scale": "1 difficult to 5 clear; one operator, qualitative observation, not a product KPI",
+    "implementationTechnicalRetry": 4,
+    "unconfirmedInferenceRecovery": 2,
+    "reviewSecurityAndMerge": 4,
+    "buildAndDevPublication": 4,
+    "notes": [
+      "UNKNOWN recovery was hidden under alternatives in the installed Portal; prepared correction is verified separately.",
+      "Merge preparation briefly showed different readiness before Draft release became available.",
+      "DEV steps are ordered and confirmations show the current source/artifact; previous green results require attention to dates and digests."
+    ]
+  }
+}

@@ -7,7 +7,10 @@ import sys
 
 ROOT = Path('/opt/ai-local-lab')
 FILES = ('compose.yaml', 'config/versions.env', 'config/models.yaml', 'python/uv.lock',
-         'python/pyproject.toml', 'docker/dev/Dockerfile', '.override.yaml')
+         'python/pyproject.toml', 'docker/dev/Dockerfile', 'qwen-code/Dockerfile',
+         'qwen-code/package.json', 'qwen-code/package-lock.json', 'qwen-code/runner.mjs', 'qwen-code/workspace.mjs', 'qwen-code/ui-probes.mjs', 'qwen-code/patch.mjs',
+         'scripts/linux/agent-tools.py', 'scripts/linux/network-migration.py',
+         'scripts/linux/offline-network.py', 'scripts/linux/inference_cache_policy.py', 'scripts/linux/bootstrap.sh', 'scripts/linux/sync.sh', 'config/lab.yaml', 'lib/audit_admin.py', 'lib/wsl_clock.py', '.override.yaml')
 
 
 def output(*args):
@@ -18,6 +21,7 @@ def inventory():
     refs = [line.split('=', 1)[1] for line in (ROOT / 'config/versions.env').read_text().splitlines()
             if line and not line.startswith('#')]
     refs.append('ai-local-lab/dev:local')
+    refs.append('ai-local-lab/qwen-code:0.26.4')
     images = {ref: json.loads(output('docker', 'image', 'inspect', ref))[0]['Id'] for ref in refs}
     container = output('docker', 'ps', '-q', '--filter', 'label=com.docker.compose.project=ai-local-lab',
                        '--filter', 'label=com.docker.compose.service=ollama')

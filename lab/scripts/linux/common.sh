@@ -31,6 +31,7 @@ active_services() {
   if has_profile core; then printf '%s\n' ollama open-webui; fi
   if has_profile rag; then printf '%s\n' qdrant; fi
   if has_profile dev; then printf '%s\n' ai-dev jupyter; fi
+  if has_profile agents; then printf '%s\n' qwen-code; fi
 }
 service_state() {
   local cid
@@ -38,4 +39,4 @@ service_state() {
   [[ -n $cid ]] || { echo 'missing'; return 0; }
   docker inspect --format '{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}' "$cid"
 }
-all_dc() { docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" --profile core --profile rag --profile dev "$@"; }
+all_dc() { docker compose --project-name ai-local-lab --env-file .env --env-file .runtime.env "${compose_files[@]}" --profile core --profile rag --profile dev --profile agents "$@"; }

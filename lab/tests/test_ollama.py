@@ -17,7 +17,7 @@ def main():
     model = os.environ.get("SMOKE_MODEL") or models[0]["name"]
     assert any(m["name"] == model for m in models), "Declared smoke model missing: " + model
     result = request("/api/generate", {"model": model, "prompt": "Reply with a short greeting.",
-                                      "stream": False, "options": {"num_predict": 32}, "keep_alive": "2m"})
+                                      "stream": False, "think": False, "options": {"num_ctx": 4096, "num_predict": 32}, "keep_alive": "2m"})
     assert result["done"] and (result.get("response") or result.get("thinking"))
     running = request("/api/ps")["models"]
     assert any(m["name"] == model and m.get("size_vram", 0) > 0 for m in running), "Ollama inference did not use VRAM"

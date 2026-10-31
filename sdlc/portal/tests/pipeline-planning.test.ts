@@ -9,6 +9,8 @@ import {ensurePipelineTasks,pipelineStageOf,pipelineTasks} from '../apps/api/src
 import {ensureActivity,workLinksVersion} from '../apps/api/src/work-activities.ts';
 import type {AssistantHelpers} from '../apps/api/src/assistant.ts';
 import type {GitProvider} from '../apps/api/src/gitlab.ts';
+import {requirePlanningDependencies} from '../apps/api/src/planning-dependencies.ts';
+import {specificationContentFromStory} from '../apps/api/src/story-specifications.ts';
 
 const plan=(tasks:unknown[]=[])=>({summary:'Entrega com planejamento explícito.',epics:[{title:'Consulta',description:'Disponibilizar consulta.',stories:[{title:'Consultar situação',description:'Mostrar a situação solicitada e permitir nova consulta.',acceptanceCriteria:['Retornar a situação correspondente ao identificador informado.'],repositoryIds:[],tasks}]}]});
 test('the proposal describes pipeline stages once and automatically accounts for all six Tasks',()=>{
@@ -98,6 +100,22 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('planned pipeline Tasks',()=>{
    const revision=await db.storySpecificationRevision.findFirstOrThrow({where:{storyId:story.id}});expect(revision).toMatchObject({source:'human',actorId:'ana'});
    const event=await db.historyEvent.findFirstOrThrow({where:{itemId:story.id,action:'STORY_SPECIFICATION_APPLIED'}});expect((event.audit as any).initiator.id).toBe('admin');expect((event.audit as any).executor.id).toBe('admin');
    expect(await db.storyExecution.count({where:{storyId:story.id}})).toBe(0);
+  }finally{await agent.app.close();}
+ });
+ test('slice application resolves stable references atomically and replay creates no duplicate prerequisite',async()=>{
+  const f=await fixture(),content:any=plan();const first=structuredClone(content.epics[0].stories[0]),second=structuredClone(first);
+  first.title='Cadastrar classificações';first.deliverySlice={id:'classification',outcome:'Manter classificações.',rationale:'Primeira capacidade utilizável.',dependsOn:[],sourceFacts:[0]};
+  second.title='Consultar catálogo vinculado';second.deliverySlice={id:'catalog',outcome:'Consultar o catálogo.',rationale:'Usar classificações já integradas.',dependsOn:['classification'],sourceFacts:[1]};content.epics[0].stories=[second,first];content.planningFacts=['Manter classificações.','Consultar catálogo.'];
+  const agent=createApp({db,demoMode:true,llm:{model:'isolated-slices',models:async()=>['isolated-slices'],complete:async messages=>({model:'isolated-slices',content:messages[0].content.startsWith('Gere somente')?JSON.stringify(content):'Recortes registrados para revisão.'})}});
+  try{
+   const post=(path:string,payload:unknown,key=randomUUID())=>agent.app.inject({method:'POST',url:`/api/assistant/${path}`,headers:headers(key),payload});const read=async()=>(await agent.app.inject(`/api/assistant?contextId=${f.project.id}`)).json();
+   await post('turns',{contextId:f.project.id,expectedVersion:0,message:'Planejar capacidades pequenas.'});await agent.processChatJobs();let view=await read();await post('plans',{contextId:f.project.id,expectedVersion:view.session.version});await agent.processChatJobs();view=await read();const proposal=view.proposals[0],body={expectedVersion:proposal.version,expectedProjectVersion:proposal.projectVersion,expectedSessionVersion:proposal.sessionVersion,confirmed:true},key=randomUUID();
+   const changed=structuredClone(proposal.content);changed.planningFacts=['Fonte adulterada 1','Fonte adulterada 2'];const rejected=await agent.app.inject({method:'PATCH',url:`/api/assistant/plans/${proposal.id}`,headers:headers(),payload:{expectedVersion:proposal.version,content:changed}});expect(rejected.statusCode).toBe(409);expect(rejected.json().error.code).toBe('PLAN_FACTS_CHANGED');
+   const applied=await post(`plans/${proposal.id}/apply`,body,key);expect(applied.statusCode,applied.body).toBe(200);expect((await post(`plans/${proposal.id}/apply`,body,key)).json()).toEqual(applied.json());
+   const stories=await db.item.findMany({where:{id:{in:applied.json().itemIds},kind:'story'}}),prior=stories.find(s=>(s.data as any).planSliceId==='classification')!,current=stories.find(s=>(s.data as any).planSliceId==='catalog')!;expect(stories).toHaveLength(2);
+   expect((current.data as any).requirements.dependencies).toEqual([expect.objectContaining({reference:'story:'+prior.id,status:'pending',impact:'blocking'})]);
+   await expect(db.$transaction(tx=>requirePlanningDependencies(tx,current,specificationContentFromStory(current),'main'))).rejects.toMatchObject({code:'PLANNING_DEPENDENCY_PENDING'});
+   expect(await db.historyEvent.count({where:{itemId:f.project.id,action:'PLAN_APPLIED'}})).toBe(1);expect(await db.storyExecution.count({where:{storyId:{in:stories.map(s=>s.id)}}})).toBe(0);
   }finally{await agent.app.close();}
  });
  test('reopening requires a new G1 and only the explicitly started coding Task is reopened',async()=>{

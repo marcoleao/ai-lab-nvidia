@@ -1,7 +1,8 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Dialog } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { pipelineTasks } from '../../packages/shared/src/pipeline-plan';
 import { assistantMessagePage } from './assistant-fixtures';
+import type { ChatTurn } from '../../apps/web/app/assistant-chat';
 
 if (!process.env.TEST_DATABASE_URL?.endsWith('/portal_test')) throw Error('Assistant proposal fixtures require the isolated test environment');
 const now = '2026-10-25T15:00:00Z';
@@ -14,7 +15,7 @@ async function fixture(page: Page) {
   const project = { ...system, id: 'proposal-project', kind: 'project', parentId: system.id, key: 'PROJET', name: 'Projeto do ensaio', projectLifecycle: 'active' };
   const initialStory = story('Consultar uma solicitação');
   initialStory.tasks = [{ title: 'Codificar a consulta', description: 'Implementar a consulta aprovada.', repositoryIds: ['repo-a'], pipelineStage: 'coding' }, { title: 'Documentar o contrato', description: 'Registrar o contrato da consulta.', repositoryIds: ['repo-a'] }];
-  const state = { proposal: { id: 'proposal-review', version: 1, projectVersion: 1, sessionVersion: 1, status: 'draft', content: { summary: 'Consulta de solicitações.', epics: [{ title: 'Consulta', description: 'Consulta pelo solicitante.', stories: [initialStory] }] }, appliedItemIds: [] as string[], creationReceipt: null as any, createdAt: now }, writes: [] as Write[], abortPatch: false, abortApply: false, readOnly: false };
+  const state = { proposal: { id: 'proposal-review', turnId: 'previous-plan-generation', version: 1, projectVersion: 1, sessionVersion: 1, status: 'draft', content: { summary: 'Consulta de solicitações.', epics: [{ title: 'Consulta', description: 'Consulta pelo solicitante.', stories: [initialStory] }] }, appliedItemIds: [] as string[], creationReceipt: null as any, createdAt: now }, writes: [] as Write[], abortPatch: false, abortApply: false, abortPlan: false, readOnly: false, latestTurn: null as ChatTurn | null, activeTurn: null as ChatTurn | null, questions: [] as string[], historicalProposals: [] as any[] };
   const turns = [{ id: 'proposal-interview', sequence: 1, kind: 'chat', input: 'Quero consultar solicitações.', output: 'Requisitos confirmados.', status: 'succeeded', model: null, error: null, actorName: 'Admin', createdAt: now }];
   const receipts = new Map<string, unknown>();
   const personas = [{ id: 'admin', name: 'Admin', role: 'admin' }, { id: 'ana', name: 'Ana', role: 'product_owner' }, { id: 'bruno', name: 'Bruno', role: 'architect' }, { id: 'carla', name: 'Carla', role: 'qa_lead' }];
@@ -24,6 +25,13 @@ async function fixture(page: Page) {
       const write = { method: request.method(), path: url.pathname, key: request.headers()['idempotency-key'], persona: request.headers()['x-persona'], body: request.postDataJSON() };
       state.writes.push(write);
       if (receipts.has(write.key)) return route.fulfill({ json: receipts.get(write.key) });
+      if (write.method === 'POST' && url.pathname === '/api/assistant/plans') {
+        state.latestTurn = { id: 'retried-plan-generation', sequence: 3, kind: 'plan', input: 'Gerar proposta para revisão.', output: null, status: 'queued', model: null, error: null, actorName: 'Admin', createdAt: '2026-10-25T15:02:00Z' };
+        state.activeTurn = state.latestTurn;
+        const receipt = { turn: structuredClone(state.latestTurn) }; receipts.set(write.key, receipt);
+        if (state.abortPlan) { state.abortPlan = false; return route.abort(); }
+        return route.fulfill({ json: receipt });
+      }
       if (write.method === 'PATCH' && url.pathname === '/api/assistant/plans/proposal-review') {
         if (write.body.expectedVersion !== state.proposal.version) return route.fulfill({ status: 409, json: { error: { message: 'A proposta foi alterada.' } } });
         state.proposal.content = write.body.content; state.proposal.version++;
@@ -58,10 +66,10 @@ async function fixture(page: Page) {
     }
     if (url.pathname === '/api/assistant/messages') return route.fulfill({ json: { contextId: project.id, ...assistantMessagePage(turns, url.searchParams), readOnly: state.readOnly, readOnlyReason: state.readOnly ? 'O Projeto está INACTIVE.' : null } });
     if (url.pathname === '/api/assistant') return route.fulfill({ json: {
-      context: state.readOnly ? { ...project, status: 'inactive', projectLifecycle: 'inactive' } : project, session: { id: 'proposal-session', version: 1 }, turns, latestTurn: turns.at(-1), proposals: [state.proposal], currentProposal: state.proposal,
-      activeTurn: null, hasSuccessfulInterview: true, configured: true, requirementsMode: true, readOnly: state.readOnly, readOnlyReason: state.readOnly ? 'O Projeto está INACTIVE.' : null,
+      context: state.readOnly ? { ...project, status: 'inactive', projectLifecycle: 'inactive' } : project, session: { id: 'proposal-session', version: 1 }, turns, latestTurn: state.latestTurn ?? turns.at(-1), proposals: [state.proposal, ...state.historicalProposals], currentProposal: state.proposal,
+      activeTurn: state.activeTurn, hasSuccessfulInterview: true, configured: true, requirementsMode: true, readOnly: state.readOnly, readOnlyReason: state.readOnly ? 'O Projeto está INACTIVE.' : null,
       hierarchy: { writable: !state.readOnly, reason: state.readOnly ? 'O Projeto está INACTIVE.' : null, blockedBy: state.readOnly ? project.id : null }, capabilities: { canEditPlan: !state.readOnly, canApplyPlan: !state.readOnly, canChat: !state.readOnly, canGeneratePlan: !state.readOnly, canCompleteInterview: !state.readOnly },
-      availableRepositories: [{ id: 'repo-a', key: 'API', name: 'API de consulta' }], brief: { summary: 'Consulta pelo solicitante.', confirmedFacts: ['Consultar somente solicitações próprias.'], openQuestions: [] },
+      availableRepositories: [{ id: 'repo-a', key: 'API', name: 'API de consulta' }], brief: { summary: 'Consulta pelo solicitante.', confirmedFacts: ['Consultar somente solicitações próprias.'], openQuestions: state.questions },
       turnsPage: { page: 1, pageSize: 20, total: 1, totalPages: 1, hasMore: false }, proposalsPage: { page: 1, pageSize: 20, total: 1, totalPages: 1, hasMore: false }
     } });
     const item = url.pathname === `/api/items/${system.id}` ? system : url.pathname === `/api/items/${project.id}` ? project : null;
@@ -77,12 +85,83 @@ async function open(page: Page, persona = 'admin') {
   return page.getByRole('region', { name: 'Revisão do plano' }).first();
 }
 async function reload(page: Page) {
-  page.once('dialog', dialog => dialog.accept());
-  await page.reload();
+  const persona = await page.getByRole('combobox', { name: /Persona/ }).inputValue();
+  const acceptReload = async (dialog: Dialog) => { expect(dialog.type()).toBe('beforeunload'); await dialog.accept(); };
+  page.on('dialog', acceptReload);
+  try {
+    await page.reload();
+    await expect(page.getByRole('combobox', { name: /Persona/ })).toHaveValue(persona);
+    await expect(page.getByRole('region', { name: 'Revisão do plano' }).first()).toBeVisible();
+  } finally { page.off('dialog', acceptReload); }
 }
+
+for (const width of [1440, 390]) test(`proposal shows the latest generation failure separately from the applied receipt and preserves retry identity at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 1000 });
+  const state = await fixture(page);
+  state.proposal.status = 'applied'; state.proposal.appliedItemIds = ['previous-epic', 'previous-story'];
+  state.latestTurn = { id: 'failed-plan-generation', sequence: 2, kind: 'plan', input: 'Gerar outra proposta para revisão.', output: null, status: 'running', error: null, model: null, actorName: 'Admin', createdAt: '2026-10-25T15:01:00Z' };
+  state.activeTurn = state.latestTurn;
+  await page.addInitScript(() => sessionStorage.setItem('sdlc-assistant-workspace:proposal-project', JSON.stringify({ version: 1, contextId: 'proposal-project', view: 'proposal', drafts: { admin: 'Rascunho para esclarecer a nova proposta.' }, pending: null })));
+  await page.goto('/assistant?system=proposal-system&project=proposal-project&assistant.view=proposal&assistant.page=2&assistant.before=2');
+  await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
+  const panel = page.getByRole('region', { name: 'Proposta do contexto', exact: true });
+  const notice = panel.getByRole('region', { name: 'Falha da nova geração de proposta', exact: true });
+  await expect(page.getByText('RUNNING · gerando resposta', { exact: true })).toBeVisible();
+  await expect(notice).toHaveCount(0);
+  state.latestTurn = { ...state.latestTurn, status: 'failed', error: 'A proposta não cobre os fatos confirmados. Revise os vínculos antes de tentar novamente.', output: '{"privateCandidate":"CANDIDATA_PRIVADA_NAO_VALIDADA"}', updatedAt: '2026-10-25T15:01:30Z' }; state.activeTurn = null;
+  await expect(notice.getByRole('alert')).toContainText('Não foi possível gerar a nova proposta.');
+  await expect(notice).toContainText(state.latestTurn.error!);
+  await expect(notice).toContainText('A proposta já aplicada foi preservada.');
+  await expect(notice).toContainText('failed-plan-generation');
+  await expect(panel.locator('.assistant-proposal-source')).toContainText('Aplicada');
+  await expect(panel.getByText('Plano aplicado', { exact: true })).toBeVisible();
+  await expect(panel).not.toContainText('CANDIDATA_PRIVADA_NAO_VALIDADA');
+  expect(state.writes).toHaveLength(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  if (process.env.SCREENSHOT_DIR) { mkdirSync(process.env.SCREENSHOT_DIR, { recursive: true }); await page.screenshot({ path: `${process.env.SCREENSHOT_DIR}/assistant-failed-new-proposal-${width}.png`, fullPage: true }); }
+  const conversationAction = notice.getByRole('button', { name: 'Revisar falha na conversa', exact: true });
+  await conversationAction.focus(); await expect(conversationAction).toBeFocused(); await page.keyboard.press('Enter');
+  await expect(page.locator('#assistant-panel-conversation')).toBeVisible();
+  await expect.poll(() => new URL(page.url()).searchParams.get('assistant.before')).toBeNull();
+  expect(new URL(page.url()).searchParams.get('assistant.page')).toBe('1');
+  await expect(page.getByRole('textbox', { name: 'Sua mensagem', exact: true })).toHaveValue('Rascunho para esclarecer a nova proposta.');
+  await page.getByRole('button', { name: /^Proposta/ }).click();
+  state.abortPlan = true;
+  await notice.getByRole('button', { name: 'Gerar nova proposta para revisão', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Confirmar geração do plano', exact: true })).toBeEnabled();
+  await expect(notice.getByRole('button', { name: 'Gerar nova proposta para revisão', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Confirmar geração do plano', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Confirmar geração do plano', exact: true })).toHaveCount(0);
+  expect(state.writes).toHaveLength(2); expect(state.writes[1]).toEqual(state.writes[0]);
+  expect(state.writes[0]).toMatchObject({ method: 'POST', path: '/api/assistant/plans', persona: 'admin', body: { contextId: 'proposal-project', expectedVersion: 1, requirementsMode: true } });
+  expect(state.proposal.status).toBe('applied'); expect(state.proposal.appliedItemIds).toEqual(['previous-epic', 'previous-story']);
+});
+
+test('proposal failure uses current request correlation, not a late update or historical proposal date, and respects generation prerequisites', async ({ page }) => {
+  const state = await fixture(page);
+  state.latestTurn = { id: 'failed-plan-generation', sequence: 2, kind: 'plan', input: 'Gerar outra proposta para revisão.', output: '{"privateCandidate":"CANDIDATA_PRIVADA_NAO_VALIDADA"}', status: 'failed', error: 'A geração da nova proposta falhou.', model: null, actorName: 'Admin', createdAt: '2026-10-25T15:01:00Z', updatedAt: '2026-10-25T15:03:00Z' };
+  state.historicalProposals = [{ ...structuredClone(state.proposal), id: 'historical-proposal', turnId: 'historical-generation', content: { ...structuredClone(state.proposal.content), summary: 'Proposta histórica preservada.' } }];
+  state.questions = ['Qual perfil pode consultar o protocolo?'];
+  await page.goto('/assistant?system=proposal-system&project=proposal-project&assistant.view=proposal&assistant.proposal=historical-proposal');
+  await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin');
+  const panel = page.getByRole('region', { name: 'Proposta do contexto', exact: true }), notice = panel.getByRole('region', { name: 'Falha da nova geração de proposta', exact: true });
+  await expect(notice).toContainText('Este aviso descreve a situação atual do contexto');
+  await expect(notice.getByRole('button', { name: 'Gerar nova proposta para revisão', exact: true })).toBeDisabled();
+  await expect(panel).not.toContainText('CANDIDATA_PRIVADA_NAO_VALIDADA');
+  state.questions = []; state.proposal.createdAt = '2026-10-25T15:02:00Z'; state.proposal.turnId = 'new-successful-plan';
+  await reload(page);
+  await expect(notice).toHaveCount(0); // Failure updated later, but its request preceded the current proposal.
+  await expect(panel.getByRole('button', { name: 'Gerar nova proposta para revisão', exact: true })).toBeEnabled();
+  state.proposal.createdAt = now; state.proposal.turnId = state.latestTurn.id;
+  await reload(page); await expect(notice).toHaveCount(0); // Never label the result of the same turn as a different failed generation.
+  state.proposal.turnId = 'previous-plan-generation'; state.latestTurn = { ...state.latestTurn, id: 'later-chat-failure', kind: 'chat', createdAt: '2026-10-25T15:04:00Z' };
+  await reload(page); await expect(notice).toHaveCount(0); // A failed interview is not a failed proposal generation.
+  expect(state.writes).toHaveLength(0);
+});
 
 test('proposal counts the six fixed stages, preserves stage identity and focuses one Story at a time', async ({ page }) => {
   const state = await fixture(page), review = await open(page, 'bruno');
+  await expect(review.getByRole('region',{name:'Recorte da entrega',exact:true})).toContainText('Proponha uma capacidade que possa ser verificada de ponta a ponta');
   await expect(review.locator('.plan-destination')).toContainText('1 épico(s) → 1 história(s) → 7 tarefa(s)');
   await expect(review.getByText('9/30 itens', { exact: false })).toBeVisible();
   await expect(review.getByRole('button', { name: 'Conferir criação dos itens' })).toBeEnabled();
@@ -102,6 +181,7 @@ test('proposal counts the six fixed stages, preserves stage identity and focuses
   expect(stories[0].tasks[0]).toMatchObject({ title: 'Implementar consulta autenticada', pipelineStage: 'coding' });
   expect(stories[0].requirements.dependencies).toEqual(requirements.dependencies);
   expect(stories[1].tasks).toEqual([]);
+  expect(stories[1].deliverySlice).toBeUndefined();
   await expect(review.getByRole('button', { name: 'Conferir criação dos itens' })).toBeEnabled();
   const directory = process.env.SCREENSHOT_DIR || 'test-results/screenshots'; mkdirSync(directory, { recursive: true });
   for (const width of [1440, 390]) {
@@ -259,4 +339,47 @@ test('a newer proposal and reload cannot conceal the uncertain operation of an o
   expect(state.proposal.status).toBe('draft');
   expect(state.proposal.appliedItemIds).toEqual([]);
   await expect(page.getByRole('button', { name: 'Conferir criação dos itens' }).first()).toBeEnabled();
+});
+
+async function sliceFixture(page: Page) {
+  const state=await fixture(page);
+  const facts=['Registrar uma solicitação e gerar protocolo.','Consultar a situação pelo protocolo do solicitante.'];
+  const consultation=Object.assign(story('Consultar uma solicitação'),{deliverySlice:{id:'slice-consult',outcome:'Consultar a situação da própria solicitação pelo protocolo.',rationale:'Uma consulta completa, com autorização e resultado verificável.',dependsOn:['slice-register'],sourceFacts:[1]}});
+  const registration=Object.assign(story('Registrar uma solicitação'),{deliverySlice:{id:'slice-register',outcome:'Registrar os dados e obter um protocolo.',rationale:'Uma entrega verificável de registro antes da consulta.',dependsOn:[] as string[],sourceFacts:[0]}});
+  registration.acceptanceCriteria=['Registrar os dados e receber um protocolo.'];registration.requirements.functionalCriteria=[...registration.acceptanceCriteria];
+  state.proposal.content.epics[0].stories=[consultation,registration];
+  Object.assign(state.proposal.content,{planningFacts:facts});
+  return {state,facts,consultation,registration};
+}
+
+for(const width of [1440,390])test(`delivery slices preserve facts, criteria, stable identities and the same uncertain revision at ${width}px`,async({page})=>{
+ const {state,facts,consultation,registration}=await sliceFixture(page);
+ await page.setViewportSize({width,height:1000});const review=await open(page,'bruno'),slice=review.getByRole('region',{name:'Recorte da entrega',exact:true});
+ await expect(slice.getByRole('textbox',{name:'Resultado verificável',exact:true})).toHaveValue(consultation.deliverySlice.outcome);const details=slice.locator('details');await expect(details).not.toHaveAttribute('open','');
+ await details.locator('summary').focus();await page.keyboard.press('Enter');await expect(slice).toContainText('A posição na lista não determina a execução');
+ const prerequisites=slice.getByRole('group',{name:'Pré-requisitos de integração',exact:true});await expect(prerequisites.getByRole('checkbox',{name:'Registrar uma solicitação',exact:true})).toBeChecked();await expect(prerequisites).toContainText('antes de codificar esta História');
+ const factGroup=slice.getByRole('group',{name:'Fatos da entrevista relacionados',exact:true});await expect(factGroup.getByRole('checkbox',{name:facts[1],exact:true})).toBeChecked();await expect(factGroup.getByRole('checkbox',{name:facts[0],exact:true})).not.toBeChecked();
+ const alignment=await factGroup.getByRole('checkbox',{name:facts[1],exact:true}).evaluate(input=>{const control=input.getBoundingClientRect(),text=input.closest('label')!.querySelector('span')!.getBoundingClientRect();return {controlRight:control.right,textLeft:text.left,topDifference:Math.abs(control.top-text.top)};});expect(alignment.controlRight).toBeLessThanOrEqual(alignment.textLeft);expect(alignment.topDifference).toBeLessThan(12);
+ if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/assistant-delivery-slice-${width}.png`,fullPage:true});}
+ await slice.getByRole('textbox',{name:'Resultado verificável',exact:true}).fill('Consultar situação e orientação pelo protocolo informado.');await slice.getByRole('textbox',{name:'Justificativa do recorte',exact:true}).fill('Conferir o resultado da consulta como capacidade independente.');
+ await review.getByRole('textbox',{name:'Critério 1',exact:true}).fill('Consultar o próprio protocolo e receber a situação atual.');await expect(slice).toContainText('O conteúdo desta História mudou');
+ state.abortPatch=true;await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect(review.getByRole('button',{name:'Confirmar operação pendente',exact:true})).toBeEnabled();await reload(page);await review.getByRole('button',{name:'Confirmar operação pendente',exact:true}).click();await expect(review.getByRole('button',{name:'Confirmar operação pendente',exact:true})).toHaveCount(0);
+ expect(state.writes).toHaveLength(2);expect(state.writes[1]).toEqual(state.writes[0]);const sent=state.writes[0].body.content;expect(sent.planningFacts).toEqual(facts);expect(sent.epics[0].stories[0].deliverySlice).toMatchObject({id:'slice-consult',dependsOn:['slice-register'],sourceFacts:[1]});expect(sent.epics[0].stories[1].deliverySlice).toEqual(registration.deliverySlice);expect(sent.epics[0].stories[0].acceptanceCriteria).toEqual(['Consultar o próprio protocolo e receber a situação atual.']);expect(sent.epics[0].stories[0].requirements.functionalCriteria).toEqual(sent.epics[0].stories[0].acceptanceCriteria);
+ await expect(slice).toContainText('O conteúdo desta História mudou');await slice.getByRole('button',{name:'Conferi este recorte',exact:true}).click();await expect(slice.getByText('O conteúdo desta História mudou',{exact:false})).toHaveCount(0);await reload(page);await expect(slice.getByText('O conteúdo desta História mudou',{exact:false})).toHaveCount(0);await expect(slice.getByRole('textbox',{name:'Resultado verificável',exact:true})).toHaveValue('Consultar situação e orientação pelo protocolo informado.');
+ await review.getByRole('button',{name:'Conferir criação dos itens',exact:true}).click();await expect(review.getByRole('group',{name:'Confirmar aplicação do plano',exact:true})).toBeVisible();await review.getByRole('textbox',{name:'Critério 1',exact:true}).fill('Consultar o protocolo próprio com a orientação atual.');await expect(review.getByRole('group',{name:'Confirmar aplicação do plano',exact:true})).toHaveCount(0);await expect(slice).toContainText('O conteúdo desta História mudou');expect(state.writes.every(write=>write.method==='PATCH')).toBe(true);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await review.getByRole('button',{name:'Adicionar história ao Épico 1',exact:true}).click();await review.getByRole('textbox',{name:'Título da história',exact:true}).fill('Explicar o acompanhamento do protocolo');await review.getByRole('textbox',{name:'Critério 1',exact:true}).fill('Apresentar a orientação para acompanhar o protocolo.');await slice.getByRole('textbox',{name:'Resultado verificável',exact:true}).fill('O solicitante entende como acompanhar o protocolo.');await slice.getByRole('textbox',{name:'Justificativa do recorte',exact:true}).fill('Complemento humano verificável sem alterar os fatos capturados.');await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect.poll(()=>state.writes.length).toBe(3);const createdSlice=state.writes[2].body.content.epics[0].stories[2].deliverySlice;expect(createdSlice.id).toMatch(/^slice-[a-f0-9-]{36}$/);expect(createdSlice.sourceFacts).toEqual([]);expect(state.writes[2].body.content.planningFacts).toEqual(facts);await reload(page);await expect(slice.getByRole('textbox',{name:'Resultado verificável',exact:true})).toHaveValue('O solicitante entende como acompanhar o protocolo.');expect(state.writes.filter(write=>write.method==='POST')).toHaveLength(0);
+});
+
+test('delivery slice prerequisite removal is explicit and cyclic integration relations never save',async({page})=>{
+ const {state}=await sliceFixture(page);const review=await open(page),picker=review.getByRole('navigation',{name:'Histórias da proposta',exact:true});
+ await picker.getByRole('button',{name:/História 2: Registrar uma solicitação/}).click();await review.getByRole('button',{name:'Remover história 2 e suas tarefas',exact:true}).click();await expect(review).toContainText('Não foi possível remover: “Consultar uma solicitação” possui pré-requisito');await expect(picker.getByRole('button',{name:/História 2: Registrar uma solicitação/})).toBeVisible();expect(state.writes).toHaveLength(0);
+ const slice=review.getByRole('region',{name:'Recorte da entrega',exact:true});await slice.locator('summary').click();await slice.getByRole('group',{name:'Pré-requisitos de integração',exact:true}).getByRole('checkbox',{name:'Consultar uma solicitação',exact:true}).check();await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect(review).toContainText('Os pré-requisitos formam um ciclo entre Histórias');expect(state.writes).toHaveLength(0);
+ await slice.getByRole('group',{name:'Pré-requisitos de integração',exact:true}).getByRole('checkbox',{name:'Consultar uma solicitação',exact:true}).uncheck();await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0].body.content.epics[0].stories.map((entry:any)=>entry.deliverySlice.id)).toEqual(['slice-consult','slice-register']);expect(state.writes[0].body.content.epics[0].stories[0].deliverySlice.dependsOn).toEqual(['slice-register']);
+});
+
+test('delivery slice missing references and uncovered facts stay recoverable until explicitly revised',async({page})=>{
+ const {state,facts,consultation}=await sliceFixture(page);consultation.deliverySlice.dependsOn=['slice-unavailable'];facts.push('Explicar ao solicitante como acompanhar o protocolo.');const review=await open(page),slice=review.getByRole('region',{name:'Recorte da entrega',exact:true});
+ await slice.locator('summary').click();await expect(slice).toContainText('Pré-requisito indisponível: slice-unavailable');await slice.getByRole('textbox',{name:'Resultado verificável',exact:true}).fill('Consultar o próprio protocolo e receber orientação.');await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect(review).toContainText('Há referência indisponível, repetida ou à própria História');expect(state.writes).toHaveLength(0);await reload(page);await slice.locator('summary').click();await expect(slice).toContainText('Pré-requisito indisponível: slice-unavailable');
+ await slice.getByRole('button',{name:'Remover pré-requisito indisponível slice-unavailable',exact:true}).click();await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect(review).toContainText('Há fatos da entrevista sem vínculo a uma História');expect(state.writes).toHaveLength(0);
+ await slice.getByRole('group',{name:'Fatos da entrevista relacionados',exact:true}).getByRole('checkbox',{name:facts[2],exact:true}).check();await review.getByRole('button',{name:'Salvar revisão',exact:true}).click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0].body.content.planningFacts).toEqual(facts);expect(state.writes[0].body.content.epics[0].stories[0].deliverySlice).toMatchObject({id:'slice-consult',dependsOn:[],sourceFacts:[1,2]});expect(state.writes[0].body.content.epics[0].stories[0].acceptanceCriteria).toEqual(requirements.functionalCriteria);await expect(review.getByRole('button',{name:'Conferir criação dos itens',exact:true})).toBeEnabled();expect(state.writes[0].method).toBe('PATCH');
 });

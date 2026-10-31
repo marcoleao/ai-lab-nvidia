@@ -1,0 +1,62 @@
+{
+  "portalImageId": "sha256:4596f95059f31757b0dfdbb03cccb778898f436ed49018fa2062d56e2556df09",
+  "portalSource": "55c8022f3111494227ed69c70a1b49ee3922fd619cd47078967ffa91ca8730c2",
+  "tablesChecked": 49,
+  "exactTablesPreserved": true,
+  "backup": {
+    "backupId": "local-dialog-role-verified-20261031-1eacdbeb",
+    "bytes": 685960,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsApplied": 0,
+  "workerImageId": "sha256:0c3752767e279804d278ddcaf622a1a2308143f2f1ce7521095ceb4af35f9ded",
+  "workerSourceDigest": "0b04539224f4ddff56434e2c400a5db5647d936360c06046e69db374311eea76",
+  "browserImageId": "sha256:48e110b1b45c63dfaaceca2bfe60756bb5bf3d1f97e791dfc160afeb2cacd905",
+  "codingModel": "qwen3:14b",
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "microThinking": false,
+  "codingQualification": "coding-live-20261031T073327Z-aaccd3",
+  "planningQualification": "planning-live-20261031T075526Z-4491d1",
+  "planningModel": "qwen3.5:9b",
+  "directedChecks": [
+    {
+      "report": "20261031T075346Z-605ae6",
+      "passed": true,
+      "sourceStable": true,
+      "backendPassed": 82,
+      "browserStats": null
+    },
+    {
+      "report": "20261031T080120Z-0f6b00",
+      "passed": true,
+      "sourceStable": true,
+      "backendPassed": 41,
+      "browserStats": null
+    },
+    {
+      "report": "20261031T074434Z-78b325",
+      "passed": true,
+      "sourceStable": true,
+      "backendPassed": 0,
+      "browserStats": {
+        "startTime": "2026-10-31T07:44:38.568Z",
+        "duration": 4256.081,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "businessAcceptance": "DEV iteration published; independent UI recheck had five passes and two photo-URL failures. No Development Finalized approval, QA/HML/PRD promotion or complete catalog acceptance.",
+  "fullRegression": "Final clean full remains pending; previous failed run remains preserved."
+}

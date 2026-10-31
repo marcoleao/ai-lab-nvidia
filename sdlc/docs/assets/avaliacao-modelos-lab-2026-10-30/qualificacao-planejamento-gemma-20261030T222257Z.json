@@ -1,0 +1,19 @@
+{
+  "sourceMode": "current-source-readonly-overlay",
+  "sourceDigest": "d45697906e192e21ff9762e3730859e01e7beb785b7f46cfca1ef56044fb0994",
+  "imageId": "sha256:0181605347c01965197e036e301887480fee410a9fe242fde378ee7d588aa441",
+  "synthetic": true,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "results": [
+    {
+      "model": "gemma4:12b",
+      "passed": true,
+      "stories": 3,
+      "factReferencesCovered": 8,
+      "inferenceCalls": 2,
+      "elapsedMs": 18574
+    }
+  ],
+  "sourceStable": true
+}

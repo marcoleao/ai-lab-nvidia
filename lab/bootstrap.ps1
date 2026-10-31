@@ -30,16 +30,17 @@ try {
     if (($yes -and $Command -notin 'nuke','reset','destroy') -or ($ephemeral -and $Command -ne 'up') -or ($follow -and $Command -ne 'logs')) { throw 'Option is not valid for this command.' }
     $profiles = @($script:Config.profiles)
     if ($Command -in 'up','prepare' -and $rest.Count) {
-        if ($rest.Count -ne 1) { throw 'Usage: ai up [core|rag|dev|all] [--ephemeral]' }
+        if ($rest.Count -ne 1) { throw 'Usage: ai up [core|rag|dev|agents|all]' }
         switch ($rest[0]) {
-            'all' { $profiles = @('core','rag','dev') }
+            'all' { $profiles = @('core','rag','dev','agents') }
             'core' { $profiles = @('core') }
             'rag' { $profiles = @('core','rag') }
             'dev' { $profiles = @('core','dev') }
-            default { throw 'Profiles agents and observability are reserved; choose core, rag, dev or all.' }
+            'agents' { $profiles = @('core','agents') }
+            default { throw 'Choose core, rag, dev, agents or all. Observability remains reserved.' }
         }
     } elseif ($Command -ne 'logs' -and $rest.Count) { throw 'Unexpected command arguments.' }
-    if ($Command -eq 'logs' -and ($rest.Count -gt 1 -or ($rest.Count -eq 1 -and $rest[0] -notin 'ollama','open-webui','qdrant','ai-dev','jupyter'))) { throw 'Invalid log service.' }
+    if ($Command -eq 'logs' -and ($rest.Count -gt 1 -or ($rest.Count -eq 1 -and $rest[0] -notin 'ollama','open-webui','qdrant','ai-dev','jupyter','qwen-code'))) { throw 'Invalid log service.' }
     foreach ($directory in '.state','.logs') {
         $target = Join-Path $script:Repo $directory
         if (Test-Path $target) {

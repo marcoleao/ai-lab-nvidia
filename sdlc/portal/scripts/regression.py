@@ -5,7 +5,7 @@ No operational containers, database, credentials or .prepared helpers are used.
 """
 from pathlib import Path
 from datetime import datetime,timezone
-import argparse,hashlib,json,subprocess,time,uuid,fcntl,sys
+import argparse,hashlib,importlib.util,json,subprocess,time,uuid,fcntl,sys
 
 ROOT=Path(__file__).resolve().parents[1];LABEL='org.sdlc.regression';OWNER='portal-v1-'+hashlib.sha256(str(ROOT).encode()).hexdigest()[:10]
 OUTPUT=ROOT/'test-results/regression';IMAGE='sdlc-portal-regression:toolchain';POSTGRES='postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3'
@@ -25,6 +25,13 @@ def owned(name,kind='container'):
   if mounts.get('/source',{}).get('Source')!=str(ROOT) or mounts['/source'].get('RW') or mounts.get('/reports',{}).get('Source')!=str(OUTPUT):raise RuntimeError('Regression runner mounts differ from this workspace')
  return row
 def env(scope):return ['-e','DATABASE_URL=postgresql://sdlc:regression-only@db:5432/portal_test','-e','TEST_DATABASE_URL=postgresql://sdlc:regression-only@db:5432/portal_test','-e','REGRESSION_TEST_HOST=1','-e','REGRESSION_RESOURCE_ID='+OWNER+'-'+scope,'-e','DEMO_MODE=true','-e','PORTAL_ORIGIN=http://127.0.0.1:3000','-e','API_BASE_URL=http://127.0.0.1:4100','-e','PORTAL_TEST_BASE_URL=http://127.0.0.1:3000','-e','NEXT_TELEMETRY_DISABLED=1']
+def reconcile_network(scope):
+ # WSL distributions share the kernel/netfilter. Another owned Docker engine
+ # can leave this bridge without same-bridge forwarding after it restarts.
+ network=owned(names(scope)['network'],'network')
+ spec=importlib.util.spec_from_file_location('regression_network_guard',ROOT.parent/'scripts/reconcile-docker-networks.py');guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard)
+ return guard.reconcile([guard.bridge_rule(network)])
+
 def prepare(scope):
  n=names(scope);OUTPUT.mkdir(parents=True,exist_ok=True)
  for key,kind in [('network','network'),('db','container'),('runner','container')]:
@@ -36,6 +43,7 @@ def prepare(scope):
   time.sleep(.25)
  else:raise RuntimeError('Owned PostgreSQL did not start')
  if not exists(n['runner']):docker('run','-d','--pull','never','--name',n['runner'],'--user','root','--network',n['network'],'--label',LABEL+'='+OWNER,'--shm-size','512m','--mount','type=bind,src='+str(ROOT)+',dst=/source,readonly','--mount','type=bind,src='+str(OUTPUT)+',dst=/reports',*(['-p','127.0.0.1:3390:3000'] if scope=='fast' else []),*env(scope),'--entrypoint','sleep',IMAGE,'infinity')
+ reconcile_network(scope)
  return sync(scope)
 def sync(scope):
  n=names(scope);owned(n['runner']);result=docker('exec','-w','/app',n['runner'],'node','/source/scripts/regression-sync.mjs',capture=True);print(result.stdout);value=json.loads(result.stdout.strip().splitlines()[-1]);docker('exec','-w','/app',n['runner'],'pnpm','db:setup',capture=True)
@@ -48,11 +56,13 @@ def services(scope):
   if result.returncode==0:return
   time.sleep(.25)
  raise RuntimeError('Owned test API/web did not become ready; inspect .regression logs inside runner')
-def support_checks(directory):
+def support_checks(directory,runner):
  directory.mkdir(parents=True,exist_ok=True);support=[]
- for name,arguments in [('admin-audit',['-m','unittest','discover','-s',str(ROOT.parent/'tests'),'-p','test_audit_admin.py','-v']),('relay',[str(ROOT/'tests/relay_tests.py')]),('controller',[str(ROOT/'tests/regression-runner.test.py')]),('build-executor',[str(ROOT/'tests/build-executor.test.py')]),('runtime-executor',[str(ROOT/'tests/runtime-executor.test.py')]),('dev-test-executor',[str(ROOT/'tests/dev-test-executor.test.py')])]:
+ for name,arguments in [('admin-audit',['-m','unittest','discover','-s',str(ROOT.parent/'tests'),'-p','test_audit_admin.py','-v']),('wsl-clock',[str(ROOT.parent/'tests/test_wsl_clock.py')]),('relay',[str(ROOT/'tests/relay_tests.py')]),('controller',[str(ROOT/'tests/regression-runner.test.py')]),('build-executor',[str(ROOT/'tests/build-executor.test.py')]),('coding-executor',[str(ROOT/'tests/coding-executor.test.py')]),('coding-ui-agent',[str(ROOT/'tests/coding-ui-agent.test.py')]),('coding-micro',[str(ROOT/'tests/coding-micro.test.py')]),('runtime-executor',[str(ROOT/'tests/runtime-executor.test.py')]),('dev-test-executor',[str(ROOT/'tests/dev-test-executor.test.py')])]:
   started=time.monotonic();checked=subprocess.run([sys.executable,*arguments],cwd=ROOT,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
   (directory/(name+'.log')).write_text(checked.stdout);support.append({'name':name,'exitCode':checked.returncode,'durationMs':round((time.monotonic()-started)*1000)})
+ started=time.monotonic();checked=docker('exec',runner,'node','--test','/source/tests/browser-controls.test.mjs',capture=True,check=False)
+ (directory/'browser-controls.log').write_text(checked.stdout+checked.stderr);support.append({'name':'browser-controls','exitCode':checked.returncode,'durationMs':round((time.monotonic()-started)*1000)})
  (directory/'support-checks.json').write_text(json.dumps(support,indent=2));return support
 
 def execute(scope,command,options):
@@ -62,7 +72,7 @@ def execute(scope,command,options):
  if command=='browser':docker('exec','-w','/app',n['runner'],'node','scripts/test-isolated.mjs','--reset-only')
  receipt={'version':1,'operationId':CURRENT_OPERATION.get(),'resourceId':OWNER+'-'+scope,'scope':scope,'runnerId':owned(n['runner'])['Id'],'databaseId':owned(n['db'])['Id'],'imageId':owned(n['runner'])['Image'],'postgresImageId':owned(n['db'])['Image'],'startedAt':datetime.now(timezone.utc).isoformat(),'command':command}
  (OUTPUT/run_id).mkdir(parents=True,exist_ok=True);(OUTPUT/run_id/'environment.json').write_text(json.dumps(receipt,indent=2))
- support=support_checks(OUTPUT/run_id) if command=='full' else []
+ support=support_checks(OUTPUT/run_id,n['runner']) if command=='full' else []
  if command=='full':command='ci'
  argv=['node','scripts/regression.mjs',command,'--output='+path,*(['--reuse-server'] if command=='smoke' else []),*(['--dev'] if command=='browser' else []),*(['--write-catalog'] if options.write_catalog else []),*(['--files='+','.join(options.files)] if options.files else []),*(['--grep='+options.grep] if options.grep else [])]
  result=docker('exec','-w','/app',n['runner'],*argv,check=False)

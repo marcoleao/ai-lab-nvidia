@@ -1,0 +1,12 @@
+# A prepared dependency/browser image; no business source or credential is baked.
+ARG BROWSER_TOOLCHAIN=sdlc-portal-regression:toolchain
+FROM ${BROWSER_TOOLCHAIN}
+USER root
+RUN if [ ! -d /ms-playwright ] && [ -d /root/.cache/ms-playwright ]; then mv /root/.cache/ms-playwright /ms-playwright; fi \
+    && test -d /ms-playwright && chmod -R a+rX /ms-playwright
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+COPY executor/coding-browser.mjs /opt/sdlc/coding-browser.mjs
+COPY executor/browser-controls.mjs /opt/sdlc/browser-controls.mjs
+LABEL org.sdlc.coding-browser="react-entry-v1"
+USER node
+ENTRYPOINT ["node", "/opt/sdlc/coding-browser.mjs"]

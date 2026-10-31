@@ -1,0 +1,15 @@
+{
+  "name": "sdlc-qwen-code-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@babel/parser": "7.28.5",
+    "@esbuild/linux-x64": "0.28.2",
+    "@qwen-code/qwen-code": "0.26.4",
+    "@qwen-code/sdk": "0.1.26",
+    "esbuild": "0.28.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  }
+}

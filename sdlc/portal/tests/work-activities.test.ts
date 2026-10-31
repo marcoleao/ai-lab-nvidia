@@ -95,7 +95,7 @@ describe.skipIf(!url)('real tasks and observable work',()=>{
   const job=runtime.processQualityJobs();
   for(let poll=0;poll<100&&!llm.complete.mock.calls.length;poll++)await new Promise(resolve=>setTimeout(resolve,5));
   const live=await db.workAttempt.findUniqueOrThrow({where:{sourceKey:`quality:${requested.json().checkId}`},include:{activity:true,events:true}});
-  expect(live).toMatchObject({state:'running',stage:'model_wait',provider:'local-llm'});expect(live.startedAt).not.toBeNull();expect(live.heartbeatAt).not.toBeNull();expect(live.events.some(event=>event.message.includes('aguardando resposta'))).toBe(true);
+  expect(live).toMatchObject({state:'running',stage:'model_wait',provider:'local-llm'});expect(live.startedAt).not.toBeNull();expect(live.heartbeatAt).not.toBeNull();expect(live.events.some(event=>event.stage==='model_wait'&&event.provider==='local-llm')).toBe(true);
   if(change==='revision')await db.storyExecution.update({where:{id:run.id},data:{commitSha:'d'.repeat(40)}});
   else await db.qualityCheck.update({where:{id:requested.json().checkId},data:{leaseUntil:new Date(0)}});
   resolveModel({model:llm.model,content:JSON.stringify({summary:'Análise do commit anterior.',findings:[]})});await job;

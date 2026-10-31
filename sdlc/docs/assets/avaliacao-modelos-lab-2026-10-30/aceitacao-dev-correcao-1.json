@@ -1,0 +1,85 @@
+{
+  "method": "Browser UI only; actual agents, GitLab, merge and DEV deployment",
+  "story": "JOIASC-CATLOG-2",
+  "storyId": "cmvvl2daw000801pb10emvi9p",
+  "sourceSha": "e9ff72a653044009e98611a1fb4bd3e68c036515",
+  "integrationSha": "d125a28ca63db903fb3ca24481b3190f96684789",
+  "image": "sha256:b38796afcd4c4d2928bfdaafad5980774a9ccda426561c134f8f30145af265ce",
+  "url": "http://localhost:44781/",
+  "attempts": [
+    {
+      "id": "DEV1-C24",
+      "title": "Dados anteriores aparecem ao recarregar sem alterar filtros",
+      "status": "PASSED",
+      "at": "2026-10-30T23:22:56.146Z"
+    },
+    {
+      "id": "DEV1-C05",
+      "title": "Cadastrar foto SVG HTTP e preço zero com atualização imediata",
+      "status": "FAILED",
+      "error": "locator.fill: value: expected string, got number",
+      "screenshot": "DEV1-C05-failure.png",
+      "at": "2026-10-30T23:22:56.318Z"
+    },
+    {
+      "id": "DEV1-C05-r2",
+      "title": "Cadastrar foto SVG HTTP e preço zero com atualização imediata",
+      "status": "FAILED",
+      "error": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' })\n",
+      "screenshot": "DEV1-C05-r2-failure.png",
+      "at": "2026-10-30T23:23:15.345Z"
+    },
+    {
+      "id": "DEV1-C09",
+      "title": "Preço zero e cadastro sem foto aparecem imediatamente",
+      "status": "FAILED",
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' })\nExpected pattern: /R\\$\\s*0,00/\nReceived string:  \"Pulseira Rubi DEV1 - A1-IMG-001 - Anéis - Prata - R$ 0.00Sem fotoEditarArquivarExcluir\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Listagem de Joias', exact: true }).locator('..').getByRole('listitem').filter({ hasText: 'A1-IMG-001' })\n    14 × locator resolved to <li>…</li>\n       - unexpected value \"Pulseira Rubi DEV1 - A1-IMG-001 - Anéis - Prata - R$ 0.00Sem fotoEditarArquivarExcluir\"\n",
+      "screenshot": "DEV1-C09-failure.png",
+      "at": "2026-10-30T23:24:54.599Z"
+    },
+    {
+      "id": "DEV1-C17",
+      "title": "Pesquisa sem correspondência explica resultado vazio",
+      "status": "PASSED",
+      "at": "2026-10-30T23:24:54.640Z"
+    },
+    {
+      "id": "DEV1-C18-list",
+      "title": "Editar atualiza lista sem mudar filtros",
+      "status": "PASSED",
+      "at": "2026-10-30T23:25:58.469Z"
+    },
+    {
+      "id": "DEV1-C21-list",
+      "title": "Arquivar remove item imediatamente da lista ativa",
+      "status": "PASSED",
+      "at": "2026-10-30T23:25:58.521Z"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "DEV1-C05",
+      "kind": "AUTOMATION_ERROR",
+      "note": "fillJewel received numeric 0 instead of string; no submit happened. Repeated as DEV1-C05-r2."
+    },
+    {
+      "id": "DEV1-C09",
+      "kind": "PRODUCT_FAILURE",
+      "note": "Creation without photo and immediate list insertion passed, but formatting showed R$ 0.00 instead of R$ 0,00."
+    }
+  ],
+  "confirmedProductDefects": [
+    "Valid HTTP SVG photo URL rejected by form",
+    "Currency decimal formatting uses dot, including zero"
+  ],
+  "svgFixture": {
+    "status": 200,
+    "renderedWidth": 200,
+    "renderedHeight": 192,
+    "evidence": "45-svg-http-valido.png"
+  },
+  "manualApplicationEdits": false,
+  "directApplicationApiCalls": false,
+  "sqlForAcceptance": false,
+  "developmentFinishedApproved": false
+}

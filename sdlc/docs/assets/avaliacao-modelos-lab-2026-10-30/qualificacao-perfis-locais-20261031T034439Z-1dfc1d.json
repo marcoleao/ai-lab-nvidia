@@ -1,0 +1,201 @@
+{
+  "sourceReport": "coding-live-20261031T034439Z-1dfc1d",
+  "sourceReportSha256": "d4f680cd49b4b8dc32fd7e2c3d2a52a01c8bd64e718440ab86dd1c6a3f4fc63b",
+  "model": "qwen3.5:9b",
+  "workflow": "focused-local-v1",
+  "imageId": "sha256:f0b84d6b9b8a0152368315c9a87a139d88c1fba635ec8665c996987078c28658",
+  "browserImageId": "sha256:afe1f6ef4a91b9af9631886a6ab45928233dbe4da778c89261bbc11752eea47d",
+  "executorDigest": "b24e3240efd8322256e8687199299dd142de331b4187ad36911c2be747394890",
+  "sourceStable": true,
+  "completeSuite": true,
+  "fixtures": [
+    {
+      "fixture": "literal-edit",
+      "state": "succeeded",
+      "elapsedMs": 18627,
+      "inferenceCalls": 3,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "diagnostics": [
+        "Tool registry outside policy"
+      ],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        }
+      ]
+    },
+    {
+      "fixture": "react-provider",
+      "state": "succeeded",
+      "elapsedMs": 34231,
+      "inferenceCalls": 6,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "diagnostics": [
+        "Tool registry outside policy"
+      ],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 3,
+          "toolCalls": 4
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": null,
+          "inferenceCalls": 0,
+          "selections": 0
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 2,
+          "confirmedActions": 2
+        }
+      ]
+    },
+    {
+      "fixture": "ui-price",
+      "state": "succeeded",
+      "elapsedMs": 47281,
+      "inferenceCalls": 6,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 2,
+        "executed": 2,
+        "assertions": 1
+      },
+      "diagnostics": [
+        "Tool registry outside policy"
+      ],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": null,
+          "inferenceCalls": 0,
+          "selections": 0
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 2,
+          "confirmedActions": 2
+        }
+      ]
+    },
+    {
+      "fixture": "ui-prerequisites",
+      "state": "succeeded",
+      "elapsedMs": 70028,
+      "inferenceCalls": 13,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 5,
+        "executed": 5,
+        "assertions": 1
+      },
+      "emptyCategoryBlocked": true,
+      "diagnostics": [
+        "Tool registry outside policy",
+        "Tool registry outside policy"
+      ],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 1,
+          "selections": 1
+        },
+        {
+          "role": "ui_operator",
+          "state": "failed",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 6,
+          "recordedActions": 5
+        },
+        {
+          "role": "targeted_repair",
+          "state": "succeeded",
+          "model": "qwen3.5:9b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        }
+      ]
+    }
+  ],
+  "scope": "Synthetic local specialist qualification; does not certify the jewelry application or a DEV deployment."
+}

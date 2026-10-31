@@ -37,9 +37,16 @@ jobs:
       - name: Administrative audit contracts
         run: |
           python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
+          python3 ../scripts/reconcile_docker_network_tests.py
+          python3 ../tests/test_wsl_clock.py
           python3 tests/regression-runner.test.py
       - name: Local inference relay contracts
-        run: python3 tests/relay_tests.py
+        run: |
+          python3 tests/relay_tests.py
+          python3 tests/coding-executor.test.py
+          python3 tests/coding-ui-agent.test.py
+          python3 tests/coding-micro.test.py
+          node --test tests/browser-controls.test.mjs
       - name: Browser dependencies
         run: pnpm exec playwright install --with-deps chromium
       - name: Registered backend and browser regression

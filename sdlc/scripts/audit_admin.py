@@ -24,7 +24,7 @@ OUTCOMES = {'ACCEPTED', 'SUCCEEDED', 'FAILED', 'REJECTED', 'CANCELLED', 'UNKNOWN
 PHASES = {'REQUESTED', 'COMPLETED', 'OBSERVED'}
 FIELDS = {'command', 'method', 'path', 'httpStatus', 'errorType', 'backupId', 'projectId',
           'repositoryId', 'groupId', 'model', 'networkName', 'count', 'scope', 'epochId',
-          'previousEpochId', 'exitCode', 'manifestDigest', 'imageId', 'integration', 'reasonCode'}
+          'previousEpochId', 'exitCode', 'manifestDigest', 'imageId', 'browserImageId', 'integration', 'reasonCode'}
 SECRET = re.compile(r'(?i)(bearer\s|glpat-|sk-[a-z0-9_-]{8,}|(?:token|password|secret|authorization|cookie)\s*[:=])')
 CURRENT_OPERATION = ContextVar('sdlc_admin_operation', default=None)
 

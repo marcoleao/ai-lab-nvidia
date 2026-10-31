@@ -101,8 +101,11 @@ test('the selected proposal separates essential fields, optional detail and bloc
   await page.goto('/assistant?system=system-a&project=project-a');
   await choosePersona(page);
   await page.getByRole('button', { name: /^Resumo/ }).click();
-  await expect(page.getByText('Como apresentar um protocolo inexistente?', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Fechar resumo', exact: true }).click();
+  const summary = page.getByRole('dialog', { name: 'Resumo da necessidade', exact: true });
+  await expect(summary).toBeVisible();
+  await expect(summary.getByText('Como apresentar um protocolo inexistente?', { exact: true })).toBeVisible();
+  await summary.getByRole('button', { name: 'Fechar resumo', exact: true }).click();
+  await expect(summary).toBeHidden();
   await expect(page.getByRole('region', { name: 'Resumo da especificação', exact: true })).toBeHidden();
   await page.getByRole('button', { name: /^Proposta/ }).click();
   const coverage = await openCoverage(page);

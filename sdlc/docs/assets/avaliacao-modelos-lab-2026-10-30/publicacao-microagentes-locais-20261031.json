@@ -1,0 +1,28 @@
+{
+  "portalImageId": "sha256:d962d737949d747a49d38fcfb8b1c2f450015cf09af33cc64973367772cd7846",
+  "portalSource": "4a6f67ce9241d3340b8a379f724291f0af5214710738d2247c798e6159b38eae",
+  "tablesChecked": 49,
+  "exactTablesPreserved": true,
+  "backup": {
+    "backupId": "local-line-edits-verified-20261031-40795624",
+    "bytes": 668956,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsApplied": 0,
+  "workerImageId": "sha256:8c055561dfbafec1d3254865ddeeabf34655e221f7f4b2a713843a0e5318ba61",
+  "workerSourceDigest": "05068af01d4a3ee0b130ea116efd6ba24acbc70034e3c178030ecaf6fc609905",
+  "model": "qwen3:14b",
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "microThinking": false,
+  "qualification": "coding-live-20261031T052211Z-afce47",
+  "businessAcceptance": "Not yet repeated on jewelry; unchanged business data at publication."
+}

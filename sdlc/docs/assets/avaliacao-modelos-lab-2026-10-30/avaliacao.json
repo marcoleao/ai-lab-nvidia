@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "date": "2026-10-30",
+  "status": "RECOMMENDATIONS_NOT_APPLIED",
+  "hardware": {
+    "host": "Dell Precision 5690",
+    "physicalRAMBytes": 33777467392,
+    "gpu": "NVIDIA RTX 5000 Ada Generation Laptop GPU",
+    "gpuDedicatedMemoryMiB": 16376,
+    "wslMemTotalKiB": 16094652,
+    "wslSwapTotalKiB": 4194304,
+    "wslSwapFreeBeforeProbeKiB": 562460,
+    "windowsFreeRAMDuringProbeKiB": 617612,
+    "windowsFreeRAMAfterProbeKiB": 1652340,
+    "activePagingObserved": true,
+    "note": "WSL memory is shared by its distributions. Swap occupied alone was not treated as proof of current paging; vmstat also observed active page-in."
+  },
+  "lab": {
+    "ollamaVersion": "0.40.4",
+    "installedModels": ["qwen3:14b", "gpt-oss:20b", "qwen3-coder:30b", "gemma3:27b"],
+    "maxLoadedModels": 1,
+    "parallelRequestsPerModel": 1,
+    "portalSelectedModel": "qwen3-coder:30b",
+    "portalContextTokens": 32768,
+    "portalOutputLimitInitial": 8192,
+    "portalOutputLimitFocusedRetry": 4096,
+    "portalThinking": false,
+    "portalNativeToolCalling": false,
+    "flashAttentionExplicitEnvironment": false,
+    "kvCacheTypeExplicitEnvironment": false,
+    "automaticFlashAttentionNotExcluded": true
+  },
+  "probe": {
+    "receipt": "ensaio-capacidade.json",
+    "samples": 4,
+    "contextAllocatedTokens": 32768,
+    "actualInputTokensRange": [136, 187],
+    "outputTokensRange": [82, 94],
+    "representativeLargeRepositoryBenchmark": false,
+    "conclusions": [
+      "30B reported 22090505198 bytes total and 14605027900 bytes in VRAM; 14B reported 14383820307 bytes total, all in VRAM.",
+      "Observed first-call model load: 74.3 seconds for 30B and 11.4 seconds for 14B. OS page cache and service load were not controlled.",
+      "Observed generation rate: 19.35–25.03 tokens/s for 30B and 28.99–31.33 for 14B; tiny outputs do not establish full-task latency.",
+      "Both edited the synthetic line correctly. 30B falsely claimed a missing confirmation present in the supplied sibling module; 14B did not.",
+      "This sample cannot select a production winner or prove success on the jewelry catalog."
+    ]
+  },
+  "recommendations": [
+    {"priority": 1, "action": "Qualify a smaller fully GPU-resident model on representative tasks, including healthy-code negative controls; candidates Qwen3.5 9B and Gemma4 12B, not yet installed or tested."},
+    {"priority": 1, "action": "Replace large one-shot patch production with a bounded read/edit/validate loop in an isolated workspace pinned to the authorized SHA; retain permissions, audits, MR, review and security gates."},
+    {"priority": 2, "action": "Use task-specific context and output budgets, never silent truncation; measure Flash Attention and q8_0 KV cache before adoption."},
+    {"priority": 2, "action": "Create a deliberate lightweight service profile; do not stop user services or raise WSL RAM merely to shift pressure to Windows."},
+    {"priority": 3, "action": "For heavier coding models, prefer a separate private inference machine. Initial engineering target: 64 GB host RAM and 32 GB GPU VRAM; validate the chosen model/context before purchasing hardware."}
+  ],
+  "candidateModelsNotTested": [
+    {"name": "qwen3.5:9b", "publishedDownloadSize": "6.6–7.6 GB", "role": "Candidate for the existing 16 GB GPU, subject to context/quality qualification", "source": "https://ollama.com/library/qwen3.5"},
+    {"name": "gemma4:12b", "publishedDownloadSize": "7.7–8.0 GB", "role": "Candidate from another model family for independent comparison/review", "source": "https://ollama.com/library/gemma4"},
+    {"name": "qwen3.8:27b", "publishedDownloadSize": "18 GB", "role": "Heavier candidate for another inference machine, not a demonstrated drop-in improvement", "source": "https://ollama.com/library/qwen3.8"},
+    {"name": "qwen3-coder-next:q4_K_M", "publishedDownloadSize": "52 GB", "role": "Requires substantially more memory than the current notebook; not covered by the 32 GB VRAM target", "source": "https://ollama.com/library/qwen3-coder-next"}
+  ],
+  "sources": {
+    "contextAndOffload": "https://docs.ollama.com/context-length",
+    "performanceConfiguration": "https://docs.ollama.com/faq",
+    "wslMemory": "https://learn.microsoft.com/en-us/windows/wsl/wsl-config",
+    "nonUpgradeableHostMemory": "https://www.dell.com/support/manuals/en-us/precision-16-5690-laptop/precision-5690_owners_manual/memory?guid=guid-e9d2ea83-38a4-431d-803c-96d63c1dbc34&lang=en-us",
+    "agenticCodingScaffoldExample": "https://github.com/QwenLM/qwen-code"
+  },
+  "changesApplied": {"newModelsInstalled": false, "productionModelChanged": false, "labServicesStopped": false, "wslConfigurationChanged": false, "applicationOrBusinessDataChanged": false},
+  "noteOnProbeStop": "When pressure was observed, an interruption was attempted only against the exact owned probe process; it had already completed. No service was stopped. Temporary model residency expired normally."
+}

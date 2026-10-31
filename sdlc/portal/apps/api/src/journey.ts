@@ -1,4 +1,5 @@
 import {needsQualityDiagnosis} from './code-validation.ts';
+import {technicalCodingFailure} from './coding-provider.ts';
 import {integrationReadings} from './merge-integration-reference.ts';
 import {destinationSummary} from './code-destination.ts';
 import type {FastifyInstance} from 'fastify';
@@ -15,7 +16,8 @@ import {checkExecutionScope,executionScope} from './execution.ts';
 import {hierarchyBlock} from './lifecycle-policy.ts';
 import {repositoriesOfSystem,inheritedRepository} from './system-repository.ts';
 import {pipelineStageOf} from './pipeline-tasks.ts';
-import {specificationContentFromStory,specificationReadiness,technicalPlanReadiness,storySpecificationContentSchema} from './story-specifications.ts';
+import {specificationContentFromStory,technicalPlanReadiness,storySpecificationContentSchema} from './story-specifications.ts';
+import {currentSpecificationReadiness} from './planning-dependencies.ts';
 import {storyDeliveryReading} from '../../../packages/shared/src/story-delivery.ts';
 import {storyLifecycleViews} from './story-lifecycle-reading.ts';
 import {developmentCycleReview} from './development-cycle.ts';
@@ -91,11 +93,13 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   if(merge&&!activities.some(a=>a.kind==='merge'))activities.push({id:`legacy:merge:${merge.id}`,kind:'merge',label:labels.merge,taskId:null,state:merge.state,legacy:true,attempts:[{id:`legacy:merge:${merge.id}`,integrationReference:merge.state==='succeeded'?integrationViews.get(merge.id):undefined,state:merge.state,stage:'merge',sha:merge.sha,summary:merge.message,error:null,findings:[],createdAt:merge.createdAt,updatedAt:merge.checkedAt,finishedAt:merge.finishedAt,heartbeatAt:null,legacy:true,events:[]} ]});
   let kind='specification',state=run?.state||'not_started',title='A execução ainda não começou',message='Confira o escopo, os critérios e o repositório antes de preparar a execução.',who='Pessoa responsável pela entrega';
   const actions:Action[]=[];
+  let interruptionRequired=false;
   const add=(id:string,label:string,path:string,body:Record<string,unknown>,available=true,reason?:string,confirmation?:Action['confirmation'])=>{
    const action={id,kind:id,label,path,method:'POST',body,enabled:canAct&&available,...(!canAct?{reason:permissionReason}:reason?{reason}:{}),...(confirmation?{confirmation}:{})};actions.push(action);return action;
   };
   const runPath=run?`/api/executions/${run.id}`:'';
-  const retryTechnical=!!run&&!needsQualityDiagnosis(run.snapshot)&&run.stage==='generation'&&['failed','waiting_input'].includes(run.state)&&(!!object(run.snapshot).patchRepair||run.error==='Patch contém caminho não permitido ou duplicado.');
+  const nativeCodingFailure=run?technicalCodingFailure(run.snapshot):null;
+  const retryTechnical=!!run&&!needsQualityDiagnosis(run.snapshot)&&run.stage==='generation'&&['failed','waiting_input'].includes(run.state)&&(!!object(run.snapshot).patchRepair||nativeCodingFailure!==null||run.error==='Patch contém caminho não permitido ou duplicado.');
   const canDiscuss=!!run&&(run.state==='waiting_input'||run.state==='failed'&&['specification','generation','discussion'].includes(run.stage));
   if(story.status==='cancelled'){
    state='cancelled';title='História cancelada';message='Histórico, artefatos e Tarefas concluídas permanecem preservados. A reabertura exige justificativa e um novo G1; não reabre Tarefas automaticamente.';
@@ -133,21 +137,27 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
     if(busy)unavailable='Aguarde a atividade ou conversa em andamento antes de preparar outro ciclo.';
     if(['testing','uat','production','completed'].includes(story.status))unavailable='A História já avançou para testes ou entrega. Revise esse ciclo antes de iniciar outra codificação.';
     add('replan','Preparar nova especificação',`${runPath}/replan`,{expectedVersion:story.version,confirmed:true},configured.preparation&&!unavailable,unavailable||(!configured.preparation?'Configure o GitLab e informe um plano técnico ou conecte o modelo local.':undefined),{title:'Iniciar outro ciclo de especificação',description:'O escopo atual será analisado novamente e exigirá novo G1. Execuções, evidências, branches e Merge Requests anteriores serão preservados.',checkboxLabel:'Confirmo outro ciclo de especificação e um novo G1 para o escopo atual.'});
-   }else message+=' Cancele a execução vigente antes de preparar outro ciclo.';
+   }else if(run.stage==='publishing'&&run.state==='running'){
+    who='GitLab';message+=' Aguarde a reconciliação da publicação no GitLab antes de preparar outro ciclo.';
+   }else{
+    interruptionRequired=true;
+    message+=' Use Interromper tentativa para encerrar esta execução antes de preparar a nova especificação. A História permanece aberta e as evidências anteriores são preservadas.';
+   }
   }else if(run.state==='paused'){
    kind=['specification','gate'].includes(run.stage)?'specification':'coding';state='paused';title='Trabalho pausado; retomada explícita necessária';message='Reativar os agrupadores preserva a aprovação válida, mas não inicia agentes. Confira a revisão e confirme a retomada.';
    add('resume','Retomar trabalho',`/api/items/${story.id}/resume-work`,{expectedVersion:story.version},true,undefined,{title:'Retomar trabalho pausado',description:'As operações pendentes desta História voltarão à fila, usando a revisão aprovada que continuar válida.',checkboxLabel:'Confirmo a retomada dos trabalhos pendentes desta História.'});
   }else if(['queued','running'].includes(run.state)){
    kind=['specification','gate'].includes(run.stage)?'specification':'coding';who=run.stage==='publishing'?'GitLab':'Agente de implementação';
-   title=run.state==='queued'?'Solicitação recebida; aguardando processamento':run.stage==='publishing'?'Publicando e reconciliando o Merge Request':run.stage==='context'?'Obtendo o contexto do repositório':run.stage==='discussion'?'Analisando a conversa sobre o impedimento':'Aguardando resposta do modelo';
+   title=run.state==='queued'?'Solicitação recebida; aguardando processamento':run.stage==='publishing'?'Publicando e reconciliando o Merge Request':run.stage==='context'?'Obtendo o contexto do repositório':run.stage==='discussion'?'Analisando a conversa sobre o impedimento':run.stage==='generation'?'Implementando e verificando arquivos':'Aguardando resposta do modelo';
    message='Acompanhe os eventos confirmados. Navegar ou recarregar a página não cancela a operação.';
   }else if(run.state==='waiting_approval'){
    title='Especificação pronta; G1 aguarda sua decisão';state='waiting_approval';
    message='Leia requisitos, arquitetura, riscos e casos de teste. A aprovação autoriza gerar código e abrir o Merge Request.';
-   const gate=specificationReadiness({...specificationContent,technical:run.specification as typeof specificationContent.technical});
+   const gate=await currentSpecificationReadiness(tx,story,{...specificationContent,technical:run.specification as typeof specificationContent.technical});
+   if(!gate.canApprove)for(const prerequisite of gate.blockingDependencies){const id=prerequisite.reference?.match(/^story:([a-zA-Z0-9_-]+)$/)?.[1];if(id){const item=await tx.item.findUnique({where:{id},select:{key:true,name:true}});title='Integração pré-requisito pendente';state='blocked';message=gate.missing.join(' ');actions.push({id:'prerequisite_'+id,kind:'open_prerequisite',label:item?`Abrir ${item.key} · ${item.name}`:'Abrir História pré-requisito',href:`/stories/${id}?tab=planning`,enabled:true});}}
    add('approve','Aprovar G1 e gerar código',`${runPath}/approve`,{expectedVersion:story.version},configured.execution&&gate.canApprove,!configured.execution?'Configure o GitLab e o modelo local para codificar.':gate.canApprove?undefined:gate.missing.join(' '),{title:'Aprovar especificação G1',description:message,checkboxLabel:'Revisei a especificação e autorizo gerar o código e abrir o Merge Request.'});
   }else if(run.state==='waiting_input'||run.state==='failed'){
-   kind=['specification','gate'].includes(run.stage)?'specification':'coding';title=canDiscuss?'A atividade precisa da sua orientação':'A atividade encontrou um impedimento';message=run.error||'Consulte o diagnóstico e retome a mesma etapa.';
+   kind=['specification','gate'].includes(run.stage)?'specification':'coding';title=retryTechnical?'O agente precisa retomar a implementação':canDiscuss?'A atividade precisa da sua orientação':'A atividade encontrou um impedimento';message=retryTechnical&&nativeCodingFailure?(nativeCodingFailure==='CODING_EXECUTOR_FAILED'?'O agente não concluiu esta tentativa.':'Não foi possível confirmar a conclusão desta tentativa de implementação.')+' Esta tentativa não publicou alterações. Retome a correção técnica com o mesmo escopo.':run.error||'Consulte o diagnóstico e retome a mesma etapa.';
    if(canDiscuss&&!retryTechnical)actions.push({id:'respond_blocker',kind:'respond_blocker',label:object(run.discussionProposal).ready?'Revisar decisão proposta':'Responder impedimento',href:`/stories/${story.id}?interact=conversation`,enabled:canAct,...(!canAct?{reason:permissionReason}:{})});
    if(retryTechnical||run.state==='failed')add('retry',retryTechnical?'Retomar correção técnica':'Retomar execução',`${runPath}/retry`,{},configured.execution,!configured.execution?'As integrações de execução estão indisponíveis.':undefined);
   }else if(run.state==='succeeded'){
@@ -188,7 +198,7 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   const executionConversation=!!run&&(canDiscuss||run.stage==='discussion'||run.discussionVersion>0&&['specification','coding'].includes(kind));
   const chatMode=executionConversation?'execution':run?.state==='succeeded'&&merge?'merge':null;
   const chatEnabled=canAct&&scope.current&&!!h.llm&&(chatMode==='execution'?!!(canDiscuss||run?.stage==='discussion'):chatMode==='merge');
-  const primaryAction=actions.find(action=>!['cancel','cancel_story'].includes(action.id))||null;
+  const primaryAction=(interruptionRequired?actions.find(action=>action.id==='cancel'):null)||actions.find(action=>!['cancel','cancel_story'].includes(action.id))||null;
   const assignment=await tx.releaseStory.findUnique({where:{storyId:story.id},select:{release:{select:{id:true,key:true,name:true,compositionStatus:true}}}});
   const delivery=storyDeliveryReading({publicationAvailable:!!options.developmentDeploymentsConfigured,status:story.status,mergeConfirmed:scope.current&&run?.state==='succeeded'&&!object(story.data).requiresNewG1&&merge?.state==='succeeded'&&merge.sha===run.commitSha,release:assignment?.release??null});
   const storyLifecycle=(await storyLifecycleViews(tx,[story],{executionId:run?.id??null,current:scope.current})).get(story.id)!;

@@ -29,4 +29,5 @@ fi
 systemctl enable --now docker
 docker info >/dev/null
 install -d -m 700 /opt/agentic-sdlc
+python3 "$(dirname "$0")/../wsl_clock.py" --root /opt/agentic-sdlc
 echo '[OK] Dedicated SDLC host ready; no GPU tooling installed.'

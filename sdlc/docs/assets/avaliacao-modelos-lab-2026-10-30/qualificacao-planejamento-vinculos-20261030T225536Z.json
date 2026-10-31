@@ -1,0 +1,21 @@
+{
+  "sourceMode": "current-source-readonly-overlay",
+  "sourceDigest": "42d0361cf11ec84243afd90c87ff577bd6267b7dd0dc7cf2c2f7b85427c780b8",
+  "imageId": "sha256:d28db49fd733fa7d3da8d68eb7f820e21c4d03d559010f70b228890d4475797c",
+  "synthetic": true,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "results": [
+    {
+      "model": "gemma4:12b",
+      "passed": true,
+      "stories": 3,
+      "factReferencesCovered": 8,
+      "inferenceCalls": 2,
+      "elapsedMs": 34284,
+      "temperature": 0.2,
+      "contextTokens": 32768
+    }
+  ],
+  "sourceStable": true
+}

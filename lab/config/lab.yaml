@@ -5,7 +5,7 @@ rootfs_url: https://cloud-images.ubuntu.com/wsl/releases/24.04/20240423/ubuntu-n
 rootfs_checksum_url: https://cloud-images.ubuntu.com/wsl/releases/24.04/20240423/SHA256SUMS
 # Audited Canonical SHA256; a changed download is rejected until deliberately updated.
 rootfs_sha256: 8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea
-profiles: [core, rag, dev]
+profiles: [core, agents]
 bind_address: 127.0.0.1
 allow_lan_access: false
 webui_port: 3000
@@ -13,6 +13,11 @@ qdrant_port: 6333
 jupyter_port: 8888
 expose_ollama: false
 ollama_port: 11434
+lab_network_subnet: 10.239.0.0/24
+lab_network_dynamic_range: 10.239.0.128/25
+ollama_address: 10.239.0.10
+ollama_memory_limit_gb: 8
+ollama_memory_swap_limit_gb: 10
 expose_grpc: false
 grpc_port: 6334
 preserve_models: true

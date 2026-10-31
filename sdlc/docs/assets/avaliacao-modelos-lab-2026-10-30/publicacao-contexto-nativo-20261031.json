@@ -1,0 +1,34 @@
+{
+    "source":  "0a861adc0c54f2e7d18fa0f792d27d3845b576647dcbaa1e0121ef333d51b7ea",
+    "image":  "sha256:06b8a774390a834c4a7140e7a9c56cb9c326edb8fc5c1497d1245a91ce067f6f",
+    "published":  true,
+    "verifiedAt":  "2026-10-31T00:40:52.486178+00:00",
+    "backup":  {
+                   "backupId":  "native-manifest-verified-20261030-c0ab6d8d",
+                   "bytes":  653157,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "migrationsPlanned":  [
+
+                          ],
+    "nativeToolImage":  "sha256:797d824cc4ec92b70f84db70a1c12315cd263259ac7821e032b918c3ab7ce283",
+    "model":  "qwen3.5:9b",
+    "globalInferenceLimit":  16,
+    "sdkTurnLimit":  16,
+    "globalToolLimit":  40,
+    "deadlineSeconds":  300,
+    "directedTests":  {
+                          "runId":  "20261031T003726Z-8c195e",
+                          "passed":  52
+                      },
+    "deterministicReferenceTests":  {
+                                        "runId":  "20261031T003518Z-b46a7e",
+                                        "passed":  28
+                                    },
+    "administrativeAudit":  "606 records, no pending operation at publication",
+    "businessAcceptance":  "Pending real UI run; no application source or old outcomes edited"
+}

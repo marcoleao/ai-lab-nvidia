@@ -6,6 +6,10 @@ spec=importlib.util.spec_from_file_location('controller',Path(__file__).parents[
 controller=importlib.util.module_from_spec(spec);spec.loader.exec_module(controller)
 
 class Safety(unittest.TestCase):
+ def test_network_reconciliation_refuses_unowned_resources_before_loading_the_firewall_helper(self):
+  with patch.object(controller,'owned',side_effect=RuntimeError('unowned')),patch.object(controller.importlib.util,'spec_from_file_location') as helper:
+   with self.assertRaisesRegex(RuntimeError,'unowned'):controller.reconcile_network('fast')
+   helper.assert_not_called()
  def test_unowned_resource_is_refused(self):
   value=type('Result',(),{'stdout':json.dumps([{'Config':{'Labels':{},'Env':[]}}])})()
   with patch.object(controller,'docker',return_value=value):

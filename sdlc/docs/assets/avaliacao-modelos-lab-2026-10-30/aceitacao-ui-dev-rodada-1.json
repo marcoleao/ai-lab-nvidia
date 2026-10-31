@@ -1,0 +1,265 @@
+{
+    "date":  "2026-10-30",
+    "method":  "Browser UI only; agents/GitLab/deployment real",
+    "url":  "http://localhost:44781/",
+    "integrationSha":  "905e18f3a0d578ace173170109fb0a498973e9a5",
+    "image":  "sha256:80b6f1c79a466fe29fd649d8805203960a7b0bfb54617727e72442ff215fe33a",
+    "attempts":  [
+                     {
+                         "id":  "C01",
+                         "title":  "Primeira abertura vazia com aviso local",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:19:45.585Z"
+                     },
+                     {
+                         "id":  "C02",
+                         "title":  "Criar categoria pela interface",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:20:11.994Z"
+                     },
+                     {
+                         "id":  "C03",
+                         "title":  "Editar categoria existente",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i })\n",
+                         "screenshot":  "C03-failure.png",
+                         "at":  "2026-10-30T21:20:51.260Z"
+                     },
+                     {
+                         "id":  "C04",
+                         "title":  "Criar e editar coleÃ§Ã£o",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027ColeÃ§Ãµes\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Aurora\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027ColeÃ§Ãµes\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Aurora\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027ColeÃ§Ãµes\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Aurora\u0027 }).getByRole(\u0027button\u0027, { name: /editar/i })\n",
+                         "screenshot":  "C04-failure.png",
+                         "at":  "2026-10-30T21:20:56.389Z"
+                     },
+                     {
+                         "id":  "C05",
+                         "title":  "Cadastrar joia com todos os campos",
+                         "status":  "FAILED",
+                         "error":  "locator.fill: value: expected string, got object",
+                         "screenshot":  "C05-failure.png",
+                         "at":  "2026-10-30T21:21:08.408Z"
+                     },
+                     {
+                         "id":  "C05",
+                         "title":  "Cadastrar joia com todos os campos",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\n",
+                         "screenshot":  "C05-failure.png",
+                         "at":  "2026-10-30T21:21:27.640Z"
+                     },
+                     {
+                         "id":  "C05-inteiro",
+                         "title":  "Cadastrar joia com preÃ§o inteiro para prosseguir com os demais testes",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\n",
+                         "screenshot":  "C05-inteiro-failure.png",
+                         "at":  "2026-10-30T21:22:03.324Z"
+                     },
+                     {
+                         "id":  "C05-sem-foto",
+                         "title":  "Cadastrar joia sem foto para continuar os cenÃ¡rios",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas\u0027 })\n",
+                         "screenshot":  "C05-sem-foto-failure.png",
+                         "at":  "2026-10-30T21:23:00.936Z"
+                     },
+                     {
+                         "id":  "C06",
+                         "title":  "Campos obrigatÃ³rios recusam envio e preservam rascunho",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:00.721Z"
+                     },
+                     {
+                         "id":  "C07",
+                         "title":  "Recusar SKU duplicado sem criar outra joia",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:00.813Z"
+                     },
+                     {
+                         "id":  "C08",
+                         "title":  "Recusar preÃ§o negativo",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:00.933Z"
+                     },
+                     {
+                         "id":  "C09",
+                         "title":  "Aceitar preÃ§o zero",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 })\n",
+                         "screenshot":  "C09-failure.png",
+                         "at":  "2026-10-30T21:24:06.086Z"
+                     },
+                     {
+                         "id":  "C10",
+                         "title":  "Exibir preÃ§o identificado em reais na listagem",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:29.121Z"
+                     },
+                     {
+                         "id":  "C11",
+                         "title":  "Abrir detalhes da joia",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toContainText(expected) failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Detalhes da Joia\u0027, exact: true }).locator(\u0027..\u0027)\nExpected substring: \"Anel em prata com pÃ©rola natural\"\nReceived string:    \"Detalhes da Joia\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" getByRole(\u0027heading\u0027, { name: \u0027Detalhes da Joia\u0027, exact: true }).locator(\u0027..\u0027) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Detalhes da Joia\u0027, exact: true }).locator(\u0027..\u0027)\n    14 Ã— locator resolved to \u003csection\u003eâ€¦\u003c/section\u003e\n       - unexpected value \"Detalhes da Joia\"\n",
+                         "screenshot":  "C11-failure.png",
+                         "at":  "2026-10-30T21:24:34.233Z"
+                     },
+                     {
+                         "id":  "C12",
+                         "title":  "Apresentar foto por URL vÃ¡lida e estado sem foto",
+                         "status":  "FAILED",
+                         "error":  "URL HTTP de imagem vÃ¡lida foi recusada no cadastro; a parte com foto permanece reprovada.",
+                         "screenshot":  "C12-failure.png",
+                         "at":  "2026-10-30T21:24:34.313Z"
+                     },
+                     {
+                         "id":  "C13",
+                         "title":  "Pesquisar nome ignorando caixa e acentos",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:34.325Z"
+                     },
+                     {
+                         "id":  "C14",
+                         "title":  "Pesquisar pelo SKU sem diferenciar caixa",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:24:34.337Z"
+                     },
+                     {
+                         "id":  "C15",
+                         "title":  "Combinar filtros de categoria, material e disponibilidade",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:25:43.383Z"
+                     },
+                     {
+                         "id":  "C16",
+                         "title":  "Limpar filtros preservando e mostrando o catÃ¡logo",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:25:43.423Z"
+                     },
+                     {
+                         "id":  "C17",
+                         "title":  "Explicar pesquisa sem resultados",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByText(/nenhum|nÃ£o encontr|sem resultado/i)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByText(/nenhum|nÃ£o encontr|sem resultado/i) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByText(/nenhum|nÃ£o encontr|sem resultado/i)\n",
+                         "screenshot":  "C17-failure.png",
+                         "at":  "2026-10-30T21:25:48.512Z"
+                     },
+                     {
+                         "id":  "C18",
+                         "title":  "Editar joia com SKU estÃ¡vel e sem duplicaÃ§Ã£o",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toHaveValue(expected) failed\n\nLocator:  getByRole(\u0027textbox\u0027, { name: \u0027Nome:\u0027, exact: true }).first()\nExpected: \"Anel de PÃ©rolas\"\nReceived: \"\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveValue\" getByRole(\u0027textbox\u0027, { name: \u0027Nome:\u0027, exact: true }).first() with timeout 5000ms\n  - waiting for getByRole(\u0027textbox\u0027, { name: \u0027Nome:\u0027, exact: true }).first()\n    14 Ã— locator resolved to \u003cinput required=\"\" type=\"text\" name=\"name\"/\u003e\n       - unexpected value \"\"\n",
+                         "screenshot":  "C18-failure.png",
+                         "at":  "2026-10-30T21:25:53.666Z"
+                     },
+                     {
+                         "id":  "C19",
+                         "title":  "Cancelar ediÃ§Ã£o sem salvar",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:25:53.670Z"
+                     },
+                     {
+                         "id":  "C11",
+                         "title":  "Consultar dados completos pelo painel aberto em Editar",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:26:44.146Z"
+                     },
+                     {
+                         "id":  "C19",
+                         "title":  "Cancelar ediÃ§Ã£o preserva os valores existentes",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:26:44.223Z"
+                     },
+                     {
+                         "id":  "C18",
+                         "title":  "Editar sem duplicar e preservar o SKU estÃ¡vel",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toContainText(expected) failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 })\nExpected substring: \"J-QA-001\"\nReceived string:    \"Anel de PÃ©rolas Revisado - J-QA-ALTERADO - AnÃ©is - Prata - R$ 199.90Sem fotoEditarArquivarExcluir\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 })\n    14 Ã— locator resolved to \u003cli\u003eâ€¦\u003c/li\u003e\n       - unexpected value \"Anel de PÃ©rolas Revisado - J-QA-ALTERADO - AnÃ©is - Prata - R$ 199.90Sem fotoEditarArquivarExcluir\"\n",
+                         "screenshot":  "C18-failure.png",
+                         "at":  "2026-10-30T21:26:49.419Z"
+                     },
+                     {
+                         "id":  "C09",
+                         "title":  "PreÃ§o zero permanece consultÃ¡vel apÃ³s atualizar os filtros",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:26:49.423Z"
+                     },
+                     {
+                         "id":  "C20",
+                         "title":  "Cancelar arquivamento nÃ£o altera a joia",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:27:18.451Z"
+                     },
+                     {
+                         "id":  "C21",
+                         "title":  "Arquivar com confirmaÃ§Ã£o retira da listagem ativa",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toHaveCount(expected) failed\n\nLocator:  getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 })\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveCount\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Brinco Zero\u0027 })\n    14 Ã— locator resolved to 1 element\n       - unexpected value \"1\"\n",
+                         "screenshot":  "C21-failure.png",
+                         "at":  "2026-10-30T21:27:23.599Z"
+                     },
+                     {
+                         "id":  "C22",
+                         "title":  "Consultar joias arquivadas",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027button\u0027, { name: /ver.*arquivad|consultar.*arquivad|arquivadas/i }).or(getByRole(\u0027link\u0027, { name: /arquivadas/i })).or(getByRole(\u0027checkbox\u0027, { name: /arquivad/i }))\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027button\u0027, { name: /ver.*arquivad|consultar.*arquivad|arquivadas/i }).or(getByRole(\u0027link\u0027, { name: /arquivadas/i })).or(getByRole(\u0027checkbox\u0027, { name: /arquivad/i })) with timeout 5000ms\n  - waiting for getByRole(\u0027button\u0027, { name: /ver.*arquivad|consultar.*arquivad|arquivadas/i }).or(getByRole(\u0027link\u0027, { name: /arquivadas/i })).or(getByRole(\u0027checkbox\u0027, { name: /arquivad/i }))\n",
+                         "screenshot":  "C22-failure.png",
+                         "at":  "2026-10-30T21:27:26.229Z"
+                     },
+                     {
+                         "id":  "C23",
+                         "title":  "Reativar joia mantendo dados e SKU",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toBeVisible() failed\n\nLocator: getByRole(\u0027button\u0027, { name: /reativar/i })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole(\u0027button\u0027, { name: /reativar/i }) with timeout 5000ms\n  - waiting for getByRole(\u0027button\u0027, { name: /reativar/i })\n",
+                         "screenshot":  "C23-failure.png",
+                         "at":  "2026-10-30T21:27:31.321Z"
+                     },
+                     {
+                         "id":  "C25",
+                         "title":  "Explicar bloqueio da exclusÃ£o de classificaÃ§Ã£o em uso",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toContainText(expected) failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 })\nExpected pattern: /em uso|utilizad|vinculad/i\nReceived string:  \"AnÃ©is\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toContainText\" getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027AnÃ©is\u0027 })\n    14 Ã— locator resolved to \u003cli\u003eAnÃ©is\u003c/li\u003e\n       - unexpected value \"AnÃ©is\"\n",
+                         "screenshot":  "C25-failure.png",
+                         "at":  "2026-10-30T21:27:36.412Z"
+                     },
+                     {
+                         "id":  "C24",
+                         "title":  "Recarregar preserva os dados salvos neste navegador",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toContainText(expected) failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 })\nExpected substring: \"J-QA-ALTERADO\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 }) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Listagem de Joias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027listitem\u0027).filter({ hasText: \u0027Anel de PÃ©rolas Revisado\u0027 })\n",
+                         "screenshot":  "C24-failure.png",
+                         "at":  "2026-10-30T21:28:02.818Z"
+                     },
+                     {
+                         "id":  "C26",
+                         "title":  "NavegaÃ§Ã£o por teclado e nomes acessÃ­veis dos campos",
+                         "status":  "FAILED",
+                         "error":  "expect(locator).toHaveAccessibleName(expected) failed\n\nLocator: getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027textbox\u0027)\nExpected pattern: /.+/\nReceived string:  \"\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"toHaveAccessibleName\" getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027textbox\u0027) with timeout 5000ms\n  - waiting for getByRole(\u0027heading\u0027, { name: \u0027Categorias\u0027, exact: true }).locator(\u0027..\u0027).getByRole(\u0027textbox\u0027)\n    14 Ã— locator resolved to \u003cinput required=\"\" type=\"text\" name=\"name\"/\u003e\n       - unexpected value \"\"\n",
+                         "screenshot":  "C26-failure.png",
+                         "at":  "2026-10-30T21:28:07.915Z"
+                     },
+                     {
+                         "id":  "C27",
+                         "title":  "Usar a interface em largura mÃ³vel de 390 pixels",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:28:08.003Z"
+                     },
+                     {
+                         "id":  "C28",
+                         "title":  "Informar honestamente a persistÃªncia apenas local",
+                         "status":  "PASSED",
+                         "at":  "2026-10-30T21:28:08.008Z"
+                     }
+                 ],
+    "notes":  [
+                  "C05 primeiro erro de automação: fixture de foto era objeto, corrigida para URL string; preservado no registro.",
+                  "C18 primeiro seletor consultou formulário de criação; reteste no painel Detalhes comprovou alteração indevida do SKU.",
+                  "C11 dados completos podem ser consultados por Editar; clicar no nome não abre detalhes.",
+                  "C09 preço zero ficou consultável depois de alterar filtros; listagem não atualiza imediatamente após mutações.",
+                  "Algumas capturas de falha com mesmo ID foram sobrescritas durante esta primeira rodada; as interações e resultados completos permanecem no journal e vídeo."
+              ],
+    "browserErrors":  [
+
+                      ]
+}

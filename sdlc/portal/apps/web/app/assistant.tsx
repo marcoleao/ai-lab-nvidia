@@ -28,6 +28,14 @@ async function call<T>(path:string,persona='',body?:unknown,key?:string,signal?:
 const states:Record<Turn['status'],string>={queued:'QUEUED · aguardando geração',running:'RUNNING · gerando resposta',paused:'PAUSED · aguardando retomada explícita',succeeded:'SUCCEEDED · resposta concluída',failed:'FAILED · falha na geração',cancelled:'CANCELLED · geração cancelada'};
 const processing=(turn:Turn)=>['queued','running'].includes(turn.status);
 const activeState=(turn:Turn)=>processing(turn)||turn.status==='paused';
+function failedGenerationAfterProposal(turn:Turn|null|undefined,proposal:Proposal|null|undefined){
+ if(turn?.kind!=='plan'||turn.status!=='failed'||proposal?.turnId===turn.id)return null;
+ if(!proposal)return turn;
+ // A late failure from an older request must not displace a newer proposal.
+ // Sequence numbers belong to a session; proposals may originate in another one.
+ const requestedAt=Date.parse(turn.createdAt),proposedAt=Date.parse(proposal.createdAt);
+ return Number.isFinite(requestedAt)&&Number.isFinite(proposedAt)&&requestedAt>proposedAt?turn:null;
+}
 const pageNumber=(value:string|null)=>{const number=Number(value||1);return Number.isSafeInteger(number)&&number>0?number:1;};
 const lifecycleHref=(item:{id:string;kind:string})=>`/${({system:'systems',project:'projects',epic:'epics',story:'stories',task:'tasks'} as Record<string,string>)[item.kind]||'projects'}/${encodeURIComponent(item.id)}?tab=planning`;
 export default function Assistant(props:Props){return <ConversationPanel key={props.contextKey} {...props}/>;}
@@ -43,7 +51,7 @@ function ConversationPanel({contextLabel,contextId,persona,role='',canPlan:permi
  const historicalId=search.get('assistant.proposal')||null;
  const historyKind=search.get('assistant.source')==='proposals'||(!search.has('assistant.source')&&proposalsPage>1)?'proposals':'messages';
  const input=useRef<HTMLTextAreaElement>(null),tabs=useRef<(HTMLButtonElement|null)[]>([]),commandInFlight=useRef(false);
- const summaryDialog=useRef<HTMLDialogElement>(null),focusTarget=useRef<'composer'|'navigation'|null>(null);
+ const summaryDialog=useRef<HTMLDialogElement>(null),focusTarget=useRef<{view:AssistantView;composer:boolean;origin:Element|null}|null>(null),focusFrame=useRef<number|null>(null);
  const callbacks=useRef({onConversation,onProposal});callbacks.current={onConversation,onProposal};
  function refreshPendingPlans(){const requests=contextId?readPendingProposalRequests(contextId):[];setPendingPlans(requests);setRecoveryPlans(previous=>{const kept=previous.filter(proposal=>requests.some(entry=>entry.proposalId===proposal.id)||(proposal.id!==currentRef.current?.id&&proposal.id!==historicalId));const extra=requests.flatMap(entry=>entry.proposal&&!kept.some(proposal=>proposal.id===entry.proposalId)?[entry.proposal]:[]);return extra.length||kept.length!==previous.length?[...kept,...extra]:previous;});}
  useEffect(()=>{refreshPendingPlans();},[contextId,persona]);
@@ -61,20 +69,39 @@ function ConversationPanel({contextLabel,contextId,persona,role='',canPlan:permi
  const latest=data?.latestTurn===undefined?latestRef.current:data.latestTurn;
  const currentProposal=data?.currentProposal===undefined?currentRef.current:data.currentProposal;
  const displayedProposal=historicalId?(data?.proposals||[]).find(proposal=>proposal.id===historicalId)??null:currentProposal;
+ const failedGeneration=active?null:failedGenerationAfterProposal(latest,currentProposal);
  const questions=data?.brief?.openQuestions||[],hasInterview=data?.hasSuccessfulInterview??Boolean(data?.turns.some(turn=>turn.kind!=='plan'&&turn.status==='succeeded'));
  const draft=pending?.kind==='message'?pending.message:saved.drafts[persona]||'';
  const canMessage=writable&&Boolean(persona)&&Boolean(data?.configured)&&!active&&!planPending&&(data?.capabilities?.canMessage??true);
- const canGenerate=writable&&Boolean(persona)&&Boolean(data?.configured)&&hasInterview&&!active&&!planPending&&data?.context.kind==='project'&&(data?.capabilities?.canGeneratePlan??true)&&!questions.length;
+ const canGenerate=writable&&!loading&&!connectionError&&Boolean(persona)&&Boolean(data?.configured)&&hasInterview&&!active&&!planPending&&data?.context.kind==='project'&&(data?.capabilities?.canGeneratePlan??true)&&!questions.length;
  const hasPlanningDestination=data?.context.kind==='project'||Boolean(targetProjectId);
  const canComplete=hasPlanningDestination&&writable&&Boolean(persona)&&Boolean(data?.configured)&&hasInterview&&!active&&!planPending&&!questions.length&&(data?.capabilities?.canComplete??true);
  const canCancel=writable&&Boolean(persona)&&Boolean(active)&&!planPending&&(data?.capabilities?.canCancelTurn??true);
  const blockedBy=data?.blockedBy||data?.context||null;
  const readOnlyReason=data?.readOnlyReason||data?.hierarchy?.reason||'Este contexto está em somente leitura. Consulte o agrupador responsável para continuar.';
  function navigate(values:Record<string,string|number>){const params=new URLSearchParams(search.toString());for(const [key,value] of Object.entries(values))value===''?params.delete(`assistant.${key}`):params.set(`assistant.${key}`,String(value));router.push(`${pathname}?${params}`,{scroll:false});}
- function show(next:AssistantView,focusComposer=false){focusTarget.current=focusComposer?'composer':'navigation';update(value=>({...value,view:next}));navigate({view:next,proposal:'',...(next==='history'?{source:'proposals'}:{})});if(next===view)requestAnimationFrame(()=>{(focusComposer||next==='conversation')?input.current?.focus({preventScroll:true}):tabs.current[(['conversation','proposal','history'] as const).indexOf(next)]?.focus();focusTarget.current=null;});}
+ function settleFocus(request:NonNullable<typeof focusTarget.current>){
+  if(focusFrame.current!==null)cancelAnimationFrame(focusFrame.current);
+  focusFrame.current=requestAnimationFrame(()=>{
+   focusFrame.current=null;if(focusTarget.current!==request)return;focusTarget.current=null;
+   // Navigation may finish after the user has already focused another control.
+   // A delayed focus request must not redirect the next keyboard activation.
+   if(document.activeElement!==request.origin&&document.activeElement!==document.body)return;
+   const destination=request.composer||request.view==='conversation'?input.current:tabs.current[(['conversation','proposal','history'] as const).indexOf(request.view)];
+   destination?.focus({preventScroll:true});
+  });
+ }
+ function requestFocus(next:AssistantView,composer=false){
+  if(focusFrame.current!==null){cancelAnimationFrame(focusFrame.current);focusFrame.current=null;}
+  const request={view:next,composer,origin:document.activeElement};focusTarget.current=request;
+  if(next===view)settleFocus(request);
+ }
+ function show(next:AssistantView,focusComposer=false){requestFocus(next,focusComposer);update(value=>({...value,view:next}));navigate({view:next,proposal:'',...(next==='history'?{source:'proposals'}:{})});}
  function showCurrentProposal(){show('proposal');}
- function consultProposal(id:string){update(value=>({...value,view:'proposal'}));navigate({view:'proposal',proposal:id});requestAnimationFrame(()=>tabs.current[1]?.focus());}
- useEffect(()=>{if(!focusTarget.current)return;const target=focusTarget.current;focusTarget.current=null;requestAnimationFrame(()=>(target==='composer'||view==='conversation')?input.current?.focus({preventScroll:true}):tabs.current[(['conversation','proposal','history'] as const).indexOf(view)]?.focus());},[view]);
+ function reviewGenerationFailure(){requestFocus('conversation',true);update(value=>({...value,view:'conversation'}));navigate({view:'conversation',page:1,before:'',proposal:''});}
+ function consultProposal(id:string){requestFocus('proposal');update(value=>({...value,view:'proposal'}));navigate({view:'proposal',proposal:id});}
+ useEffect(()=>{const request=focusTarget.current;if(!request||request.view!==view)return;settleFocus(request);return()=>{if(focusFrame.current!==null){cancelAnimationFrame(focusFrame.current);focusFrame.current=null;}};},[view]);
+ useEffect(()=>()=>{if(focusFrame.current!==null)cancelAnimationFrame(focusFrame.current);focusTarget.current=null;},[]);
  useEffect(()=>{
   if(!contextId)return;let live=true;let timer:ReturnType<typeof setTimeout>;const controller=new AbortController();setLoading(true);
   const load=async()=>{try{
@@ -135,12 +162,13 @@ function ConversationPanel({contextLabel,contextId,persona,role='',canPlan:permi
   <div id="assistant-panel-conversation" hidden={view!=='conversation'}>
    {contextId&&<AssistantChat contextId={contextId} persona={persona} ready={Boolean(data)&&!invalidCursor} visible={view==='conversation'} initialBefore={initialBefore} revision={data?.session?.version||0} total={data?.turnsPage?.total} latest={latest??null} draft={draft} inputRef={input} onDraft={text=>update(value=>({...value,drafts:{...value.drafts,[persona]:text}}))} onSubmit={submit} onCursor={before=>navigate({before:before??'',page:''})} canSend={canMessage&&!pending} disabled={!permission||!persona} readOnly={pending?.kind==='message'||!writable} busy={busy} help={messageHelp} status={view==='conversation'?currentState:null} proposal={currentProposal??null} onProposal={showCurrentProposal} onRecover={turn=>{update(value=>({...value,drafts:{...value.drafts,[persona]:turn.input}}));show('conversation',true);}} canRecover={!busy&&!pending&&permission&&Boolean(persona)} delivery={delivery} questions={questions} planningAction={delivery?undefined:!currentProposal?<><p>{questions.length?`${questions.length} ponto(s) registrado(s) para esclarecer antes de gerar a proposta.`:'Quando esclarecer a necessidade, gere uma proposta para revisão.'}</p><button type="button" disabled={!canGenerate||busy||Boolean(pending)} onClick={generatePlan}>Gerar proposta para revisão</button></>:undefined}/>}</div>
   {!delivery&&<div id="assistant-panel-proposal" role="region" aria-label="Proposta do contexto" hidden={view!=='proposal'}><button type="button" className="assistant-back-chat" onClick={()=>show('conversation')}>← Voltar à conversa</button>
+   {failedGeneration&&<section aria-label="Falha da nova geração de proposta"><ErrorState><strong>Não foi possível gerar a nova proposta.</strong><p>{failedGeneration.error||'A tentativa de geração falhou. Consulte a conversa antes de tentar novamente.'}</p>{currentProposal&&<p>A proposta {currentProposal.status==='applied'?'já aplicada':'anterior'} foi preservada. A falha pertence à nova solicitação de geração.</p>}{historicalId&&<p>Este aviso descreve a situação atual do contexto; a proposta histórica em consulta permanece identificada abaixo.</p>}<p className="assistant-help">Solicitação {failedGeneration.id} · {displayDate(failedGeneration.createdAt)}</p><div className="assistant-edit-actions"><button type="button" onClick={reviewGenerationFailure}>Revisar falha na conversa</button><button type="button" disabled={!canGenerate||busy||Boolean(pending)} onClick={generatePlan}>{currentProposal?'Gerar nova proposta para revisão':'Gerar proposta para revisão'}</button></div></ErrorState></section>}
    {historicalId&&<div className="assistant-historical-notice"><p><strong>Proposta anterior em consulta.</strong> A situação atual e as operações continuam identificadas acima.</p><button type="button" onClick={showCurrentProposal}>Voltar à proposta atual</button></div>}
    {displayedProposal?<><p className="assistant-proposal-source">Proposta · revisão {displayedProposal.version} · {displayedProposal.status==='applied'?'Aplicada':'DRAFT'} · {displayDate(displayedProposal.createdAt)}</p>{proposalSummary}</>:<p className="assistant-intro">{historicalId?'Esta proposta não está na página histórica carregada. Volte à proposta atual ou localize a ocorrência no Histórico.':'Nenhuma proposta disponível neste contexto. Continue a conversa e solicite uma proposta para revisar.'}</p>}
    {currentProposal&&<div hidden={Boolean(historicalId)}>{proposalEditor(currentProposal)}</div>}
    {historicalId&&displayedProposal&&proposalEditor(displayedProposal,true)}
    {(recoveryPlans.some(entry=>entry.id!==currentProposal?.id&&entry.id!==historicalId)||pendingPlans.some(entry=>!entry.proposal&&entry.proposalId!==currentProposal?.id&&entry.proposalId!==historicalId))&&<section aria-label="Operações anteriores aguardando confirmação"><h3>Recuperação de operações anteriores</h3><p className="assistant-help">Estas referências locais preservam a solicitação original. Não representam a revisão vigente; a criação somente é confirmada pelo recibo da API.</p>{recoveryPlans.filter(entry=>entry.id!==currentProposal?.id&&entry.id!==historicalId).map(entry=><div key={entry.id}>{proposalEditor(entry,true)}{!pendingPlans.some(pending=>pending.proposalId===entry.id)&&<button type="button" onClick={()=>setRecoveryPlans(value=>value.filter(proposal=>proposal.id!==entry.id))}>Fechar resultado recuperado</button>}</div>)}{pendingPlans.filter(entry=>!entry.proposal&&entry.proposalId!==currentProposal?.id&&entry.proposalId!==historicalId).map(entry=><p key={entry.proposalId} className="assistant-block-reason">Proposta {entry.proposalId}, revisão {entry.expectedVersion}: a solicitação anterior não possui uma cópia local de recuperação. Localize esta proposta no Histórico para verificar a mesma operação.</p>)}</section>}
-   <section className="assistant-plan-generation" aria-label="Concluir entrevista"><h3>{currentProposal?'Continuar o planejamento':'Próximo passo do planejamento'}</h3><p>Destino: <strong>{data?.context.kind==='project'?data.context.name:targetProjectName||'Selecione o Projeto no contexto acima'}</strong></p>{questions.length>0&&<p className="assistant-block-reason">Há perguntas registradas para esclarecer. Responda à assistente antes de concluir ou gerar outra proposta.</p>}<button type="button" disabled={!canGenerate||busy||Boolean(pending)} onClick={generatePlan}>{active?.kind==='plan'?'Gerando proposta…':currentProposal?'Gerar nova proposta para revisão':'Gerar proposta para revisão'}</button><button type="button" className="text-button" onClick={()=>{show('conversation',true);}}>Continuar a conversa →</button>
+   <section className="assistant-plan-generation" aria-label="Concluir entrevista"><h3>{currentProposal?'Continuar o planejamento':'Próximo passo do planejamento'}</h3><p>Destino: <strong>{data?.context.kind==='project'?data.context.name:targetProjectName||'Selecione o Projeto no contexto acima'}</strong></p>{questions.length>0&&<p className="assistant-block-reason">Há perguntas registradas para esclarecer. Responda à assistente antes de concluir ou gerar outra proposta.</p>}{!failedGeneration&&<button type="button" disabled={!canGenerate||busy||Boolean(pending)} onClick={generatePlan}>{active?.kind==='plan'?'Gerando proposta…':currentProposal?'Gerar nova proposta para revisão':'Gerar proposta para revisão'}</button>}<button type="button" className="text-button" onClick={()=>{show('conversation',true);}}>Continuar a conversa →</button>
     <details open={creationMode==='create'} onToggle={event=>setCreationMode(event.currentTarget.open?'create':'review')}><summary>Outra forma de concluir: criar a partir da entrevista</summary><p>A assistente organizará a conversa e criará os itens no Projeto escolhido após sua confirmação. Épicos começam ACTIVE, Histórias SPECIFICATION e Tarefas TO DO. Cada História recebe as seis Tarefas padrão.</p><label className="assistant-confirm-creation"><input type="checkbox" checked={confirmed} disabled={!canComplete||busy||Boolean(pending)} onChange={event=>setConfirmed(event.target.checked)}/>Confirmo os requisitos discutidos e autorizo a criação dos itens neste Projeto.</label><button type="button" className="primary" disabled={!canComplete||!confirmed||busy||Boolean(pending)||!(data?.context.kind==='project'||targetProjectId)} onClick={completeInterview}>Concluir entrevista e criar itens</button></details>
    </section>
   </div>}

@@ -1,0 +1,25 @@
+{
+    "source":  "34b32c26edd2fde7e81cf5b5f76f0c4ef6ff3e8c80c97f8d0382c7067a61a677",
+    "image":  "sha256:3c411ca863f94b4bed84eb1015541f2c95bbf9701cb5f59a8e29f3c036bcc746",
+    "published":  true,
+    "verifiedAt":  "2026-10-31T00:28:44.900697+00:00",
+    "backup":  {
+                   "backupId":  "ui-probes-verified-20261030-d6c2ee52",
+                   "bytes":  653902,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "migrationsPlanned":  [
+
+                          ],
+    "nativeCoder":  "qwen3.5:9b",
+    "nativeToolImage":  "sha256:9c21e98d3fc9bcf9c95f987a15463761135b8da1072daea94ada0acb8f90625a",
+    "browserImage":  "sha256:bb2500021f0064c92d6c17a3e28698ce8fab584a9539bd41d5cd33b96e4749dc",
+    "nativeQualification":  "coding-live-20261031T002444Z-cb379e",
+    "directedReviewContextTests":  50,
+    "businessAcceptance":  "separate UI run, pending",
+    "administrativeAudit":  "598 records; no pending operations at publication"
+}

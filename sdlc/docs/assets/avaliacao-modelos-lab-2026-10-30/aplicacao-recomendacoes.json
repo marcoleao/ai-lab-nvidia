@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-30",
+  "scope": "Melhoria do LAB e dos agentes do Portal SDLC; jornada JOIASC ainda em validação",
+  "toolchain": {
+    "qwenCode": "0.26.4",
+    "sdk": "0.1.26",
+    "node": "24.22.0",
+    "portalImage": "sha256:f3ecb7fdd9b11000bb3c293896e94dd918163f3950b99eb30d9a573fb1655f2c",
+    "labImage": "sha256:ef61a7c40af8469dc4cb72b205add44e21a5fa857623ade69c96efbc2732b9c4",
+    "browserImage": "sha256:6f1137b0cae0ee48092ff7933368742ab937529f333bbc1fc28748debfa07a48",
+    "jobsHaveExternalNetwork": false,
+    "jobsHaveGitlabDatabaseOrDockerCredentials": false
+  },
+  "model": {
+    "selected": "qwen3.5:9b",
+    "alternativeQualified": "gemma4:12b",
+    "observedQwenMemory": "6.7 GB; 100% GPU; context 32768",
+    "wslMemoryIncreased": false,
+    "credentialsPreserved": true,
+    "qualificationLimit": "Dois exercícios sintéticos por modelo, sem provar superioridade geral. Adapter da rodada anterior à proteção Chromium.",
+    "qwenRun": "coding-live-20261030T193303Z-b6101d",
+    "gemmaRun": "coding-live-20261030T193536Z-09254f",
+    "qwenElapsedMs": [62871, 25633],
+    "gemmaElapsedMs": [48358, 28198],
+    "bothPassed": true
+  },
+  "labValidation": {"doctorChecks": 23, "doctorErrors": 0, "smokePassed": true, "externalIsolationRestored": true},
+  "directedValidation": {
+    "workspaceTests": 13,
+    "executorContracts": 9,
+    "realChromiumSyntheticScenarios": 3,
+    "providerPlanningCorrectionRun": "20261030T205829Z-5c07a1",
+    "providerPlanningCorrectionPassed": 31,
+    "historicalFixturesRetestRun": "20261030T205521Z-ecbd5a",
+    "historicalFixturesRetestPassed": 35,
+    "uiHistoricalMessagesRun": "20261030T205256Z-38ea7d",
+    "uiHistoricalMessagesPassed": 4,
+    "uiSummaryRetestRun": "20261030T205443Z-bbfb20",
+    "uiSummaryRetestPassed": 1,
+    "catalogCases": 577,
+    "catalogFiles": 54,
+    "overlappingRunsMustNotBeSummed": true,
+    "fullRegression": "Em andamento; primeira rodada falha preservada"
+  },
+  "publication": {
+    "image": "sha256:b088222d5cfbbf49ded7c873c1f9ac1da03e0f16e362721e93a7e7d33b1b66c4",
+    "source": "70d71f74efd41bbe353d8fedde3c64bfe24a653f870bade1547fbf5ed7a98e09",
+    "migrations": 0,
+    "tablesChecked": 49,
+    "preservationLimit": "Projeção de acompanhamento de merge usa a normalização restrita já documentada; não é igualdade byte a byte da base.",
+    "backupBytes": 524439,
+    "adminRecordsAtReceipt": 546,
+    "pendingAdminOperationsAtReceipt": 0
+  },
+  "businessAcceptance": {
+    "method": "Somente navegação e ações da interface, agentes reais",
+    "system": "JOIASC",
+    "mr3Merged": true,
+    "integrationSha": "231095e10106db7b154a4b00a321fdde41f125fc",
+    "devArtifact": "sha256:3b2743ac5ad607f29210353ade17192a7b1fed999bf83051ce3929b2b377ad48",
+    "url": "http://localhost:44781/",
+    "httpHealthy": true,
+    "firstFunctionalOpening": "FAILED: tela em branco, contexto React indefinido",
+    "manualApplicationEdits": false,
+    "developmentFinishedApproved": false,
+    "functionalRetest": "Novo ciclo pelo portal em andamento; nenhum caso adicional aprovado"
+  },
+  "primarySources": [
+    "https://qwenlm.github.io/qwen-code-docs/en/users/features/headless/",
+    "https://qwenlm.github.io/qwen-code-docs/en/developers/sdk-typescript/",
+    "https://github.com/QwenLM/qwen-code",
+    "https://ollama.com/library/qwen3.5",
+    "https://ollama.com/library/gemma4"
+  ]
+}

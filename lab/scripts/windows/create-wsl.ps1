@@ -47,6 +47,10 @@ function Configure-LabLinux {
     $source = Convert-ToLinuxPath $script:Repo
     Invoke-Linux -Root @('mkdir', '-p', '/opt/ai-local-lab/scripts/linux')
     Invoke-Linux -Root @('cp', '-r', "$source/scripts/linux/.", '/opt/ai-local-lab/scripts/linux/')
+    Invoke-Linux -Root @('mkdir', '-p', '/opt/ai-local-lab/lib')
+    foreach ($module in @('audit_admin.py','wsl_clock.py')) {
+        Invoke-Linux -Root @('cp', "$source/../sdlc/scripts/$module", "/opt/ai-local-lab/lib/$module")
+    }
     & wsl.exe -d $script:Config.distro_name -u root -- bash /opt/ai-local-lab/scripts/linux/bootstrap.sh
     $code = $LASTEXITCODE
     if ($code -eq 42) {

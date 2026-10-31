@@ -12,10 +12,12 @@ import {GitLabContractIntegrationProvider} from './contract-integration-provider
 import {GitLabDevelopmentBuildProvider} from './development-build-provider.ts';
 import {GitLabApplicationPreparationProvider} from './application-preparation-provider.ts';
 import {LocalLLMProvider} from './llm.ts';
+import {LocalCodingProvider} from './coding-provider.ts';
 const db=database(runtimeDatabaseUrl());
 const token=gitlabToken();
 const modelToken=llmToken();
 const llm=process.env.LLM_BASE_URL&&process.env.LLM_MODEL&&modelToken?new LocalLLMProvider(process.env.LLM_BASE_URL,process.env.LLM_MODEL,modelToken):undefined;
+const coding=process.env.CODING_EXECUTOR_SOCKET?new LocalCodingProvider(process.env.CODING_EXECUTOR_SOCKET):undefined;
 const git=process.env.GITLAB_BASE_URL&&token?new GitLabProvider(process.env.GITLAB_BASE_URL,token,process.env.GITLAB_ROOT_GROUP):undefined;
 const mergeCredential=mergeToken();
 const merge=process.env.GITLAB_BASE_URL&&mergeCredential?new GitLabMergeProvider(process.env.GITLAB_BASE_URL,mergeCredential,process.env.GITLAB_ROOT_GROUP):undefined;
@@ -27,7 +29,7 @@ const runtime=process.env.GITLAB_BASE_URL&&token&&developmentBuilds&&process.env
 const developmentTests=runtime?new LocalDevelopmentTestProvider(runtime):undefined;
 const deployments=runtime?new LocalDeploymentProvider(runtime):undefined;
 const applicationPreparations=process.env.GITLAB_BASE_URL&&mergeCredential&&developmentBuilds?new GitLabApplicationPreparationProvider(process.env.GITLAB_BASE_URL,mergeCredential,process.env.GITLAB_ROOT_GROUP,developmentBuilds):undefined;
-const {app,processDevelopmentTestJobs,processDevelopmentDeploymentJobs,processEnvironmentTargetJobs,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processQualityJobs,processReleaseBranchJobs,processContractPublicationJobs,processContractIntegrationJobs,processDevelopmentBuildJobs,processApplicationPreparationJobs}=createApp({db,demoMode:process.env.DEMO_MODE==='true',git,merge,releaseBranches,contracts,contractIntegrations,developmentBuilds,applicationPreparations,runtime,deployments,developmentTests,llm,gitlabRoot:process.env.GITLAB_ROOT_GROUP,origin:process.env.PORTAL_ORIGIN,logger:true,registryUrl:process.env.ARTIFACT_REPO_URL,workerUrl:process.env.EXECUTOR_URL,scannerUrl:process.env.SECURITY_SCANNER_URL});
+const {app,processDevelopmentTestJobs,processDevelopmentDeploymentJobs,processEnvironmentTargetJobs,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processQualityJobs,processReleaseBranchJobs,processContractPublicationJobs,processContractIntegrationJobs,processDevelopmentBuildJobs,processApplicationPreparationJobs}=createApp({db,demoMode:process.env.DEMO_MODE==='true',git,merge,releaseBranches,contracts,contractIntegrations,developmentBuilds,applicationPreparations,runtime,deployments,developmentTests,llm,coding,gitlabRoot:process.env.GITLAB_ROOT_GROUP,origin:process.env.PORTAL_ORIGIN,logger:true,registryUrl:process.env.ARTIFACT_REPO_URL,workerUrl:process.env.EXECUTOR_URL,scannerUrl:process.env.SECURITY_SCANNER_URL});
 let timer:NodeJS.Timeout;
 app.addHook('onClose',async()=>{clearInterval(timer);await db.$disconnect();});
 await app.listen({port:Number(process.env.PORT??4100),host:'0.0.0.0'});

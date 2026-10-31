@@ -63,10 +63,13 @@ test('assistant confirms uncertain delivery once, restores conversation, cancels
   await panel.getByRole('button',{name:/^Proposta/}).click();
   await expect(panel.getByRole('button',{name:'Gerar proposta para revisão'})).toBeDisabled(); // System history is explicit; a reviewable proposal uses Project context.
   await panel.getByRole('button',{name:'Conversa',exact:true}).click();
-  await panel.getByRole('button',{name:'Histórico de propostas',exact:true}).focus();await page.keyboard.press('Enter');
-  await expect(panel.locator('#assistant-panel-history')).toBeVisible();
-  await panel.getByRole('button',{name:'Conversa',exact:true}).focus();await page.keyboard.press('Enter');
-  await expect(conversation).toBeVisible();
+  const historyButton=panel.getByRole('button',{name:'Histórico de propostas',exact:true}),conversationButton=panel.getByRole('button',{name:'Conversa',exact:true});
+  for(let navigation=0;navigation<3;navigation++){
+    await historyButton.focus();await expect(historyButton).toBeFocused();await page.keyboard.press('Enter');
+    await expect(panel.locator('#assistant-panel-history')).toBeVisible();await expect(historyButton).toHaveAttribute('aria-current','page');
+    await conversationButton.focus();await expect(conversationButton).toBeFocused();await page.keyboard.press('Enter');
+    await expect(conversation).toBeVisible();await expect(conversationButton).toBeHidden();await expect(page).toHaveURL(/assistant\.view=conversation/);
+  }
   await expect(panel.getByRole('textbox',{name:'Sua mensagem'})).toHaveValue('Mensagem que será cancelada');
   await page.getByRole('combobox',{name:/Persona/}).selectOption('carla');
   await expect(panel.getByRole('button',{name:'Enviar mensagem'})).toBeDisabled();

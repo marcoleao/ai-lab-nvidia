@@ -1,0 +1,22 @@
+{
+    "source":  "9bd96dc721a8de4006e900eb9ce8ed893da6803467367a36c7a8f3cb4bdbfed0",
+    "image":  "sha256:7447fa9246f4a0f3ea31c95a3ddfdc61f140935bd07924836b931c48107a4c5a",
+    "published":  true,
+    "verifiedAt":  "2026-10-30T22:29:17.800866+00:00",
+    "generalModel":  "gemma4:12b",
+    "codingModel":  "qwen3.5:9b",
+    "credentialsUnchanged":  true,
+    "backup":  {
+                   "backupId":  "dev-qwen-plan-verified-verified-20261030-c3f15d1e",
+                   "bytes":  552182,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "newTables":  [
+
+                  ],
+    "businessAcceptance":  "separate browser UI run, not inferred from publication"
+}

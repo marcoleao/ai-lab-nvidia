@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('prepare','up','down','status','logs','doctor')][string]$Command='status')
+param([ValidateSet('prepare','prepare-agents','up','down','status','logs','doctor')][string]$Command='status',[string]$CodingModel='qwen3:14b')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot/../../scripts/windows/Require-Administrator.ps1"
@@ -14,10 +14,16 @@ if ((Test-Path -LiteralPath $preparedDirectory) -and ((Get-Item -LiteralPath $pr
 if (-not (Test-Path -LiteralPath $preparedDirectory)) { New-Item -ItemType Directory -Path $preparedDirectory | Out-Null }
 $operationLock = [IO.File]::Open((Join-Path $preparedDirectory 'operation.lock'),'OpenOrCreate','ReadWrite','None')
 try {
-if ($Command -eq 'prepare') {
+if ($Command -eq 'prepare-agents') {
+    Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/coding-executor.py",'prepare'))
+    Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/coding-executor.py",'install','--model',$CodingModel))
+} elseif ($Command -eq 'prepare') {
     Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/prepared.py",'prepare'))
 } else {
-    if ($Command -in 'up','doctor') { Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/prepared.py",'verify')) }
+    if ($Command -in 'up','doctor') {
+        Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/../scripts/reconcile-docker-networks.py"))
+        Invoke-SdlcNative wsl.exe ($wslArguments + @('python3',"$portalPath/scripts/prepared.py",'verify'))
+    }
     $composeArguments = $wslArguments + @('docker','compose','--project-directory',$portalPath,'-f',"$portalPath/compose.yaml")
     if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.integrations.json')) {
         $composeArguments += @('-f',"$portalPath/.prepared/compose.integrations.json")
@@ -33,6 +39,9 @@ if ($Command -eq 'prepare') {
     }
     if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.build-executor.json')) {
         $composeArguments += @('-f',"$portalPath/.prepared/compose.build-executor.json")
+    }
+    if (Test-Path -LiteralPath (Join-Path $preparedDirectory 'compose.coding-executor.json')) {
+        $composeArguments += @('-f',"$portalPath/.prepared/compose.coding-executor.json")
     }
     switch ($Command) {
         'up' {

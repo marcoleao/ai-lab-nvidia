@@ -1,0 +1,26 @@
+{
+  "sourceReport": "planning-live-20261031T075526Z-4491d1",
+  "sourceReportSha256": "07b4782bc85b30f8233c51294d701dcd9b9d642cebf9c3e8e3dedfbe336034f5",
+  "sourceDigest": "766a1ff5e73a6f39b00b4529e05d006f630349de9244553e14486adee7e2ab3e",
+  "sourceMode": "current-source-readonly-overlay",
+  "imageId": "sha256:56194c2b5da060300b56492aa5e52ef604bbc4a135a1e33d167db7440c8278c0",
+  "sourceStable": true,
+  "synthetic": true,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "result": {
+    "model": "qwen3.5:9b",
+    "passed": true,
+    "scenario": "three-independent-corrections-and-overbroad-refusal",
+    "stories": 3,
+    "factReferencesCovered": 8,
+    "overbroadCountRejected": true,
+    "rejectionCode": "INTERVIEW_INCOMPLETE",
+    "inferenceCalls": 10,
+    "elapsedMs": 48958,
+    "temperature": 0.2,
+    "contextTokens": 32768,
+    "scope": "Structural references and explicit refusal only; not semantic approval or business acceptance"
+  },
+  "limitation": "Synthetic references and an explicit overbroad-scope refusal. No automatic semantic approval, no rewrite of existing Stories, no business acceptance or new KPI."
+}

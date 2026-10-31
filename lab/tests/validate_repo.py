@@ -53,6 +53,9 @@ class Contracts(unittest.TestCase):
     def test_local_binding_and_gpu(self):
         compose = yaml.safe_load((ROOT / "compose.yaml").read_text())
         services = compose["services"]
+        self.assertEqual(services['qwen-code']['tmpfs'], ['/tmp:uid=1000,gid=1000,mode=0700'])
+        self.assertTrue(services['qwen-code']['read_only'])
+        self.assertEqual(services['qwen-code']['cap_drop'], ['ALL'])
         self.assertIn("build", services["ai-dev"])
         self.assertNotIn("build", services["jupyter"])
         self.assertEqual(services["jupyter"]["pull_policy"], "never")

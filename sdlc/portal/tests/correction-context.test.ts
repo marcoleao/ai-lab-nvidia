@@ -3,6 +3,8 @@ import {randomUUID} from 'node:crypto';
 import {database} from '../packages/db/client.ts';
 import {createApp} from '../apps/api/src/app.ts';
 import {approvedSnapshot} from './approved-scope';
+import {DomainError} from '../apps/api/src/errors.ts';
+import * as audit from '../apps/api/src/audit.ts';
 import type {GitProvider} from '../apps/api/src/gitlab.ts';
 const target=process.env.TEST_DATABASE_URL;if(!target||new URL(target).pathname!=='/portal_test')throw Error('Disposable portal_test required');
 const db=database(target),base='a'.repeat(40),published='b'.repeat(40),corrected='c'.repeat(40);
@@ -26,7 +28,9 @@ async function fixture(stage='context',mode='valid'){
     expect(prompt.story.codeContext.files).toEqual([{path:'app.js',content:'export const result = 42;'}]);expect(prompt.story.qualityFindings).toHaveLength(1);
     expect(messages[0].content).toContain('decidir create/update');if(mode==='ambiguous-edits'&&modelResponses===1)return {model:'isolated-correction',content:JSON.stringify({summary:patch.summary,edits:[{path:'app.js',before:'missing literal',after:'new value'}]})};if(mode==='ambiguous-edits')expect(JSON.stringify(options?.schema)).not.toContain('"edits"');return{model:'isolated-correction',content:JSON.stringify(mode==='line-edits'?{summary:patch.summary,expectedSha:published,lineEdits:[{path:'app.js',startLine:1,endLine:1,content:'export const result = 43;'}]}:mode==='edits'?{summary:patch.summary,edits:[{path:'app.js',before:'result = 42',after:'result = 43'}]}:mode==='same-current'?{summary:patch.summary,files:[{path:'app.js',content:'export const result = 42;'}]}:patch)};
   })};
-  const runtime=createApp({db,demoMode:true,git,llm});return{runtime,story,run,context,llm,publishCorrection,publishCode,patch};
+  let failedOnce=false;
+  const failures:Record<string,string>={'tool-fails':'CODING_EXECUTOR_FAILED','tool-unknown':'CODING_EXECUTOR_UNKNOWN','tool-timeout':'CODING_EXECUTOR_TIMEOUT','tool-unavailable':'CODING_EXECUTOR_UNAVAILABLE'};
+  const coding=mode.startsWith('tool-')?{generate:vi.fn(async(input:any)=>{expect(input.expectedSha).toBe(published);expect(input.files).toEqual([{path:'app.js',content:'export const result = 42;'}]);expect(input.prompt).toContain('qualityFindings');expect(input.allowDependencies).toBe(false);if(failures[mode]&&!failedOnce){failedOnce=true;throw new DomainError(failures[mode],'Technical limit: CLI process exited with code 53',502);}return {content:JSON.stringify(patch),evidence:{id:'e'.repeat(64),expectedSha:published,policy:'qwen-code-node24-v1' as const,imageId:'sha256:'+'f'.repeat(64),model:'isolated-coder'}};})}:undefined;const runtime=createApp({db,demoMode:true,git,llm,coding});return{runtime,story,run,context,llm,coding,publishCorrection,publishCode,patch};
 }
 test('after reapproval the agent reads the exact published Story revision while retaining the immutable comparison base',async()=>{
   const f=await fixture();try{
@@ -38,12 +42,43 @@ test('after reapproval the agent reads the exact published Story revision while 
     const merge=await db.mergeOperation.findUniqueOrThrow({where:{executionId:f.run.id}});expect(merge).toMatchObject({sha:corrected,state:'tracking'});
   }finally{await f.runtime.app.close();}
 });
+test('tool executor returns a full candidate on the approved correction revision, preserving publisher and frozen patch',async()=>{
+ const f=await fixture('context','tool-executor');try{
+  await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();
+  expect(f.coding!.generate).toHaveBeenCalledTimes(1);const nativeInput=f.coding!.generate.mock.calls[0][0];expect(nativeInput.files).toEqual([{path:'app.js',content:'export const result = 42;'}]);expect(nativeInput.prompt).not.toContain('export const result = 42;');expect(nativeInput.prompt).toContain('read_file');expect(nativeInput.prompt).toContain('Corrigir resultado.');expect(f.llm.complete).not.toHaveBeenCalled();expect(f.publishCorrection).toHaveBeenCalledTimes(1);expect(f.publishCode).not.toHaveBeenCalled();
+  expect(await db.storyExecution.findUnique({where:{id:f.run.id}})).toMatchObject({state:'succeeded',commitSha:corrected,patch:f.patch});
+ }finally{await f.runtime.app.close();}
+});
+
+for(const [mode,code] of [['tool-fails','CODING_EXECUTOR_FAILED'],['tool-unknown','CODING_EXECUTOR_UNKNOWN'],['tool-timeout','CODING_EXECUTOR_TIMEOUT'],['tool-unavailable','CODING_EXECUTOR_UNAVAILABLE']])test('a pre-publication candidate failure projects one explicit technical retry: '+code,async()=>{
+ const f=await fixture('context',mode);try{
+  await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();
+  const failed=await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}});expect(failed.state).toBe('failed');expect((failed.snapshot as any).codingFailure).toEqual({code,publication:'not_started'});expect(f.publishCorrection).not.toHaveBeenCalled();
+  const event=await db.historyEvent.findFirstOrThrow({where:{itemId:f.story.id,action:'EXECUTION_FAILED'},orderBy:{timestamp:'desc'}});expect(event.outcome).toBe(code==='CODING_EXECUTOR_FAILED'?'FAILED':'UNKNOWN');expect(event.phase).toBe(code==='CODING_EXECUTOR_FAILED'?'COMPLETED':'OBSERVED');
+  const journey=(await f.runtime.app.inject({url:`/api/items/${f.story.id}/journey`,headers:{'x-persona':'ana'}})).json();expect(journey.nextAction).toMatchObject({id:'retry',label:'Retomar correção técnica'});expect(journey.current.message).toContain('Esta tentativa não publicou');expect(journey.current.message).not.toContain('code 53');expect(journey.run.error).toContain('code 53');expect(journey.run.technicalRetryAvailable).toBe(true);expect(journey.secondaryActions.some((a:any)=>a.id==='respond_blocker')).toBe(false);
+  const key=randomUUID(),request={method:'POST' as const,url:`/api/executions/${f.run.id}/retry`,headers:{'x-persona':'ana','idempotency-key':key},payload:{}};
+  const first=await f.runtime.app.inject(request),replay=await f.runtime.app.inject(request);expect(first.statusCode,first.body).toBe(200);expect(replay.json()).toEqual(first.json());expect((await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).snapshot).toMatchObject({codingFailure:null});
+  await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();expect(f.publishCorrection).toHaveBeenCalledTimes(1);expect((await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).state).toBe('succeeded');
+ }finally{await f.runtime.app.close();}
+});
 for(const mode of ['wrong-revision','changed-base'])test('mismatched correction or base revision blocks generation and publication: '+mode,async()=>{
   const f=await fixture('context',mode);try{
     await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();
     expect(f.llm.complete).not.toHaveBeenCalled();expect(f.publishCorrection).not.toHaveBeenCalled();expect(f.publishCode).not.toHaveBeenCalled();
     expect(await db.storyExecution.findUnique({where:{id:f.run.id}})).toMatchObject({state:'failed',commitSha:published});
   }finally{await f.runtime.app.close();}
+});
+
+test('a recorder failure rolls back the unconfirmed native failure marker with no publisher effect',async()=>{
+ const original=audit.recordAudit;
+ const spy=vi.spyOn(audit,'recordAudit').mockImplementation(async(...args:Parameters<typeof audit.recordAudit>)=>{if(args[3]==='EXECUTION_FAILED')throw new Error('Isolated recorder failure');return original(...args);});
+ const f=await fixture('context','tool-unknown');
+ try{
+  await f.runtime.processExecutionJobs();
+  await f.runtime.processExecutionJobs().catch(()=>{});
+  const run=await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}});expect((run.snapshot as any).codingFailure).toBeUndefined();expect(run.state).toBe('running');expect(f.publishCorrection).not.toHaveBeenCalled();expect(f.publishCode).not.toHaveBeenCalled();
+  expect(await db.historyEvent.count({where:{itemId:f.story.id,action:'EXECUTION_FAILED'}})).toBe(0);
+ }finally{spy.mockRestore();await db.storyExecution.update({where:{id:f.run.id},data:{state:'cancelled',leaseId:null,leaseUntil:null}});await f.runtime.app.close();}
 });
 test('retry of a failed publishing stage keeps the frozen patch and correction SHA without regenerating code',async()=>{
   const f=await fixture('publishing');try{

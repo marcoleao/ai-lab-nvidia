@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import re
 import shutil
 import subprocess
 import urllib.parse
@@ -19,9 +20,14 @@ RUNTIME = Path('/opt/agentic-sdlc/portal/llm-relay')
 
 def configure():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--upstream', required=True)
-    parser.add_argument('--model', default='qwen3:14b')
+    parser.add_argument('--upstream')
+    parser.add_argument('--model', default='qwen3.5:9b')
     args = parser.parse_args()
+    if args.upstream is None:
+        declared=(ROOT.parents[1]/'lab/config/lab.yaml').read_text()
+        address=re.search(r'^ollama_address:\s*([0-9.]+)\s*$',declared,re.MULTILINE)
+        if not address:raise RuntimeError('Declare ollama_address or pass an explicit private --upstream')
+        args.upstream='http://'+address[1]+':11434'
     if os.geteuid() != 0:
         raise RuntimeError('Run as root inside the SDLC distro')
     url = urllib.parse.urlparse(args.upstream)

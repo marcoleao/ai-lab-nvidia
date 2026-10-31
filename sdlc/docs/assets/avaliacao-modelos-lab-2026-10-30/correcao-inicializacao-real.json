@@ -1,0 +1,61 @@
+{
+  "id": "53f1b95933302da9636081219d3b910862edb7155e715e418d99248a71b07155",
+  "state": "succeeded",
+  "expectedSha": "231095e10106db7b154a4b00a321fdde41f125fc",
+  "policy": "qwen-code-node24-v1",
+  "imageId": "sha256:f3ecb7fdd9b11000bb3c293896e94dd918163f3950b99eb30d9a573fb1655f2c",
+  "browserImageId": "sha256:6f1137b0cae0ee48092ff7933368742ab937529f333bbc1fc28748debfa07a48",
+  "model": "qwen3.5:9b",
+  "inferenceCalls": 4,
+  "browserChecks": [
+    {
+      "applicable": true,
+      "passed": true,
+      "rendered": true,
+      "errors": [],
+      "scope": "Abertura da entrada React em navegador isolado; não comprova backend nem aceite funcional completo."
+    }
+  ],
+  "baseline": {
+    "applicable": true,
+    "passed": false,
+    "rendered": false,
+    "errors": [
+      "Cannot destructure property 'jewelries' of 'useJewelryContext(...)' as it is undefined.",
+      "A entrada web abriu sem conteúdo visível."
+    ],
+    "scope": "Abertura da entrada React em navegador isolado; não comprova backend nem aceite funcional completo."
+  },
+  "changedPaths": [
+    "src/main.jsx"
+  ],
+  "tools": [
+    {
+      "tool": "read_file",
+      "result": "SUCCEEDED",
+      "path": "src/main.jsx"
+    },
+    {
+      "tool": "read_file",
+      "result": "SUCCEEDED",
+      "path": "src/App.jsx"
+    },
+    {
+      "tool": "read_file",
+      "result": "SUCCEEDED",
+      "path": "src/JewelryContext.jsx"
+    },
+    {
+      "tool": "edit_file",
+      "result": "SUCCEEDED",
+      "path": "src/main.jsx"
+    },
+    {
+      "tool": "validate_candidate",
+      "result": "SUCCEEDED"
+    }
+  ],
+  "applicationSourcesExported": false,
+  "promptsExported": false,
+  "manualApplicationEdits": false
+}

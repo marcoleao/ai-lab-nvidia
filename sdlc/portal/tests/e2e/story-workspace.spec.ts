@@ -66,6 +66,20 @@ const interaction = (page: Page) => page.getByTestId('story-process');
 async function actAsAdmin(page: Page) { await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin'); }
 async function openInteraction(page: Page) { return openWorkPanel(page); }
 
+for(const [width,height] of [[1440,1000],[390,844]])test(`pre-publication interruption exposes direct technical retry and a folded diagnostic at ${width}px`,async({page})=>{
+ const state=await fixture(page),summary='Não foi possível confirmar a conclusão desta tentativa de implementação. Esta tentativa não publicou alterações. Retome a correção técnica com o mesmo escopo.';
+ Object.assign(state.story,{status:'coding'});Object.assign(state.journey.current,{phase:'CODING',kind:'coding',state:'failed',title:'O agente precisa retomar a implementação',message:summary});
+ Object.assign(state.journey.run,{state:'failed',stage:'generation',technicalRetryAvailable:true,error:'CODING_EXECUTOR_UNKNOWN: resultado local sem confirmação; evidência preservada.',commitSha:null});
+ state.journey.nextAction={id:'retry',kind:'retry',label:'Retomar correção técnica',enabled:true,path:'/api/executions/journey-run/retry',method:'POST',body:{}};state.journey.secondaryActions=[];
+ state.onWrite=()=>{Object.assign(state.journey.current,{state:'queued',title:'Solicitação recebida; aguardando processamento'});state.journey.nextAction=null;Object.assign(state.journey.run,{state:'queued',technicalRetryAvailable:false,error:null});};
+ await page.setViewportSize({width,height});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);await openInteraction(page);
+ const panel=interaction(page),retry=panel.getByRole('button',{name:'Retomar correção técnica',exact:true});
+ await expect(retry).toBeVisible();await expect(panel.getByText(summary,{exact:true})).toBeVisible();await expect(panel.getByRole('button',{name:'Responder impedimento',exact:true})).toHaveCount(0);
+ const diagnostic=panel.getByTestId('activity-message-details');await expect(diagnostic).not.toHaveAttribute('open','');await expect(diagnostic.getByLabel('Relato integral da atividade')).toBeHidden();expect(state.writes).toHaveLength(0);
+ await diagnostic.getByText('Consultar diagnóstico técnico completo',{exact:true}).click();await expect(diagnostic.getByLabel('Relato integral da atividade')).toContainText('CODING_EXECUTOR_UNKNOWN');expect(state.writes).toHaveLength(0);
+ await retry.click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0]).toMatchObject({path:'/api/executions/journey-run/retry',body:{},persona:'admin'});await expect(panel.getByText('Solicitação recebida; aguardando processamento',{exact:true})).toBeVisible();
+});
+
 async function planningFixture(page: Page) {
   const state = await fixture(page);
   const result = { state, requests: [] as { path: string; method: string; key: string; body: any }[], created: 0, updated: 0, abortNext: false, rejectNext: false };
@@ -338,9 +352,14 @@ for (const phase of ['SECURITY SCAN','MERGE REQUEST', 'TESTING', 'CANCELLED']) t
   state.story.status = phase.toLowerCase().replaceAll(' ', '_');
   await page.goto('/stories/journey-story');
   const cycle = page.getByRole('list', { name: 'Ciclo da História', exact: true });
-  await expect(page.getByTestId('story-phase')).toHaveText(phase);
-  if (['CANCELLED','TESTING'].includes(phase)) await expect(cycle.locator('[aria-current="step"]')).toHaveCount(0);
-  else await expect(cycle.locator('[aria-current="step"]')).toContainText(phase);
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:1000});
+    await expect(page.getByTestId('story-phase')).toHaveText(phase);
+    if (['CANCELLED','TESTING'].includes(phase)) await expect(cycle.locator('[aria-current="step"]')).toHaveCount(0);
+    else await expect(cycle.locator('[aria-current="step"]')).toContainText(phase);
+    if(phase==='CANCELLED')await expect(page.getByTestId('story-journey-header').locator('.sw-operation')).toHaveText('História cancelada');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
   expect(state.writes).toEqual([]);
 });
 
@@ -487,6 +506,53 @@ test('a lost correction confirmation can be reconciled with its original identit
   expect(state.writes).toHaveLength(2);
   expect(state.writes[1]).toEqual(state.writes[0]);
   expect(state.writes[0].body.expectedSha).toBe(sha);
+});
+
+for(const width of [1440,390])test(`stale specification presents interruption directly and preserves its confirmation and uncertain request at ${width}px`,async({page})=>{
+  await page.setViewportSize({width,height:1000});
+  const state=await fixture(page);
+  state.story.status='specification';
+  Object.assign(state.journey.current,{phase:'SPECIFICATION',kind:'specification',state:'stale',title:'O escopo mudou; as evidências anteriores permanecem no histórico',message:'A especificação vigente mudou. Use Interromper tentativa para encerrar esta execução antes de preparar a nova especificação. A História permanece aberta e as evidências anteriores são preservadas.',taskId:null,activityId:null});
+  Object.assign(state.journey.run,{state:'waiting_approval',stage:'gate',commitSha:null});
+  state.journey.nextAction={id:'cancel',kind:'cancel',label:'Interromper tentativa',enabled:true,path:'/api/executions/journey-run/cancel',method:'POST',body:{},confirmation:{title:'Interromper tentativa',description:'Interrompe esta tentativa para permitir revisão. A História permanece aberta; branches e evidências existentes são preservados.',checkboxLabel:'Confirmo a interrupção desta tentativa.'}};
+  state.journey.secondaryActions=[{id:'cancel_story',kind:'cancel_story',label:'Cancelar História',enabled:true,path:'/api/items/journey-story/cancel',method:'POST',body:{expectedVersion:state.story.version}}];
+  await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);
+  const panel=interaction(page),primary=panel.locator('.sw-action-primary').getByRole('button',{name:'Interromper tentativa',exact:true});
+  await expect(primary).toBeVisible();await expect(primary).toBeEnabled();
+  await expect(panel).toContainText('Use Interromper tentativa');await expect(panel.getByText('Nenhuma ação executável disponível nesta etapa.',{exact:true})).toHaveCount(0);
+  await expect(panel.getByRole('button',{name:'Cancelar História',exact:true})).toBeHidden();
+  await expect(panel.getByRole('button',{name:'Revisar aprovação',exact:true})).toHaveCount(0);
+  expect(state.writes).toHaveLength(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/stale-interruption-primary-${width}.png`,fullPage:true});}
+  await primary.focus();await expect(primary).toBeFocused();await page.keyboard.press('Enter');
+  const confirm=panel.getByRole('button',{name:'Confirmar: Interromper tentativa',exact:true}),checkbox=panel.getByRole('checkbox',{name:'Confirmo a interrupção desta tentativa.',exact:true});
+  await expect(confirm).toBeDisabled();await expect(checkbox).not.toBeChecked();expect(state.writes).toHaveLength(0);
+  await panel.getByRole('button',{name:'Voltar',exact:true}).click();await expect(primary).toBeEnabled();expect(state.writes).toHaveLength(0);
+  await primary.click();await checkbox.check();await expect(confirm).toBeEnabled();
+  state.abortNext=true;
+  state.onWrite=()=>{
+    state.journey.run.state='cancelled';
+    Object.assign(state.journey.current,{state:'cancelled',title:'Execução cancelada; um novo ciclo exige outro G1',message:'Prepare a nova especificação para o escopo atual. As evidências anteriores permanecem no histórico.'});
+    state.journey.nextAction={id:'replan',kind:'replan',label:'Preparar nova especificação',enabled:true,path:'/api/executions/journey-run/replan',method:'POST',body:{expectedVersion:state.story.version,confirmed:true},confirmation:{title:'Iniciar outro ciclo de especificação',description:'O escopo atual será analisado novamente e exigirá novo G1.',checkboxLabel:'Confirmo outro ciclo de especificação e um novo G1 para o escopo atual.'}};
+  };
+  await confirm.click();await expect(page.getByTestId('pending-command')).toContainText('Interromper tentativa');
+  await page.reload();await page.getByRole('combobox',{name:/Persona/}).selectOption('bruno');
+  const verify=panel.getByRole('button',{name:'Verificar a mesma solicitação',exact:true});
+  await expect(verify).toBeDisabled();await actAsAdmin(page);await expect(verify).toBeEnabled();await verify.click();
+  await expect(page.getByTestId('pending-command')).toHaveCount(0);
+  await expect(panel.locator('.sw-action-primary').getByRole('button',{name:'Preparar nova especificação',exact:true})).toBeEnabled();
+  await expect(panel.getByRole('button',{name:'Revisar aprovação',exact:true})).toHaveCount(0);
+  const operation=page.getByTestId('story-journey-header').locator('.sw-operation');
+  await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');await expect(operation).toHaveText('Tentativa interrompida');
+  await page.reload();await expect(operation).toHaveText('Tentativa interrompida');await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');
+  state.disconnected=true;await expect(operation).toHaveText('Situação atual não confirmada');
+  state.disconnected=false;await page.getByRole('alert').filter({hasText:'A atualização da situação não chegou.'}).getByRole('button',{name:'Tentar novamente',exact:true}).click();
+  await expect(operation).toHaveText('Tentativa interrompida');
+  expect(state.writes).toHaveLength(2);expect(state.writes[1]).toEqual(state.writes[0]);
+  expect(state.writes[0]).toMatchObject({path:'/api/executions/journey-run/cancel',body:{},persona:'admin'});
+  expect(state.writes.every(write=>write.path==='/api/executions/journey-run/cancel')).toBe(true);
+  expect(state.story.status).toBe('specification');
 });
 
 test('processing distinguishes screen connection, executor heartbeat and last real tool event', async ({ page }) => {
@@ -756,4 +822,14 @@ test('RA-03 collection keeps phase primary and the same reading as Story details
  await expect(row.locator('.badge')).toHaveText('MERGE REQUEST');await expect(row.getByTestId('story-lifecycle-status')).toContainText('Sem aprovação registrada');
  await page.screenshot({path:`${process.env.SCREENSHOT_DIR||'/tmp'}/ra03-list-desktop.png`,fullPage:true});
  await row.getByRole('link',{name:/Entrega na nova navegação/}).click();await expect(page.getByTestId('story-lifecycle-status')).toContainText('Aberta; depende da entrada em produção');expect(state.writes).toHaveLength(0);
+});
+
+for(const width of [1440,390])test(`successful Draft release is a stage record instead of an outdated integration claim at ${width}px`,async({page})=>{
+ const state=await fixture(page),releaseMessage='Draft removido · integração ainda não solicitada. Solicite o merge na atividade.';
+ Object.assign(state.journey.current,{phase:'MERGE REQUEST',kind:'merge',state:'succeeded',title:'Código integrado',message:'Integração da revisão corrente confirmada.'});Object.assign(state.journey,{merge:{state:'succeeded',sha,blocks:[]},preparation:{eligible:false,preparation:{id:'release-record-ui',state:'succeeded',sha,message:releaseMessage}},nextAction:{id:'development_build',label:'Preparar versão DEV',href:'/stories/journey-story?tab=planning&process=environment&environment=DEV',enabled:true},secondaryActions:[]});
+ await page.setViewportSize({width,height:1000});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);const workPanel=await openInteraction(page),record=workPanel.getByTestId('draft-release-record');await expect(record.getByRole('status')).toContainText('A integração da revisão atual já foi confirmada');await expect(record.getByText(releaseMessage,{exact:true})).not.toBeVisible();await expect(workPanel.getByRole('button',{name:'Preparar versão DEV',exact:true})).toBeEnabled();
+ if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/integrated-draft-record-${width}.png`,fullPage:true});}
+ await record.locator('summary').focus();await page.keyboard.press('Enter');await expect(record.getByText(releaseMessage,{exact:true})).toBeVisible();await expect(record).toContainText('Mensagem registrada na etapa de liberação');await expect(record).toContainText('release-record-ui');await expect(record).toContainText(sha);await record.locator('summary').click();expect(state.writes).toEqual([]);
+ state.journey.merge.sha=oldSha;await expect(record.getByRole('status')).toContainText('Acompanhe a integração pela situação atual');await expect(record.getByRole('status')).not.toContainText('já foi confirmada');state.journey.merge.sha=sha;state.journey.current.state='failed';state.journey.current.title='Resultado atual da integração não confirmado';await expect(record.getByRole('status')).not.toContainText('já foi confirmada');
+ state.journey.preparation.preparation.state='unknown';state.journey.preparation.preparation.message='O resultado da liberação ainda precisa ser verificado; consulte a mesma operação.';await expect(record).toHaveCount(0);await expect(workPanel).toContainText(state.journey.preparation.preparation.message);expect(state.writes).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

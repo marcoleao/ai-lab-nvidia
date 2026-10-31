@@ -1,0 +1,250 @@
+{
+  "sourceReport": "coding-live-20261031T052211Z-afce47",
+  "sourceReportSha256": "31511727f0a07a522e749e862296e03643d3e92fe57e9bef27fc889b15cd5189",
+  "model": "qwen3:14b",
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "reasoningPolicy": {
+    "code": false,
+    "ui": false
+  },
+  "imageId": "sha256:8c055561dfbafec1d3254865ddeeabf34655e221f7f4b2a713843a0e5318ba61",
+  "browserImageId": "sha256:afe1f6ef4a91b9af9631886a6ab45928233dbe4da778c89261bbc11752eea47d",
+  "executorDigest": "05068af01d4a3ee0b130ea116efd6ba24acbc70034e3c178030ecaf6fc609905",
+  "toolchainDigest": "1ef60ee2884f28bf6b69d38e6dab18a1bfbb1974c195d09669097575cb63dc5c",
+  "sourceStable": true,
+  "completeSuite": true,
+  "fixtures": [
+    {
+      "fixture": "literal-edit",
+      "fixtureDigest": "bfbc543d94712faeede3fb61467d67926771ca6f475389b796710f64ee0f3e8a",
+      "state": "succeeded",
+      "elapsedMs": 11090,
+      "inferenceCalls": 3,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "diagnostics": [],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        }
+      ]
+    },
+    {
+      "fixture": "react-provider",
+      "fixtureDigest": "20eb53c1324032ea0c69e9367e9c0f94943e5fa06c71cc4a51738974b2a98cf9",
+      "state": "succeeded",
+      "elapsedMs": 16086,
+      "inferenceCalls": 7,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "diagnostics": [],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 5,
+          "toolCalls": 4
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": null,
+          "inferenceCalls": 0,
+          "selections": 0
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1,
+          "confirmedActions": 1
+        }
+      ]
+    },
+    {
+      "fixture": "ui-price",
+      "fixtureDigest": "93b00dd55b6a35245832961f44b65f93a712d769d0b096f140e80ce19399f099",
+      "state": "succeeded",
+      "elapsedMs": 16107,
+      "inferenceCalls": 7,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 2,
+        "executed": 2,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "diagnostics": [],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1,
+          "selections": 0
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 3,
+          "confirmedActions": 2
+        }
+      ]
+    },
+    {
+      "fixture": "ui-prerequisites",
+      "fixtureDigest": "f9b20f13efd87bf1ab4bf683c508501f7564d9f755e153a33157f01d5727e67c",
+      "state": "succeeded",
+      "elapsedMs": 26180,
+      "inferenceCalls": 12,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 5,
+        "executed": 5,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "emptyCategoryBlocked": true,
+      "diagnostics": [],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 4,
+          "toolCalls": 2
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 2,
+          "selections": 1
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 7,
+          "confirmedActions": 5
+        }
+      ]
+    },
+    {
+      "fixture": "line-edit-context",
+      "fixtureDigest": "3df861808170c9a06e52549225dc6d4d7b45c83c2c53d4b0ae93c29f791c180a",
+      "state": "succeeded",
+      "elapsedMs": 16121,
+      "inferenceCalls": 7,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 2,
+        "executed": 2,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "unrelatedSourcePreserved": true,
+      "diagnostics": [],
+      "phases": [
+        {
+          "role": "diagnosis",
+          "state": "observed",
+          "model": null,
+          "scope": "Opening and controls only; not functional acceptance"
+        },
+        {
+          "role": "implementation",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 3,
+          "toolCalls": 2
+        },
+        {
+          "role": "test_planning",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1
+        },
+        {
+          "role": "ui_preconditions",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 1,
+          "selections": 0
+        },
+        {
+          "role": "ui_operator",
+          "state": "succeeded",
+          "model": "qwen3:14b",
+          "inferenceCalls": 3,
+          "confirmedActions": 2
+        }
+      ]
+    }
+  ],
+  "scope": "Synthetic local specialist qualification; does not certify the jewelry application or a DEV deployment."
+}

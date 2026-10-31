@@ -1,0 +1,72 @@
+{
+  "method": "Read-only wall/monotonic clock samples, shared administrative recorder, isolated regression suites. No application code or business data changed.",
+  "authority": "Existing Windows W32Time/Hyper-V clock; Windows service observed running. No clock set or Windows setting changed.",
+  "policyAction": "LAB_WSL_CLOCK_POLICY_APPLIED",
+  "ownedDistros": [
+    "ai-local-lab",
+    "agentic-sdlc"
+  ],
+  "before": {
+    "sampleSeconds": 90.03,
+    "largestAbsoluteAdjustmentSeconds": 2.478091,
+    "steps": [
+      {
+        "at": 1793424849.7030725,
+        "wallDeltaSeconds": -2.376146,
+        "monotonicDeltaSeconds": 0.100262,
+        "adjustmentSeconds": -2.476408
+      },
+      {
+        "at": 1793424879.5522282,
+        "wallDeltaSeconds": -2.377559,
+        "monotonicDeltaSeconds": 0.100532,
+        "adjustmentSeconds": -2.478091
+      },
+      {
+        "at": 1793424909.253667,
+        "wallDeltaSeconds": -2.369784,
+        "monotonicDeltaSeconds": 0.100166,
+        "adjustmentSeconds": -2.46995
+      }
+    ],
+    "systemOrApplicationChanged": false
+  },
+  "after": {
+    "sampleSeconds": 90.02,
+    "largestAbsoluteAdjustmentSeconds": 9e-06,
+    "steps": [],
+    "systemOrApplicationChanged": false
+  },
+  "full": {
+    "report": "20261031T052411Z-572344",
+    "passed": false,
+    "sourceStable": true,
+    "backendPassed": 1010,
+    "backendFailed": 1,
+    "backendSkipped": 4,
+    "browserStats": {
+      "startTime": "2026-10-31T05:29:27.432Z",
+      "duration": 964926.2980000001,
+      "expected": 584,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "failure": "release-compositions snapshot included a new row timestamped before its previous cutoff; clock regressions observed separately."
+  },
+  "rechecks": [
+    {
+      "report": "20261031T054611Z-04f47c",
+      "passed": true,
+      "sourceStable": true,
+      "tests": 10
+    },
+    {
+      "report": "20261031T054507Z-e0b0f5",
+      "passed": true,
+      "sourceStable": true,
+      "tests": 76
+    }
+  ],
+  "limitation": "This does not convert the previous full run into a pass. Final single clean full regression and jewelry business UI acceptance remain separate."
+}

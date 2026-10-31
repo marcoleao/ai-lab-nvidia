@@ -1,0 +1,20 @@
+{
+  "runId": "20261030T233635Z-f50b82",
+  "scope": "Portal SDLC: full em ambiente limpo e descartável, provedores simulados",
+  "startedAt": "2026-10-30T23:36:50.607Z",
+  "finishedAt": "2026-10-30T23:59:52.720Z",
+  "ok": true,
+  "sourceStable": true,
+  "runtimeHash": "520ec05e8fe8baf3917df30fd3734c333c0df199b966305a79a6882c6475195b",
+  "testHash": "e69393b592ed99d935ce0b651126dedb98481fb7846e861f8888b747a9622d0e",
+  "backend": {"passed": 1005, "failed": 0, "skippedOptIn": 4},
+  "browser": {"passed": 582, "failed": 0, "skipped": 0, "flaky": 0},
+  "phases": {"guards": 0, "backend": 0, "build": 0, "caseRegistration": 0, "browser": 0},
+  "supportChecks": ["admin-audit", "relay", "controller", "build-executor", "coding-executor", "runtime-executor", "dev-test-executor"],
+  "limitations": [
+    "Os quatro testes de integração real opt-in não fazem parte da aprovação simulada.",
+    "Não comprova o catálogo de joias, GitLab/LLM reais, publicação DEV ou QA/HML/PRD.",
+    "A aceitação funcional do catálogo usa recibos próprios de navegação na UI."
+  ],
+  "privateReports": "sdlc/portal/test-results/regression/20261030T233635Z-f50b82"
+}

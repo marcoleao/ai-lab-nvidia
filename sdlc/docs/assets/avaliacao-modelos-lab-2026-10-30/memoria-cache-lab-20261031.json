@@ -1,0 +1,53 @@
+{
+  "observedAt": "2026-10-31T07:41:04.900362+00:00",
+  "scope": "Local inference infrastructure observations; not application business acceptance",
+  "policy": "LLAMA_ARG_CACHE_RAM=0",
+  "nativeRunnerConfirmedDisabled": true,
+  "beforeRecreation": {
+    "observedOom": 1,
+    "observedOomKill": 1,
+    "interruptedCodingJob": "69c6390426229e2d48db83fdaefaf1701db234a775b3dbd7031d447b487b3724",
+    "privateDiagnostic": "HTTP 500 / llama-server completion EOF during prompt-cache state saving"
+  },
+  "afterRecreation": {
+    "containerId": "f0da2dd3d022f346f943cbb30a14659715955ece34310163ae462adf1dee9d6a",
+    "memoryEvents": {
+      "low": 0,
+      "high": 0,
+      "max": 155428,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    },
+    "memoryCurrentBytes": 8351260672,
+    "memoryPeakBytes": 8589983744,
+    "memoryLimitBytes": 8589934592,
+    "memorySwapLimitBytes": 10737418240
+  },
+  "qualifications": [
+    {
+      "report": "coding-live-20261031T072242Z-f218eb",
+      "sourceStable": true,
+      "passed": false,
+      "casesPassed": 7,
+      "inferenceCalls": 73
+    },
+    {
+      "report": "coding-live-20261031T072640Z-16e541",
+      "sourceStable": true,
+      "passed": true,
+      "casesPassed": 8,
+      "inferenceCalls": 76
+    },
+    {
+      "report": "coding-live-20261031T073327Z-aaccd3",
+      "sourceStable": true,
+      "passed": true,
+      "casesPassed": 8,
+      "inferenceCalls": 71
+    }
+  ],
+  "modelWeightsRemoved": false,
+  "applicationEditedManually": false,
+  "limitation": "Cgroup counters belong to the recreated container. Zero OOM applies only to this observed sequence; the first qualification remained failed for cold-load timeout. Memory-limit pressure/reclamation counters are not hidden. No external inference or general stability guarantee."
+}

@@ -1,0 +1,19 @@
+{
+    "source":  "1bd8729acc0c1db544402e65dfb6086069bd730cedfbb18e15ab89a4c280a06e",
+    "image":  "sha256:d28db49fd733fa7d3da8d68eb7f820e21c4d03d559010f70b228890d4475797c",
+    "published":  true,
+    "verifiedAt":  "2026-10-30T22:43:45.079697+00:00",
+    "generalModel":  "gemma4:12b",
+    "codingModel":  "qwen3.5:9b",
+    "backup":  {
+                   "backupId":  "dev-atomic-plan-verified-20261030-f5d538db",
+                   "bytes":  561319,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "audit":  null,
+    "businessAcceptance":  "separate UI run"
+}

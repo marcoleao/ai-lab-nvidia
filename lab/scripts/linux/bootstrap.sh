@@ -38,6 +38,7 @@ if ! cmp -s /tmp/ai-lab-wsl.conf /etc/wsl.conf; then
 fi
 rm -f /tmp/ai-lab-wsl.conf
 [[ $(ps -p 1 -o comm=) == systemd ]] || { echo '[ERROR] systemd unavailable. Update WSL on Windows.'; exit 1; }
+python3 /opt/ai-local-lab/lib/wsl_clock.py --root /opt/ai-local-lab
 /usr/lib/wsl/lib/nvidia-smi
 bash /opt/ai-local-lab/scripts/linux/install-docker.sh
 bash /opt/ai-local-lab/scripts/linux/install-nvidia-container-toolkit.sh

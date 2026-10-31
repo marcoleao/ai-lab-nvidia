@@ -1,0 +1,22 @@
+{
+    "source":  "75bb0c5e79d81081d4a654365603361000d0637ee3209642e45da4032dc43343",
+    "image":  "sha256:8209f4e95efda41e3e86a33304c3243d7b34e6aadf8d78a592133c7ef0d41447",
+    "published":  true,
+    "verifiedAt":  "2026-10-30T23:38:10.841371+00:00",
+    "backup":  {
+                   "backupId":  "dev-build-queue-verified-20261030-9f8a01b2",
+                   "bytes":  625772,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               },
+    "tablesChecked":  49,
+    "exactTablesPreservedUnderDeclaredNormalization":  true,
+    "audit":  null,
+    "change":  "Remote queued acknowledgement remains an in-flight operation followed by reads, not another dispatch",
+    "redTests":  "20261030T232902Z-3b99e8",
+    "directedGreen":  "20261030T233020Z-6d3f32",
+    "adjacentGreen":  "20261030T233206Z-6f5a24",
+    "adjacentCases":  54,
+    "businessAcceptance":  "separate UI run; no application code or results edited"
+}

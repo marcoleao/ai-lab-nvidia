@@ -21,6 +21,9 @@ check 'Compose' docker compose version
 check 'NVIDIA runtime registered' bash -c 'docker info --format "{{json .Runtimes}}" | grep -q nvidia'
 check 'GPU inside CUDA container' docker run --rm --pull never --network none --gpus all --label ai-local-lab.test=true "$CUDA_IMAGE" nvidia-smi
 check 'Compose schema' dc config --quiet
+if has_profile agents; then
+  check 'Pinned Qwen Code available without network' python3 scripts/linux/agent-tools.py verify
+fi
 deadline=$((SECONDS + HEALTH_TIMEOUT_SECONDS))
 for service in $(active_services); do
   check "Service $service" wait_healthy "$service" "$deadline"

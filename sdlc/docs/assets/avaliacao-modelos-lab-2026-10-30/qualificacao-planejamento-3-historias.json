@@ -1,0 +1,26 @@
+{
+  "sourceMode": "current-source-readonly-overlay",
+  "sourceDigest": "a80f961cd7614e09bdd2d49e6c29a23ccf3c5cc3e6c046e3c51e162356d12ad4",
+  "imageId": "sha256:feaa8cd6c421e757e90bdaa0ec5520c569de1e125e280fa223c449e28e519b1b",
+  "synthetic": true,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "results": [
+    {
+      "model": "qwen3.5:9b",
+      "passed": true,
+      "stories": 3,
+      "factReferencesCovered": 8,
+      "inferenceCalls": 2,
+      "elapsedMs": 51709
+    },
+    {
+      "model": "gemma4:12b",
+      "passed": true,
+      "stories": 3,
+      "factReferencesCovered": 8,
+      "inferenceCalls": 2,
+      "elapsedMs": 67633
+    }
+  ]
+}
