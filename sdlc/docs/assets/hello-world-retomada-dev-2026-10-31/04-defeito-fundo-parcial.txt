@@ -1,0 +1,14 @@
+http://localhost:33991/
+- main:
+  - paragraph: Aplicação
+  - heading "Hello World" [level=1]
+  - text: "Cor do fundo:"
+  - combobox "Cor do fundo:":
+    - option "Branco"
+    - option "Azul claro" [selected]
+    - option "Amarelo claro"
+  - text: "Fonte:"
+  - combobox "Fonte:":
+    - option "Arial"
+    - option "Georgia" [selected]
+    - option "Courier New"

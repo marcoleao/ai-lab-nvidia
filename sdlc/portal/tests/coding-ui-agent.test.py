@@ -1,5 +1,5 @@
 """Closed local planner/operator contracts. No real app, model or business state."""
-import json,sys,tempfile,time,unittest
+import io,json,sys,tempfile,time,unittest,urllib.error
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock,patch
@@ -7,6 +7,12 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 import coding_ui_agent as ui
 from coding_browser import validate_ui_steps
 class UiSpecialists(unittest.TestCase):
+ def test_only_confirmed_token_repetition_has_the_safe_inference_diagnostic(self):
+  for message,exception in [('prediction aborted, token repeat limit reached',ui.InferenceTokenRepeatError),('different private service cause',urllib.error.HTTPError)]:
+   job={'calls':0,'totalCalls':0,'rootStarted':time.monotonic(),'role':'implementation'};e=SimpleNamespace(CONFIG={'model':'local:9b','upstream':'http://10.239.0.10:11434'})
+   failure=urllib.error.HTTPError('http://10.239.0.10:11434/api/chat',500,'error',{},io.BytesIO(json.dumps({'error':message}).encode()));opener=Mock();opener.open.side_effect=failure
+   with patch.object(ui.urllib.request,'build_opener',return_value=opener),self.assertRaises(exception):ui.ask_local(e,job,'bounded',{},ui.SCENARIO_SCHEMA,200)
+   self.assertEqual(job['totalCalls'],1)
  def test_image_asset_binding_cannot_choose_another_form_or_supply_its_own_url(self):
   scenario={'goal':'Cadastrar foto HTTP','assertions':[{'kind':'image','value':''}]};outcome={'id':'b1','section':'Cadastro'}
   state={'controls':[{'id':'photo','role':'textbox','name':'Foto URL','section':'Cadastro'},{'id':'filter','role':'textbox','name':'Busca','section':'Filtro'}]}
@@ -37,7 +43,7 @@ class UiSpecialists(unittest.TestCase):
    with self.subTest(change=change),self.assertRaises(ValueError):ui.validate_scenario({**valid,**change})
  def scenario(self,actions,result):
   with tempfile.TemporaryDirectory() as directory:
-   root=Path(directory);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Escopo completo'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
+   root=Path(directory);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Exibir R$ 0,00 após cadastrar preço zero.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
    e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
    session=Mock();session.initial={'rendered':True,'errors':[],'observedUI':'Preço','controls':[{'id':'c1','role':'textbox','name':'Preço'}]};session.call.return_value={**session.initial,**result}
    scenario={'goal':'Preço zero','assertions':[{'kind':'text','value':'R$ 0,00'}],'data':[]}
@@ -138,8 +144,37 @@ class UiSpecialists(unittest.TestCase):
   self.assertIsNone(ui.confirmed_text_assertion(scenario,{'observedUI':'- paragraph: R$ 0.00'},outcome,True))
  def test_result_assertion_is_not_offered_before_the_primary_action(self):
   with tempfile.TemporaryDirectory() as temporary:
-   root=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Criar'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()};session=Mock();session.initial={'rendered':True,'errors':[],'observedUI':'Criar','controls':[{'id':'b1','role':'button','name':'Criar'}]}
+   root=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Criar preço zero e exibir R$ 0,00.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()};session=Mock();session.initial={'rendered':True,'errors':[],'observedUI':'Criar','controls':[{'id':'b1','role':'button','name':'Criar'}]}
    scenario={'goal':'Cadastrar e conferir','assertions':[{'kind':'text','value':'R$ 0,00'}],'data':[]}
    with patch.object(ui,'ask_local',side_effect=[{key:scenario[key] for key in ['goal','data']},{'kind':'text'},{'value':scenario['assertions'][0]['value']},{'control':'b1'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session),self.assertRaisesRegex(ValueError,'contract'):ui.run_ui_verifier(e,job,[],root,{},lambda _:None)
    session.call.assert_not_called();self.assertNotIn('assert_result',ask.call_args.args[3]['availableActions']);self.assertEqual(json.loads((root/'ui-recorded-steps.json').read_text())['steps'],[])
+ def test_unrelated_assertion_is_refused_before_any_browser_or_application_repair(self):
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)))
+   job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Exibir Hello World e trocar fundo #DDEEFF.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
+   with patch.object(ui,'ask_local',side_effect=[{'goal':'Trocar fundo','data':[]},{'kind':'text'},{'value':'R$ 0,00'}]),patch.object(ui,'LiveBrowser') as browser:
+    with self.assertRaisesRegex(ValueError,'planejador de UI'):ui.run_ui_verifier(e,job,[],Path(temporary),{'observedUI':'Hello World'},lambda _:None)
+    browser.assert_not_called()
+  for kind,value in [('page_background','#000000'),('heading_font','Invented Font')]:
+   with self.assertRaises(ValueError):ui.require_assertion_source({'kind':kind,'value':value},{'criteria':['Fundo #DDEEFF, fonte Georgia.']},value)
+ def test_readonly_heading_assertion_uses_observed_literal_instead_of_the_criterion_sentence(self):
+  with tempfile.TemporaryDirectory() as temporary:
+   directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
+   job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'O título Catálogo é exibido.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
+   state={'rendered':True,'errors':[],'observedUI':'- heading "Catálogo" [level=1]','controls':[]};session=Mock();session.initial=state;session.call.return_value={**state,'actionPassed':True,'lastStep':{'op':'expect_text','value':'Catálogo'}}
+   with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'Catálogo'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
+   self.assertTrue(result['passed']);self.assertEqual(ask.call_args_list[2].args[4]['properties']['value']['enum'],['Catálogo'])
+   with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'O título Catálogo é exibido.'}]),patch.object(ui,'LiveBrowser') as browser:
+    with self.assertRaisesRegex(ValueError,'literal observado'):ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
+    browser.assert_not_called()
+ def test_visual_assertion_is_frozen_and_replayed_after_observed_selections(self):
+  for kind,expected,op in [('page_background','#DDEEFF','expect_background'),('heading_font','Georgia','expect_font')]:
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory() as temporary:
+    directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
+    job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Fundo #DDEEFF, fonte Georgia.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
+    initial={'rendered':True,'errors':[],'observedUI':'Hello World','controls':[]};session=Mock();session.initial=initial;session.call.return_value={**initial,'actionPassed':True,'lastStep':{'op':op,'value':expected}}
+    with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir mudança visual','data':[]},{'kind':kind},{'value':expected}]),patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,initial,lambda _:None)
+    self.assertTrue(result['passed']);self.assertEqual(result['steps'],[{'op':op,'value':expected}]);session.call.assert_called_once_with('/action',{'op':op,'control':'','value':expected,'dialog':'none'})
+    for invalid in [{'op':op,'value':'url(http://example.test)'},{'op':op,'value':expected,'target':{'by':'text','name':'other'}}]:
+     with self.assertRaises(ValueError):validate_ui_steps([invalid])
 if __name__=='__main__':unittest.main()

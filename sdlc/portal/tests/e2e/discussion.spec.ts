@@ -23,7 +23,7 @@ test('impediment conversation preserves history and confirms an explicit decisio
         expect(req.postDataJSON()).toEqual({ expectedVersion: 3, intent: 'prepare_decision' }); preparationCount++;
         if (!preparationKey) {
           preparationKey = req.headers()['idempotency-key']; expect(preparationKey).toBeTruthy();
-          data = { ...data, version: 4, proposal: { ...data.proposal, ready: true } };
+          data = { ...data, version: 4, proposal: { ...data.proposal, ready: true, dependencyChanges:[{package:'chosen-package@1.0.0',reason:'Atender à alternativa discutida nesta fixture.',impact:'Atualizar o manifesto da aplicação isolada.'}] } };
           return route.abort();
         }
         expect(req.headers()['idempotency-key']).toBe(preparationKey);

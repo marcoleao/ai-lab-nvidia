@@ -1,0 +1,65 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:0a31b81bc5949f71e596e0788b7354bc0a0c23a00ef48dfe7cf77191c8c04cd3",
+  "executorDigest": "6d8cb6c12dcade64a6227a3507b94b83f69300cc0289cfdac11de4c4a5088c9d",
+  "toolchainDigest": "b2ad49521989fee1c48afecde74bcccac4a61452620d8c45f849cd5002d8ca18",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "react-provider",
+      "fixtureDigest": "20eb53c1324032ea0c69e9367e9c0f94943e5fa06c71cc4a51738974b2a98cf9",
+      "state": "succeeded",
+      "elapsedMs": 28089,
+      "inferenceCalls": 11,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-price",
+      "fixtureDigest": "93b00dd55b6a35245832961f44b65f93a712d769d0b096f140e80ce19399f099",
+      "state": "succeeded",
+      "elapsedMs": 14553,
+      "inferenceCalls": 10,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 2,
+        "executed": 2,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-appearance",
+      "fixtureDigest": "f3ed02b93b0dbcd3bf66afe79696952047a5cb58619b89f2a759a281330823fc",
+      "state": "succeeded",
+      "elapsedMs": 28106,
+      "inferenceCalls": 16,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "visualAssertionUsed": true,
+      "layoutFragmentUsed": true,
+      "independentVisualCheckPassed": true,
+      "diagnostics": []
+    }
+  ],
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

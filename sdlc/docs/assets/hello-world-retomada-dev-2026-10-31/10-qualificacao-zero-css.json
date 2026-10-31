@@ -1,0 +1,37 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+  "executorDigest": "6d8cb6c12dcade64a6227a3507b94b83f69300cc0289cfdac11de4c4a5088c9d",
+  "toolchainDigest": "d514345558b3f91e45d98ada8559f1cfb9f6d72510f33078617e2d784929770a",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-appearance",
+      "fixtureDigest": "f3ed02b93b0dbcd3bf66afe79696952047a5cb58619b89f2a759a281330823fc",
+      "state": "succeeded",
+      "elapsedMs": 37117,
+      "inferenceCalls": 16,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "visualAssertionUsed": true,
+      "layoutFragmentUsed": true,
+      "independentVisualCheckPassed": true,
+      "diagnostics": []
+    }
+  ],
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

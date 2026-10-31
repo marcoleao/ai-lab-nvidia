@@ -3,6 +3,32 @@ import {mkdirSync} from 'node:fs';
 import {uiJourney,uiAction,openWorkPanel,mockTaskCollection} from './journey-fixtures';
 test.beforeEach(async({page})=>mockTaskCollection(page,()=>[]));
 
+for(const width of [1440,390])test(`technical diagnostic conversation preserves retry and scope after reload at ${width}px`,async({page})=>{
+ const now='2026-10-31T21:00:00.000Z',id='diagnostic-chat-ui',runId='diagnostic-chat-run';
+ const item={id,kind:'story',key:'UI-CHAT1',name:'Recuperação técnica com conversa',description:'Escopo aprovado.',status:'coding',version:7,archived:false,parentId:'ui-epic',data:{acceptanceCriteria:['Preservar os controles aprovados.']},createdAt:now,updatedAt:now};
+ const state={discussed:false,writes:[] as string[]};
+ const run=()=>({id:runId,state:state.discussed?'waiting_input':'failed',stage:state.discussed?'discussion':'generation',technicalRetryAvailable:true,error:'O analisador não conseguiu inspecionar a fonte no perfil sintático.',discussionVersion:state.discussed?2:0,specification:{requirements:'Escopo aprovado.',architecture:'Estrutura existente.',testCases:[{criterionIndex:0,description:'Conferir os controles.'}],risks:[]},createdAt:now,updatedAt:now});
+ const summary='A implementação foi interrompida antes da publicação. Retome com o mesmo escopo.';
+ await page.route(url=>url.pathname===`/api/items/${id}`,route=>route.fulfill({json:{item,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]}}));
+ await page.route(`**/api/items/${id}/journey`,route=>route.fulfill({json:uiJourney(item,run(),{current:{kind:'coding',state:run().state,title:'O agente precisa retomar a implementação',message:summary},nextAction:uiAction('retry','Retomar correção técnica',`/api/executions/${runId}/retry`),chat:{mode:'execution',executionId:runId,enabled:true,guidance:summary}})}));
+ await page.route(`**/api/items/${id}/execution`,route=>route.fulfill({json:{run:run(),configured:true}}));
+ await page.route(`**/api/executions/${runId}/*`,async route=>{
+  const request=route.request(),path=new URL(request.url()).pathname;
+  if(request.method()==='GET'&&path.endsWith('/discussion'))return route.fulfill({json:{version:state.discussed?2:0,messages:state.discussed?[{id:'answer',role:'assistant',content:'A fonte precisa ser inspecionada pelo perfil correto. Retomar correção técnica permanece disponível.',state:'succeeded',createdAt:now}]:[],proposal:null,allowDependencies:false}});
+  state.writes.push(path);expect(path).toBe(`/api/executions/${runId}/messages`);expect(request.postDataJSON()).toMatchObject({message:'Qual é o diagnóstico registrado?',expectedVersion:0});state.discussed=true;return route.fulfill({json:{messageId:'diagnostic-message'}});
+ });
+ await page.setViewportSize({width,height:1000});await page.goto(`/stories/${id}?tab=planning&process=action`);await page.getByRole('combobox',{name:/Persona/}).selectOption('ana');const panel=await openWorkPanel(page);
+ await expect(panel.getByRole('button',{name:'Retomar correção técnica',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Conversar sobre esta etapa',exact:true}).click();
+ await page.getByRole('textbox',{name:'Sua mensagem sobre o impedimento',exact:true}).fill('Qual é o diagnóstico registrado?');await page.getByRole('button',{name:'Enviar para a assistente',exact:true}).click();
+ await expect(page.getByRole('log',{name:'Histórico do impedimento'})).toContainText('perfil correto');
+ await panel.getByRole('button',{name:'← Voltar à etapa atual',exact:true}).click();await expect(page).toHaveURL(/process=action/);await expect(panel.getByRole('button',{name:'Retomar correção técnica',exact:true})).toBeVisible();await page.reload();
+ await expect(panel.getByRole('button',{name:'Retomar correção técnica',exact:true})).toBeEnabled();await expect(panel.getByRole('button',{name:'Responder impedimento',exact:true})).toHaveCount(0);
+ const details=panel.getByTestId('activity-message-details');await details.getByText('Consultar diagnóstico técnico registrado',{exact:true}).click();await expect(details).toContainText('perfil sintático');
+ expect(state.writes).toEqual([`/api/executions/${runId}/messages`]);expect(item.version).toBe(7);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/diagnostic-conversation-${width}.png`,fullPage:true});}
+});
+
 if (!process.env.TEST_DATABASE_URL?.endsWith('/portal_test')) throw Error('Validation retry fixtures require the isolated test environment');
 
 test('legacy validation failure resumes technical correction without repeating user choices or G1', async ({ page, request }) => {

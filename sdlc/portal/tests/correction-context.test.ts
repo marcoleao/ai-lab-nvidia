@@ -69,6 +69,43 @@ for(const mode of ['wrong-revision','changed-base'])test('mismatched correction 
   }finally{await f.runtime.app.close();}
 });
 
+test('discussing a pre-publication interruption preserves the approved scope and explicit technical retry',async()=>{
+ let blockRetry=false;const recorder=audit.recordAudit,spy=vi.spyOn(audit,'recordAudit').mockImplementation(async(...args:Parameters<typeof audit.recordAudit>)=>{if(blockRetry&&args[3]==='EXECUTION_RETRIED')throw Error('Isolated retry recorder failure');return recorder(...args);});
+ const f=await fixture('context','tool-unknown');try{
+  await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();
+  const before=await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}});
+  const priorModelCalls=f.llm.complete.mock.calls.length;
+  const request={method:'POST' as const,url:`/api/executions/${f.run.id}/messages`,headers:{'x-persona':'ana','idempotency-key':randomUUID()},payload:{expectedVersion:before.discussionVersion,message:'O que aconteceu nesta tentativa?'}};
+  const sent=await f.runtime.app.inject(request);expect(sent.statusCode,sent.body).toBe(200);expect((await f.runtime.app.inject(request)).json()).toEqual(sent.json());
+  await f.runtime.processExecutionJobs();
+  const after=await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}});
+  expect(f.llm.complete.mock.calls.length).toBe(priorModelCalls);
+  expect((after.discussionProposal as any).reply).toContain('Voltar à etapa atual e Retomar correção técnica');
+  const reply=await db.executionMessage.findFirstOrThrow({where:{executionId:f.run.id,role:'assistant'},orderBy:{sequence:'desc'}});expect(reply.actorName).toBe('Portal SDLC · orientação da atividade');expect(reply.content).toContain('Esta tentativa não publicou alterações.');
+  expect(after).toMatchObject({state:'waiting_input',stage:'discussion',allowDependencies:false,specification:before.specification,snapshot:before.snapshot,discussionProposal:{ready:false,requestedCapabilities:[]}});
+  const journey=(await f.runtime.app.inject({url:`/api/items/${f.story.id}/journey`,headers:{'x-persona':'ana'}})).json();expect(journey.nextAction).toMatchObject({id:'retry',label:'Retomar correção técnica'});expect(journey.run.technicalRetryAvailable).toBe(true);
+  const retry={method:'POST' as const,url:`/api/executions/${f.run.id}/retry`,headers:{'x-persona':'ana','idempotency-key':randomUUID()},payload:{}};
+  blockRetry=true;expect((await f.runtime.app.inject(retry)).statusCode).toBe(500);expect(await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).toMatchObject({state:'waiting_input',stage:'discussion',snapshot:before.snapshot});blockRetry=false;
+  const first=await f.runtime.app.inject(retry);expect(first.statusCode,first.body).toBe(200);expect((await f.runtime.app.inject(retry)).json()).toEqual(first.json());
+  expect(await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).toMatchObject({state:'queued',stage:'generation',specification:before.specification,allowDependencies:false});
+  await f.runtime.processExecutionJobs();await f.runtime.processExecutionJobs();expect(f.publishCorrection).toHaveBeenCalledTimes(1);
+  expect(await db.historyEvent.count({where:{itemId:f.story.id,action:'GATE_APPROVED'}})).toBe(0);
+ }finally{spy.mockRestore();await f.runtime.app.close();}
+});
+
+test('a dependency proposal without identified packages and impact cannot request blind authorization',async()=>{
+ const f=await fixture('generation');try{
+  await db.storyExecution.update({where:{id:f.run.id},data:{state:'failed',error:'Decisão de requisitos necessária'}});
+  f.llm.complete.mockImplementation(async(messages:any[])=>({model:'isolated-correction',content:JSON.stringify(messages[0].content.includes('O usuário solicitou uma proposta de decisão')?{summary:'Adicionar biblioteca sem identificação.',requestedCapabilities:['dependencies'],openQuestions:[]}:{reply:'Precisamos revisar a alternativa.',ready:false,summary:'Alternativa em discussão.',requestedCapabilities:[]})}));
+  const post=async(payload:any)=>{const r=await f.runtime.app.inject({method:'POST',url:`/api/executions/${f.run.id}/messages`,headers:{'x-persona':'ana','idempotency-key':randomUUID()},payload});expect(r.statusCode,r.body).toBe(200);await f.runtime.processExecutionJobs();};
+  await post({expectedVersion:0,message:'Quero revisar a alternativa proposta.'});
+  const version=(await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}})).discussionVersion;
+  await post({expectedVersion:version,intent:'prepare_decision'});
+  const after=await db.storyExecution.findUniqueOrThrow({where:{id:f.run.id}});expect(after.discussionProposal).toMatchObject({ready:false,requestedCapabilities:['dependencies']});expect(after.allowDependencies).toBe(false);
+  const resolve=await f.runtime.app.inject({method:'POST',url:`/api/executions/${f.run.id}/resolve`,headers:{'x-persona':'ana','idempotency-key':randomUUID()},payload:{expectedVersion:after.discussionVersion,confirmed:true,allowDependencies:true}});expect(resolve.statusCode).toBe(409);expect(resolve.json().error.code).toBe('DECISION_NOT_READY');
+ }finally{await f.runtime.app.close();}
+});
+
 test('a recorder failure rolls back the unconfirmed native failure marker with no publisher effect',async()=>{
  const original=audit.recordAudit;
  const spy=vi.spyOn(audit,'recordAudit').mockImplementation(async(...args:Parameters<typeof audit.recordAudit>)=>{if(args[3]==='EXECUTION_FAILED')throw new Error('Isolated recorder failure');return original(...args);});

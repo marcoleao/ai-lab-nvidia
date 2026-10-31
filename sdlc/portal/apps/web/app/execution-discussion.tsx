@@ -6,8 +6,9 @@ import { LoadingState, ErrorState, displayDate } from './experience-ui';
 type Discussion = {
   version: number;
   messages: { id: string; role: 'user' | 'assistant'; content: string; createdAt: string; state?: string; error?: string | null }[];
-  proposal: { ready: boolean; summary: string; requestedCapabilities: string[] } | null;
+  proposal: { ready: boolean; summary: string; requestedCapabilities: string[]; dependencyChanges?: {package:string;reason:string;impact:string}[] } | null;
   allowDependencies: boolean;
+  technicalRecoveryAvailable?:boolean;
 };
 type Props = { executionId: string; persona: string; running: boolean; active: boolean; disabled: boolean; onRefresh: () => void; onBusyChange: (value: boolean) => void; readOnly?: boolean; title?: string; guidance?: string };
 type Attempt = { path: string; body: Record<string, unknown>; key: string; persona: string; kind: 'message' | 'prepare' | 'resolve' };
@@ -94,6 +95,7 @@ export default function ExecutionDiscussion({ executionId, persona, running, act
     } finally { setBusy(false); }
   }
   const needsDependencies = data?.proposal?.requestedCapabilities.includes('dependencies');
+  const dependenciesReady=Boolean(data?.proposal?.dependencyChanges?.length);
   return <section aria-label="Conversa sobre impedimento" style={{ border: '1px solid var(--line)', borderRadius: 6, padding: 16, marginTop: 20, overflowWrap: 'anywhere' }}>
     <h3 style={{ marginTop: 0 }}>{title || 'Conversar sobre impedimento'}</h3>
     <p className="hint">{guidance || 'Explique o que precisa mudar ou pergunte pelas alternativas. A assistente usará esta conversa para propor uma decisão e revisar a especificação.'}</p>
@@ -117,15 +119,16 @@ export default function ExecutionDiscussion({ executionId, persona, running, act
       {!retry && <div className="actions"><button className={data?.proposal?.ready ? undefined : 'primary'} disabled={!active || !data || !canAct || disabled || busy || running || !draft.trim()}>Enviar para a assistente</button></div>}
     </form>}
     {!readOnly && active && <div style={{ marginTop: 18 }}>
-      <p className="hint">A conversa esclarece suas escolhas. Quando quiser encerrar a discussão, peça um resumo para revisar. Esse pedido prepara a decisão; a implementação depende da sua confirmação e de um novo Gateway de Especificação.</p>
+      <p className="hint">{data?.technicalRecoveryAvailable?'Consultar o diagnóstico não muda o escopo aprovado. Volte à etapa atual para Retomar correção técnica. Prepare uma decisão somente se quiser alterar requisitos ou autorizações; essa mudança exigirá outro Gateway de Especificação.':'A conversa esclarece suas escolhas. Quando quiser encerrar a discussão, peça um resumo para revisar. Esse pedido prepara a decisão; a implementação depende da sua confirmação e de um novo Gateway de Especificação.'}</p>
       {!retry && <button disabled={!hasUserChoice || !canAct || disabled || busy || running} onClick={() => void submit('prepare')}>Preparar decisão para revisão</button>}
     </div>}
     {data?.proposal && <div className="decision" style={{ marginTop: 20 }}>
       <div><strong>{data.proposal.ready ? 'Decisão proposta' : 'Conversa em andamento'}</strong><p style={{ whiteSpace: 'pre-wrap' }}>{data.proposal.summary}</p></div>
-      {needsDependencies && data.proposal.ready && !readOnly && <label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', width: '100%' }}><input type="checkbox" checked={allowDependencies} disabled={!active || !canAct || disabled || busy || running || Boolean(retry)} onChange={event => setAllowDependencies(event.target.checked)} />Autorizo adicionar dependências ao projeto para implementar esta decisão.</label>}
+      {needsDependencies && Boolean(data.proposal.dependencyChanges?.length) && <ul aria-label="Mudanças de dependências propostas">{data.proposal.dependencyChanges!.map(change=><li key={change.package}><strong>{change.package}</strong><p>Necessidade: {change.reason}</p><p>Impacto: {change.impact}</p></li>)}</ul>}
+      {needsDependencies && dependenciesReady && data.proposal.ready && !readOnly && <label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', width: '100%' }}><input type="checkbox" checked={allowDependencies} disabled={!active || !canAct || disabled || busy || running || Boolean(retry)} onChange={event => setAllowDependencies(event.target.checked)} />Autorizo adicionar dependências ao projeto para implementar esta decisão.</label>}
       {needsDependencies && <p className="hint">{data.proposal.ready?'Esta decisão pede novas bibliotecas ou pacotes de software. Confira no resumo quais são, por que são necessários e seu impacto antes de autorizar. Se isso não estiver explicado, peça esclarecimento ou uma alternativa sem novas dependências na conversa.':'A conversa mencionou novas dependências, mas ainda não há decisão pronta para autorizar. Peça que a assistente identifique as bibliotecas ou pacotes e explique a necessidade; dividir ou esclarecer uma História não exige essa autorização por si só.'}</p>}
       {data.proposal.requestedCapabilities.filter(capability => capability !== 'dependencies').map(capability => <p key={capability}>Capacidade solicitada: {capability}</p>)}
-      {data.proposal.ready && !readOnly && <><p style={{ width: '100%' }}>Ao confirmar, a assistente revisará a especificação. Você precisará revisar e aprovar um novo Gateway de Especificação antes de gerar código.</p><button className="primary" disabled={!active || !canAct || disabled || busy || running || Boolean(retry) || Boolean(needsDependencies && !allowDependencies)} onClick={() => void submit('resolve')}>Confirmar decisão e revisar especificação</button></>}
+      {data.proposal.ready && !readOnly && <><p style={{ width: '100%' }}>Ao confirmar, a assistente revisará a especificação. Você precisará revisar e aprovar um novo Gateway de Especificação antes de gerar código.</p><button className="primary" disabled={!active || !canAct || disabled || busy || running || Boolean(retry) || Boolean(needsDependencies && (!allowDependencies||!dependenciesReady))} onClick={() => void submit('resolve')}>Confirmar decisão e revisar especificação</button></>}
     </div>}
     {retry && !readOnly && <div className="actions" style={{ marginTop: 16 }}><button className="primary" disabled={busy || disabled || !canAct || retry.persona !== persona} onClick={() => void submit(retry.kind)}>{busy ? 'Verificando…' : retry.kind === 'message' ? 'Verificar envio da mensagem' : retry.kind === 'prepare' ? 'Verificar preparação da decisão' : 'Verificar confirmação da decisão'}</button></div>}
     {retry && retry.persona !== persona && <p className="hint">Volte à persona usada no envio para verificar a mesma solicitação.</p>}

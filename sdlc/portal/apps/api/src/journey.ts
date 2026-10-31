@@ -12,7 +12,7 @@ import {mergeReadiness,qualityPolicy} from './merge-readiness.ts';
 import {mergePreparationView} from './merge-preparation.ts';
 import {DomainError} from './errors.ts';
 import {ensureActivity,bindActivityTasks,listStoryActivities,workLinksVersion} from './work-activities.ts';
-import {checkExecutionScope,executionScope} from './execution.ts';
+import {checkExecutionScope,executionScope,technicalRetry} from './execution.ts';
 import {hierarchyBlock} from './lifecycle-policy.ts';
 import {repositoriesOfSystem,inheritedRepository} from './system-repository.ts';
 import {pipelineStageOf} from './pipeline-tasks.ts';
@@ -99,7 +99,7 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   };
   const runPath=run?`/api/executions/${run.id}`:'';
   const nativeCodingFailure=run?technicalCodingFailure(run.snapshot):null;
-  const retryTechnical=!!run&&!needsQualityDiagnosis(run.snapshot)&&run.stage==='generation'&&['failed','waiting_input'].includes(run.state)&&(!!object(run.snapshot).patchRepair||nativeCodingFailure!==null||run.error==='Patch contém caminho não permitido ou duplicado.');
+  const retryTechnical=!!run&&technicalRetry(run);
   const canDiscuss=!!run&&(run.state==='waiting_input'||run.state==='failed'&&['specification','generation','discussion'].includes(run.stage));
   if(story.status==='cancelled'){
    state='cancelled';title='História cancelada';message='Histórico, artefatos e Tarefas concluídas permanecem preservados. A reabertura exige justificativa e um novo G1; não reabre Tarefas automaticamente.';

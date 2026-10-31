@@ -1,0 +1,32 @@
+[
+    {
+        "file":  "01-entrada-desktop.png",
+        "bytes":  187687,
+        "sha256":  "0841315be8bf4e27a6d0f536652384f691023ac1c1c36161b62a0d8f95e9e3e9"
+    },
+    {
+        "file":  "02-entrada-celular.png",
+        "bytes":  61964,
+        "sha256":  "8be13dc249ed810cd1d2e3a74e72857b92ea47cf83617cecc6d81e569a4a01ea"
+    },
+    {
+        "file":  "03-publicacao-dev.png",
+        "bytes":  88643,
+        "sha256":  "c55c9e0577098525f54433843543e3b143bef36b74e10bd1e4b6fe43494f0269"
+    },
+    {
+        "file":  "04-impedimento-aceite.png",
+        "bytes":  132642,
+        "sha256":  "402efde5877c99395f9ffbbfb3a99bfb725bf997b8a92c7585428f3c89746872"
+    },
+    {
+        "file":  "05-link-celular.png",
+        "bytes":  66101,
+        "sha256":  "fa1c950e56cc906ff45805c215b391249270ca0e57d37fe5c40b8b29816eafe2"
+    },
+    {
+        "file":  "leitura-segura.json",
+        "bytes":  5279,
+        "sha256":  "be18ca7fc0530a80da4d53c40e72a300acb729cdd10ee8df84b840795e0221d2"
+    }
+]

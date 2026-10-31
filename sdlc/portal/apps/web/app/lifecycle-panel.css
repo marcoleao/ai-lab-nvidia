@@ -1,0 +1,4 @@
+.lifecycle-panel .lifecycle-reason{display:grid;gap:8px;min-width:0;margin:16px 0}
+.lifecycle-panel .lifecycle-reason label{font-weight:600}
+.lifecycle-panel .lifecycle-reason textarea{display:block;width:100%;min-width:0;min-height:96px;resize:vertical}
+@media(max-width:600px){.lifecycle-panel .lifecycle-reason textarea{font-size:16px}}

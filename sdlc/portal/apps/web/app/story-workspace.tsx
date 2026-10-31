@@ -65,7 +65,7 @@ const badge = (state: string, processing = false) => <span className="sw-badge" 
 
 function ActivityMessage({message,run,part='summary'}:{message?:string|null;run?:Run|null;part?:'summary'|'details'}){
   if(!message)return null;
-  const separateTechnicalError=run?.technicalRetryAvailable===true&&run.state==='failed'&&run.stage==='generation'&&Boolean(run.error)&&message!==run.error;
+  const separateTechnicalError=run?.technicalRetryAvailable===true&&['failed','waiting_input'].includes(run.state)&&Boolean(run.error)&&message!==run.error;
   const diagnostic=separateTechnicalError?run!.error!:message;
   const recordedError=message===run?.error&&['failed','waiting_input'].includes(run?.state||'');
   // Old validation issues may survive a later timeout. Attribute the current
@@ -80,7 +80,7 @@ function ActivityMessage({message,run,part='summary'}:{message?:string|null;run?
     {issues.length>0&&<p className="hint">{issues.length} {issues.length===1?'apontamento técnico registrado':'apontamentos técnicos registrados'} para consulta.</p>}
   </div>;
   return <details key={`${run?.id}:${diagnostic}`} className="sw-technical-diagnostic" data-testid="activity-message-details">
-      <summary>{validation||candidateValidation||separateTechnicalError?'Consultar diagnóstico técnico completo':'Consultar relato completo do impedimento'}</summary>
+      <summary>{separateTechnicalError?'Consultar diagnóstico técnico registrado':validation||candidateValidation?'Consultar diagnóstico técnico completo':'Consultar relato completo do impedimento'}</summary>
       <p className="hint">Relato integral registrado nesta etapa. Consultar os detalhes não retoma a execução nem altera suas decisões.</p>
       <pre tabIndex={0} aria-label="Relato integral da atividade">{diagnostic}</pre>
       {issues.length>0&&<><h3>Apontamentos registrados</h3><ol aria-label="Apontamentos da validação técnica">{issues.map((issue,index)=><li key={index}><code>{issue.path}</code> · <code>{issue.code}</code><p>{issue.message}</p></li>)}</ol></>}

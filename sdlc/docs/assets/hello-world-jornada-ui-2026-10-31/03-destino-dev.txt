@@ -1,0 +1,96 @@
+http://127.0.0.1:3310/systems/cmvwup5yd000001t504wzvlw0?tab=environments
+- alert: Portal SDLC
+- link "Ir para o conteúdo":
+  - /url: "#main"
+- complementary:
+  - text: Dell Technologies Portal SDLC
+  - navigation "Principal":
+    - link "Visão geral":
+      - /url: /
+    - link "Assistente":
+      - /url: /assistant
+    - link "Sistemas":
+      - /url: /systems
+    - link "Releases":
+      - /url: /releases
+    - link "Integrações":
+      - /url: /integrations
+  - paragraph: Da ideia à entrega. Um processo, contexto completo.
+- banner:
+  - text: Planejamento e entrega Modo demo local · Persona
+  - combobox "Modo demo local · Persona":
+    - option "Selecione para atuar"
+    - option "Ana · Product Owner" [selected]
+    - option "Bruno · Arquiteto"
+    - option "Carla · QA Lead"
+    - option "Diego · Security Lead"
+    - option "Elisa · Release Manager"
+    - option "Admin · Administrador"
+- main:
+  - region "Situação e próxima ação":
+    - navigation "Localização":
+      - link "Sistemas":
+        - /url: /systems
+      - text: "Sistema: Hello World Interativo"
+    - strong: Sistema · ACTIVE
+    - paragraph: Escolha um Projeto para consultar seu planejamento e suas entregas.
+    - button "Editar"
+    - button "Criar projeto"
+  - paragraph: Sistema · HELLOW
+  - heading "Hello World Interativo" [level=1]
+  - paragraph: Produto contínuo · um repositório e ambientes compartilhados entre Projetos.
+  - text: ACTIVE
+  - navigation "Seções de Sistema":
+    - link "Projetos 1":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0
+    - link "Execução":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=planning
+    - link "Conversas":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=conversations
+    - link "Repositório do Sistema":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=components
+    - link "Ambientes":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=environments
+    - link "Auditoria":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=activity
+    - link "Configurações":
+      - /url: /systems/cmvwup5yd000001t504wzvlw0?tab=manage
+  - region "Destino DEV do Sistema":
+    - heading "Preparar destino DEV" [level=2]
+    - paragraph: Prepare os recursos onde a aplicação poderá ser publicada. O destino pertence ao Sistema e é compartilhado pelas suas Histórias.
+    - paragraph: Referência de ambiente, destino preparado e aplicação implantada são fatos distintos. Esta preparação não publica código nem confirma uma aplicação em execução.
+    - status: Pedido recebido. A preparação do destino será acompanhada abaixo.
+    - region "Resultado da preparação do destino":
+      - heading "Destino DEV confirmado" [level=3]
+      - paragraph: Destino DEV preparado e propriedade confirmada. A aplicação ainda não foi implantada.
+      - paragraph: Pedido 1 · Ana · atualizado em 31/10/2026, 17:39.
+      - group: Referências do pedido do destino
+      - article "Destino DEV confirmado":
+        - heading "Destino DEV confirmado" [level=3]
+        - paragraph: Recursos confirmados em 31/10/2026, 17:39. Este registro não comprova disponibilidade atual ou implantação da aplicação; a próxima conferência consulta o estado atual.
+        - group: Recursos e configuração confirmados
+    - button "Conferir destino DEV"
+    - button "Atualizar acompanhamento do destino"
+  - region "Ambientes do Sistema":
+    - heading "Ambientes do Sistema" [level=2]
+    - button "Atualizar consulta"
+    - paragraph: DEV, QA, HML e PRD são destinos do Sistema. Cadastrar suas referências não provisiona infraestrutura nem executa implantação.
+    - paragraph: Consulta em 31/10/2026, 17:39 · Hello World Interativo · Hello World Interativo.
+    - article "Ambiente DEV":
+      - heading "DEV" [level=3]
+      - text: Referência cadastrada
+      - paragraph: Sem evidência de implantação disponível.
+    - article "Ambiente QA":
+      - heading "QA" [level=3]
+      - text: Referência cadastrada
+      - paragraph: Sem evidência de implantação disponível.
+    - article "Ambiente HML":
+      - heading "HML" [level=3]
+      - text: Referência cadastrada
+      - paragraph: Sem evidência de implantação disponível.
+    - article "Ambiente PRD":
+      - heading "PRD" [level=3]
+      - text: Referência cadastrada
+      - paragraph: Sem evidência de implantação disponível.
+    - status: Todas as referências padrão estão cadastradas. Isso não confirma implantação ou validação.
+- contentinfo: Portal SDLC · Planejamento criado por você

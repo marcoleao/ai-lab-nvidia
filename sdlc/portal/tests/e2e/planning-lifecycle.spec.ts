@@ -87,6 +87,34 @@ test('Project groups work with four lifecycle states, no approval and explicit s
   expect(writes.every(write => write.path === '/api/items/planning-item/lifecycle')).toBe(true); expect(errors).toEqual([]);
 });
 
+for (const width of [1440, 390]) test(`Project lifecycle justification stays aligned and usable at ${width}px`, async ({page}) => {
+  await page.setViewportSize({width, height: 1000});
+  const {card, writes, errors} = await fixture(page, 'project');
+  const input = card.getByRole('textbox', {name: 'Justificativa', exact: true});
+  await expect(input).toBeDisabled();
+  await page.getByRole('combobox').first().selectOption('admin');
+  const comment = 'Justificativa em duas linhas.\nPreservar o motivo registrado.';
+  await input.fill(comment);
+  await expect(input).toHaveValue(comment);
+  await expect(input).toHaveAccessibleDescription('Obrigatória, com ao menos 10 caracteres, para concluir, cancelar ou reabrir um encerrado.');
+  const label = (await card.locator('label').boundingBox())!;
+  const field = (await input.boundingBox())!;
+  const hint = (await card.locator('.lifecycle-reason small').boundingBox())!;
+  const actions = (await card.locator('.actions').boundingBox())!;
+  const panel = (await card.boundingBox())!;
+  expect(Math.abs(field.x - label.x)).toBeLessThanOrEqual(1);
+  expect(field.y).toBeGreaterThanOrEqual(label.y + label.height + 6);
+  expect(field.width).toBeGreaterThanOrEqual(panel.width - 50);
+  expect(field.x + field.width).toBeLessThanOrEqual(panel.x + panel.width);
+  expect(panel.x + panel.width).toBeLessThanOrEqual(width);
+  expect(hint.y).toBeGreaterThanOrEqual(field.y + field.height + 6);
+  expect(actions.y).toBeGreaterThanOrEqual(hint.y + hint.height + 12);
+  await input.press('Tab');
+  await expect(card.getByRole('button', {name: 'Inativar · INACTIVE', exact: true})).toBeFocused();
+  expect(writes).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test('Project reopening requires justification, preserves it after failure and disables edits for readonly roles', async ({page}) => {
   const state = await fixture(page, 'project', 'completed'), {card} = state;
   const input = card.getByRole('textbox'), action = card.getByRole('button');

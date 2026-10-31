@@ -1,8 +1,11 @@
 """Local scenario planner and one-action-at-a-time UI operator. No code tools."""
-import hashlib,json,re,time,urllib.request
+import hashlib,json,re,time,urllib.request,urllib.error
 from coding_browser import LiveBrowser
 
-SCENARIO_SCHEMA={'type':'object','additionalProperties':False,'required':['goal','assertions','data'],'properties':{'goal':{'type':'string','minLength':1,'maxLength':700},'assertions':{'type':'array','minItems':1,'maxItems':1,'items':{'type':'object','additionalProperties':False,'required':['kind','value'],'properties':{'kind':{'type':'string','enum':['text','image']},'value':{'type':'string','maxLength':160}}}},'data':{'type':'array','maxItems':8,'items':{'type':'object','additionalProperties':False,'required':['field','value'],'properties':{'field':{'type':'string','maxLength':80},'value':{'type':'string','maxLength':300}}}}}}
+SCENARIO_SCHEMA={'type':'object','additionalProperties':False,'required':['goal','assertions','data'],'properties':{'goal':{'type':'string','minLength':1,'maxLength':700},'assertions':{'type':'array','minItems':1,'maxItems':1,'items':{'type':'object','additionalProperties':False,'required':['kind','value'],'properties':{'kind':{'type':'string','enum':['text','image','page_background','heading_font']},'value':{'type':'string','maxLength':160}}}},'data':{'type':'array','maxItems':8,'items':{'type':'object','additionalProperties':False,'required':['field','value'],'properties':{'field':{'type':'string','maxLength':80},'value':{'type':'string','maxLength':300}}}}}}
+
+class InferenceTokenRepeatError(RuntimeError):
+ diagnostic_code='INFERENCE_TOKEN_REPEAT_LIMIT'
 
 def ask_local(e,job,system,data,schema,max_tokens,*,reasoning=False):
  remaining=min(600-(time.monotonic()-job['rootStarted']),e.remaining_seconds(job) if hasattr(e,'remaining_seconds') else 600)
@@ -21,7 +24,15 @@ def ask_local(e,job,system,data,schema,max_tokens,*,reasoning=False):
  # Cold loading belongs to the same phase/global budget. Allow it once per
  # model without turning every later request into a long, silently retried job.
  timeout=max(1,min(90 if thinking else 75 if first_model_request else 45,remaining))
- with urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect()).open(request,timeout=timeout) as response:raw=response.read(30001)
+ try:
+  with urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect()).open(request,timeout=timeout) as response:raw=response.read(30001)
+ except urllib.error.HTTPError as error:
+  body=error.read(8000).decode(errors='replace')
+  if job.get('directory') and hasattr(e,'dump'):e.dump(job['directory']/f'local-inference-error-{job["totalCalls"]}.json',{'status':error.code,'response':body})
+  try:message=json.loads(body).get('error')
+  except (ValueError,AttributeError):message=None
+  if error.code==500 and message=='prediction aborted, token repeat limit reached':raise InferenceTokenRepeatError('O serviço local interrompeu esta geração por repetição de tokens.') from None
+  raise
  if len(raw)>30000:raise ValueError('Local UI model response limit')
  value=json.loads(raw)
  if job.get('directory') and hasattr(e,'dump'):e.dump(job['directory']/f'local-inference-{job["totalCalls"]}.json',{'role':job.get('role'),'model':str(value.get('model',''))[:128],'thinking':thinking,'done':value.get('done') is True,'doneReason':str(value.get('done_reason',''))[:40],'promptTokens':value.get('prompt_eval_count'),'evalTokens':value.get('eval_count'),'inputChars':len(content),'systemChars':len(system)})
@@ -31,10 +42,20 @@ def ask_local(e,job,system,data,schema,max_tokens,*,reasoning=False):
 def validate_scenario(value):
  if not isinstance(value,dict) or set(value)!={'goal','assertions','data'} or not isinstance(value['goal'],str) or not 1<=len(value['goal'])<=700 or not isinstance(value['assertions'],list) or len(value['assertions'])!=1 or not isinstance(value['data'],list) or len(value['data'])>8:raise ValueError('Invalid UI scenario')
  for assertion in value['assertions']:
-  if not isinstance(assertion,dict) or set(assertion)!={'kind','value'} or assertion['kind'] not in ['text','image'] or not isinstance(assertion['value'],str) or len(assertion['value'])>160 or assertion['kind']=='text' and not assertion['value'].strip() or assertion['kind']=='image' and assertion['value']!='':raise ValueError('Invalid UI assertion')
+  if not isinstance(assertion,dict) or set(assertion)!={'kind','value'} or assertion['kind'] not in ['text','image','page_background','heading_font'] or not isinstance(assertion['value'],str) or len(assertion['value'])>160 or assertion['kind']=='text' and not assertion['value'].strip() or assertion['kind']=='image' and assertion['value']!='':raise ValueError('Invalid UI assertion')
+  if assertion['kind']=='page_background' and not re.fullmatch(r'#[0-9a-fA-F]{6}',assertion['value']) or assertion['kind']=='heading_font' and not re.fullmatch(r'[A-Za-z][A-Za-z0-9 -]{0,79}',assertion['value']):raise ValueError('Invalid visual UI assertion')
  for data in value['data']:
   if not isinstance(data,dict) or set(data)!={'field','value'} or not all(isinstance(data[key],str) for key in data) or len(data['field'])>80 or len(data['value'])>300:raise ValueError('Invalid UI test data')
  return value
+
+def require_assertion_source(assertion,context,observed):
+ if assertion['kind']=='image':return
+ expected=' '.join(assertion['value'].split()).casefold()
+ approved=' '.join(json.dumps(context,ensure_ascii=False).split()).casefold()
+ # Text may use an existing visible heading as a bounded smoke. Visual values
+ # must come from approved requirements, never an example or current styling.
+ source=approved if assertion['kind']!='text' else approved+' '+' '.join(observed.split()).casefold()
+ if expected not in source:raise ValueError('O planejador de UI propôs um resultado sem referência no escopo aprovado ou na interface observada. A proposta de teste foi recusada antes de qualquer correção da aplicação.')
 
 def planning_text(snapshot):
  """Visible labels for the planner, without treating ARIA annotations as text."""
@@ -62,7 +83,7 @@ def action_choices(controls,scenario):
   for assertion in scenario['assertions']:
    if assertion['kind']=='image' and role=='img' and (not assertion['value'] or assertion['value']==control.get('name')):choices['assert_'+identity]={'op':'expect_image','control':identity,'value':'','dialog':'none'}
  for assertion in scenario['assertions']:
-  if assertion['kind']=='text':choices['assert_result']={'op':'expect_text','control':'','value':assertion['value'],'dialog':'none'}
+  if assertion['kind'] in ['text','page_background','heading_font']:choices['assert_result']={'op':{'text':'expect_text','page_background':'expect_background','heading_font':'expect_font'}[assertion['kind']],'control':'','value':assertion['value'],'dialog':'none'}
  return choices
 
 def selection_milestones(e,job,scenario,context,state,outcome=None):
@@ -142,6 +163,8 @@ def image_asset_binding(e,job,scenario,state,outcome):
  return {'control':value['control'],'value':'$ORIGIN/__sdlc_test__/image.svg'}
 
 def run_ui_verifier(e,job,files,directory,observation,progress):
+ raw_ui=observation.get('observedUI','')
+ readonly_literals=[line for line in planning_text(raw_ui).splitlines() if line.strip() and len(line)<=160] if raw_ui.startswith('- ') and len(raw_ui)<6000 and not re.search(r'- (?:button|link|textbox|combobox|spinbutton|checkbox)\b',raw_ui) else []
  observation={**observation,'observedUI':planning_text(observation.get('observedUI',''))}
  context=job['intent'].get('testContext') or {'objective':job['intent']['prompt'],'behavior':'','criteria':[],'testCases':[]}
  progress('test_planning');started=time.monotonic();before=job['totalCalls']
@@ -149,15 +172,19 @@ def run_ui_verifier(e,job,files,directory,observation,progress):
  plan=ask_local(e,job,'Planeje UM ensaio curto de interface: somente goal e data sintéticos pequenos. Outro perfil escolhe a asserção. Não gere código, seletores, ações ou alegações de teste executado. O navegador começa vazio: categoria/coleção podem exigir cadastro pelos formulários próprios. Preserve o comportamento aprovado. Este ensaio não cobre todos os critérios.',{'approved':context,'observedUI':observation.get('observedUI','')},plan_schema,650)
  if not isinstance(plan,dict) or set(plan)!={'goal','data'}:raise ValueError('Plano UI exige somente objetivo e dados')
  e.dump(directory/'ui-scenario-plan.json',plan)
- kind=ask_local(e,job,'Classifique SOMENTE a forma do resultado de goal: image quando o objetivo cadastra/carrega/exibe uma foto; text quando confere uma mensagem ou valor textual. Uma URL de foto é dado de entrada: não é texto de saída. Um objetivo que apenas valida texto de URL e exibe uma mensagem é text. Não escolha valor, URL, ações ou narrativa. Retorne somente kind.',{'goal':plan['goal'],'approvedCriteria':context.get('criteria',[])},{'type':'object','additionalProperties':False,'required':['kind'],'properties':{'kind':{'type':'string','enum':['image','text']}}},40)
- if not isinstance(kind,dict) or set(kind)!={'kind'} or kind['kind'] not in ['image','text']:raise ValueError('Forma de asserção fora do contrato')
+ kind=ask_local(e,job,'Classifique SOMENTE a forma do resultado de goal: page_background para conferir a cor cobrindo toda a janela, heading_font para a família da fonte do título h1, image para foto carregada, text para mensagem/valor textual. Mudança visual não é comprovada por texto. Uma URL de foto é entrada, não texto de saída. Não escolha valor, URL, ações ou narrativa. Retorne somente kind.',{'goal':plan['goal'],'approvedCriteria':context.get('criteria',[])},{'type':'object','additionalProperties':False,'required':['kind'],'properties':{'kind':{'type':'string','enum':['image','text','page_background','heading_font']}}},40)
+ if not isinstance(kind,dict) or set(kind)!={'kind'} or kind['kind'] not in ['image','text','page_background','heading_font']:raise ValueError('Forma de asserção fora do contrato')
  e.dump(directory/'ui-assertion-kind.json',kind)
  if kind['kind']=='image':assertion={'kind':'image','value':''}
  else:
-  literal=ask_local(e,job,'Escolha SOMENTE value: texto literal esperado NA SAÍDA da interface para goal, por exemplo R$ 0,00. Não invente frase de sucesso ou use o valor de um input como prova do resultado. Não retorne kind, ações, código ou alegação de execução.',{'goal':plan['goal'],'approvedCriteria':context.get('criteria',[]),'approvedBehavior':context.get('behavior','')},{'type':'object','additionalProperties':False,'required':['value'],'properties':{'value':{'type':'string','minLength':1,'maxLength':160}}},160)
+  value_schema={'type':'string','minLength':1,'maxLength':160,**({'enum':readonly_literals} if kind['kind']=='text' and readonly_literals else {})}
+  literal=ask_local(e,job,'Escolha SOMENTE value a partir do escopo aprovado para o resultado de goal após aplicar os dados planejados. Para page_background use a cor #RRGGBB aprovada correspondente à opção escolhida; para heading_font use somente a família aprovada; para text use somente as palavras que aparecem na saída, sem transformar a frase narrativa do critério em mensagem da aplicação. Na leitura sem controles, copie um literal de visibleLiterals. Não invente mensagem ou copie exemplo genérico. Um valor de input não prova um resultado. Não retorne kind, ações, código ou alegação de execução.',{'goal':plan['goal'],'data':plan['data'],'assertionKind':kind['kind'],'approvedCriteria':context.get('criteria',[]),'approvedBehavior':context.get('behavior',''),'observedUI':observation.get('observedUI',''),'visibleLiterals':readonly_literals},{'type':'object','additionalProperties':False,'required':['value'],'properties':{'value':value_schema}},160)
   if not isinstance(literal,dict) or set(literal)!={'value'}:raise ValueError('Asserção textual exige somente value')
-  assertion={'kind':'text','value':literal['value']}
+  if kind['kind']=='text' and readonly_literals and literal['value'] not in readonly_literals:raise ValueError('O planejador de leitura deve escolher um literal observado, sem inventar uma frase de saída.')
+  assertion={'kind':kind['kind'],'value':literal['value']}
  scenario=validate_scenario({**plan,'assertions':[assertion]})
+ e.dump(directory/'ui-scenario-candidate.json',scenario)
+ require_assertion_source(assertion,context,observation.get('observedUI',''))
  e.dump(directory/'ui-scenario.json',scenario)
  phases=[{'role':'test_planning','state':'succeeded','model':e.CONFIG.get('uiModel',e.CONFIG['model']),'inferenceCalls':job['totalCalls']-before}]
  progress('ui_validation');before=job['totalCalls'];steps=[];journal=[];passed=set();last_error='';repeats={};bindings={}
@@ -186,6 +213,7 @@ def run_ui_verifier(e,job,files,directory,observation,progress):
    invalid_field=invalid_form_field(state,outcome) if not milestone and not outcome_confirmed else None
    confirmed_assertion=confirmed_text_assertion(scenario,state,outcome,outcome_confirmed)
    if outcome and outcome_confirmed and scenario['assertions'][0]['kind']=='image':confirmed_assertion=next((choice for choice in choices.values() if choice['op']=='expect_image'),None)
+   if not milestone and outcome_confirmed and scenario['assertions'][0]['kind'] in ['page_background','heading_font']:confirmed_assertion=choices['assert_result']
    if confirmed_assertion:
     # The result and the principal action are already observed. Execute the
     # frozen assertion rather than ask the model to refill the cleared form.
@@ -211,6 +239,7 @@ def run_ui_verifier(e,job,files,directory,observation,progress):
    if len(steps)>=20:return {'passed':False,'error':'O cenário excedeu 20 ações; divida o ensaio.','steps':steps,'phases':phases,'proof':state}
    matched=[]
    if action['op']=='expect_text':matched=[index for index,a in enumerate(scenario['assertions']) if a['kind']=='text' and ' '.join(a['value'].split())==' '.join(action['value'].split())]
+   if action['op'] in ['expect_background','expect_font']:matched=[index for index,a in enumerate(scenario['assertions']) if a['kind']=={'expect_background':'page_background','expect_font':'heading_font'}[action['op']] and a['value']==action['value']]
    if action['op']=='expect_image':
     selected=next((control for control in controls if control['id']==action['control']),{})
     matched=[index for index,a in enumerate(scenario['assertions']) if a['kind']=='image' and (not a['value'] or a['value']==selected.get('name'))]

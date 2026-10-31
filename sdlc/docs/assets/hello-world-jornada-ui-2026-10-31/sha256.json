@@ -1,0 +1,58 @@
+﻿[
+    {
+        "file":  "01-plano-aplicado.png",
+        "sha256":  "b90b5959d50e78b701cb56bb44270442c9dd9a1de04ed60c3bc9bfc5d2040034"
+    },
+    {
+        "file":  "01-plano-aplicado.txt",
+        "sha256":  "04f40ad85a3b887fe10e9625c2bf152f466a66d10ed3ada73af0fc4292047c81"
+    },
+    {
+        "file":  "02-base-integrada.png",
+        "sha256":  "39ed3c06f8cbda997ec460cd31fc3c74bfdb7a3c6d6a43b3c60cd90031c6d80c"
+    },
+    {
+        "file":  "02-base-integrada.txt",
+        "sha256":  "916eab1797a54bfd3fdef7424102b3c37d6889e9799a50444eb6c42804995204"
+    },
+    {
+        "file":  "03-destino-dev.png",
+        "sha256":  "826d59222fd6866338239b7433743c8a8a1f29e699d82684b092250db491f1e3"
+    },
+    {
+        "file":  "03-destino-dev.txt",
+        "sha256":  "32bbbefcda7c679a05740aed44a91ba587e262c5ce146123f103ef9107aad3ef"
+    },
+    {
+        "file":  "04-diagnostico-insuficiente.png",
+        "sha256":  "d18475d7655fecb8dde98698db51a041c8c2c891a1fc6c94575195ffd1ed6477"
+    },
+    {
+        "file":  "04-diagnostico-insuficiente.txt",
+        "sha256":  "1ad020c700b7512b33afa380fe41d12a422195ac5ac929280946dc18b124f107"
+    },
+    {
+        "file":  "05-resposta-assistente.png",
+        "sha256":  "6af6001d36c0457b3b1570e3f3d7a03c13fa28b7b4ef269e821144eda5afb3b3"
+    },
+    {
+        "file":  "05-resposta-assistente.txt",
+        "sha256":  "c59cc171112d7d1ac0bdef08b3a75754eb84976015da6ec4af7e226e55811ef9"
+    },
+    {
+        "file":  "06-terceira-falha.png",
+        "sha256":  "4805e5cc16bc12f69a7187b67cb6a3b79cebb9e871f8436a61e3ebdb736651b9"
+    },
+    {
+        "file":  "06-terceira-falha.txt",
+        "sha256":  "39186da006b02353ea41efad9bba3201575341b650b52a2bae35ab928dd6ba0e"
+    },
+    {
+        "file":  "07-estado-final.png",
+        "sha256":  "bcaff8f47e259f7e4ef3febe11b0c45ea86e1f535163e40c16b0bfc24fdcb80f"
+    },
+    {
+        "file":  "07-estado-final.txt",
+        "sha256":  "d5fed1dde050a45f6192379a946432717c5278084f195f6aebb19ded9b88a4ce"
+    }
+]

@@ -4,6 +4,11 @@ type RecordValue=Record<string,unknown>;
 const object=(v:unknown):RecordValue=>v&&typeof v==='object'&&!Array.isArray(v)?v as RecordValue:{};
 export const agentContextPolicy='authoritative-context-v1';
 export const agentInputBudget=40000;
+export function specificationSourceReference(context:{sha:string;targetBranch:string;files:{path:string;content:string}[]}){
+ const paths=context.files.map(file=>file.path);
+ const entries=context.files.filter(file=>/^(?:package\.json|server\.mjs|scripts\/build\.mjs|src\/(?:main|index|App)\.[jt]sx)$/.test(file.path));
+ return {sha:context.sha,targetBranch:context.targetBranch,observedPaths:paths,collectionScope:'Arquivos fornecidos pelo adaptador; não é inventário integral do repositório.',entries:entries.map(file=>({path:file.path,content:file.content.slice(0,2000),complete:file.content.length<=2000})),instruction:'Preserve as entradas, bibliotecas, servidor e build existentes. Planeje dentro desta estrutura observada; não crie outra aplicação paralela. Ausência na consulta não comprova ausência no repositório.'};
+}
 /** Keep the approved facts once. Snapshots remain complete in their source. */
 export function executionAgentReference(value:unknown,specification?:unknown){
  const s=object(value),r=object(s.requirements),{functionalCriteria,objective,behavior,...complement}=r;

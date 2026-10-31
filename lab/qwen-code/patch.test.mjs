@@ -7,6 +7,30 @@ import {applyCandidate,sourceSlots,inspectCandidate,missingComponents,webUrlPatt
 import {digest} from './workspace.mjs';
 const original='export const a=1;\nexport const b=2;\nexport const c=3;\n';
 const request=edits=>({expectedSha:'a'.repeat(40),files:[{path:'a.js',content:original},{path:'b.js',content:'export const untouched=7;'}],allowDependencies:false,writePaths:['a.js'],edits:edits.map(e=>({path:'a.js',expectedDigest:digest(original),...e}))});
+
+test('CSS inspection and editing use the stylesheet parser, with revision and path boundaries',async()=>{
+ const content='body{margin:0;background:#fff}main{min-height:100vh}',filePath='src/app.css',slots=sourceSlots(content,filePath);
+ assert.equal(slots.length,1);assert.equal(slots[0].kind,'Stylesheet');assert.deepEqual(missingComponents(content,filePath),[]);
+ const edit={path:filePath,slot:slots[0].slot,content:'body{margin:0}main{min-height:100vh;background:#ddeeff}',expectedDigest:digest(content)};
+ const input={expectedSha:'a'.repeat(40),files:[{path:filePath,content}],allowDependencies:false,writePaths:[filePath],edits:[edit]};
+ await scenario(input,result=>{assert.equal(result.state,'succeeded',result.error);assert.equal(result.patch.files[0].content,edit.content);});
+ await scenario({...input,edits:[{...edit,expectedDigest:'b'.repeat(64)}]},result=>assert.equal(result.state,'failed'));
+ await scenario({...input,writePaths:['src/App.jsx']},result=>assert.equal(result.state,'failed'));
+});
+
+test('small React function can add state but cannot rename the declaration or append external code',async()=>{
+ const content="import React from 'react';export default function App(){return <main>Inicial</main>;}const keep=7;",filePath='src/App.jsx';
+ const slot=sourceSlots(content,filePath).find(s=>s.kind==='FunctionDeclaration');assert.equal(slot.binding,'App');
+ const replacement="function App(){const [value,setValue]=React.useState('A');return <main><label>Escolha<select value={value} onChange={e=>setValue(e.target.value)}><option>A</option><option>B</option></select></label><p>{value}</p></main>;}";
+ const input={expectedSha:'a'.repeat(40),files:[{path:filePath,content}],allowDependencies:false,writePaths:[filePath],edits:[{path:filePath,slot:slot.slot,content:replacement,expectedDigest:digest(content)}]};
+ await scenario(input,result=>{assert.equal(result.state,'succeeded',result.error);assert.equal(result.patch.files[0].content,"import React from 'react';export default "+replacement+'const keep=7;');});
+ for(const invalid of [replacement.replace('function App','function Other'),replacement+'globalThis.changed=true;',"import x from 'external';"+replacement])await scenario({...input,edits:[{...input.edits[0],content:invalid}]},result=>assert.equal(result.state,'failed'));
+});
+
+test('invalid source inspection returns a bounded refusal instead of terminating the compiler',async()=>{
+ const directory=await fs.mkdtemp(path.join(os.tmpdir(),'sdlc-inspection-refused-'));
+ try{const result=await inspectCandidate({expectedSha:'a'.repeat(40),files:[{path:'src/a.jsx',content:'function {'}],inspectPath:'src/a.jsx'},directory);assert.equal(result.state,'failed');assert.equal(result.diagnosticCode,'SOURCE_INSPECTION_FAILED');assert.equal('slots' in result,false);assert.equal('stack' in result,false);}finally{await fs.rm(directory,{recursive:true,force:true});}
+});
 test('web URL policy builds bounded host, port, extension and query syntax without project code',()=>{
  const policy={schemes:['http','https'],allowPort:true,allowQuery:true,extensions:['svg','png']};const regex=new RegExp(webUrlPattern(policy),'i');
  for(const url of ['http://127.0.0.1:8049/a.svg','https://another.test/folder/a.png?x=2','http://localhost/a.svg'])assert.equal(regex.test(url),true,url);
@@ -101,6 +125,15 @@ test('a single expression statement normalizes its semicolon without admitting d
  await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,content:'a+b;',expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'succeeded');assert.equal(value.patch.files[0].content,'export const sum=(a,b)=>a+b;');});
  await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,content:'const bad=1;a+b;',expectedDigest:digest(content)}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);assert.equal(await fs.readFile(path.join(root,'a.js'),'utf8'),content);});
 });
+test('inline layout confines geometry edits to the observed style and preserves state and handlers',async()=>{
+ const content="import React from 'react';export default function App(){const[color,setColor]=React.useState('#FFFFFF');return <main style={{backgroundColor:color,fontFamily:'Arial'}} onClick={()=>setColor('#DDEEFF')}><h1>Hello</h1></main>}";
+ const slot=sourceSlots(content,'src/App.jsx').find(s=>s.kind==='InlineStyle');assert.ok(slot);assert.equal(sourceSlots('const x={display:1};','a.js').some(s=>s.kind==='InlineStyle'),false);
+ for(const zero of ['0',"'0'"]){const replacement="{backgroundColor:color,fontFamily:'Arial',position:'absolute',inset:"+zero+",minHeight:'100vh',display:'flex',flexDirection:'column'}";await scenario({...request([]),files:[{path:'src/App.jsx',content}],writePaths:['src/App.jsx'],edits:[{path:'src/App.jsx',slot:slot.slot,content:replacement,expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'succeeded');assert.equal(value.patch.files[0].content,content.replace(slot.code,replacement));});}
+ for(const replacement of ["{backgroundColor:'red',fontFamily:'Arial'}","{backgroundColor:color}","{backgroundColor:color,fontFamily:'Arial',position:eval('fixed')}","{...other}","{backgroundColor:color,fontFamily:'Arial',backgroundImage:'url(http://outside)'}"]){
+  await scenario({...request([]),files:[{path:'src/App.jsx',content}],writePaths:['src/App.jsx'],edits:[{path:'src/App.jsx',slot:slot.slot,content:replacement,expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);});
+ }
+});
+
 test('dialog messages serialize only literal data and preserve the call and control flow',async()=>{
  const content="export const notify=()=>alert('old');export const keep=7;";const slot=sourceSlots(content,'a.js').find(s=>s.dialog),text="new');globalThis.DIALOG_INJECTION=true;// 💎";
  await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,text,expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'succeeded');assert.equal(value.patch.files[0].content,'export const notify=()=>alert('+JSON.stringify(text)+');export const keep=7;');assert.equal(globalThis.DIALOG_INJECTION,undefined);});

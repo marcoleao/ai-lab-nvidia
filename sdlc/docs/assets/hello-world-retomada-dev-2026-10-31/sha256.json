@@ -1,0 +1,127 @@
+[
+    {
+        "file":  "01-conversa-retomada.png",
+        "sha256":  "4960daed6d809529ad180d86a8260a283e7aa51515c1fe982f6c0d9b00edfc02",
+        "bytes":  235429
+    },
+    {
+        "file":  "01-conversa-retomada.txt",
+        "sha256":  "7c090271de2f4203c1339805a9eb6f489c3c39abc4ba83e8797edb5cd480b4f8",
+        "bytes":  7171
+    },
+    {
+        "file":  "02-revisoes-aprovadas.png",
+        "sha256":  "d154dfaf6757e123160dd3b7e73230b6afc95c6ba024c88b36efda69c3f4d490",
+        "bytes":  136953
+    },
+    {
+        "file":  "02-revisoes-aprovadas.txt",
+        "sha256":  "a0f30eaefff1213d2b3cd4914214981b69b2c0d342605a9e8c9021f5852171ce",
+        "bytes":  4693
+    },
+    {
+        "file":  "03-dev-publicado.png",
+        "sha256":  "869663d9c7172c9c469f20f16fd538831c99541e582b37f303a2cc7841c2bda8",
+        "bytes":  334346
+    },
+    {
+        "file":  "03-dev-publicado.txt",
+        "sha256":  "e3201728e0108477893ee98d5fca5fa72c756df163cd2558e08d58d5fe65cb24",
+        "bytes":  9080
+    },
+    {
+        "file":  "04-defeito-fundo-parcial.png",
+        "sha256":  "f791c555484d419363be13980771036646d308d6096272f2adeafd97fb796e6a",
+        "bytes":  17209
+    },
+    {
+        "file":  "04-defeito-fundo-parcial.txt",
+        "sha256":  "0e2f7dae4842d53d49b3c0f1f6efd85c3103ce6e8a4122b5bc9483a1bf0916ec",
+        "bytes":  362
+    },
+    {
+        "file":  "05-aceite-visual-reprovado.json",
+        "sha256":  "d8c21783efd67816a63f5b8486d7e26f815df0b3367812e1267a00d775380a66",
+        "bytes":  11571
+    },
+    {
+        "file":  "06-orientacao-factual.png",
+        "sha256":  "6a58807277d447e3f86ac924dd1d6edc78e6cc9be9d573a81462343f3ddc675f",
+        "bytes":  226118
+    },
+    {
+        "file":  "06-orientacao-factual.txt",
+        "sha256":  "d0ed0cdb000c7b42e46e4a0e2b93f96c31fbb4eaefc25df93ad4da191907395e",
+        "bytes":  7157
+    },
+    {
+        "file":  "07-qualificacao-visual.json",
+        "sha256":  "2f3bed628981ebeafeee7138e43336927aabe04c57b3e141ba7110bdd7e63acd",
+        "bytes":  1919
+    },
+    {
+        "file":  "08-qualificacao-layout.json",
+        "sha256":  "3bd94fb0343ff4f75533d505316ee3b243529010aaa9ba812d2c2263656df7a4",
+        "bytes":  1953
+    },
+    {
+        "file":  "09-publicacoes-portal.json",
+        "sha256":  "c83d4d6a8d408f3bcb67301fe0bfc5a84c621730cce2058d510c541a63de743f",
+        "bytes":  3919
+    },
+    {
+        "file":  "10-qualificacao-zero-css.json",
+        "sha256":  "f425bb1bc99bc0c9b38f4aa44ce4fa9e1dd5ad60f93bc0d0ab3c71e725690b2c",
+        "bytes":  1185
+    },
+    {
+        "file":  "11-codificacao-real.json",
+        "sha256":  "e6765425d573e7e78dd5d05521786fa279f23abf5653ecccd12eb56587d98830",
+        "bytes":  2206
+    },
+    {
+        "file":  "12-dev-corrigido-publicado.png",
+        "sha256":  "4dde8b6b2a2e9383c68e760e964d2b1df9c268a93712ff16a6b63280a4efa994",
+        "bytes":  406902
+    },
+    {
+        "file":  "12-dev-corrigido-publicado.txt",
+        "sha256":  "655b30a1d273a97a4bb2a6717fa874492db94f9beeb90e9e48721b57b0178609",
+        "bytes":  10767
+    },
+    {
+        "file":  "13-aceite-visual-aprovado.json",
+        "sha256":  "8be76654bafead43ad4d48b2a7fbb854ccf2b6fb5ceb8f408f7a283414e9dd0e",
+        "bytes":  11789
+    },
+    {
+        "file":  "14-dev-desktop.png",
+        "sha256":  "74b19deab2a0b69076741d22ba359e78624dc7aacd1d1e940702a15aa2bedcb9",
+        "bytes":  16980
+    },
+    {
+        "file":  "15-dev-celular.png",
+        "sha256":  "de2b4c9183ffb5d91357cc64bf3556b9934087a8d69f68a4699f99ecb703d943",
+        "bytes":  12631
+    },
+    {
+        "file":  "16-aceite-visual-21-cenarios.json",
+        "sha256":  "bada360cb9550681274d093457e73cb272da85a44824243f68f73f5c95dee59a",
+        "bytes":  18903
+    },
+    {
+        "file":  "17-testes-dev-aprovados.png",
+        "sha256":  "c11c0fea865d6e6aaf7e207d701cb52f240a0d70f479c1491d77eb7c00ffc98f",
+        "bytes":  408603
+    },
+    {
+        "file":  "17-testes-dev-aprovados.txt",
+        "sha256":  "c8374c94ac79461e5c9f871c01ec6b39db059d268b54d1286a867fd21695b1ff",
+        "bytes":  10845
+    },
+    {
+        "file":  "18-foco-teclado.json",
+        "sha256":  "8c111b88443aadb49b1ceb98899339cd11412ea6ce3bc1b81087eb14c6c40d40",
+        "bytes":  535
+    }
+]

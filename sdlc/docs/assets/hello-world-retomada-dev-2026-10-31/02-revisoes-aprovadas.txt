@@ -1,0 +1,101 @@
+http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez?tab=planning&process=action
+- link "Ir para o conteúdo":
+  - /url: "#main"
+- complementary:
+  - text: Dell Technologies Portal SDLC
+  - navigation "Principal":
+    - link "Visão geral":
+      - /url: /
+    - link "Assistente":
+      - /url: /assistant
+    - link "Sistemas":
+      - /url: /systems
+    - link "Releases":
+      - /url: /releases
+    - link "Integrações":
+      - /url: /integrations
+  - paragraph: Da ideia à entrega. Um processo, contexto completo.
+- banner:
+  - text: Planejamento e entrega Modo demo local · Persona
+  - combobox "Modo demo local · Persona":
+    - option "Selecione para atuar"
+    - option "Ana · Product Owner" [selected]
+    - option "Bruno · Arquiteto"
+    - option "Carla · QA Lead"
+    - option "Diego · Security Lead"
+    - option "Elisa · Release Manager"
+    - option "Admin · Administrador"
+- main:
+  - region "Situação e próxima ação":
+    - navigation "Localização":
+      - link "Sistemas":
+        - /url: /systems
+      - 'link "Sistema: Hello World Interativo"':
+        - /url: /systems/cmvwup5yd000001t504wzvlw0
+      - 'link "Projeto: Site Hello World — primeira versão"':
+        - /url: /projects/cmvwupgmw000d01t5sc6koynq
+      - 'link "Épico: Configuração da Interface de Configurações"':
+        - /url: /epics/cmvwutzr9000y01t55aeiomiy
+      - text: "História: Hello World com troca de cor de fundo e fonte"
+    - region "Situação da História":
+      - strong: MERGE REQUEST
+      - status: TRACKING
+      - button "Editar"
+      - button "Criar tarefa"
+      - list "Ciclo da História":
+        - listitem: 1 SPECIFICATION
+        - listitem: 2 APPROVED
+        - listitem: 3 CODING
+        - listitem: 4 CODE REVIEW
+        - listitem: 5 SECURITY SCAN
+        - listitem: 6 MERGE REQUEST
+        - listitem:
+          - button "Consultar DEV · desenvolvimento da História, release opcional": 7 DEV História
+        - listitem:
+          - button "Consultar QA · entrega da release, candidata imutável": 8 QA Release
+        - listitem:
+          - button "Consultar HML · entrega da release, candidata imutável": 9 HML Release
+        - listitem:
+          - button "Consultar PROD · entrega da release, candidata imutável": 10 PROD Release
+      - paragraph: "DEV: desenvolvimento da História, com release opcional. QA → HML → PROD: entrega da release com candidata imutável."
+  - paragraph: HISTÓRIA · HELLOW-SITEHW-1
+  - heading "Hello World com troca de cor de fundo e fonte" [level=1]
+  - strong: Situação da História
+  - text: "Desenvolvimento: Sem aprovação registrada Conclusão: Aberta; depende da entrada em produção"
+  - group: Consultar revisão e evidências
+  - navigation "Seções de História":
+    - link "Tarefas 6":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez
+    - link "Execução":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez?tab=planning&process=action
+    - link "Especificação":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez?tab=specification
+    - link "Conversas":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez?tab=conversations
+    - link "Auditoria":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez?tab=activity
+    - link "Configurações":
+      - /url: /stories/cmvwutzrh001001t5lxja9hez?tab=manage
+  - region "Processo e decisões da História":
+    - paragraph: Integração do código
+    - heading "Verificações aprovadas; integração pendente" [level=2]
+    - text: Pessoa autorizada a integrar
+    - status: Solicitação recebida. Confira o resultado na situação atual da atividade.
+    - paragraph: O MR está em Draft. A revisão precisa liberá-lo no GitLab antes do merge. É necessário um pipeline aprovado para o mesmo commit. Ausência de pipeline não equivale a aprovação. O GitLab ainda não liberou a integração (draft_status). Verifique as aprovações e verificações exigidas.
+    - button "Solicitar merge ao assistente"
+    - group: Alternativas e controle da atividade
+    - group: Destino confirmado nesta execução
+    - link "Abrir no GitLab":
+      - /url: http://127.0.0.1:3180/sdlc/hellow/app/-/merge_requests/2
+    - paragraph:
+      - link "Consultar resultados anteriores ao vínculo de Tarefas":
+        - /url: /stories/cmvwutzrh001001t5lxja9hez#previous-work
+  - navigation "Detalhes da execução":
+    - button "Consultar sinais e evidências"
+    - button "Conversar sobre esta etapa"
+    - button "Escopo das Tarefas"
+    - button "Repositório do Sistema"
+    - button "Entrega de código e release"
+    - button "Release planejada"
+- contentinfo: Portal SDLC · Planejamento criado por você
+- alert: Portal SDLC

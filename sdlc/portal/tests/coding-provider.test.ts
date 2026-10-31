@@ -12,6 +12,12 @@ test('same attempt reconciles one immutable intent and returns validated patch',
 test('specialist progress is bounded metadata and never changes the immutable intent',()=>scenario(async(provider,requests)=>{const stages:string[]=[],testContext={objective:'Cadastrar',behavior:'Conferir o resultado',criteria:['Resultado visível'],testCases:[{criterionIndex:0,description:'Conferir o resultado na tela'}]};await provider.generate({...input,testContext},async stage=>{stages.push(stage);});assert.deepEqual(stages,['implementation','test_planning','ui_validation','targeted_repair','final_check']);assert.equal(requests.length,6);assert.deepEqual(requests[0].testContext,testContext);assert.ok(requests.every(r=>r.id===requests[0].id));assert.equal('onProgress' in requests[0],false);},(body,index)=>({...body,state:index===6?'succeeded':'running',stage:['implementation','implementation','test_planning','ui_validation','targeted_repair','final_check'][index-1],patch:{summary:'Changed a',files:[{path:'a.js',content:'export const a=2;'}]},validation:{valid:true}})));
 test('unknown receipt never starts replacement job',()=>scenario(async(provider,requests)=>{await assert.rejects(provider.generate(input),{code:'CODING_EXECUTOR_UNKNOWN'});assert.equal(requests.length,1);},body=>({...body,state:'unknown'})));
 
+test('unknown result exposes only catalogued diagnostic codes and never private compiler output',async()=>{
+ await scenario(async p=>{await assert.rejects(p.generate(input),(e:any)=>e.code==='CODING_EXECUTOR_UNKNOWN'&&e.message.includes('INFERENCE_TOKEN_REPEAT_LIMIT')&&!e.message.includes('PRIVATE'));},b=>({...b,state:'unknown',diagnosticCode:'INFERENCE_TOKEN_REPEAT_LIMIT',error:'PRIVATE raw request'}));
+ await scenario(async p=>{await assert.rejects(p.generate(input),(e:any)=>e.code==='CODING_EXECUTOR_UNKNOWN'&&e.message.includes('SOURCE_COMPILER_UNAVAILABLE')&&!e.message.includes('PRIVATE'));},b=>({...b,state:'unknown',diagnosticCode:'SOURCE_COMPILER_UNAVAILABLE',error:'PRIVATE source and token'}));
+ await scenario(async p=>{await assert.rejects(p.generate(input),(e:any)=>e.message.includes('não foi registrada')&&!e.message.includes('PRIVATE'));},b=>({...b,state:'unknown',diagnosticCode:'PRIVATE unknown code',error:'PRIVATE source and token'}));
+});
+
 test('unconfirmed technical generation requires explicit proof the publisher was not started',()=>{
  for(const code of ['CODING_EXECUTOR_UNKNOWN','CODING_EXECUTOR_TIMEOUT','CODING_EXECUTOR_UNAVAILABLE']){
   assert.equal(technicalCodingFailure({codingFailure:{code}}),null);

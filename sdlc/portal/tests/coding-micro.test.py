@@ -7,6 +7,23 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 import coding_micro as micro
 import coding_service as service
 class MicroContracts(unittest.TestCase):
+ def test_small_capability_plan_covers_two_distinct_sources_but_repair_remains_one(self):
+  changes=[{'path':'src/App.jsx','goal':'Implementar os controles nativos e seu estado','queries':['App']},{'path':'src/app.css','goal':'Aplicar o layout aprovado','queries':['main']}]
+  self.assertEqual(micro.validate_plan({'changes':changes},{c['path'] for c in changes},2),changes)
+  with self.assertRaises(ValueError):micro.validate_plan({'changes':changes},{c['path'] for c in changes})
+  with self.assertRaises(ValueError):micro.validate_plan({'changes':[changes[0],changes[0]]},{'src/App.jsx'},2)
+  self.assertEqual(micro.source_role({'kind':'Stylesheet'}),'stylesheet');self.assertEqual(micro.source_role({'kind':'FunctionDeclaration'}),'component')
+  self.assertEqual(micro.source_role({'kind':'InlineStyle'}),'layout')
+
+ def test_inspection_refusal_is_a_known_failure_and_does_not_request_an_edit(self):
+  files=[{'path':'src/app.css','content':'main{color:black}'}]
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':files,'prompt':'Ajustar layout','allowDependencies':False}
+  responses=[{'changes':[{'path':'src/app.css','goal':'Ajustar layout','queries':['main']}]},{'path':'src/app.css'}]
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
+   with patch.object(micro,'ask_local',side_effect=responses) as ask,patch.object(micro,'apply_proposal',return_value={'state':'failed','diagnosticCode':'SOURCE_INSPECTION_FAILED'}):result=micro.micro_implementation(e,intent,Path(temporary),{},files,'','implementation')
+  self.assertEqual(result['state'],'failed');self.assertEqual(result['diagnosticCode'],'SOURCE_INSPECTION_FAILED');self.assertNotIn('patch',result);self.assertEqual(ask.call_count,2)
+
  def test_web_url_role_reaches_compiler_with_policy_only_and_records_the_proposal(self):
   content=r'export const photoURL=/^https:\/\//i;';path='src/form.js'
   intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':content}],'prompt':'Corrigir foto HTTP e HTTPS.','allowDependencies':False}
@@ -119,6 +136,17 @@ class MicroContracts(unittest.TestCase):
     try:result=micro.micro_implementation(e,intent,directory,job,intent['files'],'Falha observada','targeted_repair' if repair else 'implementation')
     except ValueError as error:result={'refused':str(error)}
    return result,calls,len(calls)
+ def test_duplicate_file_plan_has_one_structural_repair_with_full_approved_scope(self):
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':'src/a.js','content':'export const sum=(a,b)=>a-b;'}],'prompt':'Corrigir soma e preservar multiply.','allowDependencies':False}
+  row={'path':'src/a.js','goal':'Corrigir soma','queries':['sum']};duplicate={'changes':[row,{**row,'goal':'Preservar multiply'}]};merged={'changes':[row]}
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
+   with patch.object(micro,'ask_local',side_effect=[duplicate,merged,RuntimeError('stop at locator')]) as ask,patch.object(micro,'apply_proposal') as compiler:
+    with self.assertRaisesRegex(RuntimeError,'stop at locator'):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+    repair=ask.call_args_list[1];self.assertEqual(repair.args[3]['approvedInstructions'],intent['prompt']);self.assertEqual(repair.args[3]['rejectedPlan'],duplicate);self.assertEqual(repair.args[4]['properties']['changes']['maxItems'],1);compiler.assert_not_called()
+   with patch.object(micro,'ask_local',side_effect=[duplicate,duplicate]) as ask,patch.object(micro,'apply_proposal') as compiler:
+    with self.assertRaises(ValueError):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+    self.assertEqual(ask.call_count,2);compiler.assert_not_called()
  def test_one_scoped_proposal_has_no_model_selected_hash_or_path(self):
   result,calls,count=self.run_editor();self.assertEqual(result['state'],'succeeded');self.assertEqual(count,1);self.assertEqual(calls[0]['path'],'src/a.js');self.assertEqual(calls[0]['expectedDigest'],micro.digest('export const sum=(a,b)=>a-b;\n'));self.assertEqual([f['path'] for f in result['patch']['files']],['src/a.js'])
  def test_rejected_syntax_retries_the_same_frozen_source_once_and_never_returns_a_failed_patch(self):

@@ -30,6 +30,7 @@ export class ControlRegistry{
  step(action){
   if(!action||Object.keys(action).some(key=>!['op','control','value','dialog'].includes(key))||typeof action.op!=='string'||typeof action.control!=='string'||typeof action.value!=='string'||action.value.length>500||!['none','accept','dismiss'].includes(action.dialog))throw Error('Ação de UI fora do contrato.');
   if(action.op==='reload'){if(action.control||action.value||action.dialog!=='none')throw Error('Reload não recebe controle ou valor.');return {op:'reload'};}
+  if(['expect_background','expect_font'].includes(action.op)){if(action.control||action.dialog!=='none'||!(action.op==='expect_background'?/^#[0-9a-f]{6}$/iu:/^[a-z][a-z0-9 -]{0,79}$/iu).test(action.value))throw Error('Asserção visual fora do contrato.');return {op:action.op,value:action.value};}
   if(action.op==='expect_text'){if(action.control||!action.value.trim()||action.dialog!=='none')throw Error('Asserção de texto exige apenas value.');return {op:'expect_text',value:action.value};}
   const entry=this.active.get(action.control);if(!entry)throw Error('Controle não observado ou desatualizado. Escolha um ID da observação atual.');
   const allowed={fill:['textbox','spinbutton'],select:['combobox'],click:['button','link'],check:['checkbox'],expect_image:['img']};

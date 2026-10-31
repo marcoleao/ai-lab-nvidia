@@ -1,0 +1,90 @@
+[
+    {
+        "id":  "dev-qwen-browser-verified-20261030-d4759752",
+        "image":  "sha256:ae3c50a36950dbbd1c1a86bfbc0f7755af81d90e43e52b5da4bd22e608ea3ea5",
+        "source":  "5599ae812a6d82651d2fe5eedb898880f87bb97a447b26c8bcd71582a4c77778",
+        "published":  true,
+        "verifiedAt":  "2026-10-31T21:14:30.938543+00:00",
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-qwen-browser-verified-20261030-d4759752",
+                       "bytes":  382671,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   },
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   }
+    },
+    {
+        "id":  "dev-qwen-browser-verified-20261030-8b7f87a1",
+        "image":  "sha256:8780adb83c820f1c85dd34b1433d290e52f9d28b543945b0f750472cadd6ab15",
+        "source":  "7fe648dfea94f48483df1f4941a800791a3e44c1dde449160863af7cf4850d68",
+        "published":  true,
+        "verifiedAt":  "2026-10-31T21:22:04.992015+00:00",
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-qwen-browser-verified-20261030-8b7f87a1",
+                       "bytes":  393390,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   },
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   }
+    },
+    {
+        "id":  "dev-qwen-browser-verified-20261030-8e4a6a25",
+        "image":  "sha256:b1312951b246db033e2f89d0f26e364cb3526cc7b58f27794b77a8c498c35ed1",
+        "source":  "2ede21676e7e72449459b777302736d9b4b2b3896ad8ea9651c686413055f92e",
+        "published":  true,
+        "verifiedAt":  "2026-10-31T21:45:06.843724+00:00",
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-qwen-browser-verified-20261030-8e4a6a25",
+                       "bytes":  411585,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   },
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   }
+    },
+    {
+        "id":  "dev-qwen-browser-verified-20261030-25b4a710",
+        "image":  "sha256:53672ae741a4458a48d91cb795cb78955a209f912afc21ff4c2034a71808ad3c",
+        "source":  "6cd58d3676ab5a92d758a54aba16a6400d531dc19b1ed3935a143b0d164be80c",
+        "published":  true,
+        "verifiedAt":  "2026-10-31T22:03:18.106754+00:00",
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-qwen-browser-verified-20261030-25b4a710",
+                       "bytes":  412751,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   },
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   }
+    }
+]

@@ -13,7 +13,7 @@ const proof={applicable:true,passed:false,rendered:false,errors:[],uiProbe:{plan
 try{
  const input=JSON.parse(await fs.readFile('/request/candidate.json','utf8'));
  const steps=input.steps??[];
- if(!Array.isArray(steps)||steps.length>20||JSON.stringify(steps).length>8000||steps.some(step=>!step||Object.keys(step).some(key=>!['op','target','value','dialog'].includes(key))||!['fill','click','select','check','expect_text','expect_visible','expect_image','reload'].includes(step.op)))throw Error('Plano de interface fora do contrato.');
+ if(!Array.isArray(steps)||steps.length>20||JSON.stringify(steps).length>8000||steps.some(step=>!step||Object.keys(step).some(key=>!['op','target','value','dialog'].includes(key))||!['fill','click','select','check','expect_text','expect_visible','expect_image','expect_background','expect_font','reload'].includes(step.op)))throw Error('Plano de interface fora do contrato.');
  if(steps.length&&!steps.some(step=>step.op.startsWith('expect_')))throw Error('A sonda exige asserção explícita.');
  proof.uiProbe.planned=steps.length;
  if(!Array.isArray(input.files)||input.files.length>32)throw Error('Limite de arquivos.');
@@ -37,6 +37,7 @@ try{
   const page=await context.newPage();page.setDefaultTimeout(1000);let dialogAction='dismiss';
   page.on('pageerror',error=>{if(proof.errors.length<5)proof.errors.push(error.message.slice(0,1200));});page.on('dialog',dialog=>dialogAction==='accept'?dialog.accept():dialog.dismiss());
   await page.goto(origin,{waitUntil:'networkidle',timeout:12000});
+  const visualObservation=()=>page.evaluate(()=>({viewport:{width:innerWidth,height:innerHeight},elements:['html','body','#root','main'].map(selector=>{const node=document.querySelector(selector);if(!node)return null;const style=getComputedStyle(node),box=node.getBoundingClientRect();return {element:selector,margin:style.margin,padding:style.padding,display:style.display,background:style.backgroundColor,font:style.fontFamily,x:box.x,y:box.y,width:box.width,height:box.height};}).filter(Boolean)}));
   const target=spec=>{if(!spec||Object.keys(spec).some(key=>!['by','name','role','index'].includes(key))||typeof spec.name!=='string'||(spec.name.length===0&&!(spec.by==='role'&&spec.role==='textbox'&&Number.isInteger(spec.index)&&spec.index>=0&&spec.index<=5))||spec.name.length>160)throw Error('Alvo de interface inválido.');let locator;if(spec.by==='role'){if(!['button','textbox','spinbutton','combobox','checkbox','heading','link','img','status','region','form','listitem'].includes(spec.role))throw Error('Papel de interface inválido.');locator=page.getByRole(spec.role,{name:accessibleName(spec.name)});}else if(spec.by==='label')locator=page.getByLabel(accessibleName(spec.name));else if(spec.by==='text')locator=page.getByText(accessibleName(spec.name));else throw Error('Seletor de interface inválido.');if(spec.index!==undefined){if(!Number.isInteger(spec.index)||spec.index<0||spec.index>5)throw Error('Índice de interface inválido.');locator=locator.nth(spec.index);}return locator;};
   const perform=async step=>{
    if(['fill','select','expect_text'].includes(step.op)&&(typeof step.value!=='string'||step.value.length>500))throw Error('Valor de interface inválido.');
@@ -51,6 +52,18 @@ try{
    else if(step.op==='expect_text')await expect(step.target?target(step.target):page.locator('body')).toContainText(value,{timeout:1000});
    else if(step.op==='expect_visible')await expect(target(step.target)).toBeVisible({timeout:1000});
    else if(step.op==='expect_image'){if(value)await expect(target(step.target)).toHaveAttribute('src',value,{timeout:1000});await expect.poll(()=>target(step.target).evaluate(image=>image.tagName==='IMG'&&image.complete&&image.naturalWidth>0),{timeout:1000}).toBe(true);}
+   else if(step.op==='expect_background'){
+    if(Object.keys(step).some(key=>!['op','value'].includes(key))||!/^#[0-9a-f]{6}$/iu.test(value))throw Error('Asserção de fundo exige somente cor hexadecimal.');
+    const rgb='rgb('+value.slice(1).match(/../gu).map(pair=>parseInt(pair,16)).join(', ')+')';
+    await expect.poll(()=>page.evaluate(()=>{
+     const sample=(x,y)=>{let node=document.elementFromPoint(x,y);while(node){const color=getComputedStyle(node).backgroundColor;if(color!=='rgba(0, 0, 0, 0)'&&color!=='transparent')return color;node=node.parentElement;}return getComputedStyle(document.body).backgroundColor;};
+     return [[0,0],[innerWidth-1,0],[0,innerHeight-1],[innerWidth-1,innerHeight-1],[innerWidth/2,innerHeight-1]].map(([x,y])=>sample(x,y));
+    }),{timeout:1000}).toEqual(Array(5).fill(rgb));
+   }
+   else if(step.op==='expect_font'){
+    if(Object.keys(step).some(key=>!['op','value'].includes(key))||!/^[a-z][a-z0-9 -]{0,79}$/iu.test(value))throw Error('Asserção de fonte exige somente família.');
+    await expect.poll(()=>page.getByRole('heading',{level:1}).first().evaluate(node=>getComputedStyle(node).fontFamily.split(',')[0].trim().replaceAll('"','').replaceAll("'",'')),{timeout:1000}).toBe(value);
+   }
    else throw Error('Operação de interface não permitida.');
    proof.uiProbe.executed++;if(step.op.startsWith('expect_'))proof.uiProbe.assertions++;
   };
@@ -66,7 +79,7 @@ try{
      const feedback=await target({by:'role',role:control.role,name:control.name,index:control.index}).evaluate(element=>({required:!!element.required,inputType:element.type??'text',editable:!element.disabled&&!element.readOnly,validity:element.validity?{valid:element.validity.valid,valueMissing:element.validity.valueMissing,message:element.validationMessage.slice(0,300)}:null}));
      Object.assign(control,feedback);
     }
-    proof.observedUI=full.slice(0,6000);proof.rendered=await page.locator('body').evaluate(body=>!!body.innerText.trim()||!!body.querySelector('canvas,svg,img'));proof.passed=proof.rendered&&proof.errors.length===0;return {...proof,controls:catalog.controls,controlsLimited:catalog.limited,observationTruncated:full.length>6000};
+    proof.visualObservation=await visualObservation();proof.observedUI=full.slice(0,6000);proof.rendered=await page.locator('body').evaluate(body=>!!body.innerText.trim()||!!body.querySelector('canvas,svg,img'));proof.passed=proof.rendered&&proof.errors.length===0;return {...proof,controls:catalog.controls,controlsLimited:catalog.limited,observationTruncated:full.length>6000};
    };
    uiServer=http.createServer(async(req,res)=>{
     const reply=(status,value)=>{res.writeHead(status,{'Content-Type':'application/json','Connection':'close'});res.end(JSON.stringify(value));};
@@ -90,7 +103,7 @@ try{
   }else{
    try{for(const step of steps)await perform(step);}catch(error){proof.errors.push(('Interação '+(proof.uiProbe.executed+1)+': '+error.message).slice(0,1200));}
   }
-  proof.observedUI=(await page.locator('body').ariaSnapshot()).slice(0,6000);
+  proof.visualObservation=await visualObservation();proof.observedUI=(await page.locator('body').ariaSnapshot()).slice(0,6000);
   proof.rendered=await page.locator('body').evaluate(body=>!!body.innerText.trim()||!!body.querySelector('canvas,svg,img'));
   if(!proof.rendered)proof.errors.push('A entrada web abriu sem conteúdo visível.');
   proof.passed=proof.rendered&&proof.errors.length===0;await context.close();

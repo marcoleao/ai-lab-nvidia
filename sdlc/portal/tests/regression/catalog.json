@@ -428,7 +428,7 @@
             "id": "UIFILE-validation-retry",
             "file": "validation-retry.spec.ts",
             "area": "validation",
-            "requirements": [],
+            "requirements": ["HW-02"],
             "isolation": "fresh-database",
             "providers": "simulated",
             "required": true

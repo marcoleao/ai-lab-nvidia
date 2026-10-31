@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "runtimeHash": "da6b0ff466baa931c7403117ef5b08f72145c422ea81709f388d14798c316fd1",
-  "testHash": "57ff736e21f9d6d35225f2ed4700ebc16cb05a90b6688ee66f5ad90bf19f7220",
+  "runtimeHash": "764b9588246199ed7f51fc8c7e641d18a375e02ff7e091e158198bc698146c1f",
+  "testHash": "73b2a1901786b1990aef4ae35609878c58e01855419c4f13d82b25ddeb4b98f3",
   "database": "portal_test",
   "externalProviders": "simulated",
   "workers": "manual",
@@ -3017,38 +3017,52 @@
       "expected": "passed"
     },
     {
+      "id": "UI-06e3089571e2",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project lifecycle justification stays aligned and usable at 1440px",
+      "line": 90,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f8f601d276a1",
+      "file": "planning-lifecycle.spec.ts",
+      "title": "Project lifecycle justification stays aligned and usable at 390px",
+      "line": 90,
+      "expected": "passed"
+    },
+    {
       "id": "UI-6e1398391dfa",
       "file": "planning-lifecycle.spec.ts",
       "title": "Project reopening requires justification, preserves it after failure and disables edits for readonly roles",
-      "line": 90,
+      "line": 118,
       "expected": "passed"
     },
     {
       "id": "UI-687a51c0e247",
       "file": "planning-lifecycle.spec.ts",
       "title": "Epic starts ACTIVE without a planning gate and exposes explicit Project planning",
-      "line": 105,
+      "line": 133,
       "expected": "passed"
     },
     {
       "id": "UI-55c411df95fc",
       "file": "planning-lifecycle.spec.ts",
       "title": "Epic transitions confirm explicitly and preserve versions and reason after definite rejection",
-      "line": 108,
+      "line": 136,
       "expected": "passed"
     },
     {
       "id": "UI-8c0869491682",
       "file": "planning-lifecycle.spec.ts",
       "title": "Epic explains inactive ancestor and blocks mutations",
-      "line": 112,
+      "line": 140,
       "expected": "passed"
     },
     {
       "id": "UI-62f711737988",
       "file": "planning-lifecycle.spec.ts",
       "title": "Epic explains completed ancestor and blocks mutations",
-      "line": 112,
+      "line": 140,
       "expected": "passed"
     },
     {
@@ -4172,66 +4186,80 @@
       "expected": "passed"
     },
     {
+      "id": "UI-2d766414892e",
+      "file": "validation-retry.spec.ts",
+      "title": "technical diagnostic conversation preserves retry and scope after reload at 1440px",
+      "line": 6,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e65a057dd259",
+      "file": "validation-retry.spec.ts",
+      "title": "technical diagnostic conversation preserves retry and scope after reload at 390px",
+      "line": 6,
+      "expected": "passed"
+    },
+    {
       "id": "UI-c02efb48b020",
       "file": "validation-retry.spec.ts",
       "title": "legacy validation failure resumes technical correction without repeating user choices or G1",
-      "line": 8,
+      "line": 34,
       "expected": "passed"
     },
     {
       "id": "UI-b83a44d4fc4c",
       "file": "validation-retry.spec.ts",
       "title": "quality repair exhaustion replaces retry with the diagnostic conversation without resending correction at 1440px",
-      "line": 59,
+      "line": 85,
       "expected": "passed"
     },
     {
       "id": "UI-30d7273ec5b2",
       "file": "validation-retry.spec.ts",
       "title": "quality repair exhaustion replaces retry with the diagnostic conversation without resending correction at 390px",
-      "line": 59,
+      "line": 85,
       "expected": "passed"
     },
     {
       "id": "UI-80fdd83efc8b",
       "file": "validation-retry.spec.ts",
       "title": "technical failure summary keeps complete details collapsed and does not attribute stale validation issues at 1440px",
-      "line": 75,
+      "line": 101,
       "expected": "passed"
     },
     {
       "id": "UI-d5c6b76cdaa8",
       "file": "validation-retry.spec.ts",
       "title": "technical failure summary keeps complete details collapsed and does not attribute stale validation issues at 390px",
-      "line": 75,
+      "line": 101,
       "expected": "passed"
     },
     {
       "id": "UI-7c7fb93473ff",
       "file": "validation-retry.spec.ts",
       "title": "assisted candidate validation keeps short escaped diagnostics behind the projected technical retry at 1440px",
-      "line": 107,
+      "line": 133,
       "expected": "passed"
     },
     {
       "id": "UI-c6da12195631",
       "file": "validation-retry.spec.ts",
       "title": "assisted candidate validation keeps short escaped diagnostics behind the projected technical retry at 390px",
-      "line": 107,
+      "line": 133,
       "expected": "passed"
     },
     {
       "id": "UI-180b5ed690ed",
       "file": "validation-retry.spec.ts",
       "title": "Qwen executor limit keeps technical retry primary, preserves its CLI receipt and leaves business blockers separate at 1440px",
-      "line": 134,
+      "line": 160,
       "expected": "passed"
     },
     {
       "id": "UI-bca297963798",
       "file": "validation-retry.spec.ts",
       "title": "Qwen executor limit keeps technical retry primary, preserves its CLI receipt and leaves business blockers separate at 390px",
-      "line": 134,
+      "line": 160,
       "expected": "passed"
     }
   ]

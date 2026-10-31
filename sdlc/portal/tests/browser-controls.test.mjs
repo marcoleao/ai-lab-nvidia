@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ControlRegistry} from '../executor/browser-controls.mjs';
 const action=(op,control='',value='',dialog='none')=>({op,control,value,dialog});
+
+test('visual assertions accept bounded values without granting selectors or style writes',()=>{
+ const r=new ControlRegistry();
+ assert.deepEqual(r.step(action('expect_background','','#DDEEFF')),{op:'expect_background',value:'#DDEEFF'});
+ assert.deepEqual(r.step(action('expect_font','','Courier New')),{op:'expect_font',value:'Courier New'});
+ for(const value of [action('expect_background','','url(http://remote)'),action('expect_font','','Arial; color:red'),action('expect_background','invented','#DDEEFF'),action('expect_font','','Arial','accept')])assert.throws(()=>r.step(value));
+});
 test('current IDs distinguish unnamed prerequisites, registration and equivalent filter names',()=>{
  const r=new ControlRegistry(),snapshot='- heading "Categorias" [level=2]\n- textbox: Anéis\n- button "Adicionar"\n- heading "Cadastro" [level=2]\n- combobox "Categoria:":\n  - option "Selecione"\n  - option "Anéis" [selected]\n- heading "Filtros" [level=2]\n- combobox "categoria":\n  - option "Todas"';
  const {controls}=r.update(snapshot),draft=controls[0],registration=controls[2],filter=controls[3];

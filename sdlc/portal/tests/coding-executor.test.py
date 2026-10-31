@@ -4,6 +4,16 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 spec=importlib.util.spec_from_file_location('coding_service',Path(__file__).resolve().parents[1]/'executor/coding_service.py');service=importlib.util.module_from_spec(spec);spec.loader.exec_module(service)
 class CodingContract(unittest.TestCase):
+ def test_compiler_process_failure_retains_only_a_safe_diagnostic_and_no_patch(self):
+  import coding_workflow
+  from coding_micro import CompilerProcessError
+  from coding_ui_agent import InferenceTokenRepeatError
+  service.CONFIG={'model':'local:9b','workflow':'focused-local-v1','imageId':'synthetic-tools','browserImageId':'synthetic-browser'}
+  for exception,code in [(CompilerProcessError,'SOURCE_COMPILER_UNAVAILABLE'),(InferenceTokenRepeatError,'INFERENCE_TOKEN_REPEAT_LIMIT')]:
+   with self.subTest(code=code),tempfile.TemporaryDirectory() as temporary:
+    root=Path(temporary);intent=self.intent()
+    with patch.object(coding_workflow,'implementation',side_effect=exception('private compiler source')),patch.object(service,'check_candidate',return_value={'applicable':False,'passed':True}),patch.object(service.subprocess,'run',return_value=Mock(returncode=1)),patch.object(service,'SLOT',Mock()):service.execute(intent,root,{'id':intent['id'],'expectedSha':intent['expectedSha']})
+    receipt=json.loads((root/'receipt.json').read_text());self.assertEqual(receipt['state'],'unknown');self.assertEqual(receipt['diagnosticCode'],code);self.assertNotIn('private compiler source',json.dumps(receipt));self.assertNotIn('patch',receipt)
  def intent(self):return {'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':'src/a.js','content':'export const a=1;'}],'prompt':'Escopo aprovado','allowDependencies':False}
  def request(self):return {'model':'local:9b','messages':[{'role':'user','content':[{'type':'text','text':'Approved scope'}]}],'tools':[{'type':'function','function':{'name':name,'parameters':{'type':'object'}}} for name in service.TOOLS],'stream':True}
  def setUp(self):service.CONFIG={'model':'local:9b'};self.job={'calls':0,'started':time.monotonic()}

@@ -5,6 +5,22 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 from coding_browser import check_candidate,LiveBrowser
 
 class BrowserCandidate(unittest.TestCase):
+ def test_visual_background_rejects_partial_content_and_checks_full_window_without_dom_changes(self):
+  start="import React from 'react';import{createRoot}from'react-dom/client';createRoot(document.getElementById('root')).render(<><style>{'body{margin:0}main{display:flow-root}'}</style><main style={{background:'#DDEEFF',minHeight:HEIGHT}}><h1 style={{fontFamily:'Georgia'}}>Hello</h1></main></>);"
+  steps=[{'op':'expect_background','value':'#DDEEFF'},{'op':'expect_font','value':'Georgia'}]
+  self.assertFalse(self.check(start.replace('HEIGHT',"'100px'"),steps)['passed'])
+  fixed=start.replace('HEIGHT',"'100vh'")
+  self.assertTrue(self.check(fixed,steps)['passed'])
+  self.assertFalse(self.check(fixed,[{'op':'expect_font','value':'Arial'}])['passed'])
+ def test_visual_live_recipe_keeps_the_frozen_color_in_independent_replay(self):
+  source="import React from 'react';import{createRoot}from'react-dom/client';createRoot(document.getElementById('root')).render(<><style>{'body{margin:0;background:#DDEEFF}'}</style><h1>Hello</h1></>);"
+  with tempfile.TemporaryDirectory(prefix='sdlc-visual-fixture-') as temporary:
+   root=Path(temporary);root.chmod(0o755);files=[{'path':'src/main.jsx','content':source}];session=LiveBrowser({'browserImageId':'sdlc-coding-browser:prepared'},'8'*64,files,root)
+   try:
+    value=session.call('/action',{'op':'expect_background','control':'','value':'#DDEEFF','dialog':'none'});self.assertTrue(value['actionPassed'],str(value));steps=[value['lastStep']]
+   finally:session.close()
+   self.assertTrue(check_candidate({'browserImageId':'sdlc-coding-browser:prepared'},'7'*64,1,files,root,steps=steps)['passed'])
+   self.assertFalse(check_candidate({'browserImageId':'sdlc-coding-browser:prepared'},'6'*64,1,files,root,steps=[{'op':'expect_background','value':'#FFF4CC'}])['passed'])
  def test_image_assertion_checks_original_url_instead_of_accepting_a_loaded_fallback(self):
   source="import React from 'react';import{createRoot}from'react-dom/client';createRoot(document.getElementById('root')).render(<img alt='Foto' src={location.origin+'/__sdlc_test__/image.svg'}/>);"
   steps=[{'op':'expect_image','target':{'by':'role','role':'img','name':'Foto'},'value':'$ORIGIN/__sdlc_test__/image.svg'}]

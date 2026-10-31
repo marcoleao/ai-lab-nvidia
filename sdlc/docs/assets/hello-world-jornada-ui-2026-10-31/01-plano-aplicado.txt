@@ -1,0 +1,88 @@
+http://127.0.0.1:3310/assistant?system=cmvwup5yd000001t504wzvlw0&project=cmvwupgmw000d01t5sc6koynq&assistant.view=proposal&assistant.page=1
+- alert: Assistente
+- link "Ir para o conteúdo":
+  - /url: "#main"
+- complementary:
+  - text: Dell Technologies Portal SDLC
+  - navigation "Principal":
+    - link "Visão geral":
+      - /url: /
+    - link "Assistente":
+      - /url: /assistant
+    - link "Sistemas":
+      - /url: /systems
+    - link "Releases":
+      - /url: /releases
+    - link "Integrações":
+      - /url: /integrations
+  - paragraph: Da ideia à entrega. Um processo, contexto completo.
+- banner:
+  - text: Entrevista e especificação Modo demo local · Persona
+  - combobox "Persona":
+    - option "Selecione para atuar"
+    - option "Ana · Product Owner" [selected]
+    - option "Bruno · Arquiteto"
+    - option "Carla · QA Lead"
+    - option "Diego · Security Lead"
+    - option "Elisa · Release Manager"
+    - option "Admin · Administrador"
+- main:
+  - region "Contexto da entrevista":
+    - navigation "Destino do planejamento":
+      - list:
+        - listitem:
+          - link "Hello World Interativo":
+            - /url: /systems/cmvwup5yd000001t504wzvlw0
+        - listitem:
+          - link "Site Hello World — primeira versão":
+            - /url: /projects/cmvwupgmw000d01t5sc6koynq
+    - text: ACTIVE
+    - button "Alterar contexto"
+  - region "Entrevista e planejamento":
+    - heading "Assistente" [level=1]
+    - paragraph: Entrevista e planejamento
+    - navigation "Assuntos do Assistente":
+      - button "Conversa"
+      - button "Resumo"
+      - button "Proposta 1"
+      - button "Histórico de propostas"
+    - region "Proposta do contexto":
+      - button "← Voltar à conversa"
+      - paragraph: Proposta · revisão 2 · Aplicada · 31/10/2026, 17:28
+      - region "Resumo da especificação":
+        - group:
+          - strong: Resumo da especificação
+          - text: Revisão salva 2 · 1 História(s)
+      - region "Revisão do plano":
+        - heading "Plano aplicado" [level=3]
+        - text: Revisão 2
+        - paragraph:
+          - text: "Destino:"
+          - strong: Site Hello World — primeira versão
+          - text: 1 épico(s) → 1 história(s) → 6 tarefa(s)
+        - status: "Criação confirmada pela API. Revisão aplicada: 2."
+        - paragraph: 8 itens disponíveis nesta consulta de 8 IDs registrados na aplicação.
+        - paragraph: Os status abaixo são os status atuais dos itens consultados.
+        - list:
+          - listitem:
+            - link "HELLOW-SITEHW-E1 · Configuração da Interface de Configurações":
+              - /url: /epics/cmvwutzr9000y01t55aeiomiy
+            - text: · ACTIVE
+          - listitem:
+            - link "HELLOW-SITEHW-1 · Hello World com troca de cor de fundo e fonte":
+              - /url: /stories/cmvwutzrh001001t5lxja9hez
+            - text: · SPECIFICATION
+        - paragraph:
+          - link "Abrir Projeto Site Hello World — primeira versão →":
+            - /url: /projects/cmvwupgmw000d01t5sc6koynq
+        - group: Consultar Tarefas criadas · 6
+        - paragraph: A criação do plano não aprova Gateway de Especificação nem inicia codificação. Continue a revisão da especificação e o planejamento na própria História.
+        - group: Consultar conteúdo da proposta aplicada
+      - region "Concluir entrevista":
+        - heading "Continuar o planejamento" [level=3]
+        - paragraph:
+          - text: "Destino:"
+          - strong: Site Hello World — primeira versão
+        - button "Gerar nova proposta para revisão"
+        - button "Continuar a conversa →"
+        - group: "Outra forma de concluir: criar a partir da entrevista"

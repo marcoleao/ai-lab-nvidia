@@ -1,0 +1,485 @@
+{
+  "url": "http://localhost:33991/",
+  "at": "2026-10-31T21:30:50.431Z",
+  "scope": "Human-style native controls, visual computed-style readings only; no DOM/storage/backend injection or application edits",
+  "results": [
+    {
+      "name": "initial-white-arial",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Arial",
+      "observed": {
+        "font": "Arial",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "blue-georgia-1440",
+      "expectedBackground": "rgb(221, 238, 255)",
+      "expectedFont": "Georgia",
+      "observed": {
+        "font": "Georgia",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "yellow-keeps-georgia-1440",
+      "expectedBackground": "rgb(255, 244, 204)",
+      "expectedFont": "Georgia",
+      "observed": {
+        "font": "Georgia",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "courier-keeps-yellow-1440",
+      "expectedBackground": "rgb(255, 244, 204)",
+      "expectedFont": "Courier New",
+      "observed": {
+        "font": "\"Courier New\"",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "white-keeps-courier-1440",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Courier New",
+      "observed": {
+        "font": "\"Courier New\"",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "arial-keeps-white-1440",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Arial",
+      "observed": {
+        "font": "Arial",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 1424,
+          "height": 239.875,
+          "top": 16,
+          "right": 1432,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "blue-georgia-390",
+      "expectedBackground": "rgb(221, 238, 255)",
+      "expectedFont": "Georgia",
+      "observed": {
+        "font": "Georgia",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "yellow-keeps-georgia-390",
+      "expectedBackground": "rgb(255, 244, 204)",
+      "expectedFont": "Georgia",
+      "observed": {
+        "font": "Georgia",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "courier-keeps-yellow-390",
+      "expectedBackground": "rgb(255, 244, 204)",
+      "expectedFont": "Courier New",
+      "observed": {
+        "font": "\"Courier New\"",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": false
+    },
+    {
+      "name": "white-keeps-courier-390",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Courier New",
+      "observed": {
+        "font": "\"Courier New\"",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "arial-keeps-white-390",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Arial",
+      "observed": {
+        "font": "Arial",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "reload-resets-white-arial",
+      "expectedBackground": "rgb(255, 255, 255)",
+      "expectedFont": "Arial",
+      "observed": {
+        "font": "Arial",
+        "textColor": "rgb(0, 0, 0)",
+        "backgrounds": [
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)",
+          "rgb(255, 255, 255)"
+        ],
+        "main": {
+          "x": 8,
+          "y": 16,
+          "width": 374,
+          "height": 239.875,
+          "top": 16,
+          "right": 382,
+          "bottom": 255.875,
+          "left": 8
+        },
+        "active": {
+          "tag": "BODY",
+          "id": ""
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "horizontalOverflow": false
+      },
+      "passed": true
+    },
+    {
+      "name": "native-keyboard-order-and-independent-selection",
+      "observed": {
+        "first": {
+          "tag": "SELECT",
+          "id": ""
+        },
+        "second": {
+          "tag": "SELECT",
+          "id": ""
+        },
+        "keyboard": {
+          "font": "Georgia",
+          "textColor": "rgb(0, 0, 0)",
+          "backgrounds": [
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)",
+            "rgb(255, 255, 255)"
+          ],
+          "main": {
+            "x": 8,
+            "y": 16,
+            "width": 374,
+            "height": 239.875,
+            "top": 16,
+            "right": 382,
+            "bottom": 255.875,
+            "left": 8
+          },
+          "active": {
+            "tag": "SELECT",
+            "id": ""
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "horizontalOverflow": false
+        }
+      },
+      "passed": false
+    }
+  ],
+  "externalRequests": [],
+  "passed": false
+}

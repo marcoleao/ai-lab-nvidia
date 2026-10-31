@@ -1,0 +1,25 @@
+{
+  "url": "http://localhost:33991/",
+  "at": "2026-10-31T22:18:52.698Z",
+  "observed": [
+    {
+      "name": "Cor do fundo",
+      "tag": "SELECT",
+      "focusVisible": true,
+      "outlineStyle": "auto",
+      "outlineWidth": "1px",
+      "outlineColor": "rgb(16, 16, 16)",
+      "passed": true
+    },
+    {
+      "name": "Fonte",
+      "tag": "SELECT",
+      "focusVisible": true,
+      "outlineStyle": "auto",
+      "outlineWidth": "1px",
+      "outlineColor": "rgb(16, 16, 16)",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -2,6 +2,7 @@
 
 import { useId, type ReactNode } from 'react';
 import { ErrorState, LoadingState } from './experience-ui';
+import './lifecycle-panel.css';
 
 export default function LifecyclePanel({ title, description, value, stages, busy = false, error = '', children }: { title: string; description: string; value: string; stages: readonly string[]; busy?: boolean; error?: string; children: ReactNode }) {
   const headingId = useId();

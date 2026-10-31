@@ -1,0 +1,112 @@
+http://127.0.0.1:3310/assistant?system=cmvwup5yd000001t504wzvlw0&scope=system
+- alert: Portal SDLC
+- link "Ir para o conteúdo":
+  - /url: "#main"
+- complementary:
+  - text: Dell Technologies Portal SDLC
+  - navigation "Principal":
+    - link "Visão geral":
+      - /url: /
+    - link "Assistente":
+      - /url: /assistant
+    - link "Sistemas":
+      - /url: /systems
+    - link "Releases":
+      - /url: /releases
+    - link "Integrações":
+      - /url: /integrations
+  - paragraph: Da ideia à entrega. Um processo, contexto completo.
+- banner:
+  - text: Entrevista e especificação Modo demo local · Persona
+  - combobox "Persona":
+    - option "Selecione para atuar"
+    - option "Ana · Product Owner" [selected]
+    - option "Bruno · Arquiteto"
+    - option "Carla · QA Lead"
+    - option "Diego · Security Lead"
+    - option "Elisa · Release Manager"
+    - option "Admin · Administrador"
+- main:
+  - region "Contexto da entrevista":
+    - navigation "Destino do planejamento":
+      - list:
+        - listitem:
+          - link "Hello World Interativo":
+            - /url: /systems/cmvwup5yd000001t504wzvlw0
+    - text: Conversa compartilhada do Sistema · escolha um Projeto para criar itens ACTIVE
+    - button "Alterar contexto"
+  - region "Entrevista e planejamento":
+    - heading "Assistente" [level=1]
+    - paragraph: Entrevista e planejamento
+    - navigation "Assuntos do Assistente":
+      - group "Ações do Sistema":
+        - button "Acompanhar preparação" [expanded]
+      - dialog "Preparação da aplicação":
+        - heading "Preparação da aplicação" [level=2]
+        - paragraph:
+          - text: "Sistema:"
+          - strong: Hello World Interativo
+        - button "Voltar à conversa"
+        - paragraph: Revise e confirme a preparação neste painel. O pedido usa o mesmo fluxo do repositório do Sistema; enviar uma mensagem não publica arquivos nem autoriza o merge.
+        - button "Atualizar situação do Sistema"
+        - region "Preparação da aplicação":
+          - heading "Preparação da aplicação" [level=3]
+          - paragraph: Prepare as entradas técnicas Node 24/React no repositório novo, com build e verificação HTTP dessa estrutura antes da liberação do Draft. A alteração será revisada em um Merge Request próprio; não cria dados de negócio nem aprova Histórias.
+          - status: Pedido recebido. Acompanhe seu resultado abaixo.
+          - region "Resultado da preparação da aplicação":
+            - heading "Preparação integrada na branch padrão" [level=4]
+            - paragraph: Preparação integrada na branch padrão. As Histórias e a implantação continuam nas próprias etapas.
+            - paragraph: Pedido de Ana · atualizado em 31/10/2026, 17:31.
+            - paragraph:
+              - text: Merge Request
+              - strong: "!1"
+              - text: · merge observado no GitLab ·
+              - link "Consultar referência no GitLab ↗":
+                - /url: http://127.0.0.1:3180/sdlc/hellow/app/-/merge_requests/1
+            - group: Referências da preparação
+            - group:
+              - text: Prova técnica da estrutura
+              - paragraph: Build e verificação HTTP da estrutura aprovados.
+              - paragraph: Essa validação da estrutura não aprova testes funcionais das Histórias, Desenvolvimento Finalizado ou implantação em ambiente.
+              - term: Imagem da verificação
+              - definition:
+                - code: sha256:534415b8d7ac4f3f2e6db9b3585e1091074f2e8332a380b7f82e0552a07b13fc
+              - term: Digest do artefato verificado
+              - definition:
+                - code: dc33f3d97525e3e57243994d970778a5a1db3e0f5852f826f7ea4f01cbecfcbc
+              - term: Pipeline GitLab registrado
+              - definition: "1"
+              - term: Status técnico registrado
+              - definition: "1"
+            - region "Preparação integrada":
+              - heading "Preparação integrada na branch padrão" [level=4]
+              - paragraph:
+                - text: Integração confirmada em 31/10/2026, 17:31 · commit
+                - code: 1e2cc95bc2431034a70d5d9feb6ca9a6b3e682e5
+                - text: .
+              - paragraph: Estrutura técnica integrada. Desenvolvimento das Histórias, build, testes e implantação continuam com seus próprios gates.
+          - button "Conferir fonte da preparação"
+          - button "Atualizar acompanhamento da preparação"
+          - paragraph:
+            - button "Verificar resultado da preparação"
+          - group: Resolver acompanhamento da preparação
+      - group "Ações DEV do contexto":
+        - button "Preparar destino DEV"
+      - button "Resumo"
+      - button "Proposta"
+      - button "Histórico de propostas"
+    - log "Conversa do contexto":
+      - text: Início da conversa 0 de 0 interações carregadas · ordem cronológica
+      - heading "O que você quer construir?" [level=2]
+      - paragraph: Conte a necessidade. Vamos organizar a primeira História.
+      - button "Descrever uma funcionalidade Comece pelo problema e pelo resultado esperado."
+      - button "Refinar uma necessidade Detalhe comportamento, regras e exceções."
+      - paragraph: Quando esclarecer a necessidade, gere uma proposta para revisão.
+      - button "Gerar proposta para revisão" [disabled]
+    - text: Sua mensagem
+    - textbox "Sua mensagem":
+      - /placeholder: Converse sobre o que você quer construir…
+    - text: 0/4000 · Enter envia · Shift + Enter quebra linha
+    - button "Enviar mensagem" [disabled]
+    - paragraph: Conversa compartilhada neste Sistema. Preparação usa a ação própria; criar itens exige um Projeto.
+    - status

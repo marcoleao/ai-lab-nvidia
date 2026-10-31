@@ -1,0 +1,82 @@
+{
+  "id": "09895d677c632171b73fe2cf691fa9b38cf88101b49b1ce457b223ce6a47646a",
+  "expectedSha": "9c5d4eb09118f63849c0e0f6fb165ebcd6f8d45c",
+  "state": "succeeded",
+  "policy": "qwen-code-node24-v1",
+  "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+  "browserImageId": "sha256:0c21127153f2fa52c89ea3efb1e679b23c81e6f3d188d4184797cddbdedcc1d9",
+  "model": "qwen3:14b",
+  "uiModel": "qwen3:14b",
+  "inferenceCalls": 14,
+  "phases": [
+    {
+      "role": "diagnosis",
+      "state": "observed",
+      "model": null,
+      "scope": "Opening and controls only; not functional acceptance"
+    },
+    {
+      "role": "implementation",
+      "state": "succeeded",
+      "model": "qwen3:14b",
+      "inferenceCalls": 10,
+      "toolCalls": 4
+    },
+    {
+      "role": "test_planning",
+      "state": "succeeded",
+      "model": "qwen3:14b",
+      "inferenceCalls": 3
+    },
+    {
+      "role": "ui_preconditions",
+      "state": "succeeded",
+      "model": "qwen3:14b",
+      "inferenceCalls": 1,
+      "selections": 2
+    },
+    {
+      "role": "ui_operator",
+      "state": "succeeded",
+      "model": "qwen3:14b",
+      "inferenceCalls": 1,
+      "confirmedActions": 1
+    }
+  ],
+  "validation": {
+    "valid": true,
+    "scope": "Implementation syntax and independent UI recipe replay; not complete business acceptance"
+  },
+  "assertions": [
+    {
+      "kind": "page_background",
+      "value": "#FFFFFF"
+    }
+  ],
+  "changedPaths": [
+    "src/App.jsx"
+  ],
+  "browserChecks": [
+    {
+      "applicable": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 0,
+        "executed": 0,
+        "assertions": 0
+      },
+      "scope": "Entrada React e interações declaradas em navegador isolado; não comprova backend nem aceite funcional completo."
+    },
+    {
+      "applicable": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 1,
+        "executed": 1,
+        "assertions": 1
+      },
+      "scope": "Entrada React e interações declaradas em navegador isolado; não comprova backend nem aceite funcional completo."
+    }
+  ],
+  "source": "Native coding receipt, safe metadata only; MR publication confirmed separately in portal UI"
+}

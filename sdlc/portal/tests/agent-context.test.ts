@@ -1,5 +1,11 @@
 import {expect,test} from 'vitest';
-import {agentContextMessages,executionAgentReference,generationReferenceMessages,nativeGenerationReferenceMessages,nativeUiTestContext,reviewReferenceMessages} from '../apps/api/src/agent-context.ts';
+import {agentContextMessages,executionAgentReference,generationReferenceMessages,nativeGenerationReferenceMessages,nativeUiTestContext,reviewReferenceMessages,specificationSourceReference} from '../apps/api/src/agent-context.ts';
+
+test('specification receives revision-bound observed entries without pretending a complete repository inventory',()=>{
+ const value=specificationSourceReference({sha:'a'.repeat(40),targetBranch:'main',files:[{path:'src/App.jsx',content:'function App(){return null}'},{path:'package.json',content:'{"dependencies":{"react":"19.3.1"}}'},{path:'server.mjs',content:'x'.repeat(2100)},{path:'docs/notes.md',content:'unrelated'}]});
+ expect(value.sha).toBe('a'.repeat(40));expect(value.entries.map(e=>e.path)).toEqual(['src/App.jsx','package.json','server.mjs']);expect(value.entries[2].complete).toBe(false);expect(value.entries[2].content).toHaveLength(2000);expect(value.collectionScope).toContain('não é inventário integral');expect(value.instruction).toContain('Preserve');
+ expect(specificationSourceReference({sha:'b'.repeat(40),targetBranch:'main',files:[]}).entries).toEqual([]);
+});
 test('authoritative context preserves every criterion while removing duplicate snapshots and old code',()=>{
  const criteria=Array.from({length:12},(_,i)=>`Critério único ${i}: `+'regra '.repeat(25)),approved={architecture:'Plano aprovado',testCases:criteria.map((_,criterionIndex)=>({criterionIndex,description:'Teste de interface'}))};
  const snapshot={name:'Catálogo',description:'Texto duplicado',requirements:{objective:'Objetivo',behavior:'Comportamento',functionalCriteria:criteria,businessRules:['Regra complementar']},criteria,technicalPlan:{architecture:'Plano antigo'},codeContext:{files:[{path:'old.js',content:'Código antigo'}]},tasks:[],decisions:[],codeDestination:{baseSha:'a'.repeat(40)}};

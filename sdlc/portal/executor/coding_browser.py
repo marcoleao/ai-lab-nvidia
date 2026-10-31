@@ -5,7 +5,11 @@ import http.client,json,os,re,shutil,socket,subprocess,tempfile,time
 def validate_ui_steps(steps):
  if not isinstance(steps,list) or len(steps)>20 or len(json.dumps(steps))>8000:raise ValueError('UI probe budget')
  for step in steps:
-  if not isinstance(step,dict) or set(step)-{'op','target','value','dialog'} or step.get('op') not in ['fill','click','select','check','expect_text','expect_visible','expect_image','reload']:raise ValueError('UI probe operation')
+  if not isinstance(step,dict) or set(step)-{'op','target','value','dialog'} or step.get('op') not in ['fill','click','select','check','expect_text','expect_visible','expect_image','expect_background','expect_font','reload']:raise ValueError('UI probe operation')
+  if step['op'] in ['expect_background','expect_font']:
+   pattern=r'#[0-9a-fA-F]{6}' if step['op']=='expect_background' else r'[A-Za-z][A-Za-z0-9 -]{0,79}'
+   if set(step)!={'op','value'} or not isinstance(step['value'],str) or not re.fullmatch(pattern,step['value']):raise ValueError('UI visual assertion')
+   continue
   if 'dialog' in step and (step['op']!='click' or step['dialog'] not in ['accept','dismiss']):raise ValueError('UI probe dialog')
   if step['op'] in ['fill','select','expect_text'] and (not isinstance(step.get('value'),str) or len(step['value'])>500):raise ValueError('UI probe value')
   if step['op']=='expect_text' and not step['value'].strip():raise ValueError('UI probe empty assertion')

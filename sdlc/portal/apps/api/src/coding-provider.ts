@@ -22,6 +22,8 @@ export function technicalCodingFailure(snapshot:unknown){
 }
 export interface CodingProvider {health?():Promise<{ready:boolean;model:string}>;generate(input:CodingInput,onProgress?:(stage:CodingStage)=>Promise<void>):Promise<{content:string;evidence:CodingEvidence}>}
 const receipt=z.object({id:z.string().regex(/^[a-f0-9]{64}$/),expectedSha:z.string().optional(),state:z.enum(['absent','queued','running','succeeded','failed','unknown','waiting_input']),patch:codeSchema.optional(),blocker:blockerSchema.optional(),validation:z.object({valid:z.boolean()}).passthrough().optional(),error:z.string().optional()}).passthrough();
+const safeDiagnostics:Record<string,string>={INFERENCE_TOKEN_REPEAT_LIMIT:'O serviço local interrompeu a geração por repetição de tokens. A tentativa foi preservada; a retomada técnica deve usar um trecho menor, mantendo o escopo aprovado.',SOURCE_INSPECTION_FAILED:'O analisador não conseguiu inspecionar a fonte no perfil sintático. A plataforma precisa corrigir esse perfil antes de repetir a tentativa.',SOURCE_COMPILER_UNAVAILABLE:'O processo isolado de análise e compilação terminou sem resultado válido. A plataforma precisa conferir o compilador antes de repetir a tentativa.'};
+function safeDiagnostic(value:Record<string,unknown>){return typeof value.diagnosticCode==='string'&&Object.hasOwn(safeDiagnostics,value.diagnosticCode)?` Diagnóstico registrado (${value.diagnosticCode}): ${safeDiagnostics[value.diagnosticCode]}`:' A causa técnica não foi registrada em formato seguro para esta consulta.';}
 export class LocalCodingProvider implements CodingProvider {
  constructor(private socketPath:string,private pause:(milliseconds:number)=>Promise<unknown>=delay){}
  private call(path:string,body?:unknown):Promise<unknown>{const payload=body===undefined?undefined:JSON.stringify(body);return new Promise((resolve,reject)=>{
@@ -47,7 +49,7 @@ export class LocalCodingProvider implements CodingProvider {
    }
    if(value.state==='waiting_input'&&value.blocker)return {content:JSON.stringify({blocker:value.blocker}),evidence:evidenceSchema.parse(value)};
    if(value.state==='failed')throw new DomainError('CODING_EXECUTOR_FAILED','O agente não concluiu esta tentativa. Esta tentativa não publicou alterações. Retome a correção técnica com o mesmo escopo. Diagnóstico técnico: '+(value.error??'sem resultado').slice(0,1500),502);
-   if(value.state==='unknown'||value.state==='absent')throw new DomainError('CODING_EXECUTOR_UNKNOWN','O resultado desta tentativa não foi confirmado. Nenhum código foi publicado. As evidências foram preservadas; revise antes de iniciar uma nova tentativa.',503);
+   if(value.state==='unknown'||value.state==='absent')throw new DomainError('CODING_EXECUTOR_UNKNOWN','O resultado desta tentativa não foi confirmado. Nenhum código foi publicado. As evidências foram preservadas.'+safeDiagnostic(value),503);
    if(Date.now()>=end)throw new DomainError('CODING_EXECUTOR_TIMEOUT','O executor atingiu o prazo de acompanhamento. A candidata não foi publicada. As evidências ficam preservadas; uma nova tentativa exige sua retomada explícita.',504);
    await this.pause(1000);value=receipt.parse(await this.call('/jobs/'+id));
   }

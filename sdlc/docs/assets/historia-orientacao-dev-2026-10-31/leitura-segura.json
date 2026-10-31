@@ -1,0 +1,91 @@
+{
+    "observedAt":  "2026-10-31T22:48:07.1754867Z",
+    "storyId":  "cmvwutzrh001001t5lxja9hez",
+    "methods":  "GET only",
+    "journey":  {
+                    "phase":  "TESTING",
+                    "title":  "Código integrado; desenvolvimento da História continua",
+                    "message":  "Para alterar esta História, inicie outro ciclo e revise a especificação. A codificação exige nova aprovação no Gateway de Especificação. A release é opcional em DEV; build, testes e implantação mantêm suas etapas próprias.",
+                    "nextAction":  {
+                                       "label":  "Preparar versão DEV",
+                                       "href":  "/stories/cmvwutzrh001001t5lxja9hez?tab=planning\u0026process=environment\u0026environment=DEV",
+                                       "id":  "prepare_dev"
+                                   }
+                },
+    "build":  {
+                  "state":  "succeeded",
+                  "number":  2
+              },
+    "deployment":  {
+                       "number":  2,
+                       "url":  "http://localhost:33991",
+                       "observation":  {
+                                           "state":  "healthy",
+                                           "operationId":  "0c02a7d6-34f1-4155-92cc-565623f9bc19",
+                                           "url":  "http://localhost:33991",
+                                           "observedAt":  "2026-10-31T22:48:07.002791+00:00"
+                                       },
+                       "state":  "succeeded"
+                   },
+    "tests":  {
+                  "current":  true,
+                  "scope":  "technical",
+                  "number":  2,
+                  "caseCount":  4,
+                  "result":  "passed",
+                  "state":  "succeeded"
+              },
+    "approval":  {
+                     "criterionCount":  6,
+                     "blockers":  [
+                                      "A suíte técnica não substitui os testes de aceitação. Entregue e execute os casos funcionais pelo fluxo de código."
+                                  ],
+                     "checks":  [
+                                    {
+                                        "id":  "specification",
+                                        "label":  "Especificação e ciclo",
+                                        "passed":  true,
+                                        "detail":  "Revisão aprovada no Gateway e conteúdo atual conferidos."
+                                    },
+                                    {
+                                        "id":  "integration",
+                                        "label":  "Integração e rastreabilidade",
+                                        "passed":  true,
+                                        "detail":  "Merge confirmado e referência integrada preservada."
+                                    },
+                                    {
+                                        "id":  "code_review",
+                                        "label":  "Revisão de código",
+                                        "passed":  true,
+                                        "detail":  "Controle aprovado para o commit da História e política atual."
+                                    },
+                                    {
+                                        "id":  "security_scan",
+                                        "label":  "Segurança",
+                                        "passed":  true,
+                                        "detail":  "Controle aprovado para o commit da História e política atual."
+                                    },
+                                    {
+                                        "id":  "artifact",
+                                        "label":  "Artefato de desenvolvimento",
+                                        "passed":  true,
+                                        "detail":  "Construção confirmada e vinculada à referência integrada."
+                                    },
+                                    {
+                                        "id":  "deployment",
+                                        "label":  "Publicação DEV confirmada",
+                                        "passed":  true,
+                                        "detail":  "A implantação deste artefato foi confirmada. O DEV pode estar atendendo outra História agora."
+                                    },
+                                    {
+                                        "id":  "acceptance",
+                                        "label":  "Testes de aceitação",
+                                        "passed":  false,
+                                        "detail":  "A suíte técnica não substitui os testes de aceitação. Entregue e execute os casos funcionais pelo fluxo de código."
+                                    }
+                                ],
+                     "allowed":  false,
+                     "state":  "not_recorded",
+                     "coveredCriteria":  0
+                 }
+}
