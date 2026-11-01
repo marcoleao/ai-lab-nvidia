@@ -4,9 +4,10 @@ import Link from 'next/link';
 import type {StoryDevProgress} from '../../../packages/shared/src/story-dev-progress';
 import {ErrorState,LoadingState,displayDate} from './experience-ui';
 import './story-dev-summary.css';
+import DevelopmentAiTestResult from './development-ai-test-result';
 
-export default function StoryDevSummary({reading,loading=false,stale=false,onRefresh,stepHref,onStep}:{reading?:StoryDevProgress;loading?:boolean;stale?:boolean;onRefresh:()=>void;stepHref:(step:NonNullable<StoryDevProgress['nextAction']>['step'])=>string;onStep:(step:NonNullable<StoryDevProgress['nextAction']>['step'])=>void}){
- if(!reading&&!loading&&!stale)return null;
+export default function StoryDevSummary({storyId,revision,reading,loading=false,stale=false,onRefresh,stepHref,onStep}:{storyId:string;revision:number;reading?:StoryDevProgress;loading?:boolean;stale?:boolean;onRefresh:()=>void;stepHref:(step:NonNullable<StoryDevProgress['nextAction']>['step'])=>string;onStep:(step:NonNullable<StoryDevProgress['nextAction']>['step'])=>void}){
+ if(!reading&&!loading&&!stale)return <DevelopmentAiTestResult storyId={storyId} revision={revision} className="panel"/>;
  const current=!!reading&&!stale&&!loading;
  let liveUrl:string|null=null;
  if(current&&reading.liveUrl){try{const url=new URL(reading.liveUrl);if(['http:','https:'].includes(url.protocol)&&!url.username&&!url.password)liveUrl=url.href;}catch{}}
@@ -22,5 +23,6 @@ export default function StoryDevSummary({reading,loading=false,stale=false,onRef
   </div>
   {liveUrl&&<p className="story-dev-url">{liveUrl}</p>}
   {current&&reading.observedAt&&<p className="hint story-dev-observation">Disponibilidade observada em {displayDate(reading.observedAt)}.</p>}
+  <DevelopmentAiTestResult storyId={storyId} revision={revision} stale={stale}/>
  </section>;
 }

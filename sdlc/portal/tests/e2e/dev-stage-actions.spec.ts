@@ -16,12 +16,15 @@ async function expectStep(page:Page,selected:string){
   await expect(page.getByTestId('story-dev-summary')).toHaveCount(0);
   for(const step of ['build','deployment','test','approval']){await expect(controller(page,step)).toHaveCount(1);if(step===selected){await expect(controller(page,step)).toBeVisible();await expect(stage(page,step)).toHaveAttribute('open','');await expect(stage(page,step)).toHaveAttribute('data-standalone','true');await expect(stageSummary(page,step)).toBeHidden();}else await expect(controller(page,step)).toBeHidden();}
 }
-async function openBuildFromHub(page:Page){await next(page).click();await expectStep(page,'approval');await controller(page,'approval').getByRole('button',{name:'Revisar Desenvolvimento Finalizado',exact:true}).click();await page.getByTestId('development-approval-confirmation').getByRole('button',{name:'Consultar construção',exact:true}).click();await expectStep(page,'build');}
+// This fixture preserves an old acceptance-pendency link. Its destination now
+// consults evidence and hands new decisions to the single Story approval page.
+// Global approval commands and recovery are covered by development-manual-acceptance.spec.ts.
+async function openBuildFromHub(page:Page){await next(page).click();await expectStep(page,'approval');await controller(page,'approval').getByRole('button',{name:'Consultar condições da aprovação',exact:true}).click();await page.getByTestId('development-approval-confirmation').getByRole('button',{name:'Consultar construção',exact:true}).click();await expectStep(page,'build');}
 function clean(state:Awaited<ReturnType<typeof fixture>>){expect(state.writes).toEqual([]);expect(state.errors).toEqual([]);}
 async function capture(page:Page,name:string){if(!process.env.SCREENSHOT_DIR)return;mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/${name}.png`,fullPage:false});}
 
 for(const width of [1440,390]){
-  test(`Guided DEV prioritizes acceptance through two observation and action panels at ${width}px`,async({page})=>{
+  test(`Guided DEV keeps two panels and offers global Story approval from an old acceptance pendency at ${width}px`,async({page})=>{
     const state=await fixture(page);await open(page,width);
     await expect(hub(page).locator(':scope > section')).toHaveCount(2);await expect(hub(page).getByRole('region',{name:'Acompanhamento da execução',exact:true})).toBeVisible();await expect(hub(page).getByRole('region',{name:'O que você pode fazer agora',exact:true})).toBeVisible();
     await expect(hub(page)).toContainText('Versão disponível em DEV');await expect(page.getByTestId('story-dev-summary')).toHaveCount(0);
@@ -31,12 +34,16 @@ for(const width of [1440,390]){
     await expect(page.getByTestId('story-execution-operation-test')).toContainText('Verificações técnicas aprovadas');
     await expect(next(page)).toHaveAttribute('href',stepUrl('approval'));
     await next(page).click();await expectStep(page,'approval');
-    await expect(page.getByTestId('development-approval-pendencies')).toContainText('0 de 6 critérios');
+    await expect(page.getByTestId('development-approval-pendencies')).toContainText('Confira a situação da aprovação da História.');
     await expect(page.getByTestId('development-approval-pendencies')).toContainText('Os testes técnicos não comprovam os critérios da interface.');
+    await expect(page.getByTestId('development-approval-pendencies')).toContainText('Use Aprovar História em DEV para registrar sua decisão sobre a História inteira, incluindo Desenvolvimento Finalizado.');
+    await expect(controller(page,'approval').getByRole('button',{name:'Aprovar História em DEV',exact:true})).toBeVisible();
     for(const label of ['Conferir versão para construir','Atualizar acompanhamento da construção','Conferir publicação DEV','Atualizar acompanhamento da publicação','Conferir testes DEV','Atualizar acompanhamento dos testes','Conferir condições de aprovação'])await expect(page.getByRole('button',{name:label,exact:true})).toHaveCount(0);
     await expect(page.getByRole('button',{name:'Atualizar consulta',exact:true})).toHaveCount(1);
     await expect(controller(page,'approval').getByRole('textbox')).toHaveCount(0);
     await expect(controller(page,'approval').getByRole('checkbox')).toHaveCount(0);
+    await expect(controller(page,'approval').getByRole('radio')).toHaveCount(0);
+    await expect(controller(page,'approval').getByRole('button',{name:'Confirmar aprovação da História em DEV',exact:true})).toHaveCount(0);
     await expect(controller(page,'approval').getByRole('button',{name:'Confirmar Desenvolvimento Finalizado',exact:true})).toHaveCount(0);
     await expect(page.getByRole('link',{name:'Voltar à Execução',exact:true})).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -46,7 +53,7 @@ for(const width of [1440,390]){
   test(`Completed DEV readings stay dated in the hub and construction has an honest blocked preview at ${width}px`,async({page})=>{
     const state=await fixture(page);state.buildContext.allowed=false;state.buildContext.blockers=['Esta revisão já tem artefato confirmado; outra construção está indisponível no ensaio.'];
     await open(page,width);const reading=page.getByTestId('story-execution-operation-build');await expect(reading).toContainText('Artefato confirmado');
-    state.buildReadFailed=true;await hub(page).getByRole('button',{name:'Atualizar acompanhamento',exact:true}).click();await expect(reading).toContainText('Último resultado conhecido: Artefato confirmado');await expect(reading).toContainText('31/10/2026');await expect(hub(page)).toContainText('As últimas leituras recebidas permanecem identificadas abaixo');clean(state);
+    state.buildReadFailed=true;await hub(page).getByRole('button',{name:'Atualizar acompanhamento',exact:true}).click();await expect(reading).toContainText('Último resultado conhecido: Artefato confirmado');await expect(reading).toContainText('31/10/2026');await expect(hub(page)).toContainText('As últimas leituras recebidas permanecem identificadas nesta página');clean(state);
     state.buildReadFailed=false;await hub(page).getByRole('button',{name:'Atualizar acompanhamento',exact:true}).click();await expect(reading).not.toContainText('Último resultado conhecido');
     await openBuildFromHub(page);
     await expect(controller(page,'build').getByText('Último artefato confirmado',{exact:true})).toBeVisible();
@@ -67,9 +74,12 @@ for(const width of [1440,390]){
     await expectStep(page,'build');await expect(heading).toBeFocused();
     await page.reload();await expect(heading).toBeFocused();await expect(page).toHaveURL(/tasks.q=preservar/);
     const original=page.url();await page.getByRole('link',{name:'Voltar à Execução',exact:true}).click();await expect(hub(page)).toBeVisible();await next(page).click();await expectStep(page,'approval');
-    await controller(page,'approval').getByRole('button',{name:'Revisar Desenvolvimento Finalizado',exact:true}).click();
-    const preview=page.getByTestId('development-approval-confirmation');await expect(preview).toContainText('0 de 6 critérios');
+    await controller(page,'approval').getByRole('button',{name:'Consultar condições da aprovação',exact:true}).click();
+    const preview=page.getByTestId('development-approval-confirmation');await expect(preview).toBeFocused();await expect(preview).toContainText('Aprovação humana da História pendente.');
+    await expect(preview.getByRole('button',{name:'Aprovar História em DEV',exact:true})).toBeVisible();
     await expect(preview.getByRole('textbox')).toHaveCount(0);await expect(preview.getByRole('checkbox')).toHaveCount(0);
+    await expect(preview.getByRole('radio')).toHaveCount(0);
+    await expect(preview.getByRole('button',{name:'Confirmar aprovação da História em DEV',exact:true})).toHaveCount(0);
     await expect(preview.getByRole('button',{name:'Confirmar Desenvolvimento Finalizado',exact:true})).toHaveCount(0);
     await preview.getByRole('button',{name:'Consultar construção',exact:true}).click();
     await expect(page).toHaveURL(original);await expectStep(page,'build');await expect(heading).toBeFocused();
@@ -118,6 +128,6 @@ test('DEV fixtures without shared progress keep Story ownership and legacy Task 
   await page.setViewportSize({width:1440,height:1000});await page.goto(stepUrl('build'));await expectStep(page,'build');await expect(controller(page,'build').getByRole('button',{name:'Revisar construção',exact:true})).toBeVisible();
   await page.goto('/tasks/summary-merge-task?tab=planning&process=environment&environment=DEV');
   for(const step of ['build','deployment','test','approval'])await expect(controller(page,step)).toBeVisible();
-  for(const [step,label] of [['build','Conferir versão para construir'],['deployment','Conferir publicação DEV'],['test','Conferir testes DEV'],['approval','Revisar aprovação']] as const)await expect(controller(page,step).getByRole('button',{name:label,exact:true})).toBeVisible();
+  for(const [step,label] of [['build','Conferir versão para construir'],['deployment','Conferir publicação DEV'],['test','Conferir testes DEV'],['approval','Consultar condições da aprovação']] as const)await expect(controller(page,step).getByRole('button',{name:label,exact:true})).toBeVisible();
   clean(state);
 });

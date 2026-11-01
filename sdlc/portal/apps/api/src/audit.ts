@@ -48,6 +48,7 @@ for(const field of ['integrationReferenceId','integrationSha','mergeCommitSha','
 for(const field of ['finishedAt','origin','mergedBy'])publicFields.add(field);
 for(const field of ['historyResolutionId','reasonDigest'])publicFields.add(field);
 for(const field of ['remoteClosureId','writeStartedAt'])publicFields.add(field);
+for(const field of ['developmentAiTestId','untestedCases'])publicFields.add(field);
 publicFields.add('environmentCodes');
 publicFields.add('compositionStatus');
 publicFields.add('flowEnvironment');

@@ -70,7 +70,7 @@ def preflight(general,coding,check_idle=True):
 def sql(query):return run('docker','exec','sdlc-portal-foundation-db-1','psql','-X','-U','sdlc','-d','portal','-At','-v','ON_ERROR_STOP=1','-c',query)
 
 def idle(native_only=False):
- for directory in ['build-executor/state','coding-executor/state','runtime-executor/state/jobs']:
+ for directory in ['build-executor/state','coding-executor/state','runtime-executor/state/jobs','runtime-executor/state/ai-jobs']:
   for path in (RUNTIME/directory).glob('*/receipt.json'):
    if read(path).get('state') in ['queued','running']:raise Missing('Ha trabalho nativo em andamento. Aguarde antes de configurar os executores.')
  if native_only:return
@@ -102,7 +102,7 @@ def doctor(general,coding):
  runtime=read(RUNTIME/'runtime-executor/installation.json')
  coding_install=read(RUNTIME/'coding-executor/installation.json')
  expected=hashlib.sha256(b''.join((ROOT/'executor'/name).read_bytes() for name in CODING_SOURCES)).hexdigest()
- if build.get('sourceDigest')!=hashlib.sha256((ROOT/'executor/service.py').read_bytes()).hexdigest() or runtime.get('sourceDigest')!=hashlib.sha256((ROOT/'runtime/service.py').read_bytes()).hexdigest() or coding_install.get('sourceDigest')!=expected:raise Missing('Fonte instalada de executor difere do codigo; repita a preparacao e instalacao apos encerrar os trabalhos.')
+ if build.get('sourceDigest')!=hashlib.sha256((ROOT/'executor/service.py').read_bytes()).hexdigest() or runtime.get('sourceDigest')!=hashlib.sha256(b''.join((ROOT/path).read_bytes() for path in ['runtime/service.py','runtime/dev_ai.py','executor/coding_ui_agent.py','executor/coding_browser.py','executor/coding-browser.mjs','executor/browser-controls.mjs'])).hexdigest() or coding_install.get('sourceDigest')!=expected:raise Missing('Fonte instalada de executor difere do codigo; repita a preparacao e instalacao apos encerrar os trabalhos.')
  config=read(ROOT/'.prepared/compose.integrations.json')['services']['api']['environment']
  if not config.get('GITLAB_MERGE_TOKEN_FILE'):raise Missing('Credencial dedicada de merge nao configurada. Confira a inicializacao GitLab.')
  ready=integrations(get('http://127.0.0.1:3310/api/integrations/health'))

@@ -117,7 +117,7 @@ class CodingContract(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'registry'):service.validate_inference(self.request(),job)
   request=self.request();request['tools']=[tool for tool in request['tools'] if tool['function']['name'] in job['allowedTools']];self.assertEqual(len(service.validate_inference(request,job)['tools']),5)
   with self.assertRaisesRegex(ValueError,'cannot change'):service.validate_live_candidate({'expectedSha':'b'*40,'files':[{'path':'src/a.js','content':'other'}],'steps':[]},job)
- def focused_scenario(self,ui_fails=False,implementation_fails=False,replay_fails=False,allow_repair=False,repair_fails=False,repair_outside=False):
+ def focused_scenario(self,ui_fails=False,implementation_fails=False,replay_fails=False,allow_repair=False,repair_fails=False,repair_outside=False,unsupported=False):
   intent=self.intent();intent['files'].append({'path':'src/main.jsx','content':'render();'})
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory);service.CONFIG={'workflow':'focused-local-v1','model':'local:9b','imageId':'sha256:'+'e'*64,'browserImageId':'sha256:'+'f'*64,'inferenceSocket':'/private/inference.sock'};roles=[];registries=[];tokens=[]
@@ -129,11 +129,12 @@ class CodingContract(unittest.TestCase):
    proof={'applicable':True,'passed':True,'errors':[]}
    def verify(e,job,files,directory,observation,progress):
     self.assertEqual(job['role'],'ui_validation');self.assertEqual(job['readOnlyFiles'],{f['path']:f['content'] for f in files});self.assertEqual(job['allowedTools'],service.tools_for_role('ui_validation'));tokens.append(job['token']);self.assertEqual(files[-1]['content'],'renderFixed();')
+    if unsupported:return {'passed':False,'repairable':False,'diagnosticCode':'UI_CAPABILITY_UNSUPPORTED','error':'Keyboard verification unavailable','phases':[{'role':'test_planning','state':'not_tested'}]}
     return {'passed':not ui_fails,'repairable':allow_repair,'steps':[{'op':'expect_text','value':'Tela conferida'}],'phases':[{'role':'test_planning','state':'succeeded'},{'role':'ui_operator','state':'failed' if ui_fails else 'succeeded'}],'proof':dict(proof),'error':'Falha funcional preservada'}
    import coding_workflow
    with patch.object(service.subprocess,'run',side_effect=run),patch.object(service.os,'chown'),patch.object(service,'SLOT',Mock()),patch.object(coding_workflow,'run_ui_verifier',side_effect=verify) as verifier,patch.object(service,'check_candidate',side_effect=[dict(proof),dict(proof),{**proof,'passed':not replay_fails}]) as replay:service.execute(intent,root,{'id':intent['id'],'expectedSha':intent['expectedSha']})
    self.assertEqual(verifier.call_count,0 if implementation_fails else 1)
-   self.assertEqual(replay.call_count,1 if implementation_fails else 2 if ui_fails and (not allow_repair or repair_fails or repair_outside) else 3)
+   self.assertEqual(replay.call_count,1 if implementation_fails else 2 if unsupported or ui_fails and (not allow_repair or repair_fails or repair_outside) else 3)
    if ui_fails and allow_repair and not repair_fails and not repair_outside:self.assertEqual(replay.call_args.kwargs['steps'],[{'op':'expect_text','value':'Tela conferida'}])
    value=json.loads((root/'receipt.json').read_text());self.assertNotIn(intent['id'],service.JOBS)
    return value,roles,registries,tokens
@@ -145,6 +146,9 @@ class CodingContract(unittest.TestCase):
     value,roles,_,_=self.focused_scenario(**options);self.assertEqual(value['state'],'failed');self.assertNotIn('patch',value);self.assertEqual(roles,['implementation']);self.assertFalse(value['browserChecks'][-1]['passed'])
  def test_failed_implementation_does_not_start_the_ui_specialist(self):
   value,roles,_,_=self.focused_scenario(implementation_fails=True);self.assertEqual(value['state'],'failed');self.assertEqual(roles,['implementation']);self.assertEqual(len(value['browserChecks']),0)
+ def test_unsupported_verification_waits_for_input_without_patch_repair_or_false_functional_failure(self):
+  value,roles,_,_=self.focused_scenario(unsupported=True)
+  self.assertEqual(value['state'],'waiting_input');self.assertEqual(value['diagnosticCode'],'UI_CAPABILITY_UNSUPPORTED');self.assertNotIn('patch',value);self.assertNotIn('error',value);self.assertEqual(roles,['implementation']);self.assertTrue(all(check['passed'] for check in value['browserChecks']));self.assertEqual(value['phases'][-1]['state'],'not_tested');self.assertEqual(value['blocker']['requestedCapabilities'],[]);self.assertFalse(value['agentContract']['uiCapabilities']['completeAcceptance'])
  def test_observed_functional_failure_can_get_one_small_repair_without_changing_the_recipe(self):
   value,roles,_,_=self.focused_scenario(ui_fails=True,allow_repair=True);self.assertEqual(value['state'],'succeeded');self.assertEqual(roles,['implementation','implementation']);self.assertEqual(value['patch']['files'][0]['content'],'renderRepaired();');self.assertFalse(value['browserChecks'][-2]['passed']);self.assertTrue(value['browserChecks'][-1]['passed']);self.assertEqual(value['phases'][-1]['role'],'targeted_repair')
   for options in [{'repair_fails':True},{'replay_fails':True},{'repair_outside':True}]:
@@ -154,4 +158,9 @@ class CodingContract(unittest.TestCase):
   context={'objective':'Preço','behavior':'Cadastrar zero','criteria':['Exibe R$ 0,00'],'testCases':[{'criterionIndex':0,'description':'Cadastrar e conferir a listagem'}]};service.validate_intent({**self.intent(),'testContext':context})
   for cases in [[{'criterionIndex':1,'description':'fora'}],[{'criterionIndex':True,'description':'booleano'}],[{'criterionIndex':0,'description':'x','source':'inventada'}],['inválido']]:
    with self.subTest(cases=cases),self.assertRaises(ValueError):service.validate_intent({**self.intent(),'testContext':{**context,'testCases':cases}})
+ def test_versioned_context_preserves_cross_cutting_rules_and_rejects_ambiguous_or_oversized_contracts(self):
+  context={'contextVersion':2,'objective':'Reservas','behavior':'Consultar horários','criteria':['Confirmar disponibilidade'],'testCases':[{'criterionIndex':0,'description':'Conferir horários'}],'approved':{'name':'Reservas','runtime':{'name':'React'},'requirements':{'businessRules':['Sem duplicação.'],'nonFunctional':['Teclado.']},'technicalPlan':{'architecture':'Local'},'decisions':[],'tasks':[],'codeDestination':None,'scopeRevision':3}}
+  value={**self.intent(),'testContext':context};before=json.dumps(value,sort_keys=True);self.assertEqual(service.validate_intent(value),value);self.assertEqual(json.dumps(value,sort_keys=True),before)
+  for change in [{'contextVersion':True},{'contextVersion':3},{'approved':None},{'approved':{**context['approved'],'scopeRevision':True}},{'approved':{**context['approved'],'requirements':'hidden'}},{'approved':{**context['approved'],'technicalPlan':[]}},{'approved':{**context['approved'],'name':'x'*21000}},{'extra':'hidden'}]:
+   with self.subTest(change=change),self.assertRaises(ValueError):service.validate_intent({**self.intent(),'testContext':{**context,**change}})
 if __name__=='__main__':unittest.main()

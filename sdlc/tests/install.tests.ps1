@@ -68,7 +68,7 @@ param($Command)
 $key="portal:$Command"
 $global:InstallCalls.Add($key)
 if ($Command -eq 'up') {
- foreach ($required in @('portal-base-db','installation-check.py idle','connect-gitlab.py','connect-llm.py --model qwen3.5:9b','build-executor.py install','runtime-executor.py install','coding-executor.py install --model qwen3:14b')) {
+ foreach ($required in @('portal-base-db','installation-check.py idle','connect-gitlab.py','connect-llm.py --model qwen3.5:9b','build-executor.py install','coding-executor.py install --model qwen3:14b','runtime-executor.py install')) {
   if (-not ($global:InstallCalls -contains $required)) { throw 'Portal API started before all integrations were configured' }
  }
 }
@@ -79,7 +79,7 @@ if ($global:InstallFail -eq $key) { throw 'Injected installer failure' }
  if (-not ($global:InstallCalls -contains 'build-executor.py prepare') -or -not ($global:InstallCalls -contains 'coding-executor.py prepare')) { throw 'Missing executor preparation' }
  if (@($global:InstallCalls | Where-Object {$_ -match 'install$|--model|models|pull'}).Count) { throw 'Preparation changed model selection or installed services' }
  Assert-InstallFixturePreserved
- $upCalls=@('installation-check.py preflight --general-model qwen3.5:9b --coding-model qwen3:14b','nucleus:up','portal-base-db','installation-check.py idle','connect-gitlab.py','connect-llm.py --model qwen3.5:9b','build-executor.py install','runtime-executor.py install','coding-executor.py install --model qwen3:14b','portal:up','installation-check.py doctor --general-model qwen3.5:9b --coding-model qwen3:14b')
+ $upCalls=@('installation-check.py preflight --general-model qwen3.5:9b --coding-model qwen3:14b','nucleus:up','portal-base-db','installation-check.py idle','connect-gitlab.py','connect-llm.py --model qwen3.5:9b','build-executor.py install','coding-executor.py install --model qwen3:14b','runtime-executor.py install','portal:up','installation-check.py doctor --general-model qwen3.5:9b --coding-model qwen3:14b')
  foreach ($failure in $upCalls[0..9]) {
   $global:InstallCalls.Clear();$global:InstallNativeCalls.Clear();$global:InstallFail=$failure
   $failed=$false

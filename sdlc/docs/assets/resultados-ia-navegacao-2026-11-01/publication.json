@@ -1,0 +1,28 @@
+{
+  "id": "ai-results-navigation-verified-20261101-30f49bdb",
+  "source": "64e7a37c509b6b12adf80e268636d5e38c756a8a5f72d1e5ac776fa516554ae6",
+  "candidateImage": "sha256:1aa87b47ecbb83277bc5fcc880f07bad6f8301549ea26cc08bb87d6ff408f8d4",
+  "published": true,
+  "verifiedAt": "2026-11-01T23:11:11.788420+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "existingTablesChecked": 51,
+  "newTables": [],
+  "tablesChecked": 51,
+  "exactTablesPreserved": true,
+  "migrationsPlanned": [],
+  "backupVerification": {
+    "backupId": "ai-results-navigation-verified-20261101-30f49bdb",
+    "bytes": 470044,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "apiImagePreserved": "sha256:3533f47eae57dace405a7c5cd89670e94eb42ba3755013d46ac0498e562be335",
+  "apiContainerIdPreserved": true,
+  "nativeExecutorsChanged": false
+}

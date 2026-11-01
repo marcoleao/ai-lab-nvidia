@@ -1,0 +1,32 @@
+{
+  "id": "requirements-driven-agents-verified-20261101-ed6cecb7",
+  "source": "b11989fe4e74e28ac5b0a68e2b963c1c6db3c9c26f5ababe21eb0f98d3e86daa",
+  "candidateImage": "sha256:ee644629e573079fe93a51a907140ea93ed2267e705f5b44687930cd0f453cdd",
+  "verifiedAt": "2026-11-01T19:30:11.067033+00:00",
+  "tablesChecked": 50,
+  "existingTablesChecked": 50,
+  "exactTablesPreserved": true,
+  "backupId": "requirements-driven-agents-verified-20261101-ed6cecb7",
+  "backupVerification": {
+    "backupId": "requirements-driven-agents-verified-20261101-ed6cecb7",
+    "bytes": 452746,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "nativeVerification": {
+    "ready": true,
+    "model": "qwen3:14b",
+    "sourceDigest": "42b2f48ce3083e4d06cf128176bd07cbdb799e021558c80c6f9bff36aacb17a4",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "capabilityPolicy": "requirements-driven-v2"
+  },
+  "migrationsPlanned": [],
+  "businessAcceptance": "Human approval unchanged; synthetic qualification does not certify DEV acceptance."
+}

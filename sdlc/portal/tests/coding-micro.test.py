@@ -27,6 +27,7 @@ class MicroContracts(unittest.TestCase):
  def test_web_url_role_reaches_compiler_with_policy_only_and_records_the_proposal(self):
   content=r'export const photoURL=/^https:\/\//i;';path='src/form.js'
   intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':content}],'prompt':'Corrigir foto HTTP e HTTPS.','allowDependencies':False}
+  intent['testContext']={'contextVersion':2,'objective':'Validar entrada','behavior':'Aceitar os protocolos aprovados','criteria':['Entrada válida'],'testCases':[],'approved':{'name':'Entrada','runtime':None,'requirements':{'businessRules':['Preservar os dados existentes.'],'nonFunctional':['Teclado.']},'technicalPlan':{'architecture':'Manter validação local.'},'decisions':[{'summary':'Sem integração externa.'}],'tasks':[],'codeDestination':None,'scopeRevision':3}}
   policy={'schemes':['http','https'],'allowPort':True,'allowQuery':True,'extensions':['svg']}
   slot={'slot':'s1','kind':'RegExpLiteral','binding':'photoURL','line':1,'code':'/^https:\\/\\//i','pattern':r'^https:\/\/','flags':'i','before':'export const photoURL=','after':';'}
   changed={'path':path,'content':'export const photoURL=/^https?:/i;'}
@@ -37,7 +38,9 @@ class MicroContracts(unittest.TestCase):
     if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':[slot]}
     self.assertEqual(args[5],[{'slot':'s1','urlPolicy':policy,'flags':'i'}])
     return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[changed]},'tools':[]}
-   with patch.object(micro,'ask_local',side_effect=responses),patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,directory,{},intent['files'],'','implementation')
+   with patch.object(micro,'ask_local',side_effect=responses) as ask,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,directory,{},intent['files'],'','implementation')
+   for call in ask.call_args_list:self.assertEqual(call.args[3]['approvedRequirements'],intent['testContext'])
+   self.assertEqual(ask.call_args_list[1].args[3]['proposedPath'],path)
    self.assertEqual(result['patch']['files'],[changed]);self.assertEqual(result['state'],'succeeded')
    self.assertEqual(json.loads((directory/'micro-implementation-1-proposal-1.json').read_text())['attempted'][0]['proposal'],policy)
  def test_url_policy_is_only_bounded_data_and_cannot_pick_host_code_or_revision(self):
@@ -54,16 +57,16 @@ class MicroContracts(unittest.TestCase):
   requirements={'criteria':['App dentro do Provider'],'behavior':'Large source-independent context'}
   fault={'fragmentSyntaxIssue':{'message':'Unexpected token, expected comma','line':1,'column':10},'rejectedProposal':{'edits':[{'slot':'s1','content':'render(<Provider><App/></Provider>'},{'slot':'s2','content':'unrelated'}]}}
   value=micro.expression_editor_input('Envolver App',requirements,slot,[{'content':'large caller'}],None,fault)
-  self.assertEqual(value['rejectedExpression'],'render(<Provider><App/></Provider>');self.assertEqual(value['compilerSyntax'],fault['fragmentSyntaxIssue']);self.assertEqual(value['mode'],'syntax_only_repair');self.assertEqual(value['approvedCriteria'],requirements['criteria']);self.assertNotIn('readOnlyCallers',value);self.assertNotIn('behavior',value)
+  self.assertEqual(value['rejectedExpression'],'render(<Provider><App/></Provider>');self.assertEqual(value['compilerSyntax'],fault['fragmentSyntaxIssue']);self.assertEqual(value['mode'],'syntax_only_repair');self.assertEqual(value['approvedRequirements'],requirements);self.assertNotIn('readOnlyCallers',value)
   original=micro.expression_editor_input('Envolver App',requirements,slot,[],None,None);self.assertEqual(original['approvedRequirements'],requirements);self.assertEqual(original['fragment'],slot)
- def test_failed_pattern_examples_reduce_the_repair_to_original_criteria_and_frozen_examples(self):
+ def test_failed_pattern_examples_preserve_original_scope_and_frozen_examples(self):
   requirements={'criteria':['Aceitar HTTP e HTTPS com IP e porta.'],'behavior':'Large cross-cutting history context'}
   slot={'pattern':'rejected-hostname-template','flags':'i','before':'source before','after':'source after'}
   examples=[{'value':'http://127.0.0.1:8049/jewel.svg','expected':True}]
   checks=[{'exampleIndex':0,'expected':True,'observed':False,'passed':False}]
   value=micro.pattern_editor_input('Validar URL',requirements,slot,examples,None,{'patternChecks':checks,'rejectedProposal':{'pattern':'failed'}})
-  self.assertEqual(value['approvedCriteria'],requirements['criteria']);self.assertEqual(value['validationContract'],{'mustMatch':[examples[0]['value']],'mustReject':[]});self.assertEqual(value['fixedFlags'],'i');self.assertEqual(value['failedExamples'],[{'input':examples[0]['value'],'expectedMatch':True,'observedMatch':False}])
-  self.assertNotIn('currentPattern',value);self.assertNotIn('rejectedProposal',value);self.assertNotIn('before',value);self.assertNotIn('Large cross-cutting',json.dumps(value))
+  self.assertEqual(value['approvedRequirements'],requirements);self.assertEqual(value['validationContract'],{'mustMatch':[examples[0]['value']],'mustReject':[]});self.assertEqual(value['fixedFlags'],'i');self.assertEqual(value['failedExamples'],[{'input':examples[0]['value'],'expectedMatch':True,'observedMatch':False}])
+  self.assertNotIn('currentPattern',value);self.assertNotIn('rejectedProposal',value);self.assertNotIn('before',value)
   original=micro.pattern_editor_input('Validar URL',requirements,slot,examples,None,{'error':'Invalid syntax'})
   self.assertEqual(original['currentPattern'],slot['pattern']);self.assertEqual(original['approvedRequirements'],requirements)
   with self.assertRaisesRegex(ValueError,'identidade'):micro.pattern_editor_input('Validar URL',requirements,slot,examples,None,{'patternChecks':[{**checks[0],'exampleIndex':8}]})
@@ -105,9 +108,14 @@ class MicroContracts(unittest.TestCase):
    self.assertEqual(ask.call_args.args[4]['properties']['path']['enum'],['src/Form.jsx']);compiler.assert_not_called()
  def test_editors_keep_original_approved_requirements_even_when_the_locator_goal_is_poor(self):
   intent={'prompt':'Instruções completas','testContext':{'objective':'Preço BRL','behavior':'Criar item','criteria':['Exibir R$ 0,00.','Preservar categoria obrigatória.'],'testCases':[]}}
-  self.assertEqual(micro.approved_requirements(intent),{key:intent['testContext'][key] for key in ['objective','behavior','criteria']})
-  self.assertEqual(micro.approved_requirements({'prompt':'Somar, preservando multiply.'}),{'approvedInstructions':'Somar, preservando multiply.'})
+  self.assertEqual(micro.approved_requirements(intent),intent['testContext'])
+  self.assertEqual(micro.approved_requirements({'prompt':'Somar, preservando multiply.'}),{'approvedInstructions':'Somar, preservando multiply.','contextCoverage':'legacy_prompt_only'})
   view=micro.slot_index([{'slot':'s0','kind':'ImportInsertion','code':''},{'slot':'s1','kind':'CallExpression','code':'amount.toFixed(2)'}],'Preço',['toFixed']);self.assertEqual([s['slot'] for s in view['slots']],['s1'])
+ def test_literal_pattern_inputs_work_across_domains_preserve_punctuation_and_refuse_oversize(self):
+  requirements={'criteria':['Aceitar "PT-42" e rejeitar “PT 42”. Exemplo literal com ponto: `AB.`.'],'approved':{'requirements':{'businessRules':['Reservas usam "2030-12-31".']},'"not an input"':True}}
+  self.assertEqual(list(micro.literal_pattern_samples(requirements).values()),['PT-42','PT 42','AB.','2030-12-31'])
+  for count in [301,600]:
+   with self.subTest(count=count),self.assertRaisesRegex(ValueError,'300'):micro.literal_pattern_samples({'criteria':['Aceitar "'+'a'*count+'".']})
  def test_large_source_is_a_partial_index_and_only_the_selected_lines_can_change(self):
   content='\n'.join(f'export const marker_{i}={i};' for i in range(340))+'\nexport const formatAmount=n=>n.toFixed(2);\n';file={'path':'src/prices.js','content':content}
   index=micro.overview([file])[0];self.assertIsNone(index['smallSource']);self.assertFalse(index['complete']);self.assertTrue(index['symbolsLimited']);self.assertIn({'name':'toFixed','line':341},index['methodCalls'])
@@ -186,4 +194,45 @@ class MicroContracts(unittest.TestCase):
   for value in [{'edits':[{'slot':'s2','content':'a+b'}]},{'edits':[{'slot':'s1','content':'a+b','start':0}]},{'edits':[{'slot':'s1','content':'a+b'},{'slot':'s1','content':'a*b'}]}]:
    with self.assertRaises(ValueError):micro.validate_slot_edits(value,{'s1'})
   with self.assertRaises(ValueError):micro.validate_slot_selection({'slots':['invented']},{'s1'})
+ def test_layout_policy_is_bounded_data_and_cannot_replace_non_geometry_state(self):
+  self.assertEqual(micro.validate_layout_geometry({'geometry':[{'property':'position','value':'relative'},{'property':'margin','value':0}]}),{'position':'relative','margin':0})
+  for value in [{'geometry':{}},{'geometry':{'backgroundColor':'red'}},{'geometry':{'fontFamily':'Georgia'}},{'geometry':{'margin':True}},{'geometry':{'height':'evil()'}},{'geometry':{'margin':0},'content':'{}'}]:
+   with self.subTest(value=value),self.assertRaises(ValueError):micro.validate_layout_geometry(value)
+  for rows in [[{'property':'margin','value':True}],[{'property':'fontFamily','value':'Georgia'}],[{'property':'margin','value':0}]*2,[{'property':'margin','value':0,'code':'x'}],[{'property':'position','value':'fixed'}]*5]:
+   with self.subTest(rows=rows),self.assertRaises(ValueError):micro.validate_layout_geometry({'geometry':rows})
+ def test_stylesheet_locator_does_not_retarget_a_component_with_the_same_literal(self):
+  files=[{'path':'src/App.jsx','content':'export default function App(){return <main style={{margin:0}}/>}'},{'path':'src/app.css','content':'body{color:black}'}];intent={'id':'a'*64,'expectedSha':'b'*40,'files':files,'prompt':'Preservar o componente e ajustar o stylesheet.','allowDependencies':False}
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
+   with patch.object(micro,'ask_local',side_effect=[{'changes':[{'path':'src/app.css','goal':'Ajustar margem no stylesheet','queries':['margin']}]},{'path':'src/App.jsx'}]) as ask,patch.object(micro,'apply_proposal') as compiler:
+    with self.assertRaisesRegex(ValueError,'Localização fora'):micro.micro_implementation(e,intent,Path(temporary),{},files,'','implementation')
+   self.assertEqual(ask.call_args.args[3]['allowedLocationPaths'],['src/app.css']);compiler.assert_not_called()
+ def test_measured_origin_gap_limits_repair_without_inventing_requirements_or_changing_unobserved_elements(self):
+  job={'failedAssertion':{'op':'expect_background'},'visualObservation':{'viewport':{'height':720},'elements':[{'element':'main','display':'block','margin':'0px','y':21,'height':720}]}}
+  options,limit,diagnosis=micro.geometry_options(job,{'element':'main'});self.assertEqual(set(options),{'display','position'});self.assertEqual(limit,1);self.assertIn('measured offset',diagnosis)
+  self.assertEqual(micro.validate_layout_geometry({'geometry':[{'property':'display','value':'flow-root'}]},options,limit),{'display':'flow-root'})
+  for rows in [[{'property':'minHeight','value':'100vh'}],[{'property':'display','value':'block'}],[{'property':'position','value':'relative'}]]:
+   with self.assertRaises(ValueError):micro.validate_layout_geometry({'geometry':rows},options,limit)
+  for different,slot in [({**job,'failedAssertion':{'op':'expect_font'}},{'element':'main'}),(job,{'element':'section'}),({**job,'visualObservation':{'viewport':{'height':720},'elements':[{'element':'main','display':'block','margin':'0px','y':21,'height':100}]}},{'element':'main'})]:self.assertEqual(micro.geometry_options(different,slot),(micro.LAYOUT_VALUES,4,None))
+ def test_readonly_plan_conflict_is_refused_and_locator_cannot_edit_preserved_files(self):
+  row={'path':'src/a.js','goal':'Corrigir soma','queries':['sum']};paths={'src/a.js','src/b.js'}
+  with self.assertRaisesRegex(ValueError,'somente leitura'):micro.validate_plan({'changes':[row],'readOnlyPaths':['src/a.js']},paths)
+  files=[{'path':'src/a.js','content':'export const sum=(a,b)=>a-b;'},{'path':'src/b.js','content':'export const sum=(a,b)=>a*b;'}];intent={'id':'a'*64,'expectedSha':'b'*40,'files':files,'prompt':'Corrigir soma somente em a; preservar b.','allowDependencies':False}
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
+   with patch.object(micro,'ask_local',side_effect=[{'changes':[row],'readOnlyPaths':['src/b.js']},{'path':'src/b.js'}]) as ask,patch.object(micro,'apply_proposal') as compiler:
+    with self.assertRaisesRegex(ValueError,'Localização fora'):micro.micro_implementation(e,intent,Path(temporary),{},files,'','implementation')
+   self.assertEqual(ask.call_args.args[3]['allowedLocationPaths'],['src/a.js']);compiler.assert_not_called()
+ def test_compiler_repair_revisits_only_fragments_that_were_actually_proposed(self):
+  content="import {useState} from 'react';export const run=()=>useState(0);";path='src/state.js';intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':content}],'prompt':'Ajustar import preservando a chamada existente.','allowDependencies':False}
+  slots=[{'slot':'s1','kind':'ImportDeclaration','code':"import {useState} from 'react';",'contains':[]},{'slot':'s2','kind':'CallExpression','code':'useState(0)','contains':[]}]
+  updated="import {useState,useReducer} from 'react';export const run=()=>useState(0);";compiled=[]
+  def compile(*args):
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':slots}
+   compiled.append(args[5]);return {'state':'failed','error':'Preserve import useState.'} if len(compiled)==1 else {'state':'succeeded','patch':{'files':[{'path':path,'content':updated}]},'validation':{'valid':True}}
+  answers=[{'changes':[{'path':path,'goal':'Ajustar import','queries':['useState']}]},{'path':path},{'slots':['s1','s2']},{'content':"import {useReducer} from 'react';"},{'content':'useState(0)'},{'content':"import {useState,useReducer} from 'react';"}]
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   with patch.object(micro,'ask_local',side_effect=answers) as ask,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+  self.assertEqual(result['state'],'succeeded');self.assertEqual(ask.call_count,6);self.assertEqual([[edit['slot'] for edit in batch] for batch in compiled],[['s1'],['s1']]);self.assertEqual(result['patch']['files'][0]['content'],updated)
 if __name__=='__main__':unittest.main()

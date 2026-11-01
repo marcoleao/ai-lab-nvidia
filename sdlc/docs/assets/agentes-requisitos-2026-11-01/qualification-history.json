@@ -1,0 +1,543 @@
+[
+  {
+    "report": "coding-live-20261101T183819Z-087a33",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "cc63056892aace3fade57aac78fc3d5e800f62d78b1856f879419cf2b6a27bc8",
+    "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+    "passed": 3,
+    "total": 4,
+    "states": [
+      {
+        "fixture": "literal-edit",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-url-regex",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-booking",
+        "state": "succeeded",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184102Z-858fae",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "db1dd5eac1ad33bec686881adb02c2aa026bb10653af1bcd1533cf72dad52bd5",
+    "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184209Z-936469",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "d6ed97ef42ebdf868f19d0358870ceaa2737c3833bb07c4d65372e2dbc0db9e2",
+    "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184334Z-6e3ac3",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "e8e5c9493c3986d7a7b005ad784082faf95861b7e2d91ccffa80c569fe518b93",
+    "imageId": "sha256:7e326c4d87ae271aea5664702a07c837654fc6d0799f7ba6dcf87bdb3c444eba",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184735Z-c6b8f0",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "d42a4bcb2d99f79e8253a93b72c645f66d856e65f4fd472692f7a1dcef6b42bd",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184846Z-a3f133",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "76611f4b3a386c49e802cdc148ca87f1b30799389dc6bcc1853e377b1907aec8",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T184951Z-595480",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "bc728be2105aff164c68723da965cd03170bec62e3f8df94683f92e016ac03f7",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T185127Z-dcb9cf",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "d10a36202f6c494aad2dc19c5793d90e06a412c7fd9481bc4cfed6b543eb841a",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T185235Z-67ed1f",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "27584717ceefd61a98ae7a82987f215296958dcba7194bb2be1c3edce2bad41a",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T185352Z-6c185b",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "4718e4819e1f60529970e6ee4290549f899f7716a98e309af8ec67269beae85b",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T185515Z-515cbd",
+    "completeSuite": false,
+    "sourceStable": false,
+    "executorDigest": "f1a07e461a81d2e8da2bca20e3631b25e090e169372aecdfff8165140674fe8c",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T185554Z-b5e886",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "62a28dc20a239b249bb3de2931883f50f7a985171a81e32b74312860796d6752",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "unknown",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T190026Z-15db9c",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "838c6687f8bb15638f7cf4b8126e0d301cca9cacf210a466f5290a04402237df",
+    "imageId": "sha256:99ea8819a19e7fdad2130ca41689dc2aabd16cd67b3bee207310bc0c3d1e0757",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T190311Z-efe3d3",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "30317d444b64f52474c488b9d2d721c68873eed331531a311561665834f1de29",
+    "imageId": "sha256:a3b98f540f4f079f1910f63a4e9cca21ac895c21c84af494c9dd11f2bf4cbdbe",
+    "passed": 1,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "ui-appearance",
+        "state": "succeeded",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T190401Z-f951bf",
+    "completeSuite": true,
+    "sourceStable": true,
+    "executorDigest": "30317d444b64f52474c488b9d2d721c68873eed331531a311561665834f1de29",
+    "imageId": "sha256:a3b98f540f4f079f1910f63a4e9cca21ac895c21c84af494c9dd11f2bf4cbdbe",
+    "passed": 8,
+    "total": 12,
+    "states": [
+      {
+        "fixture": "literal-edit",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "react-provider",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-price",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-prerequisites",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "line-edit-context",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-url-regex",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-photo-image",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-dialog-copy",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-native-required",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-appearance",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-booking",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "state": null,
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T191119Z-0a1bc8",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "5354088e887a80df4429b156ecbc1cb3202dfb89f1a0ee70cdb936f5dcdd2ca5",
+    "imageId": "sha256:a3b98f540f4f079f1910f63a4e9cca21ac895c21c84af494c9dd11f2bf4cbdbe",
+    "passed": 4,
+    "total": 5,
+    "states": [
+      {
+        "fixture": "react-provider",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "line-edit-context",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-native-required",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-booking",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "state": "not_tested",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T191333Z-c0f572",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "5354088e887a80df4429b156ecbc1cb3202dfb89f1a0ee70cdb936f5dcdd2ca5",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "passed": 0,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "react-provider",
+        "state": "failed",
+        "passed": false
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T191501Z-9ea1fb",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "c028f1cab6b7a856cd1bece8837c790a1cccde44b31cec621ffeb7c9047ca88b",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "passed": 1,
+    "total": 1,
+    "states": [
+      {
+        "fixture": "react-provider",
+        "state": "succeeded",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T191609Z-07ac48",
+    "completeSuite": true,
+    "sourceStable": true,
+    "executorDigest": "c028f1cab6b7a856cd1bece8837c790a1cccde44b31cec621ffeb7c9047ca88b",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "passed": 10,
+    "total": 12,
+    "states": [
+      {
+        "fixture": "literal-edit",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "react-provider",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-price",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-prerequisites",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "line-edit-context",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-url-regex",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-photo-image",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-dialog-copy",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-native-required",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-appearance",
+        "state": "failed",
+        "passed": false
+      },
+      {
+        "fixture": "ui-booking",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "state": "not_tested",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T192119Z-5edf69",
+    "completeSuite": false,
+    "sourceStable": true,
+    "executorDigest": "42b2f48ce3083e4d06cf128176bd07cbdb799e021558c80c6f9bff36aacb17a4",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "passed": 2,
+    "total": 2,
+    "states": [
+      {
+        "fixture": "ui-dialog-copy",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-appearance",
+        "state": "succeeded",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "report": "coding-live-20261101T192336Z-84e2a6",
+    "completeSuite": true,
+    "sourceStable": true,
+    "executorDigest": "42b2f48ce3083e4d06cf128176bd07cbdb799e021558c80c6f9bff36aacb17a4",
+    "imageId": "sha256:ee753af74e873c71395008df79414845b028b108a7bcf5e4e9e9eff7f4907637",
+    "passed": 12,
+    "total": 12,
+    "states": [
+      {
+        "fixture": "literal-edit",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "react-provider",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-price",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-prerequisites",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "line-edit-context",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-url-regex",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-photo-image",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-dialog-copy",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-native-required",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-appearance",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "ui-booking",
+        "state": "succeeded",
+        "passed": true
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "state": "not_tested",
+        "passed": true
+      }
+    ]
+  }
+]

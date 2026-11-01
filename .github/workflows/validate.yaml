@@ -45,6 +45,7 @@ jobs:
           python3 tests/relay_tests.py
           python3 tests/coding-executor.test.py
           python3 tests/coding-ui-agent.test.py
+          python3 tests/dev-ai-executor.test.py
           python3 tests/coding-micro.test.py
           node --test tests/browser-controls.test.mjs
       - name: Browser dependencies

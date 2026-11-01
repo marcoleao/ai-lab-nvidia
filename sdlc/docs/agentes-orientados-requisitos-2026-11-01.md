@@ -1,0 +1,72 @@
+# Agentes orientados pelos requisitos — 01/11/2026
+
+## Contrato desta adaptação
+
+A adaptação remove referências aos pilotos das instruções gerais e preserva as obrigações aprovadas nas chamadas pequenas. Generalização de domínio não significa capacidade técnica ilimitada. Modelos, ferramentas, permissões, limites totais de execução e decisões humanas continuam com os contratos existentes. O ensaio de raciocínio focal em geometria foi interrompido pelo prazo de inferência e não foi adotado. Mantém-se a política anterior, incluindo raciocínio somente no editor de padrões do `qwen3:14b`.
+
+`CodingTestContext` versão 2 reúne objetivo, comportamento, critérios, casos aprovados e o complemento da especificação: regras de negócio, atores, entradas/saídas, exceções, restrições técnicas e não funcionais, dependências, premissas e fora de escopo. Inclui também plano técnico atual, decisões, tarefas, runtime e destino/revisão. Os campos presentes são preservados; isso não preenche fatos ausentes. Código completo continua no workspace controlado, sem duplicação no contexto de testes. Requisitos funcionais e casos não são repetidos no complemento.
+
+Planejador, reorganizador, localizador, roteador, selecionador, editores, reparos de sintaxe/padrão, importador e especialistas de UI recebem esse contexto. Uma reformulação intermediária do objetivo não substitui as obrigações originais. O fallback legado é identificado como `legacy_prompt_only`; recibos distinguem versões 0/1/2. Jobs antigos não são reescritos ou reapresentados como versão 2.
+
+O localizador mantém a linguagem indicada no plano: uma alteração de stylesheet procura estilos, sem desviar para JavaScript apenas por compartilhar uma palavra. Na correção focada, os editores recebem também a falha observada original. Para uma asserção de fundo que falhou, o coordenador pode limitar o reparo de origem quando o elemento sintaticamente identificado já tem altura de viewport, margem zero e deslocamento vertical positivo: nova altura não resolve esse deslocamento. Somente nesse caso oferece mudanças de contexto de formatação/posicionamento; não escolhe cor, fonte, requisito ou resultado esperado.
+
+O plano distingue `changes` de `readOnlyPaths`. Preservar um arquivo inteiro não cria uma edição, e o localizador não pode redirecionar uma mudança para um caminho somente leitura. Contradição/duplicação recebe uma correção estrutural limitada; conflito persistente é recusado, sem eliminar obrigações silenciosamente.
+
+O compilador de trechos também recusa remover um import cujo nome ainda apareça como identificador na candidata. Renomeação de import e usos na mesma proposta e remoção de import sem referências continuam possíveis. É uma proteção conservadora por sintaxe, não resolução completa de escopos JavaScript/TypeScript; referências ambíguas podem exigir reformulação da proposta. Sintaxe/imports e replay não substituem Code Review.
+
+Na retentativa de compilação, somente os trechos efetivamente propostos na tentativa recusada são reabertos. Trechos selecionados cuja resposta preservou exatamente a fonte não passam a ser novas edições por causa do erro de outro trecho. O requisito completo continua presente na correção.
+
+Entradas que excedam o orçamento são recusadas antes da inferência, sem cortes silenciosos do escopo. A conversa mantém suas amostras declaradas de descrição, filhos, repositórios e histórico recente; foi removido o corte adicional que podia deixar incompleto até esse snapshot. Isso não transforma a amostra em inventário completo. O planejamento anuncia os mesmos 12 critérios de até 500 caracteres aceitos pelo schema; as seis etapas fixas continuam sendo política do SDLC.
+
+## Perfis e limites
+
+| Perfil | Adaptação e limite preservado |
+| --- | --- |
+| Assistente de entrevista | Contexto capturado íntegro ou recusa por limite; sem criar/aprovar por texto. Histórico recente continua limitado. |
+| Planejador e vínculo de fatos | Regras compartilhadas podem se aplicar às histórias pertinentes, sem instrução específica de catálogo. Sem inventar vínculos para completar cobertura. |
+| Especificação e discussão técnica | Mantêm contexto autorizado e revisão; não receberam novas ferramentas ou autorização para dependências. |
+| Planejador/reorganizador de microalterações | Recebem também o complemento aprovado. Consultas usam termos observados, sem uma receita fixa de interface. |
+| Localizador de arquivo/trecho e roteador | Contexto original e capacidades de cada papel; índices parciais continuam declarados. |
+| Editor de expressão e reparo sintático | Preservam o escopo completo inclusive no reparo; alteram somente o trecho autorizado. |
+| Editor de padrões e exemplos | Classifica entradas literais de qualquer domínio, incluindo textos entre aspas; não inventa exemplos nem resultados. Até oito entradas de 300 caracteres. |
+| Política de URL | HTTP/HTTPS lexical, nomes ASCII/IPv4 e política de porta/query/extensões. Sem IPv6, userinfo, fragmentos ou validação de confiança da rede. |
+| Texto de diálogo | Somente texto de `alert`, `confirm` ou `prompt` observado; preserva controle e fluxo. |
+| Formatação numérica | Locale para `toFixed` existente com precisão literal, sem alterar precisão, cálculo ou agrupamento. |
+| Geometria inline | Escolhe até quatro propriedades/valores permitidos por proposta. O compilador mescla pela árvore sintática, preservando expressões de estado, comentários e demais propriedades. A solução depende do requisito e de regras técnicas condicionadas à geometria observada, sem posicionamento fixo imposto pelo piloto. |
+| Componente e stylesheet | Uma função React nomeada ou CSS existente; sem dependências/servidor. Código final continua limitado a dois arquivos/24 KB. |
+| Importador | Contexto completo e exports observados; somente imports necessários, sem reescrever componente. |
+| Planejador de cenário UI | Um cenário representativo e uma asserção. Pode declarar capacidade indisponível; não equivale a bateria completa. |
+| Avaliador de capacidade UI | Pequena inferência anterior ao cenário, com resposta booleana e limitação explícita. Sem ferramentas; distingue prova parcial útil de substituição de requisito indisponível por um smoke irrelevante. |
+| Classificador de asserção e literal esperado | Contexto completo e expectativa congelada; literal deve ter fonte aprovada/observada válida. |
+| Ação principal, seleções e pré-requisitos | Nomes/valores vêm do contexto e dos controles. Sem exemplos de produtos/categorias embutidos na instrução. |
+| Campo obrigatório e imagem | Dados sintéticos apenas no navegador isolado; imagem usa fixture HTTP/SVG. Sem upload ou comprovação de HTTPS/TLS. |
+| Operador UI | Uma ação observada por chamada, sem código, API ou armazenamento injetado. |
+| Correção focada e replay | Uma correção da falha efetivamente observada; mesma receita e expectativa repetidas independentemente. |
+| Code Review | Mantém revisão semântica no contexto aprovado; sem ampliar ferramentas ou converter parecer em aceite humano. |
+| Scanner de segurança e automações | Mantêm suas funções determinísticas, autorização, auditoria e gates; não passam a ser agentes de aceite. |
+
+## Evidência e incapacidade
+
+O `/health` nativo declara `requirements-driven-v2`, perfis de edição e capacidades reais de UI. O recibo privado identifica versão/abrangência do contexto. `ui-capabilities.json` e `ui-assessment.json` registram capacidade e avaliação, sem copiar prompts/conteúdo de agentes para a auditoria pública.
+
+UI disponível: preencher, clicar, selecionar, marcar, recarregar e conferir texto, visibilidade, imagem, fundo ou fonte do primeiro `h1`. Mantém 20 ações registradas, uma asserção/cenário, cinco pontos de fundo e fixture de imagem isolada. Não executa backend da aplicação, navegação na URL publicada em DEV, teclado, resize, upload ou cobertura integral dos critérios.
+
+Quando não há resultado relevante verificável, `UI_CAPABILITY_UNSUPPORTED` encerra em `waiting_input`, pelo bloqueio humano existente, sem patch publicável, reparo funcional ou asserção falsa. A limitação concreta fica na fonte privada. Não solicita permissão de dependências como substituto de uma ferramenta inexistente. Falhas funcionais reais e resultados incertos mantêm seus tratamentos próprios.
+
+Mesmo quando o cenário passa, a avaliação declara `completeAcceptance=false` e não atribui critérios integralmente verificados. A história continua dependendo do humano. Um cenário pode ser útil mesmo cobrindo somente parte de suas obrigações; essa prova não certifica o restante.
+
+## Auditoria e adoção
+
+São mudanças internas dos produtores existentes. Não há nova ação de negócio, tabela, worker de teste DEV, migração, indicador ou aprovação. Transações e recorder compartilhado existentes permanecem. Preparação do compilador usa `PORTAL_CODING_EXECUTOR_PREPARED`; qualificação usa `PORTAL_REGRESSION_PROVIDER_VALIDATION`; instalação usa `PORTAL_CODING_EXECUTOR_INSTALLED`; publicação usa `PORTAL_PUBLICATION`, fora da base alterada. Conteúdo de agentes e prompts continua nas fontes controladas. Fontes/revisões, configuração anterior/nova e compensação da instalação ficam em backup privado administrativo.
+
+**Qualificada, instalada e publicada em 01/11/2026, às 16:30 (São Paulo).** Falhas iniciais foram preservadas nos relatórios isolados; não autorizam instalação nem alteram resultados anteriores. A primeira regressão completa revelou edição indevida de arquivos a preservar, interpretação de pontuação narrativa como parte de uma mensagem e avaliação de capacidade inadequada. O contrato de planejamento e a avaliação anterior ao cenário foram corrigidos. Nos quatro controles de preço e no controle de diálogo, o requisito sintético passou a delimitar explicitamente o texto literal obrigatório. As asserções independentes continuam exigindo os mesmos textos e as proteções de campos obrigatórios. O digest desses controles muda; as tentativas anteriores não viram sucesso. Asserções visuais também passam a restringir o formato já no schema da inferência; proposta de expectativa permanece privada e não é evidência de execução.
+
+Contratos automatizados incluem preservação de regras complementares, contexto excedido sem inferência, identidade/retentativa, schemas legados/versionados, incapacidade sem reparo/patch e cobertura parcial explícita. Foram aprovados **63 testes dirigidos da API, 78 contratos nativos e 27 testes do compilador**, além do build da API/web. A [qualificação completa](assets/agentes-requisitos-2026-11-01/qualification.json) passou nos 11 controles positivos e na recusa de teclado, com fonte estável: `coding-live-20261101T192336Z-84e2a6`. Inclui um domínio de reservas cujo literal obrigatório estava somente na regra complementar. [Checks dirigidos e rollback isolado](assets/agentes-requisitos-2026-11-01/validation.json), [histórico das tentativas](assets/agentes-requisitos-2026-11-01/qualification-history.json).
+
+O [recibo operacional](assets/agentes-requisitos-2026-11-01/publication.json) confirma Portal `ready`, imagem API/web `ee644629e573`, fonte do executor `42b2f48ce308`, ferramentas `ee753af74e87`, modelo local `qwen3:14b` e política `requirements-driven-v2`. Configuração anterior preservada, exceto a imagem de ferramentas qualificada; sem migrations ou alteração de modelos. O backup privado de 452.746 bytes teve digest, permissões e leitura do arquivo confirmados. As 50 tabelas preservaram a comparação das linhas anteriores; a projeção normaliza exclusivamente os campos operacionais de lease/poll de `MergeOperation`, incluindo mensagem/blocks do acompanhamento sem solicitação humana. Não houve alteração de aplicações produzidas, dados de negócio ou resultados anteriores de agentes. Ledger administrativo validado com 200 registros e nenhuma operação pendente.
+
+A compensação da instalação foi testada com falha de cópia, retentativa, repetição estável e recusa de origem fora do diretório permitido, em diretórios temporários e com chamadas de serviço interceptadas. A publicação real concluiu pelo caminho de sucesso. Não se declara ensaio de rollback sobre a base operacional ou teste DEV de uma história real.
+
+## Continuação
+
+A continuação implementa **Testes por Agentes de IA** com execução própria na publicação DEV, sessões novas, roteiro repetido independentemente, evidências e sugestão no formulário de ajustes sob confirmação humana. Reutiliza o especialista com contexto aprovado e foco por cenário. Não altera a identidade dos ensaios anteriores da candidata nem os converte em testes de DEV. [Contrato, qualificação e limites da continuação](testes-dev-agentes-ia-v1.md).

@@ -1002,6 +1002,39 @@ model DevelopmentManualAcceptance {
  @@index([storyId,createdAt])
 }
 
+model DevelopmentAiTest {
+ id String @id @default(cuid())
+ storyId String
+ referenceDigest String
+ specificationId String
+ executionId String
+ deploymentId String
+ buildId String
+ environmentId String
+ sourceSha String
+ imageId String
+ number Int
+ version Int @default(1)
+ state String @default("queued")
+ stage String @default("queued")
+ message String
+ actorId String
+ actorName String
+ context Json
+ cases Json @default("[]")
+ proof Json?
+ adjustments String?
+ leaseId String?
+ leaseUntil DateTime?
+ dispatchStartedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ finishedAt DateTime?
+ @@unique([storyId,number])
+ @@index([state,createdAt])
+ @@index([environmentId,state])
+}
+
 model DevelopmentTest {
  id String @id @default(cuid())
  storyId String

@@ -7,10 +7,12 @@ import {parse,parseExpression} from '@babel/parser';
 import {transformSync} from 'esbuild';
 const file=z.object({path:z.string(),content:z.string()}).strict();
 const identity={path:z.string(),content:z.string().max(6000),expectedDigest:z.string().regex(/^[a-f0-9]{64}$/)};
+const layoutValues={minHeight:['100vh','100dvh'],height:['100vh','100%','auto'],width:['100%','100vw','auto'],position:['relative','absolute','fixed'],inset:[0,'0'],top:[0,'0'],right:[0,'0'],bottom:[0,'0'],left:[0,'0'],display:['block','flex','grid','flow-root'],flexDirection:['column','row'],boxSizing:['border-box'],margin:[0,'0'],padding:[0,'0']};
+const geometrySchema=z.object(Object.fromEntries(Object.entries(layoutValues).map(([key,values])=>[key,(values.length===1?z.literal(values[0]):z.union(values.map(value=>z.literal(value)))).optional()]))).strict().refine(value=>Object.keys(value).length>0);
 const patternExample=z.object({value:z.string().min(1).max(300),expected:z.boolean()}).strict();
 const urlPolicy=z.object({schemes:z.array(z.enum(['http','https'])).min(1).max(2),allowPort:z.boolean(),allowQuery:z.boolean(),extensions:z.array(z.string().regex(/^[a-z0-9]{1,10}$/)).max(8)}).strict();
 const patternIdentity={path:z.string(),slot:z.string().regex(/^s\d+$/),flags:z.string().max(8),examples:z.array(patternExample).max(8).optional(),expectedDigest:identity.expectedDigest};
-const edit=z.union([z.object({...identity,startLine:z.number().int().min(1),endLine:z.number().int().min(0)}).strict(),z.object({...identity,slot:z.string().regex(/^s\d+$/)}).strict(),z.object({...patternIdentity,pattern:z.string().min(1).max(1500)}).strict(),z.object({...patternIdentity,urlPolicy}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),text:z.string().max(2000),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),locale:z.string().min(2).max(64),expectedDigest:identity.expectedDigest}).strict()]);
+const edit=z.union([z.object({...identity,startLine:z.number().int().min(1),endLine:z.number().int().min(0)}).strict(),z.object({...identity,slot:z.string().regex(/^s\d+$/)}).strict(),z.object({...patternIdentity,pattern:z.string().min(1).max(1500)}).strict(),z.object({...patternIdentity,urlPolicy}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),text:z.string().max(2000),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),locale:z.string().min(2).max(64),expectedDigest:identity.expectedDigest}).strict(),z.object({path:z.string(),slot:z.string().regex(/^s\d+$/),geometry:geometrySchema,expectedDigest:identity.expectedDigest}).strict()]);
 // Bounded lexical HTTP URL policy, not a complete RFC parser or network trust check.
 // Hosts are ASCII names/IPv4; no userinfo, IPv6, fragments or stateful flags.
 export function webUrlPattern(raw){
@@ -42,7 +44,6 @@ export function missingComponents(content,name){
  walk(ast);return [...used].filter(name=>!declared.has(name)).sort();
 }
 /** Source positions are UTF-16 offsets from the parser and are never model input. */
-const layoutValues={minHeight:['100vh','100dvh'],height:['100vh','100%','auto'],width:['100%','100vw','auto'],position:['relative','absolute','fixed'],inset:[0,'0'],top:[0,'0'],right:[0,'0'],bottom:[0,'0'],left:[0,'0'],display:['block','flex','grid','flow-root'],flexDirection:['column','row'],boxSizing:['border-box'],margin:[0,'0'],padding:[0,'0']};
 const astIdentity=node=>JSON.stringify(node,(key,value)=>['start','end','loc','extra','leadingComments','trailingComments','innerComments'].includes(key)?undefined:value);
 function styleProperties(node){
  if(node.type!=='ObjectExpression')throw Error('Estilo exige somente objeto literal.');
@@ -59,6 +60,32 @@ function validateInlineLayout(before,after){
   if(!Object.hasOwn(layoutValues,key)||!['StringLiteral','NumericLiteral'].includes(value.type)||!layoutValues[key].includes(value.value))throw Error('O perfil de layout preserva estado/estilos existentes e altera somente declarações de geometria limitadas.');
  }
 }
+function mergeGeometry(code,geometry){
+ const node=parseExpression(code),properties=styleProperties(node),replacements=[],added=[];
+ for(const [key,value]of Object.entries(geometry)){
+  const current=properties.get(key);
+  if(current)replacements.push({start:current.start,end:current.end,content:JSON.stringify(value)});
+  else added.push(JSON.stringify(key)+':'+JSON.stringify(value));
+ }
+ if(added.length){const last=node.properties.at(-1),offset=last?.end??node.start+1;replacements.push({start:offset,end:offset,content:(last?',':'')+'\n'+added.join(',')});}
+ let result=code;for(const edit of replacements.sort((a,b)=>b.start-a.start))result=result.slice(0,edit.start)+edit.content+result.slice(edit.end);
+ validateInlineLayout(code,result);return result;
+}
+function preserveReferencedImports(before,after,name){
+ const options={sourceType:'unambiguous',plugins:[...(/\.[cm]?tsx?$/.test(name)?['typescript']:[]),...(/\.[jt]sx$/.test(name)?['jsx']:[])]};
+ function names(source){
+  const imports=new Set(),references=new Set();
+  function visit(node){
+   if(!node||typeof node!=='object')return;
+   if(node.type==='ImportDeclaration'){for(const specifier of node.specifiers)imports.add(specifier.local.name);return;}
+   if(node.type==='Identifier'||node.type==='JSXIdentifier')references.add(node.name);
+   for(const [key,value]of Object.entries(node))if(!['loc','extra','comments','tokens'].includes(key)){if(Array.isArray(value))value.forEach(visit);else if(value&&typeof value==='object'&&value.type)visit(value);}
+  }
+  visit(parse(source,options).program);return {imports,references};
+ }
+ const original=names(before),proposed=names(after),removed=[...original.imports].filter(name=>!proposed.imports.has(name)&&proposed.references.has(name));
+ if(removed.length)throw Error('Preserve os imports ainda referenciados na candidata: '+removed.join(', ')+'. Inclua-os na declaração ou renomeie também os usos autorizados na mesma proposta.');
+}
 export function sourceSlots(content,name){
  if(name.endsWith('.css')){
   transformSync(content,{loader:'css',logLevel:'silent'});
@@ -67,11 +94,12 @@ export function sourceSlots(content,name){
  const ast=parse(content,{sourceType:'unambiguous',plugins:[...( /\.[cm]?tsx?$/.test(name)?['typescript']:[]),...(/\.[jt]sx$/.test(name)?['jsx']:[])],errorRecovery:false});
  const result=[],ranges=new Set();
  const kinds=new Set(['BinaryExpression','LogicalExpression','ConditionalExpression','CallExpression','OptionalCallExpression','RegExpLiteral','ImportDeclaration','JSXElement','JSXSelfClosingElement','ArrowFunctionExpression']);
- function walk(node,binding='',parent=null,attribute=''){
+ function walk(node,binding='',parent=null,attribute='',element=''){
   if(!node||typeof node!=='object')return;
   if(node.type==='VariableDeclarator'&&node.id?.type==='Identifier')binding=node.id.name;
   if((node.type==='FunctionDeclaration'||node.type==='FunctionExpression')&&node.id?.name)binding=node.id.name;
   if(node.type==='JSXAttribute')attribute=node.name?.name??'';
+  if(node.type==='JSXOpeningElement'&&node.name?.type==='JSXIdentifier')element=node.name.name;
   const length=node.end-node.start,key=node.start+':'+node.end;
   const boundary=parent&&(parent.type==='JSXExpressionContainer'||parent.type==='ReturnStatement'||parent.type==='ExpressionStatement'||(parent.type==='ArrowFunctionExpression'&&parent.body===node)||(parent.type==='VariableDeclarator'&&parent.init===node));
   const component=node.type==='FunctionDeclaration'&&/^[A-Z]/.test(node.id?.name??'')&&/\.[jt]sx$/.test(name);
@@ -79,9 +107,9 @@ export function sourceSlots(content,name){
   if(inlineStyle)try{styleProperties(node);}catch{inlineStyle=false;}
   const structural=component||inlineStyle||['ImportDeclaration','RegExpLiteral','JSXElement','JSXSelfClosingElement','ArrowFunctionExpression'].includes(node.type);
   if((component||inlineStyle||kinds.has(node.type))&&(structural||boundary)&&length>0&&length<=(component?6000:1500)&&!ranges.has(key)){
-   ranges.add(key);result.push({slot:'s'+(result.length+1),kind:inlineStyle?'InlineStyle':node.type,binding,line:node.loc.start.line,code:content.slice(node.start,node.end),...(node.type==='RegExpLiteral'?{pattern:node.pattern,flags:node.flags}:{}),...(dialogCall(node)?{dialog:dialogCall(node)}:{}),...(numericCall(node)?{numeric:{precision:numericCall(node).precision}}:{}),before:content.slice(Math.max(0,node.start-90),node.start),after:content.slice(node.end,node.end+90),start:node.start,end:node.end});
+   ranges.add(key);result.push({slot:'s'+(result.length+1),kind:inlineStyle?'InlineStyle':node.type,binding,line:node.loc.start.line,code:content.slice(node.start,node.end),...(inlineStyle?{element}:{}),...(node.type==='RegExpLiteral'?{pattern:node.pattern,flags:node.flags}:{}),...(dialogCall(node)?{dialog:dialogCall(node)}:{}),...(numericCall(node)?{numeric:{precision:numericCall(node).precision}}:{}),before:content.slice(Math.max(0,node.start-90),node.start),after:content.slice(node.end,node.end+90),start:node.start,end:node.end});
   }
-  for(const [key,value]of Object.entries(node))if(!['loc','extra','comments','tokens','leadingComments','trailingComments','innerComments'].includes(key)){if(Array.isArray(value))value.forEach(n=>walk(n,binding,node,attribute));else if(value&&typeof value==='object'&&value.type)walk(value,binding,node,attribute);}
+  for(const [key,value]of Object.entries(node))if(!['loc','extra','comments','tokens','leadingComments','trailingComments','innerComments'].includes(key)){if(Array.isArray(value))value.forEach(n=>walk(n,binding,node,attribute,element));else if(value&&typeof value==='object'&&value.type)walk(value,binding,node,attribute,element);}
  }
  walk(ast);
  for(const slot of result)slot.contains=result.filter(other=>other!==slot&&other.start>=slot.start&&other.end<=slot.end).map(other=>other.slot);
@@ -105,6 +133,7 @@ export async function applyCandidate(raw,root){
    const slots=sourceSlots(source.content,source.path),edits=input.edits.map(e=>{
     const slot=slots.find(s=>s.slot===e.slot);if(!slot||slot.slot.slice(1)>159)throw Error('Trecho não observado.');if(e.expectedDigest!==source.sha256)throw Error('A fonte da proposta mudou.');
     let content=e.content;
+    if('geometry'in e){if(slot.kind!=='InlineStyle')throw Error('Geometria exige um estilo inline observado.');content=mergeGeometry(slot.code,e.geometry);}
     if('pattern'in e||'urlPolicy'in e){
      if(slot.kind!=='RegExpLiteral'||e.flags!==slot.flags)throw Error('O perfil de padrões altera somente o literal RegExp observado, preservando flags.');
      if('urlPolicy'in e&&!/^[iu]*$/.test(e.flags))throw Error('Política de URL exige flags sem estado ou multilinha.');
@@ -147,6 +176,7 @@ export async function applyCandidate(raw,root){
    }).sort((a,b)=>a.start-b.start);
    for(let i=1;i<edits.length;i++)if(edits[i].start<edits[i-1].end)throw Error('Trechos sobrepostos.');
    let changed=source.content;for(const e of edits.reverse())changed=changed.slice(0,e.start)+e.content+changed.slice(e.end);
+   if(!source.path.endsWith('.css'))preserveReferencedImports(source.content,changed,source.path);
    await workspace.invoke('write_file',{path:source.path,content:changed,expectedDigest:source.sha256});
   }else{
   const ordered=[...input.edits].sort((a,b)=>a.startLine-b.startLine);

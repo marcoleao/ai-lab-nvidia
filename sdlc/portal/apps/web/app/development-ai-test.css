@@ -1,0 +1,8 @@
+.development-ai-test{display:grid;gap:1rem;min-width:0}
+.development-ai-test p{margin:0}
+.development-ai-test article,.ai-test-cases>li{display:grid;gap:.75rem;min-width:0;border:1px solid var(--border,#d6dfe8);border-radius:6px;padding:1rem}
+.development-ai-test code{white-space:normal;overflow-wrap:anywhere}
+.ai-test-cases{display:grid;gap:.75rem;padding-left:1.5rem}
+.ai-test-cases [data-state="failed"]{border-color:var(--danger,#b42318)}
+.ai-test-cases [data-state="failed"]>p{color:var(--danger,#b42318)}
+.development-ai-test .manual-dev-acceptance h3.sw-dev-step-title{display:block}

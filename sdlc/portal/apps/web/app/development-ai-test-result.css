@@ -1,0 +1,6 @@
+.development-ai-test-result{margin-top:16px;padding-top:14px;border-top:1px solid var(--line,#d7e1ea);min-width:0;overflow-wrap:anywhere}
+.development-ai-test-result h3{margin:0 0 8px}
+.development-ai-test-result p{margin:8px 0}
+.development-ai-test-result-link{display:inline-flex;align-items:center;min-height:44px;padding:9px 12px;border:1px solid #91a8bc;border-radius:5px;font-weight:600;text-decoration:none;max-width:100%;box-sizing:border-box}
+.development-ai-test-result-link:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+@media(max-width:600px){.development-ai-test-result-link{width:100%;justify-content:center}}

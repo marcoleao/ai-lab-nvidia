@@ -1,0 +1,10 @@
+{
+  "portalReady": true,
+  "readyForManualDevTest": true,
+  "integrations": ["coding", "executor", "gitlab", "llm", "runtime", "security"],
+  "inferenceExecutedByDoctor": false,
+  "publishedUiReadOnlyReviewPassed": true,
+  "operationalBatteryOrHumanDecisionSubmitted": false,
+  "completeCleanInstallationAcceptanceClaimed": false,
+  "releaseQaCreated": false
+}

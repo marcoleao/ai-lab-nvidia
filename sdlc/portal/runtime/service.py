@@ -1,9 +1,11 @@
 """Controlled DEV target executor. Its socket accepts references, never shell commands."""
 import http.client,urllib.parse,ipaddress
 from datetime import datetime,timezone
-import argparse,fcntl,hashlib,json,os,re,socket,socketserver,struct,subprocess,threading,time,tempfile
+import argparse,fcntl,hashlib,json,os,re,socket,socketserver,struct,subprocess,threading,time,tempfile,sys
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler,HTTPServer
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from dev_ai import AiEngine,validate as validate_ai_intent
 
 PROFILE='node24-http-v1'
 def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':')).encode()
@@ -20,7 +22,7 @@ def validate_intent(value):
 
 class Engine:
  def __init__(self,root,config,run=None):
-  self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True,mode=0o700);self.config=config;self.run=run or self.command;self.gateways={};self.gateway_lock=threading.Lock()
+  self.root=Path(root);self.root.mkdir(parents=True,exist_ok=True,mode=0o700);self.config=config;self.run=run or self.command;self.gateways={};self.gateway_lock=threading.Lock();self.ai=AiEngine(self)
  def command(self,*args,**options):
   try:return subprocess.run(['docker',*args],check=True,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,timeout=options.get('timeout',15)).stdout
   except (subprocess.SubprocessError,OSError):raise RuntimeFailure('RUNTIME_UNAVAILABLE')
@@ -248,6 +250,7 @@ class Engine:
    if seen['state']=='prepared':return self.save(job_id,'succeeded',proof=seen['proof'])
   return value
  def recover(self):
+  self.ai.recover()
   for route in self.root.glob('targets/*/gateway.json'):
    try:self.gateway(json.loads(route.read_bytes())['intent'])
    except (RuntimeFailure,OSError,ValueError):pass
@@ -292,6 +295,16 @@ class Handler(BaseHTTPRequestHandler):
    _,uid,_=struct.unpack('3i',self.connection.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
    if uid not in [0,1000]:self.reply(403,{});return
    if self.command=='GET' and self.path=='/health':self.reply(200,self.server.engine.health());return
+   if self.command=='GET' and self.path=='/ai-test-capabilities':self.reply(200,self.server.engine.ai.health());return
+   ai=re.fullmatch(r'/ai-tests/([A-Za-z0-9_-]{8,80})(?:/evidence/(\d{1,2})/(initial\.png|final\.png|report\.json))?',self.path)
+   if ai:
+    if self.command=='GET':self.reply(200,self.server.engine.ai.evidence(ai[1],ai[2],ai[3]) if ai[2] else self.server.engine.ai.read(ai[1]));return
+    if self.command!='POST' or ai[2]:self.reply(404,{});return
+    length=int(self.headers.get('Content-Length','0'))
+    if not 0<length<=80000:raise RuntimeFailure('PROFILE_UNSUPPORTED')
+    value=validate_ai_intent(json.loads(self.rfile.read(length)),validate_intent)
+    if value['id']!=ai[1]:raise RuntimeFailure('PROFILE_UNSUPPORTED')
+    self.reply(200,self.server.engine.ai.submit(value));return
    if self.command=='GET' and self.path=='/test-capabilities':self.reply(200,{'tests':True});return
    if self.command=='GET' and self.path=='/capabilities':self.reply(200,{'deployment':True});return
    match=re.fullmatch('/operations/([A-Za-z0-9_-]{8,80})',self.path)

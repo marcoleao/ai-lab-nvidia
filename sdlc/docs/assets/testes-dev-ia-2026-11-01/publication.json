@@ -1,0 +1,48 @@
+{
+  "id": "dev-ai-tests-verified-20261101-b8e8a3a9",
+  "source": "f2a7fb08a17b9e6e65b4b6ae6d24980331b59407e0ff822f3358a43cb147e7e8",
+  "candidateImage": "sha256:3533f47eae57dace405a7c5cd89670e94eb42ba3755013d46ac0498e562be335",
+  "published": true,
+  "verifiedAt": "2026-11-01T22:28:07.970963+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "existingTablesChecked": 50,
+  "newTables": [
+    "DevelopmentAiTest"
+  ],
+  "tablesChecked": 51,
+  "exactTablesPreserved": true,
+  "migrationsPlanned": [
+    "202611010003_ai_dev_tests",
+    "202611010004_ai_dev_source_guard"
+  ],
+  "backupVerification": {
+    "backupId": "dev-ai-tests-verified-20261101-b8e8a3a9",
+    "bytes": 452746,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "nativeVerification": {
+    "coding": {
+      "ready": true,
+      "sourceDigest": "c7c38e650010f72668afaf29966d9a999d585074b2026e0b12a311ff7d24aa37",
+      "installationIdentityPreserved": null,
+      "stateRootPreserved": true
+    },
+    "runtime": {
+      "ready": true,
+      "sourceDigest": "6c7128ec6866ab5aa49220611ec99425a0294694831335ba01a93e27586f8883",
+      "installationIdentityPreserved": true,
+      "stateRootPreserved": true
+    }
+  },
+  "nativeDigests": {
+    "coding": "c7c38e650010f72668afaf29966d9a999d585074b2026e0b12a311ff7d24aa37",
+    "runtime": "6c7128ec6866ab5aa49220611ec99425a0294694831335ba01a93e27586f8883"
+  }
+}

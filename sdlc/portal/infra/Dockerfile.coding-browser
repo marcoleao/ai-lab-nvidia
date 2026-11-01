@@ -8,5 +8,6 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 COPY executor/coding-browser.mjs /opt/sdlc/coding-browser.mjs
 COPY executor/browser-controls.mjs /opt/sdlc/browser-controls.mjs
 LABEL org.sdlc.coding-browser="react-entry-v1"
+LABEL org.sdlc.dev-ai-browser="published-dev-v1"
 USER node
 ENTRYPOINT ["node", "/opt/sdlc/coding-browser.mjs"]

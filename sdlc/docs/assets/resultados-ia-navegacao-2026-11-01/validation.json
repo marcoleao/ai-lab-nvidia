@@ -1,0 +1,54 @@
+{
+  "scope": "Directed browser navigation and existing approval/recovery; not full repository regression",
+  "newCases": 15,
+  "distinctFinalCases": 72,
+  "suites": [
+    {
+      "file": "development-ai-test.spec.ts",
+      "cases": 31,
+      "passed": 31,
+      "report": "20261101T225812Z-972216"
+    },
+    {
+      "file": "development-manual-acceptance.spec.ts",
+      "cases": 16,
+      "passed": 16,
+      "report": "20261101T230637Z-500b4d"
+    },
+    {
+      "file": "story-dev-summary.spec.ts",
+      "cases": 7,
+      "passed": 7,
+      "report": "20261101T225812Z-972216"
+    },
+    {
+      "file": "dev-stage-actions.spec.ts",
+      "cases": 12,
+      "passed": 12,
+      "report": "20261101T230637Z-500b4d"
+    },
+    {
+      "file": "help-flow.spec.ts",
+      "cases": 6,
+      "passed": 6,
+      "report": "20261101T225812Z-972216"
+    }
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "catalogue": {
+    "cases": 686,
+    "files": 61
+  },
+  "uxReview": "Shared query is independent from human approval; pinned identity; two hub panels; historical Task scope explicit",
+  "productionBuildPassed": true,
+  "operationalTestsOrDecisionsSubmittedByThisValidation": false,
+  "preservedFailure": {
+    "report": "20261101T225812Z-972216",
+    "failed": 10,
+    "file": "dev-stage-actions.spec.ts",
+    "resolution": "Updated obsolete criterion-based approval controls and the observation-position wording; retained request identity, recovery, draft and focus assertions; final 12/12 passed"
+  }
+}

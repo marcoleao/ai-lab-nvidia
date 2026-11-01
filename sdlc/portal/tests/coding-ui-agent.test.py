@@ -26,12 +26,12 @@ class UiSpecialists(unittest.TestCase):
   saved={**initial,'observedUI':'Foto cadastrada','controls':[*initial['controls'],{'id':'img1','role':'img','name':'Foto salva','section':'Lista'}]}
   session=Mock();session.initial=initial
   session.call.side_effect=[{**initial,'actionPassed':True,'lastStep':{'op':'fill','target':{'by':'role','role':'textbox','name':'Foto URL'},'value':'$ORIGIN/__sdlc_test__/image.svg'}},{**saved,'actionPassed':True,'lastStep':{'op':'click','target':{'by':'role','role':'button','name':'Cadastrar'}}},{**saved,'actionPassed':True,'lastStep':{'op':'expect_image','target':{'by':'role','role':'img','name':'Foto salva'},'value':'$ORIGIN/__sdlc_test__/image.svg'}}]
-  responses=[{'goal':'Cadastrar e carregar foto','data':[]},{'kind':'image'},{'control':'b1'},{'control':'photo'},{'action':'click_b1','value':''}]
+  responses=[{'supported':True,'limitation':''},{'goal':'Cadastrar e carregar foto','data':[]},{'kind':'image'},{'control':'b1'},{'control':'photo'},{'action':'click_b1','value':''}]
   with tempfile.TemporaryDirectory() as temporary:
    directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
    job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Foto HTTP'},'rootStarted':time.monotonic(),'calls':0,'totalCalls':0}
    with patch.object(ui,'ask_local',side_effect=responses) as ask,patch.object(ui,'LiveBrowser',return_value=session):value=ui.run_ui_verifier(e,job,[],directory,initial,lambda _:None)
-   self.assertTrue(value['passed']);self.assertEqual(ask.call_count,5);self.assertEqual(session.call.call_args.args[1],{'op':'expect_image','control':'img1','value':'$ORIGIN/__sdlc_test__/image.svg','dialog':'none'})
+   self.assertTrue(value['passed']);self.assertEqual(ask.call_count,6);self.assertEqual(session.call.call_args.args[1],{'op':'expect_image','control':'img1','value':'$ORIGIN/__sdlc_test__/image.svg','dialog':'none'})
    self.assertNotIn('assertions',json.loads((directory/'ui-scenario-plan.json').read_text()));self.assertEqual(json.loads((directory/'ui-scenario.json').read_text())['assertions'],[{'kind':'image','value':''}])
  def test_planner_receives_visible_labels_without_role_or_level_annotations(self):
   self.assertEqual(ui.planning_text('- heading "Catálogo" [level=1]\n- paragraph: R$ 0,00\n- button "Cadastrar"'), 'Catálogo\nR$ 0,00\nCadastrar')
@@ -47,18 +47,18 @@ class UiSpecialists(unittest.TestCase):
    e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
    session=Mock();session.initial={'rendered':True,'errors':[],'observedUI':'Preço','controls':[{'id':'c1','role':'textbox','name':'Preço'}]};session.call.return_value={**session.initial,**result}
    scenario={'goal':'Preço zero','assertions':[{'kind':'text','value':'R$ 0,00'}],'data':[]}
-   with patch.object(ui,'ask_local',side_effect=[{key:scenario[key] for key in ['goal','data']},{'kind':'text'},{'value':scenario['assertions'][0]['value']},*actions]) as ask,patch.object(ui,'LiveBrowser',return_value=session):
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{key:scenario[key] for key in ['goal','data']},{'kind':'text'},{'value':scenario['assertions'][0]['value']},*actions]) as ask,patch.object(ui,'LiveBrowser',return_value=session):
     try:value=ui.run_ui_verifier(e,job,[],root,{'observedUI':'Preço'},lambda _:None)
     except ValueError as error:value={'raised':str(error)}
    recipe=json.loads((root/'ui-recorded-steps.json').read_text());session.close.assert_called_once();return value,recipe,session,ask
  def test_one_confirmed_assertion_finishes_without_model_self_approval_and_records_replay(self):
   action={'action':'assert_result','value':'Não pode substituir a expectativa'}
   value,recipe,session,ask=self.scenario([action],{'actionPassed':True,'lastStep':{'op':'expect_text','value':'R$ 0,00'}})
-  self.assertTrue(value['passed']);self.assertEqual(ask.call_count,4);session.call.assert_called_once_with('/action',{'op':'expect_text','control':'','value':'R$ 0,00','dialog':'none'});self.assertEqual(recipe['steps'],value['steps']);self.assertEqual(recipe['phases'][-1]['state'],'succeeded')
+  self.assertTrue(value['passed']);self.assertEqual(ask.call_count,5);session.call.assert_called_once_with('/action',{'op':'expect_text','control':'','value':'R$ 0,00','dialog':'none'});self.assertEqual(recipe['steps'],value['steps']);self.assertEqual(recipe['phases'][-1]['state'],'succeeded')
  def test_functional_failure_keeps_the_failed_assertion_and_blocks_without_another_model(self):
   action={'action':'assert_result','value':''};step={'op':'expect_text','value':'R$ 0,00'}
   value,recipe,session,ask=self.scenario([action],{'actionPassed':False,'lastStep':step,'actionError':'Expected visible text not found'})
-  self.assertFalse(value['passed']);self.assertEqual(recipe['steps'],[step]);self.assertEqual(recipe['phases'][-1]['state'],'failed');self.assertEqual(ask.call_count,4)
+  self.assertFalse(value['passed']);self.assertEqual(recipe['steps'],[step]);self.assertEqual(recipe['phases'][-1]['state'],'failed');self.assertEqual(ask.call_count,5)
  def test_unknown_control_or_operation_never_reaches_the_browser(self):
   for action in [{'action':'fill_invented','value':'x'},{'action':'evaluate','value':'process.env'}]:
    with self.subTest(action=action):
@@ -146,13 +146,13 @@ class UiSpecialists(unittest.TestCase):
   with tempfile.TemporaryDirectory() as temporary:
    root=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Criar preço zero e exibir R$ 0,00.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()};session=Mock();session.initial={'rendered':True,'errors':[],'observedUI':'Criar','controls':[{'id':'b1','role':'button','name':'Criar'}]}
    scenario={'goal':'Cadastrar e conferir','assertions':[{'kind':'text','value':'R$ 0,00'}],'data':[]}
-   with patch.object(ui,'ask_local',side_effect=[{key:scenario[key] for key in ['goal','data']},{'kind':'text'},{'value':scenario['assertions'][0]['value']},{'control':'b1'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session),self.assertRaisesRegex(ValueError,'contract'):ui.run_ui_verifier(e,job,[],root,{},lambda _:None)
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{key:scenario[key] for key in ['goal','data']},{'kind':'text'},{'value':scenario['assertions'][0]['value']},{'control':'b1'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session),self.assertRaisesRegex(ValueError,'contract'):ui.run_ui_verifier(e,job,[],root,{},lambda _:None)
    session.call.assert_not_called();self.assertNotIn('assert_result',ask.call_args.args[3]['availableActions']);self.assertEqual(json.loads((root/'ui-recorded-steps.json').read_text())['steps'],[])
  def test_unrelated_assertion_is_refused_before_any_browser_or_application_repair(self):
   with tempfile.TemporaryDirectory() as temporary:
    e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)))
    job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Exibir Hello World e trocar fundo #DDEEFF.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
-   with patch.object(ui,'ask_local',side_effect=[{'goal':'Trocar fundo','data':[]},{'kind':'text'},{'value':'R$ 0,00'}]),patch.object(ui,'LiveBrowser') as browser:
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Trocar fundo','data':[]},{'kind':'text'},{'value':'R$ 0,00'}]),patch.object(ui,'LiveBrowser') as browser:
     with self.assertRaisesRegex(ValueError,'planejador de UI'):ui.run_ui_verifier(e,job,[],Path(temporary),{'observedUI':'Hello World'},lambda _:None)
     browser.assert_not_called()
   for kind,value in [('page_background','#000000'),('heading_font','Invented Font')]:
@@ -162,9 +162,9 @@ class UiSpecialists(unittest.TestCase):
    directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
    job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'O título Catálogo é exibido.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
    state={'rendered':True,'errors':[],'observedUI':'- heading "Catálogo" [level=1]','controls':[]};session=Mock();session.initial=state;session.call.return_value={**state,'actionPassed':True,'lastStep':{'op':'expect_text','value':'Catálogo'}}
-   with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'Catálogo'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
-   self.assertTrue(result['passed']);self.assertEqual(ask.call_args_list[2].args[4]['properties']['value']['enum'],['Catálogo'])
-   with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'O título Catálogo é exibido.'}]),patch.object(ui,'LiveBrowser') as browser:
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'Catálogo'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
+   self.assertTrue(result['passed']);self.assertEqual(ask.call_args_list[3].args[4]['properties']['value']['enum'],['Catálogo'])
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Conferir abertura','data':[]},{'kind':'text'},{'value':'O título Catálogo é exibido.'}]),patch.object(ui,'LiveBrowser') as browser:
     with self.assertRaisesRegex(ValueError,'literal observado'):ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
     browser.assert_not_called()
  def test_visual_assertion_is_frozen_and_replayed_after_observed_selections(self):
@@ -173,8 +173,33 @@ class UiSpecialists(unittest.TestCase):
     directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
     job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Fundo #DDEEFF, fonte Georgia.'},'calls':0,'totalCalls':0,'rootStarted':time.monotonic()}
     initial={'rendered':True,'errors':[],'observedUI':'Hello World','controls':[]};session=Mock();session.initial=initial;session.call.return_value={**initial,'actionPassed':True,'lastStep':{'op':op,'value':expected}}
-    with patch.object(ui,'ask_local',side_effect=[{'goal':'Conferir mudança visual','data':[]},{'kind':kind},{'value':expected}]),patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,initial,lambda _:None)
+    with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Conferir mudança visual','data':[]},{'kind':kind},{'value':expected}]),patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,initial,lambda _:None)
     self.assertTrue(result['passed']);self.assertEqual(result['steps'],[{'op':op,'value':expected}]);session.call.assert_called_once_with('/action',{'op':op,'control':'','value':expected,'dialog':'none'})
     for invalid in [{'op':op,'value':'url(http://example.test)'},{'op':op,'value':expected,'target':{'by':'text','name':'other'}}]:
      with self.assertRaises(ValueError):validate_ui_steps([invalid])
+ def test_unavailable_scenario_records_not_tested_without_browser_and_keeps_all_approved_obligations(self):
+  context={'contextVersion':2,'objective':'Reservas','behavior':'Reservar horário autorizado','criteria':['Sem sobreposição'],'testCases':[{'criterionIndex':0,'description':'Reservar por teclado'}],'approved':{'requirements':{'nonFunctional':['Teclado obrigatório.'],'businessRules':['Somente usuário autorizado.']},'technicalPlan':{'architecture':'Não alterar integração.'},'decisions':[{'summary':'Sem cobrança.'}],'scopeRevision':3}}
+  with tempfile.TemporaryDirectory() as temporary:
+   directory=Path(temporary);job={'intent':{'testContext':context},'totalCalls':0};e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)))
+   with patch.object(ui,'ask_local',return_value={'supported':False,'limitation':'O cenário exige teclado e autorização no backend.'}) as ask,patch.object(ui,'LiveBrowser') as browser:
+    result=ui.run_ui_verifier(e,job,[],directory,{'observedUI':'Reserva disponível'},lambda _:None)
+   browser.assert_not_called();self.assertEqual(ask.call_count,1);self.assertEqual(ask.call_args.args[3]['approved'],context);self.assertFalse(result['passed']);self.assertFalse(result['repairable']);self.assertEqual(result['coverage']['status'],'not_tested');self.assertEqual(result['coverage']['verifiedCriterionIndices'],[]);self.assertFalse(result['coverage']['completeAcceptance']);self.assertFalse(result['coverage']['legacy']);self.assertIn('backend',json.loads((directory/'ui-assessment.json').read_text())['error']);self.assertNotIn('steps',result)
+ def test_successful_scenario_passes_full_scope_to_each_specialist_without_certifying_acceptance(self):
+  context={'contextVersion':2,'objective':'Consultar reserva','behavior':'Exibir Disponível','criteria':['Exibir Disponível'],'testCases':[],'approved':{'requirements':{'businessRules':['Não alterar reservas existentes.']},'technicalPlan':{'architecture':'Somente consulta.'},'decisions':[],'scopeRevision':3}}
+  with tempfile.TemporaryDirectory() as temporary:
+   directory=Path(temporary);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'testContext':context},'calls':0,'totalCalls':0};e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
+   state={'rendered':True,'errors':[],'observedUI':'Disponível','controls':[]};session=Mock();session.initial=state;session.call.return_value={**state,'actionPassed':True,'lastStep':{'op':'expect_text','value':'Disponível'}}
+   with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Conferir disponibilidade','data':[]},{'kind':'text'},{'value':'Disponível'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
+   self.assertTrue(result['passed']);self.assertEqual(result['coverage']['status'],'scenario_passed');self.assertFalse(result['coverage']['completeAcceptance']);self.assertEqual(result['coverage']['verifiedCriterionIndices'],[])
+   for call in ask.call_args_list:self.assertIn(context,call.args[3].values())
+ def test_context_over_budget_is_refused_before_inference_without_discarding_any_rule(self):
+  job={'calls':0,'totalCalls':0,'rootStarted':time.monotonic()};scope={'approved':{'requirements':{'businessRules':['x'*27000]}}};original=json.dumps(scope)
+  with patch.object(ui.urllib.request,'build_opener') as opener,self.assertRaisesRegex(ValueError,'context exceeds'):ui.ask_local(SimpleNamespace(CONFIG={}),job,'bounded',scope,{},80)
+  opener.assert_not_called();self.assertEqual(job['totalCalls'],0);self.assertEqual(json.dumps(scope),original)
+ def test_invalid_capability_assessment_cannot_start_planning_or_browser(self):
+  for value in [{'supported':1,'limitation':''},{'supported':False,'limitation':''},{'supported':True,'limitation':'','tools':['write_file']},{'supported':False,'limitation':'x'*501}]:
+   with self.subTest(value=value),tempfile.TemporaryDirectory() as temporary:
+    e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,data:path.write_text(json.dumps(data)));job={'intent':{},'totalCalls':0}
+    with patch.object(ui,'ask_local',return_value=value) as ask,patch.object(ui,'LiveBrowser') as browser,self.assertRaisesRegex(ValueError,'capacidade'):ui.run_ui_verifier(e,job,[],Path(temporary),{},lambda _:None)
+    self.assertEqual(ask.call_count,1);browser.assert_not_called()
 if __name__=='__main__':unittest.main()

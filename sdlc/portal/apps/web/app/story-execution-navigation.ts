@@ -1,6 +1,6 @@
 import type {StoryDevStep} from '../../../packages/shared/src/story-dev-progress';
 
-export type StoryExecutionView='hub'|'action'|'conversation'|'processing'|'administration'|'destination'|'delivery'|'release'|'specification'|'environment';
+export type StoryExecutionView='hub'|'action'|'conversation'|'processing'|'administration'|'destination'|'delivery'|'release'|'specification'|'environment'|'ai-tests';
 export type StoryExecutionRoute={view:StoryExecutionView;actionId?:string;step?:StoryDevStep;environment?:'DEV'|'QA'|'HML'|'PRD'};
 
 const steps:readonly string[]=['build','deployment','test','acceptance','approval'];
@@ -22,7 +22,8 @@ export function storyExecutionHref(id:string,view:StoryExecutionView='hub',query
  if(view==='hub')params.delete('returnEnvironment');
  const base=`/stories/${encodeURIComponent(id)}/execution`;
  let path=base;
- if(view==='action'&&actionId&&segment(encodeURIComponent(actionId)))path+=`/actions/${encodeURIComponent(actionId)}`;
+ if(view==='ai-tests')path+='/dev/ai-tests';
+ else if(view==='action'&&actionId&&segment(encodeURIComponent(actionId)))path+=`/actions/${encodeURIComponent(actionId)}`;
  else if(view==='environment'){
   if(steps.includes(requestedStep||'')&&(explicitStep||requestedEnvironment==='DEV'))path+=`/dev/${requestedStep}`;
   else path+=`/environments/${environments.includes(requestedEnvironment)?requestedEnvironment:'DEV'}`;
@@ -38,6 +39,7 @@ export function parseStoryExecutionRoute(pathname:string,id:string):StoryExecuti
  if(parts.length===3)return {view:'hub'};
  if(parts.length===4&&views.includes(parts[3]!))return {view:parts[3] as StoryExecutionView};
  if(parts.length===5&&parts[3]==='actions'&&/^[a-z][a-z0-9_]{0,79}$/.test(parts[4]!))return {view:'action',actionId:parts[4]!};
+ if(parts.length===5&&parts[3]==='dev'&&parts[4]==='ai-tests')return {view:'ai-tests'};
  if(parts.length===5&&parts[3]==='dev'&&steps.includes(parts[4]!))return {view:'environment',step:parts[4] as StoryDevStep,environment:'DEV'};
  if(parts.length===5&&parts[3]==='environments'&&environments.includes(parts[4]!))return {view:'environment',environment:parts[4] as StoryExecutionRoute['environment']};
  return null;

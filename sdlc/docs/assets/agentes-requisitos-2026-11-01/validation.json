@@ -1,0 +1,63 @@
+{
+  "backendReport": "20261101T185721Z-a2be1f",
+  "backend": [
+    {
+      "file": "agent-context.test.ts",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "audit-producers-work.test.ts",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "coding-provider.test.ts",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "pipeline-planning.test.ts",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "planning-references.test.ts",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "quality.test.ts",
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "file": "requirements.test.ts",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "nativeContracts": {
+    "coding-executor": 23,
+    "coding-ui-agent": 25,
+    "coding-micro": 30
+  },
+  "compilerContracts": 27,
+  "apiAndWebBuildPassed": true,
+  "candidateImage": "sha256:ee644629e573079fe93a51a907140ea93ed2267e705f5b44687930cd0f453cdd",
+  "portalSource": "b11989fe4e74e28ac5b0a68e2b963c1c6db3c9c26f5ababe21eb0f98d3e86daa",
+  "isolatedRollback": {
+    "copyFailurePropagated": true,
+    "retryRestored": true,
+    "replayStable": true,
+    "outsidePathRefusedBeforeCommand": true,
+    "servicesChangedByTest": false
+  }
+}

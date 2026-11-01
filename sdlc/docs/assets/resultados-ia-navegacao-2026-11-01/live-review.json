@@ -1,0 +1,128 @@
+{
+  "scope": "Read-only published Story and Task navigation; no tests or decisions submitted",
+  "checks": [
+    {
+      "width": 1440,
+      "entry": "Story summary",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 1440,
+      "entry": "Story execution",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 1440,
+      "entry": "Task summary",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 1440,
+      "entry": "Task evidence",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 1440,
+      "entry": "Task execution",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 390,
+      "entry": "Story summary",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 390,
+      "entry": "Story execution",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 390,
+      "entry": "Task summary",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 390,
+      "entry": "Task evidence",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    },
+    {
+      "width": 390,
+      "entry": "Task execution",
+      "pinnedBattery": "cmvyf0t7v000001mlwxfgs0f4",
+      "state": "inconclusive",
+      "passedCases": 3,
+      "failedCases": 0,
+      "untestedCases": 3,
+      "linkTargetAtLeast44px": true,
+      "noHorizontalOverflow": true,
+      "evidencePageOpened": true
+    }
+  ],
+  "writes": [],
+  "errors": [],
+  "passed": true
+}

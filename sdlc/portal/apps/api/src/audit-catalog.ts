@@ -11,6 +11,11 @@ const provisioningFailure:AuditPolicy={...failed,allowedOutcomes:['FAILED','DEFE
 // This explicit registry is the meaning of NEW events, never a heuristic for old rows.
 // SUCCEEDED/STARTED confirms only the start/claim fact, not completion of its operation.
 export const auditCatalog={
+ AI_DEV_TEST_REQUESTED:{...request,changes:'expected',decision:'NOT_APPLICABLE'},
+ AI_DEV_TEST_STARTED:{...local,phase:'STARTED',decision:'NOT_APPLICABLE'},
+ AI_DEV_TEST_PROGRESS:{...local,phase:'STARTED',decision:'NOT_APPLICABLE'},
+ AI_DEV_TEST_COMPLETED:{...local,decision:'NOT_EVALUATED'},
+ AI_DEV_TEST_UNCONFIRMED:{...response,outcome:'UNKNOWN',phase:'OBSERVED',changes:'expected',decision:'NOT_EVALUATED'},
   MANUAL_DEV_STORY_APPROVED:{...local,effect:'decision',decision:'APPROVED'},
  MANUAL_DEV_STORY_REJECTED:{...local,effect:'decision',decision:'REJECTED'},
  MANUAL_DEV_ACCEPTANCE_RECORDED:{...local,effect:'decision',decision:'NOT_EVALUATED'},

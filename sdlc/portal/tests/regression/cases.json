@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "runtimeHash": "084b24bc92ac479b2f94e2df9511caaa0658c8abaa0e55503cb0623efce693d3",
-  "testHash": "8106bb8257c7df6cc05ac8500ceb9826d009d3adc14c929318e7939ae5e9f6b3",
+  "runtimeHash": "e04597d2f4814c6e4bae3fe49bd846b54cc086ea75e59e5dba0fb4db883fd083",
+  "testHash": "4afa2ca252850f2938a3aa1b2f908a1eab5b0d50de17ae9d41593a1d56c944b6",
   "database": "portal_test",
   "externalProviders": "simulated",
   "workers": "manual",
@@ -1519,87 +1519,304 @@
       "expected": "passed"
     },
     {
-      "id": "UI-8ba7148f058b",
+      "id": "UI-3047e8ed2088",
       "file": "dev-stage-actions.spec.ts",
-      "title": "Guided DEV prioritizes acceptance through two observation and action panels at 1440px",
-      "line": 24,
+      "title": "Guided DEV keeps two panels and offers global Story approval from an old acceptance pendency at 1440px",
+      "line": 27,
       "expected": "passed"
     },
     {
       "id": "UI-33fb7d0f1751",
       "file": "dev-stage-actions.spec.ts",
       "title": "Completed DEV readings stay dated in the hub and construction has an honest blocked preview at 1440px",
-      "line": 46,
+      "line": 53,
       "expected": "passed"
     },
     {
       "id": "UI-5136a758f4ba",
       "file": "dev-stage-actions.spec.ts",
       "title": "DEV deep links reopen the exact stage on reload and reentry from another evidence page at 1440px",
-      "line": 64,
+      "line": 71,
       "expected": "passed"
     },
     {
       "id": "UI-15ec94953336",
       "file": "dev-stage-actions.spec.ts",
       "title": "DEV review owns its page and preserves its draft across Back and recoverable query errors at 1440px",
-      "line": 79,
+      "line": 89,
       "expected": "passed"
     },
     {
-      "id": "UI-d231f6df74bd",
+      "id": "UI-9aaaa9ed8a83",
       "file": "dev-stage-actions.spec.ts",
-      "title": "Guided DEV prioritizes acceptance through two observation and action panels at 390px",
-      "line": 24,
+      "title": "Guided DEV keeps two panels and offers global Story approval from an old acceptance pendency at 390px",
+      "line": 27,
       "expected": "passed"
     },
     {
       "id": "UI-794669be5178",
       "file": "dev-stage-actions.spec.ts",
       "title": "Completed DEV readings stay dated in the hub and construction has an honest blocked preview at 390px",
-      "line": 46,
+      "line": 53,
       "expected": "passed"
     },
     {
       "id": "UI-8b6d34fbd221",
       "file": "dev-stage-actions.spec.ts",
       "title": "DEV deep links reopen the exact stage on reload and reentry from another evidence page at 390px",
-      "line": 64,
+      "line": 71,
       "expected": "passed"
     },
     {
       "id": "UI-7bfb6003a336",
       "file": "dev-stage-actions.spec.ts",
       "title": "DEV review owns its page and preserves its draft across Back and recoverable query errors at 390px",
-      "line": 79,
+      "line": 89,
       "expected": "passed"
     },
     {
       "id": "UI-8a787b3d844c",
       "file": "dev-stage-actions.spec.ts",
       "title": "A newer local construction queued stays visible and preserves recovery across tabs",
-      "line": 98,
+      "line": 108,
       "expected": "passed"
     },
     {
       "id": "UI-46a06c9e419c",
       "file": "dev-stage-actions.spec.ts",
       "title": "A newer local construction unknown stays visible and preserves recovery across tabs",
-      "line": 98,
+      "line": 108,
       "expected": "passed"
     },
     {
       "id": "UI-462a595109ff",
       "file": "dev-stage-actions.spec.ts",
       "title": "A newer local construction pending stays visible and preserves recovery across tabs",
-      "line": 98,
+      "line": 108,
       "expected": "passed"
     },
     {
       "id": "UI-e8a53bf61459",
       "file": "dev-stage-actions.spec.ts",
       "title": "DEV fixtures without shared progress keep Story ownership and legacy Task controls",
-      "line": 116,
+      "line": 126,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-1dd019bac722",
+      "file": "development-ai-test.spec.ts",
+      "title": "AI tests have a focused route after the approval control at 1440px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-55ddf76b3d60",
+      "file": "development-ai-test.spec.ts",
+      "title": "AI tests have a focused route after the approval control at 390px",
+      "line": 23,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4a31f3cf7f21",
+      "file": "development-ai-test.spec.ts",
+      "title": "starting a battery records one command and polling does not approve the Story",
+      "line": 29,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-00b31618523d",
+      "file": "development-ai-test.spec.ts",
+      "title": "functional failure fills adjustments and only a human confirmation sends the rejection",
+      "line": 33,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-17a49a9f2e58",
+      "file": "development-ai-test.spec.ts",
+      "title": "human draft and modified agent text survive navigation polling and reload without duplicate insertion",
+      "line": 37,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-26ae41f6dcd6",
+      "file": "development-ai-test.spec.ts",
+      "title": "lost start acknowledgement replays the original key body and persona",
+      "line": 40,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b15b57a9bdf9",
+      "file": "development-ai-test.spec.ts",
+      "title": "inconclusive execution and unsupported cases never create adjustment requests",
+      "line": 43,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a517eb14f641",
+      "file": "development-ai-test.spec.ts",
+      "title": "obsolete evidence is readable but cannot populate a current adjustment form",
+      "line": 46,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5c963e8583f5",
+      "file": "development-ai-test.spec.ts",
+      "title": "query failure preserves the last result and disables a new request",
+      "line": 49,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-358d6ae3aa1a",
+      "file": "development-ai-test.spec.ts",
+      "title": "long human draft is retained when suggestions do not fit the existing notes limit",
+      "line": 52,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-29c152c0ef49",
+      "file": "development-ai-test.spec.ts",
+      "title": "evidence links are scoped to recorded images and malformed image paths are refused",
+      "line": 55,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5b6154f606f4",
+      "file": "development-ai-test.spec.ts",
+      "title": "a different human context reference blocks the suggested adjustment decision",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-ec91576aefe3",
+      "file": "development-ai-test.spec.ts",
+      "title": "a matching AI reference without allowed context never opens a human confirmation",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a0cf329728f5",
+      "file": "development-ai-test.spec.ts",
+      "title": "a failed AI consultation suspends the suggested human confirmation and preserves the draft",
+      "line": 60,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b3b7e22b69ff",
+      "file": "development-ai-test.spec.ts",
+      "title": "a historical battery has a stable URL and cannot populate a current adjustment draft",
+      "line": 61,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f94fcb62ee0e",
+      "file": "development-ai-test.spec.ts",
+      "title": "starting from a historical consultation uses the current operation and returns to current monitoring",
+      "line": 62,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-86b09bde3755",
+      "file": "development-ai-test.spec.ts",
+      "title": "Story summary exposes the recorded AI result and evidence without a writing persona at 1440px",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-079fe317d396",
+      "file": "development-ai-test.spec.ts",
+      "title": "Story summary exposes the recorded AI result and evidence without a writing persona at 390px",
+      "line": 75,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0c7c8db44788",
+      "file": "development-ai-test.spec.ts",
+      "title": "Execution highlights the pinned AI battery and preserves two panels at 1440px",
+      "line": 82,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-c4e147de7f0e",
+      "file": "development-ai-test.spec.ts",
+      "title": "Execution highlights the pinned AI battery and preserves two panels at 390px",
+      "line": 82,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-db8974f7931f",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Resumo offers the Story AI battery at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-52e0ed2a7e50",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Evidências offers the Story AI battery at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-d8e088834c2d",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Execução offers the Story AI battery at 1440px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-88ef1f945a14",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Resumo offers the Story AI battery at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3e26fba8a6eb",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Evidências offers the Story AI battery at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8b77c01339bd",
+      "file": "development-ai-test.spec.ts",
+      "title": "Task Execução offers the Story AI battery at 390px",
+      "line": 87,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-372675972693",
+      "file": "development-ai-test.spec.ts",
+      "title": "AI consultation errors retain the last result and do not invalidate a human approval in the Task",
+      "line": 92,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-19c81f335199",
+      "file": "development-ai-test.spec.ts",
+      "title": "historical Task and a changed DEV retain the exact battery without lending evidence to the selected attempt",
+      "line": 97,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-66dc0a86f85c",
+      "file": "development-ai-test.spec.ts",
+      "title": "an empty AI consultation is distinct from an unavailable consultation",
+      "line": 102,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-53591d87ebd9",
+      "file": "development-ai-test.spec.ts",
+      "title": "a running battery remains discoverable without offering a new command in the summary",
+      "line": 105,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8fda36bde4cd",
+      "file": "development-ai-test.spec.ts",
+      "title": "a unknown battery remains discoverable without offering a new command in the summary",
+      "line": 105,
       "expected": "passed"
     },
     {

@@ -37,6 +37,11 @@ class InstallationChecks(unittest.TestCase):
    self.assertIn('"status"::text',query);self.assertIn('"leaseUntil">CURRENT_TIMESTAMP',query);return '1'
   with tempfile.TemporaryDirectory() as directory,patch.object(check,'RUNTIME',Path(directory)),patch.object(check,'sql',side_effect=sql):
    with self.assertRaisesRegex(check.Missing,'ChatTurn'):check.idle()
+ def test_active_ai_battery_blocks_reinstallation_without_changing_the_receipt(self):
+  with tempfile.TemporaryDirectory() as directory,patch.object(check,'RUNTIME',Path(directory)),patch.object(check,'sql') as sql:
+   file=Path(directory)/'runtime-executor/state/ai-jobs/job/receipt.json';file.parent.mkdir(parents=True);file.write_text('{"state":"running"}')
+   with self.assertRaisesRegex(check.Missing,'trabalho nativo'):check.idle()
+   self.assertEqual(file.read_text(),'{"state":"running"}');sql.assert_not_called()
  def test_read_only_doctor_does_not_require_empty_queues(self):
   with patch.object(check,'preflight') as preflight,patch.object(check,'run',return_value='inactive'):
    with self.assertRaisesRegex(check.Missing,'sdlc-llm-relay'):check.doctor('general','coding')

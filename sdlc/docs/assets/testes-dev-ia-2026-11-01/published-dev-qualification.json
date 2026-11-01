@@ -1,0 +1,124 @@
+{
+  "scope": "Isolated published DEV browser fixtures; no operational application or portal data",
+  "applicationDataUsed": false,
+  "model": "qwen3:14b",
+  "browserImageId": "sha256:0d11540c790bc25b6aaaaef71701c4c730b0076d3eaf73720cdffb815e8a7ea9",
+  "sourceDigest": "6c7128ec6866ab5aa49220611ec99425a0294694831335ba01a93e27586f8883",
+  "checks": [
+    "published-version-tested-with-independent-replay-and-keyboard-limitation",
+    "screenshots-and-reports-without-complete-acceptance",
+    "backend-post-blocked-and-shared-counter-unchanged",
+    "actual-functional-failure-reproduced-on-same-frozen-recipe",
+    "replay-retains-original-operation-and-historical-evidence",
+    "old-source-refused-after-real-deployment-replacement"
+  ],
+  "batteries": [
+    {
+      "cases": [
+        {
+          "code": "PASSED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 0,
+          "status": "passed",
+          "steps": 2,
+          "title": "Ao selecionar Azul no campo Cor, o fundo de toda a janela fica #DDEEFF."
+        },
+        {
+          "code": "PASSED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 1,
+          "status": "passed",
+          "steps": 2,
+          "title": "Ao selecionar Georgia no campo Fonte, o título h1 usa a fonte Georgia."
+        },
+        {
+          "code": "CAPABILITY_UNSUPPORTED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 2,
+          "status": "not_tested",
+          "steps": 0,
+          "title": "Todos os controles são percorridos usando somente Tab, Shift+Tab e Enter com foco visível."
+        }
+      ],
+      "id": "ai-dev-live-20261101T221250Z-9c879e-positive",
+      "proof": {
+        "completeAcceptance": false,
+        "deploymentId": "ai-dev-live-20261101T221250Z-9c879e-deploy1",
+        "imageId": "sha256:254dfe4d26bd440e851a30086290f69e74953714a294092c3170aa2271a27a6f",
+        "model": "qwen3:14b",
+        "policyVersion": "dev-ai-browser-v1",
+        "referenceDigest": "d98b76e3e842aac941a731d10d1f51c667f31802b39a19b85807c2eed96357aa",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "stage": "completed",
+      "state": "inconclusive"
+    },
+    {
+      "cases": [
+        {
+          "code": "ASSERTION_FAILED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 0,
+          "status": "failed",
+          "steps": 2,
+          "title": "Ao selecionar Azul no campo Cor, o fundo de toda a janela fica #DDEEFF."
+        },
+        {
+          "code": "PASSED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 1,
+          "status": "passed",
+          "steps": 2,
+          "title": "Ao selecionar Georgia no campo Fonte, o título h1 usa a fonte Georgia."
+        },
+        {
+          "code": "CAPABILITY_UNSUPPORTED",
+          "evidence": [
+            "initial.png",
+            "final.png",
+            "report.json"
+          ],
+          "index": 2,
+          "status": "not_tested",
+          "steps": 0,
+          "title": "Todos os controles são percorridos usando somente Tab, Shift+Tab e Enter com foco visível."
+        }
+      ],
+      "id": "ai-dev-live-20261101T221250Z-9c879e-negative",
+      "proof": {
+        "completeAcceptance": false,
+        "deploymentId": "ai-dev-live-20261101T221250Z-9c879e-deploy2",
+        "imageId": "sha256:24760a3f8abeb522000f86270f67020621480f9d287fd64d9289d8bbf3f43c7d",
+        "model": "qwen3:14b",
+        "policyVersion": "dev-ai-browser-v1",
+        "referenceDigest": "d98b76e3e842aac941a731d10d1f51c667f31802b39a19b85807c2eed96357aa",
+        "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "stage": "completed",
+      "state": "failed"
+    }
+  ],
+  "fixtureDigest": "2e70e9de9d3b705aa8567d58e81b8f01db9af11ec54425cde306ce8dc90fd8a1",
+  "sourceStable": true,
+  "passed": true
+}

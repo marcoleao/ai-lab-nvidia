@@ -5,6 +5,10 @@ import {useEffect,useState,type ReactNode} from 'react';
 import type {StoryDevProgress} from '../../../packages/shared/src/story-dev-progress';
 import {LoadingState,displayDate} from './experience-ui';
 import './story-execution-hub.css';
+import {storyExecutionHref} from './story-execution-navigation';
+import {AiTestResult} from './development-ai-test-result';
+import {isAiTestOperation} from './development-ai-test';
+import type {AiTestOperation} from '../../../packages/shared/src/development-ai-test';
 
 export type StoryExecutionCurrent={phase?:string;label?:string;kind?:string;who?:string;state:string;title:string;message?:string;updatedAt?:string};
 export type StoryExecutionSignals={lastEventAt?:string|null;lastHeartbeatAt?:string|null;heartbeatStaleAfterMs?:number;provider?:string;stage?:string;waitingSince?:string;queuedAt?:string;startedAt?:string;queueReason?:string;legacy?:boolean};
@@ -16,27 +20,29 @@ export type StoryExecutionHubProps={
  stale?:boolean;loading?:boolean;readOnly?:boolean;actions:ReactNode;detailsHref:string;onRefresh:()=>void;
 };
 
-type Kind='build'|'deployment'|'test';
+type Kind='build'|'deployment'|'test'|'ai-test';
 type Operation={id:string;number:number|null;state:string;message:string|null;actorName:string|null;createdAt:string|null;updatedAt:string|null;suiteScope?:'technical'|'acceptance';result?:'passed'|'failed'|null};
-type Reading={storyId:string;configured:boolean;operation:Operation|null;preparation?:Operation|null;asOf:string|null};
+type Reading={storyId:string;configured:boolean;operation:Operation|null;preparation?:Operation|null;asOf:string|null;current?:boolean;aiTest?:AiTestOperation|null};
 type Source={data:Reading|null;error:boolean;checkedAt:string|null};
 type Snapshot={storyId:string;checking:boolean;sources:Record<Kind,Source>};
-const kinds:readonly Kind[]=['build','deployment','test'];
-const names:Record<Kind,string>={build:'Construção DEV',deployment:'Publicação DEV',test:'Testes DEV'};
+const kinds:readonly Kind[]=['build','deployment','test','ai-test'];
+const names:Record<Kind,string>={build:'Construção DEV',deployment:'Publicação DEV',test:'Testes DEV','ai-test':'Testes por Agentes de IA'};
 const states:Record<string,string>={queued:'Na fila',running:'Em execução',paused:'Pausado',blocked:'Impedido',failed:'Falhou',unknown:'Resultado não confirmado',succeeded:'Resultado registrado',cancelled:'Pedido cancelado',waiting_human:'Aguardando decisão humana',waiting_input:'Aguardando orientação humana',waiting_approval:'Aguardando aprovação',stale:'Contexto alterado',tracking:'Em acompanhamento'};
 const EVENT_LIMIT=6;
-const freshSnapshot=(storyId:string):Snapshot=>({storyId,checking:false,sources:{build:{data:null,error:false,checkedAt:null},deployment:{data:null,error:false,checkedAt:null},test:{data:null,error:false,checkedAt:null}}});
+const freshSnapshot=(storyId:string):Snapshot=>({storyId,checking:false,sources:{build:{data:null,error:false,checkedAt:null},deployment:{data:null,error:false,checkedAt:null},test:{data:null,error:false,checkedAt:null},'ai-test':{data:null,error:false,checkedAt:null}}});
 const validDate=(value:unknown):value is string=>typeof value==='string'&&Number.isFinite(Date.parse(value));
 const date=(value?:string|null)=>validDate(value)?displayDate(value):'Não informado';
 const text=(value:unknown):value is string=>typeof value==='string'&&value.trim().length>0;
 const status=(value?:string)=>value?states[value]||'Situação não reconhecida':'Situação não informada';
 function operationStatus(kind:Kind,operation:Operation){
+ if(kind==='ai-test')return ({succeeded:'Cenários executados sem falhas encontradas',failed:'Falhas funcionais encontradas',inconclusive:'Bateria inconclusiva'} as Record<string,string>)[operation.state]||status(operation.state);
  if(operation.state!=='succeeded')return status(operation.state);
  if(kind==='build')return 'Artefato confirmado';
  if(kind==='deployment')return 'Publicação confirmada';
  return operation.result==='passed'?operation.suiteScope==='acceptance'?'Suíte de aceitação aprovada':'Verificações técnicas aprovadas':'Resultado da suíte registrado';
 }
 function operationMessage(kind:Kind,operation:Operation){
+ if(kind==='ai-test')return operation.message||'A bateria reúne evidências para a decisão humana, sem aprovar a História.';
  if(operation.state!=='succeeded')return operation.message||'O executor não informou uma mensagem neste pedido.';
  if(kind==='build')return 'Artefato confirmado neste pedido. Publicação, testes e aprovação têm acompanhamento próprio.';
  if(kind==='deployment')return 'Publicação confirmada neste pedido. A disponibilidade atual tem observação própria.';
@@ -48,14 +54,16 @@ function parseOperation(value:unknown):Operation|null{
  if(!text(source.id)||!text(source.state))return null;
  return {id:source.id,state:source.state,number:typeof source.number==='number'&&Number.isSafeInteger(source.number)&&source.number>0?source.number:null,message:typeof source.message==='string'?source.message:null,actorName:typeof source.actorName==='string'?source.actorName:null,createdAt:validDate(source.createdAt)?source.createdAt:null,updatedAt:validDate(source.updatedAt)?source.updatedAt:null,...(source.suiteScope==='technical'||source.suiteScope==='acceptance'?{suiteScope:source.suiteScope}:{}),...(source.result==='passed'||source.result==='failed'?{result:source.result}:{})};
 }
-function parseReading(value:unknown,storyId:string):Reading|null{
+function parseReading(value:unknown,storyId:string,kind:Kind):Reading|null{
  if(!value||typeof value!=='object')return null;
  const reading=value as Record<string,unknown>;
  if(reading.storyId!==storyId||typeof reading.configured!=='boolean'||!('operation'in reading))return null;
  const operation=reading.operation===null?null:parseOperation(reading.operation);
  if(reading.operation!==null&&!operation)return null;
+ if(kind==='ai-test'&&reading.operation!==null&&!isAiTestOperation(reading.operation,storyId))return null;
  const preparation=reading.preparation===null?null:parseOperation(reading.preparation)||undefined;
- return {storyId,configured:reading.configured,operation,...('preparation'in reading?{preparation}:{}),asOf:validDate(reading.asOf)?reading.asOf:null};
+ const raw=reading.operation as Record<string,unknown>|null;
+ return {storyId,configured:reading.configured,operation,...(kind==='ai-test'?{aiTest:reading.operation as AiTestOperation|null}:{}),...('preparation'in reading?{preparation}:{}),asOf:validDate(reading.asOf)?reading.asOf:null,...(typeof reading.referenceDigest==='string'?{current:!!raw&&raw.referenceDigest===reading.referenceDigest&&raw.deploymentId===reading.deploymentId&&raw.sourceSha===reading.sourceSha}:{})};
 }
 function safeUrl(value?:string|null){
  if(!value)return null;
@@ -65,7 +73,7 @@ async function read(storyId:string,kind:Kind,signal:AbortSignal):Promise<Reading
  const response=await fetch(`/api/items/${encodeURIComponent(storyId)}/development-${kind}`,{cache:'no-store',signal});
  if(!response.ok)throw Error('Consulta DEV não confirmada.');
  const body:unknown=await response.json();
- const reading=parseReading(body,storyId);
+ const reading=parseReading(body,storyId,kind);
  if(!reading)throw Error('A leitura DEV não corresponde à História.');
  return reading;
 }
@@ -109,6 +117,7 @@ export default function StoryExecutionHub({storyId,active=true,current,signals,e
    {loading&&<LoadingState>Consultando a situação da História…</LoadingState>}
    {stale?<p className="story-execution-warning">A consulta atual não foi confirmada. A última leitura recebida foi preservada{validDate(lastChecked)?`, de ${date(lastChecked)}`:''}.</p>:<p>{progress?.message||current?.message||'Acompanhe os estados e sinais registrados nesta História.'}</p>}
    {liveUrl&&<div className="story-execution-dev-link"><a href={liveUrl} target="_blank" rel="noreferrer">Abrir aplicação em DEV ↗</a><p>{liveUrl}</p>{progress?.observedAt&&<p className="hint">Disponibilidade observada em {date(progress.observedAt)}.</p>}</div>}
+   <AiTestResult storyId={storyId} operation={reading.sources['ai-test'].data?.aiTest??null} asOf={reading.sources['ai-test'].data?.asOf} loaded={!!reading.sources['ai-test'].data} loading={!reading.sources['ai-test'].data&&!reading.sources['ai-test'].error} error={reading.sources['ai-test'].error} current={!stale&&!reading.sources['ai-test'].error&&reading.sources['ai-test'].data?.current} onRetry={()=>setRefresh(value=>value+1)}/>
    <p className="hint">Atualização automática enquanto esta página estiver aberta. O acompanhamento mostra sinais registrados, sem estimar progresso interno dos agentes.</p>
    <dl className="story-execution-facts">
     <div><dt>Atividade registrada</dt><dd>{current?.label||current?.title||'Ainda não informada'}{current&&<> · {status(current.state)}</>}</dd>{current?.updatedAt&&<dd className="hint">Atualizada em {date(current.updatedAt)}.</dd>}</div>
@@ -123,8 +132,8 @@ export default function StoryExecutionHub({storyId,active=true,current,signals,e
     <details><summary>Referências da liberação</summary><p>Pedido <code>{preparation.preparation.id}</code> · referência <code>{preparation.preparation.sha}</code>.</p>{preparation.preparation.message&&<p>{preparation.preparation.message}</p>}</details>
    </article>}
    <h3>Automações de DEV</h3>
-   {failed.length>0&&<p className="story-execution-warning" role="status">A atualização de {failed.map(kind=>names[kind].toLowerCase()).join(', ')} não foi confirmada. As últimas leituras recebidas permanecem identificadas abaixo.</p>}
-   <div className="story-execution-operations">{kinds.map(kind=>{
+   {failed.length>0&&<p className="story-execution-warning" role="status">A atualização de {failed.map(kind=>names[kind].toLowerCase()).join(', ')} não foi confirmada. As últimas leituras recebidas permanecem identificadas nesta página.</p>}
+   <div className="story-execution-operations">{kinds.filter(kind=>kind!=='ai-test').map(kind=>{
     const source=reading.sources[kind],operation=source.data?.operation;
     return <article key={kind} className="story-execution-operation" data-testid={`story-execution-operation-${kind}`}>
      <h4>{names[kind]}</h4>

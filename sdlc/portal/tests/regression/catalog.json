@@ -3,6 +3,15 @@
     "scope": "Portal browser regression; external deployment acceptance is separate",
     "browser": [
         {
+            "id": "UIFILE-development-ai-test",
+            "file": "development-ai-test.spec.ts",
+            "area": "development-ai-test",
+            "requirements": ["AI-DEV-01"],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
             "id": "UIFILE-development-manual-acceptance",
             "file": "development-manual-acceptance.spec.ts",
             "area": "development-manual-acceptance",

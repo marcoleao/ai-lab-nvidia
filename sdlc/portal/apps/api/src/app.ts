@@ -34,6 +34,8 @@ import type {ContractIntegrationProvider} from './contract-integration-provider.
 import type {ContractPublicationProvider} from './contract-publication-provider.ts';
 import {registerEpicExecution} from './epic-execution.ts';
 import {registerReleaseBranchPlan} from './release-branch-plan.ts';
+import {registerDevelopmentAiTests} from './development-ai-tests.ts';
+import type {AiTestProvider} from './development-ai-test-provider.ts';
 import {registerReleaseBranchPreparation} from './release-branch-preparation.ts';
 import type {ReleaseBranchProvider} from './release-branch-provider.ts';
 import {registerMerge} from './merge.ts';
@@ -51,7 +53,7 @@ import {requestSystemRepository} from './system-repository.ts';
 import {environmentContext,registerEnvironmentReferences} from './environments.ts';
 import {environmentCodes} from '../../../packages/shared/src/environments.ts';
 
-type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;coding?:CodingProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
+type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;aiTests?:AiTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;coding?:CodingProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
 const labels:Record<ItemKind,string>={system:'Sistema',project:'Projeto',epic:'Épico',story:'História',task:'Tarefa'};
 const dataOf=(item:Item):Record<string,Prisma.JsonValue>=>item.data as Record<string,Prisma.JsonValue>;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -485,6 +487,7 @@ export function createApp(options:Options){
   const {processContractPublicationJobs}=registerContractPublications(app,assistantHelpers,inspectContractContext,options.contracts);
   const {processContractIntegrationJobs}=registerContractIntegrations(app,assistantHelpers,options.contractIntegrations);
   registerDevelopmentApprovals(app,assistantHelpers);
+  const {processAiTestJobs}=registerDevelopmentAiTests(app,assistantHelpers,options.aiTests,options.deployments);
   const {processDevelopmentTestJobs}=registerDevelopmentTests(app,assistantHelpers,options.developmentTests,options.deployments);
   registerDevelopmentManualAcceptance(app,assistantHelpers,options.deployments);
   const {processDevelopmentDeploymentJobs}=registerDevelopmentDeployments(app,assistantHelpers,options.deployments,options.runtime);
@@ -511,5 +514,5 @@ export function createApp(options:Options){
       return {updated,unchanged};
     });
   }
-  return {app,processDevelopmentTestJobs,processDevelopmentDeploymentJobs,processEnvironmentTargetJobs,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs,processQualityJobs,processReleaseBranchJobs,processContractPublicationJobs,processContractIntegrationJobs,processDevelopmentBuildJobs,processApplicationPreparationJobs,reconcileStoryPhases};
+  return {app,processAiTestJobs,processDevelopmentTestJobs,processDevelopmentDeploymentJobs,processEnvironmentTargetJobs,processJobs,processChatJobs,processExecutionJobs,processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs,processQualityJobs,processReleaseBranchJobs,processContractPublicationJobs,processContractIntegrationJobs,processDevelopmentBuildJobs,processApplicationPreparationJobs,reconcileStoryPhases};
 }

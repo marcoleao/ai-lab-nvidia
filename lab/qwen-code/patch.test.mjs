@@ -163,3 +163,25 @@ test('numeric locale rejects code, unsupported shapes and stale revisions before
   await scenario({...request([]),files:[{path:'a.js',content}],edits:[{path:'a.js',slot:slot.slot,locale:'pt-BR',expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);});
  }
 });
+
+test('geometry data merges only permitted values and preserves original state expressions and source',async()=>{
+ const contents=["export function App(){return <main style={{backgroundColor:color,fontFamily:font}}>Preserved</main>}","export function App(){return <main style={{'minHeight':'100vh',color:palette.primary, /* keep */}}>Preserved</main>}","export function App(){return <main style={{}}>Preserved</main>}"];
+ for(const content of contents){
+  const slot=sourceSlots(content,'a.jsx').find(s=>s.kind==='InlineStyle');assert.equal(slot.element,'main');const input={...request([]),files:[{path:'a.jsx',content}],writePaths:['a.jsx'],edits:[{path:'a.jsx',slot:slot.slot,geometry:{minHeight:'100dvh',display:'flow-root'},expectedDigest:digest(content)}]};let first;
+  for(let attempt=0;attempt<2;attempt++)await scenario(input,async value=>{assert.equal(value.state,'succeeded');const changed=value.patch.files[0].content;assert.ok(changed.includes('"100dvh"'));assert.ok(changed.includes('"display":"flow-root"'));assert.ok(changed.endsWith('>Preserved</main>}'));if(content.includes('backgroundColor'))assert.ok(changed.includes('backgroundColor:color,fontFamily:font'));if(content.includes('palette.primary'))assert.ok(changed.includes('palette.primary')&&changed.includes('/* keep */'));if(attempt===0)first=changed;else assert.equal(changed,first);});
+ }
+});
+test('geometry rejects unsupported properties, executable values, stale source and wrong slots without writing',async()=>{
+ const content='export function App(){return <main style={{color:palette.primary}}/>}',slot=sourceSlots(content,'a.jsx').find(s=>s.kind==='InlineStyle');
+ for(const fields of [{geometry:{color:'red'}},{geometry:{height:'calc(evil())'}},{geometry:{margin:true}},{geometry:{}},{geometry:{margin:0},content:'{}'},{geometry:{margin:0},expectedDigest:'f'.repeat(64)}])await scenario({...request([]),files:[{path:'a.jsx',content}],writePaths:['a.jsx'],edits:[{path:'a.jsx',slot:slot.slot,expectedDigest:digest(content),...fields}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal('patch'in value,false);try{assert.equal(await fs.readFile(path.join(root,'a.jsx'),'utf8'),content);}catch(error){if(error.code!=='ENOENT')throw error;}});
+ const other='export const sum=(a,b)=>a-b;',expression=sourceSlots(other,'a.js').find(s=>s.kind==='BinaryExpression');await scenario({...request([]),files:[{path:'a.js',content:other}],edits:[{path:'a.js',slot:expression.slot,geometry:{margin:0},expectedDigest:digest(other)}]},async(value,root)=>{assert.equal(value.state,'failed');assert.equal(await fs.readFile(path.join(root,'a.js'),'utf8'),other);});
+});
+
+test('import edits cannot remove names still referenced by the candidate, but coordinated renames and unused removal remain possible',async()=>{
+ const content="import {useState} from 'react';export function App(){return useState(0);}",slots=sourceSlots(content,'a.jsx'),importSlot=slots.find(s=>s.kind==='ImportDeclaration'),call=slots.find(s=>s.code==='useState(0)');
+ const input={...request([]),files:[{path:'a.jsx',content}],writePaths:['a.jsx']};
+ await scenario({...input,edits:[{path:'a.jsx',slot:importSlot.slot,content:"import {useReducer} from 'react';",expectedDigest:digest(content)}]},async(value,root)=>{assert.equal(value.state,'failed');assert.match(value.error,/useState/);assert.equal('patch'in value,false);assert.equal(await fs.readFile(path.join(root,'a.jsx'),'utf8'),content);});
+ await scenario({...input,edits:[{path:'a.jsx',slot:importSlot.slot,content:"import {useState as state} from 'react';",expectedDigest:digest(content)},{path:'a.jsx',slot:call.slot,content:'state(0)',expectedDigest:digest(content)}]},async value=>{assert.equal(value.state,'succeeded',value.error);assert.ok(value.patch.files[0].content.includes('return state(0)'));});
+ const unused="import {useState} from 'react';export function App(){return null;}",unusedSlot=sourceSlots(unused,'a.jsx').find(s=>s.kind==='ImportDeclaration');
+ await scenario({...input,files:[{path:'a.jsx',content:unused}],edits:[{path:'a.jsx',slot:unusedSlot.slot,content:'',expectedDigest:digest(unused)}]},async value=>{assert.equal(value.state,'succeeded',value.error);assert.equal(value.patch.files[0].content,'export function App(){return null;}');});
+});

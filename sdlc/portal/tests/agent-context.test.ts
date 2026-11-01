@@ -65,10 +65,12 @@ test('native coding receives every approved fact once and reads complete source 
 test('native manifest rejects missing source instead of pretending the workspace is complete',()=>{
  expect(()=>nativeGenerationReferenceMessages({}, {},{sha:'a',files:[{path:'a.js'}]},'a',false,{})).toThrow('não contém arquivos completos');
 });
-test('small UI specialists receive all approved criteria and approved test cases without source or historic plans',()=>{
- const snapshot={name:'Catálogo',requirements:{objective:'Cadastrar',behavior:'Conferir o preço',functionalCriteria:['BRL','Foto']},technicalPlan:{testCases:[{criterionIndex:0,description:'Antigo'}]},codeContext:{files:[{path:'src/main.jsx',content:'privado'}]}};
- const approved={testCases:[{criterionIndex:0,description:'Conferir zero'},{criterionIndex:1,description:'Conferir imagem'}]};
- expect(nativeUiTestContext(snapshot,approved)).toEqual({objective:'Cadastrar',behavior:'Conferir o preço',criteria:['BRL','Foto'],testCases:approved.testCases});
+test('small specialists preserve complementary approved obligations and current plan without source or historic plans',()=>{
+ const snapshot={scopeRevision:3,name:'Reservas',runtime:{name:'React'},requirements:{objective:'Reservar',behavior:'Conferir disponibilidade',functionalCriteria:['Mostrar horários','Confirmar reserva'],businessRules:['Não duplicar reserva.'],nonFunctional:['Uso por teclado.'],outOfScope:['Cobrança.']},technicalPlan:{architecture:'Plano antigo',testCases:[{criterionIndex:0,description:'Antigo'}]},decisions:[{summary:'Manter dados locais.'}],tasks:[{name:'Implementação'}],codeDestination:{baseSha:'a'.repeat(40)},codeContext:{files:[{path:'src/main.jsx',content:'privado'}]}};
+ const approved={architecture:'Plano aprovado atual',testCases:[{criterionIndex:0,description:'Conferir horários'},{criterionIndex:1,description:'Confirmar reserva'}]};
+ const context=nativeUiTestContext(snapshot,approved)!;
+ expect(context).toEqual({contextVersion:2,objective:'Reservar',behavior:'Conferir disponibilidade',criteria:snapshot.requirements.functionalCriteria,testCases:approved.testCases,approved:{name:snapshot.name,runtime:snapshot.runtime,requirements:{businessRules:['Não duplicar reserva.'],nonFunctional:['Uso por teclado.'],outOfScope:['Cobrança.']},technicalPlan:{architecture:approved.architecture},decisions:snapshot.decisions,tasks:snapshot.tasks,codeDestination:snapshot.codeDestination,scopeRevision:3}});
+ expect(JSON.stringify(context)).not.toContain('privado');expect(JSON.stringify(context)).not.toContain('Plano antigo');expect(JSON.stringify(context).match(/Mostrar horários/g)).toHaveLength(1);
  for(const index of [-1,2,0.5])expect(()=>nativeUiTestContext(snapshot,{testCases:[{criterionIndex:index,description:'Fora'}]})).toThrow('casos aprovados');
  expect(nativeUiTestContext({scopeRevision:2,fingerprint:'preservado'},approved)).toBeUndefined();expect(()=>nativeUiTestContext({scopeRevision:3},approved)).toThrow('casos aprovados');
 });

@@ -27,7 +27,11 @@ def validate_intent(value):
  if not isinstance(value,dict) or not required.issubset(value) or set(value)-required-{'testContext'}:raise ValueError('Invalid intent fields')
  if 'testContext' in value:
   context=value['testContext']
-  if not isinstance(context,dict) or set(context)!={'objective','behavior','criteria','testCases'} or not isinstance(context['objective'],str) or not isinstance(context['behavior'],str) or not isinstance(context['criteria'],list) or any(not isinstance(c,str) for c in context['criteria']) or not isinstance(context['testCases'],list) or len(json.dumps(context))>20000:raise ValueError('Invalid or oversized UI test context')
+  fields={'objective','behavior','criteria','testCases'}
+  if not isinstance(context,dict) or set(context) not in [fields,fields|{'contextVersion','approved'}] or not isinstance(context['objective'],str) or not isinstance(context['behavior'],str) or not isinstance(context['criteria'],list) or any(not isinstance(c,str) for c in context['criteria']) or not isinstance(context['testCases'],list) or len(json.dumps(context))>20000:raise ValueError('Invalid or oversized UI test context')
+  if 'contextVersion' in context:
+   approved=context['approved']
+   if type(context['contextVersion']) is not int or context['contextVersion']!=2 or not isinstance(approved,dict) or set(approved)!={'name','runtime','requirements','technicalPlan','decisions','tasks','codeDestination','scopeRevision'} or not isinstance(approved['requirements'],dict) or not isinstance(approved['technicalPlan'],dict) or approved['scopeRevision'] is not None and (type(approved['scopeRevision']) is not int or approved['scopeRevision'] not in [2,3]):raise ValueError('Invalid approved specialist context')
   for case in context['testCases']:
    if not isinstance(case,dict) or set(case)!={'criterionIndex','description'} or type(case['criterionIndex']) is not int or not 0<=case['criterionIndex']<len(context['criteria']) or not isinstance(case['description'],str) or not 1<=len(case['description'])<=500:raise ValueError('Invalid approved UI test case')
  if not re.fullmatch('[a-f0-9]{64}',value['id']) or not re.fullmatch('[a-f0-9]{40}',value['expectedSha']):raise ValueError('Invalid immutable identity')
@@ -64,9 +68,9 @@ def candidate_files(intent,working,patch):
 def require_ui_plan(proof,changes,steps):
  guidance=[]
  if any('strict mode violation' in error for error in proof.get('errors',[])):
-  guidance.append('O rótulo existe em mais de um controle. Adicione index ao objeto do passo: por exemplo {op:"select",name:"Categoria",index:0,value:"Anéis"}. index 0 é o primeiro controle com esse rótulo, index 1 o segundo; use a ordem e o contexto mostrados na UI. Não repita o mesmo plano sem desambiguar.')
+  guidance.append('O rótulo existe em mais de um controle. Adicione index ao objeto do passo: use somente o nome, a opção e o índice efetivamente observados. index 0 é o primeiro controle com esse rótulo, index 1 o segundo; use a ordem e o contexto mostrados na UI. Não repita o mesmo plano sem desambiguar.')
  if any('selectOption' in error for error in proof.get('errors',[])):
-  guidance.append('Antes de selecionar, a opção precisa existir neste navegador novo. Cadastre os pré-requisitos pela UI. Um textbox sem nome pode usar {op:"fill",name:"",index:0,value:"Categoria de teste"}; depois clique no botão de adicionar. Não injete dados por API ou armazenamento.')
+  guidance.append('Antes de selecionar, a opção precisa existir neste navegador novo. Cadastre os pré-requisitos pela UI. Um textbox sem nome exige índice explícito e um valor previsto no cenário; efetive a preparação pelo controle observado correspondente. Não injete dados por API ou armazenamento.')
  if guidance:proof={**proof,'guidance':guidance}
  if proof['applicable'] and not steps and any(re.search(r'\.(?:[jt]sx|css)$',file['path']) for file in changes):
   proof={**proof,'passed':False,'interactionPlanRequired':True,'errors':[*proof.get('errors',[]),'A abertura foi conferida, mas falta plano de interação e asserção para a alteração de interface. Envie steps a validate_candidate; preserve a candidata já editada.']}
@@ -258,7 +262,9 @@ class JobHandler(Handler):
  def do_GET(self):
   if self.path=='/health':
    ready=all(subprocess.run(['docker','image','inspect',CONFIG[key]],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=4).returncode==0 for key in ['imageId','browserImageId'])
-   return self.respond(200,{'ready':ready,'policy':POLICY,'imageId':CONFIG['imageId'],'model':CONFIG['model']})
+   from coding_ui_agent import UI_CAPABILITIES
+   from coding_micro import EDIT_CAPABILITIES
+   return self.respond(200,{'capabilities':{'ui':UI_CAPABILITIES,'editProfiles':EDIT_CAPABILITIES},'ready':ready,'policy':POLICY,'imageId':CONFIG['imageId'],'model':CONFIG['model']})
   match=re.fullmatch('/jobs/([a-f0-9]{64})',self.path)
   if not match:return self.respond(404,{'error':'Endpoint denied'})
   receipt=Path(CONFIG['stateRoot'])/match[1]/'receipt.json';return self.respond(200,json.loads(receipt.read_text()) if receipt.is_file() else {'id':match[1],'state':'absent'})

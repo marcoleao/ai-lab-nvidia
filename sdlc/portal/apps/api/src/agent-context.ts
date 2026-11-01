@@ -1,5 +1,6 @@
 import {DomainError} from './errors.ts';
 import {createHash} from 'node:crypto';
+import type {CodingTestContext} from './coding-provider.ts';
 type RecordValue=Record<string,unknown>;
 const object=(v:unknown):RecordValue=>v&&typeof v==='object'&&!Array.isArray(v)?v as RecordValue:{};
 export const agentContextPolicy='authoritative-context-v1';
@@ -20,13 +21,14 @@ export function executionAgentReference(value:unknown,specification?:unknown){
   tasks:s.tasks,codeDestination:s.codeDestination,decisions:s.decisions,qualityFindings:s.qualityFindings,
   qualityCorrection:s.qualityCorrection,patchRepair};
 }
-export function nativeUiTestContext(snapshot:unknown,specification:unknown){
+export function nativeUiTestContext(snapshot:unknown,specification:unknown):CodingTestContext|undefined{
  const reference=executionAgentReference(snapshot,specification),criteria=reference.criteria,cases=object(reference.technicalPlan).testCases;
  // Preserved v2 approvals contain a fingerprint, not a captured criteria list.
  // Do not fabricate an approved UI context from the current mutable Story.
  if(object(snapshot).scopeRevision===2&&criteria===undefined)return undefined;
  if(!Array.isArray(criteria)||!criteria.every(value=>typeof value==='string')||!Array.isArray(cases)||!cases.every(value=>Number.isInteger(object(value).criterionIndex)&&(object(value).criterionIndex as number)>=0&&(object(value).criterionIndex as number)<criteria.length&&typeof object(value).description==='string'))throw new DomainError('AGENT_CONTEXT_INVALID','O contexto de teste não contém os critérios e casos aprovados.',409);
- return {objective:String(reference.objective??''),behavior:String(reference.behavior??''),criteria:criteria as string[],testCases:cases.map(value=>({criterionIndex:object(value).criterionIndex as number,description:object(value).description as string}))};
+ const {testCases:_cases,...technicalPlan}=object(reference.technicalPlan);
+ return {contextVersion:2,objective:String(reference.objective??''),behavior:String(reference.behavior??''),criteria:criteria as string[],testCases:cases.map(value=>({criterionIndex:object(value).criterionIndex as number,description:object(value).description as string})),approved:{name:reference.name??null,runtime:reference.runtime??null,requirements:reference.requirements,technicalPlan,decisions:reference.decisions??null,tasks:reference.tasks??null,codeDestination:reference.codeDestination??null,scopeRevision:object(snapshot).scopeRevision??null}};
 }
 export function agentContextMessages(sections:{label:string;value:unknown}[]){
  const contents=sections.map(s=>({label:s.label,text:typeof s.value==='string'?s.value:JSON.stringify(s.value)}));

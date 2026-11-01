@@ -1,6 +1,6 @@
 """Install the controlled local runtime executor; never creates application resources."""
 from pathlib import Path
-import hashlib,json,os,shutil,subprocess,sys,uuid
+import hashlib,ipaddress,json,os,shutil,subprocess,sys,uuid,urllib.parse
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT.parent/'scripts'))
 from audit_admin import administrative_operation
 INSTALL=Path('/opt/agentic-sdlc/portal/runtime-executor')
@@ -9,14 +9,26 @@ def install():
  if INSTALL.is_symlink() or INSTALL.parent.is_symlink():raise RuntimeError('Regular installation paths required')
  if INSTALL.exists() and not (INSTALL/'installation.json').is_file():raise RuntimeError('Keep unowned runtime directory')
  if INSTALL.exists():
-  for receipt in (INSTALL/'state/jobs').glob('*/receipt.json'):
+  for receipt in [*(INSTALL/'state/jobs').glob('*/receipt.json'),*(INSTALL/'state/ai-jobs').glob('*/receipt.json')]:
    if json.loads(receipt.read_text()).get('state') in ['queued','running']:raise RuntimeError('Wait for active runtime operations')
  installation=json.loads((INSTALL/'installation.json').read_text()) if INSTALL.exists() else {'installationId':str(uuid.uuid4())}
- source=ROOT/'runtime/service.py';fingerprint=hashlib.sha256(source.read_bytes()).hexdigest()
+ sources=[ROOT/'runtime/service.py',ROOT/'runtime/dev_ai.py',*[ROOT/'executor'/name for name in ['coding_ui_agent.py','coding_browser.py','coding-browser.mjs','browser-controls.mjs']]]
+ source=sources[0];fingerprint=hashlib.sha256(b''.join(p.read_bytes() for p in sources)).hexdigest()
+ ai={};coding=Path('/opt/agentic-sdlc/portal/coding-executor/config.json')
+ if coding.is_file():
+  selected=json.loads(coding.read_text());upstream=urllib.parse.urlsplit(selected['upstream'])
+  if upstream.scheme!='http' or not ipaddress.ip_address(upstream.hostname).is_private or upstream.username or upstream.password or upstream.path not in ['', '/'] or upstream.query or upstream.fragment:raise RuntimeError('Keep the qualified internal inference source')
+  image=json.loads(subprocess.check_output(['docker','image','inspect','sdlc-coding-browser:prepared'],text=True))[0]
+  if image['Config'].get('Labels',{}).get('org.sdlc.dev-ai-browser')!='published-dev-v1':raise RuntimeError('Prepare agents before installing DEV browser testing')
+  for name in ['coding-browser.mjs','browser-controls.mjs']:
+   actual=subprocess.check_output(['docker','run','--rm','--network','none','--entrypoint','cat',image['Id'],'/opt/sdlc/'+name],text=True)
+   if actual!=(ROOT/'executor'/name).read_text():raise RuntimeError('Prepared DEV browser source differs')
+  ai={'aiBrowserImageId':image['Id'],'aiModel':selected.get('uiModel',selected['model']),'aiUpstream':selected['upstream']}
  with administrative_operation('PORTAL_RUNTIME_EXECUTOR_INSTALLED',source='portal/runtime-executor',details={'scope':'local-owned-DEV-targets-no-business-data','manifestDigest':fingerprint}) as operation:
   INSTALL.mkdir(parents=True,exist_ok=True,mode=0o700);os.chmod(INSTALL,0o700);(INSTALL/'socket').mkdir(exist_ok=True);os.chmod(INSTALL/'socket',0o755)
   shutil.copyfile(source,INSTALL/'service.py');os.chmod(INSTALL/'service.py',0o600)
-  config={'buildStateRoot':'/opt/agentic-sdlc/portal/build-executor/state','installationId':installation['installationId'],'stateRoot':str(INSTALL/'state'),'socketPath':str(INSTALL/'socket/executor.sock')};(INSTALL/'config.json').write_text(json.dumps(config));os.chmod(INSTALL/'config.json',0o600)
+  for path in [ROOT/'runtime/dev_ai.py',ROOT/'executor/coding_ui_agent.py',ROOT/'executor/coding_browser.py']:shutil.copyfile(path,INSTALL/path.name);os.chmod(INSTALL/path.name,0o600)
+  config={'buildStateRoot':'/opt/agentic-sdlc/portal/build-executor/state','installationId':installation['installationId'],'stateRoot':str(INSTALL/'state'),'socketPath':str(INSTALL/'socket/executor.sock'),**ai};(INSTALL/'config.json').write_text(json.dumps(config));os.chmod(INSTALL/'config.json',0o600)
   installation.update(sourceDigest=fingerprint,profile='node24-http-v1');(INSTALL/'installation.json').write_text(json.dumps(installation));os.chmod(INSTALL/'installation.json',0o600)
   unit=Path('/etc/systemd/system/sdlc-runtime-executor.service')
   if unit.exists() and 'SDLC controlled application runtime' not in unit.read_text():raise RuntimeError('Keep unowned service')

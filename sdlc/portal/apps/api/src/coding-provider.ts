@@ -5,7 +5,8 @@ import {z} from 'zod';
 import {codeSchema,blockerSchema} from './code-schema.ts';
 import {DomainError} from './errors.ts';
 
-export type CodingInput={attempt:string;expectedSha:string;files:{path:string;content:string}[];prompt:string;allowDependencies:boolean;testContext?:{objective:string;behavior:string;criteria:string[];testCases:{criterionIndex:number;description:string}[]}};
+export type CodingTestContext={objective:string;behavior:string;criteria:string[];testCases:{criterionIndex:number;description:string}[];contextVersion?:2;approved?:{name:unknown;runtime:unknown;requirements:unknown;technicalPlan:unknown;decisions:unknown;tasks:unknown;codeDestination:unknown;scopeRevision:unknown}};
+export type CodingInput={attempt:string;expectedSha:string;files:{path:string;content:string}[];prompt:string;allowDependencies:boolean;testContext?:CodingTestContext};
 const evidenceSchema=z.object({id:z.string().regex(/^[a-f0-9]{64}$/),expectedSha:z.string().regex(/^[a-f0-9]{40}$/),policy:z.literal('qwen-code-node24-v1'),imageId:z.string().regex(/^sha256:[a-f0-9]{64}$/),model:z.string().min(1).max(128),browser:z.object({imageId:z.string().regex(/^sha256:[a-f0-9]{64}$/),scope:z.literal('react-entry-v1'),passed:z.literal(true)}).optional()});
 export type CodingEvidence=z.infer<typeof evidenceSchema>;
 const stageSchema=z.enum(['diagnosis','implementation','test_planning','ui_validation','targeted_repair','final_check']);

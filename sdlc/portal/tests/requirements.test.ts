@@ -34,6 +34,17 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('requirements interview persiste
   answer={reply:'Vamos confirmar quais dados serão consultados?',brief:{summary:'Consultar situação de atendimento.',confirmedFacts:['Somente solicitações autorizadas.'],openQuestions:['Qual o código de consulta?']}};
   expect((await post('turns',{contextId:project.id,message:'Quero consultar atendimento.',expectedVersion:0,requirementsMode:true})).statusCode).toBe(200);await runtime.processChatJobs();return {project,read,post};
  }
+ test('legacy conversation preserves the entire captured context and refuses oversized sources before inference',async()=>{
+  const system=await db.item.create({data:{kind:'system',key:randomUUID(),name:'Legacy isolated system',status:'active'}}),project=await db.item.create({data:{kind:'project',parentId:system.id,parentKind:'system',key:randomUUID(),name:'Legacy isolated project',description:'Contexto '.repeat(125),status:'active',projectLifecycle:'active'}});
+  await db.item.createMany({data:Array.from({length:8},(_,i)=>({kind:'epic' as const,parentId:project.id,parentKind:'project' as const,key:randomUUID(),name:String(i)+'x'.repeat(115),status:'active' as const}))});
+  answer={reply:'Orientação textual, sem operações.'};
+  const post=()=>runtime.app.inject({method:'POST',url:'/api/assistant/turns',headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{contextId:project.id,message:'Explique o contexto.',expectedVersion:0}});
+  const response=await post();expect(response.statusCode,response.body).toBe(200);await runtime.processChatJobs();
+  const turn=await db.chatTurn.findUniqueOrThrow({where:{id:response.json().turn.id}});expect(turn.status,turn.error??'').toBe('succeeded');expect(sent[0].content.length).toBeGreaterThan(3000);expect(sent[0].content).toContain(JSON.stringify(turn.contextSnapshot));expect(sent[0].content).toContain('contextCoverage');
+  const session=await db.chatSession.findUniqueOrThrow({where:{contextId:project.id}}),next=await runtime.app.inject({method:'POST',url:'/api/assistant/turns',headers:{'x-persona':'admin','idempotency-key':randomUUID()},payload:{contextId:project.id,message:'Conserve o escopo.',expectedVersion:session.version}});expect(next.statusCode,next.body).toBe(200);
+  const oversized={...(turn.contextSnapshot as object),complementaryRules:['Regra preservada '+ 'x'.repeat(15000)]};await db.chatTurn.update({where:{id:next.json().turn.id},data:{contextSnapshot:oversized}});const previousSent=sent;await runtime.processChatJobs();expect(sent).toBe(previousSent);
+  const refused=await db.chatTurn.findUniqueOrThrow({where:{id:next.json().turn.id}});expect(refused.status).toBe('failed');expect(refused.error).toContain('Nenhuma parte dos requisitos foi descartada');expect(refused.contextSnapshot).toEqual(oversized);
+ });
  test('accumulated facts survive across turns and creation preserves full specification exactly once',async()=>{
   const f=await fixture();let state=await f.read();expect(state.brief.confirmedFacts).toEqual(['Somente solicitações autorizadas.']);expect(state.requirementsMode).toBe(true);
   answer={reply:'Confirma os requisitos apresentados?',brief:{summary:'Consulta por código.',confirmedFacts:['Somente solicitações autorizadas.','Código de até 30 caracteres.'],openQuestions:[]}};

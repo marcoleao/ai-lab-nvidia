@@ -1,0 +1,116 @@
+{
+  "scope": "Directed isolated contracts; no complete repository regression or business acceptance claimed",
+  "businessDataOrApplicationsChangedForValidation": false,
+  "backend": {
+    "report": "20261101T222008Z-2fee80",
+    "ok": true,
+    "suites": [
+      {
+        "file": "audit-guard.test.ts",
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "exitCode": 0
+      },
+      {
+        "file": "development-ai-provider.test.ts",
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "exitCode": 0
+      },
+      {
+        "file": "development-approvals.test.ts",
+        "passed": 79,
+        "failed": 0,
+        "skipped": 0,
+        "exitCode": 0
+      }
+    ]
+  },
+  "browser": {
+    "aiTests": {
+      "report": "20261101T215252Z-a6fd84",
+      "passed": 16
+    },
+    "manualAcceptance": {
+      "report": "20261101T214852Z-56550f",
+      "passed": 16
+    },
+    "help": {
+      "report": "20261101T222317Z-594ab4",
+      "passed": 6
+    },
+    "distinctCases": 38,
+    "widths": [
+      1440,
+      390
+    ],
+    "catalogue": {
+      "cases": 671,
+      "files": 61
+    }
+  },
+  "native": {
+    "devAiExecutor": 9,
+    "codingUiAgent": 25,
+    "runtimeExecutor": 5,
+    "installationCheck": 12,
+    "regressionController": 4,
+    "realChromiumCandidate": 16,
+    "allPassed": true
+  },
+  "windowsInstaller": {
+    "failureStops": true,
+    "retryPreservesConfiguration": true,
+    "codingBeforeRuntime": true,
+    "passed": true
+  },
+  "qualification": {
+    "publishedDev": {
+      "report": "ai-dev-live-20261101T221250Z-9c879e",
+      "passed": true,
+      "positive": [
+        "passed",
+        "passed",
+        "not_tested"
+      ],
+      "negative": [
+        "failed",
+        "passed",
+        "not_tested"
+      ],
+      "model": "qwen3:14b"
+    },
+    "coding": {
+      "report": "coding-live-20261101T221427Z-35a999",
+      "passed": true,
+      "fixtures": 12
+    }
+  },
+  "rollback": {
+    "scope": "Temporary files and intercepted service calls; no operational database downgrade",
+    "copyFailurePropagated": true,
+    "retryRestoredBothExecutors": true,
+    "replayStable": true,
+    "outsideSourceRefusedBeforeCommand": true
+  },
+  "preservedFailures": [
+    {
+      "report": "ai-dev-live-20261101T215605Z-5a6d01",
+      "meaning": "Write policy blocked an unrelated server action; no application defect inferred"
+    },
+    {
+      "report": "ai-dev-live-20261101T220043Z-be7a3e",
+      "meaning": "Second scenario required blocked write; fixture later split into appearance and explicit write-probe pages"
+    },
+    {
+      "report": "20261101T221545Z-749995",
+      "meaning": "One pre-existing release fixture returned deployment context conflict; new AI tests passed; unchanged-source repeat passed in 20261101T221831Z-44eb8d"
+    },
+    {
+      "report": "20261101T222150Z-6ad535",
+      "meaning": "HELP retained a true HTTP limitation more explicitly; all six checks passed after clarification"
+    }
+  ]
+}

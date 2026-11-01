@@ -50,8 +50,8 @@ try {
         Invoke-PortalInstaller 'connect-gitlab.py'
         Invoke-PortalInstaller 'connect-llm.py' @('--model',$GeneralModel)
         Invoke-PortalInstaller 'build-executor.py' @('install')
-        Invoke-PortalInstaller 'runtime-executor.py' @('install')
         Invoke-PortalInstaller 'coding-executor.py' @('install','--model',$CodingModel)
+        Invoke-PortalInstaller 'runtime-executor.py' @('install')
         & "$PSScriptRoot/portal/bootstrap.ps1" up
         Invoke-PortalInstaller 'installation-check.py' @('doctor','--general-model',$GeneralModel,'--coding-model',$CodingModel)
         Write-Host '[OK] Instalacao completa para a jornada ate DEV. Portal: http://localhost:3310'

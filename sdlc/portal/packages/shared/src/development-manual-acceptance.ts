@@ -1,7 +1,7 @@
 export type ManualCriterionResult={index:number;passed:boolean|null};
 export type ManualAcceptance={id:string;storyId:string;taskId:string;number:number;scope?:'criteria'|'story';referenceDigest:string;specificationId:string;executionId:string;buildId:string;deploymentId:string;sourceSha:string;imageId:string;archiveDigest:string;criteria:string[];results:ManualCriterionResult[];result:'passed'|'failed'|'pending';actorId:string;actorName:string;notes:string;createdAt:string};
 export type ManualAcceptanceReading={storyId:string;record:ManualAcceptance|null;current:boolean;development?:import('./development-approval.js').DevelopmentApprovalReading;asOf:string};
-export type ManualAcceptanceContext=ManualAcceptanceReading&{storyVersion:number;taskId:string|null;criteria:string[];specificationNumber:number|null;deploymentId:string|null;buildId:string|null;sourceSha:string|null;url:string|null;allowed:boolean;blockers:string[];checks?:{id:string;label:string;passed:boolean;detail:string}[];development?:import('./development-approval.js').DevelopmentApprovalReading;token:string};
+export type ManualAcceptanceContext=ManualAcceptanceReading&{storyVersion:number;referenceDigest?:string;taskId:string|null;criteria:string[];specificationNumber:number|null;deploymentId:string|null;buildId:string|null;sourceSha:string|null;url:string|null;allowed:boolean;blockers:string[];checks?:{id:string;label:string;passed:boolean;detail:string}[];development?:import('./development-approval.js').DevelopmentApprovalReading;token:string};
 
 export function isManualAcceptance(value:unknown,storyId:string):value is ManualAcceptance{
  if(!value||typeof value!=='object')return false;const v=value as ManualAcceptance;

@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import {ControlRegistry} from './browser-controls.mjs';
 import path from 'node:path';
 import http from 'node:http';
+import {isIPv4} from 'node:net';
 import {createRequire} from 'node:module';
 const require=createRequire('/app/package.json');
 const {build}=createRequire(await fs.realpath('/app/node_modules/tsx/package.json'))('esbuild');const {chromium,expect}=require('@playwright/test');
@@ -12,31 +13,40 @@ let browser,server,uiServer;
 const proof={applicable:true,passed:false,rendered:false,errors:[],uiProbe:{planned:0,executed:0,assertions:0},scope:'Entrada React e interações declaradas em navegador isolado; não comprova backend nem aceite funcional completo.'};
 try{
  const input=JSON.parse(await fs.readFile('/request/candidate.json','utf8'));
+ const published=input.mode==='published-dev';if(input.mode!==undefined&&!published)throw Error('Modo de navegador fora do contrato.');
+ const files=published?[]:input.files;
  const steps=input.steps??[];
  if(!Array.isArray(steps)||steps.length>20||JSON.stringify(steps).length>8000||steps.some(step=>!step||Object.keys(step).some(key=>!['op','target','value','dialog'].includes(key))||!['fill','click','select','check','expect_text','expect_visible','expect_image','expect_background','expect_font','reload'].includes(step.op)))throw Error('Plano de interface fora do contrato.');
  if(steps.length&&!steps.some(step=>step.op.startsWith('expect_')))throw Error('A sonda exige asserção explícita.');
  proof.uiProbe.planned=steps.length;
- if(!Array.isArray(input.files)||input.files.length>32)throw Error('Limite de arquivos.');
+ if(!Array.isArray(files)||files.length>32)throw Error('Limite de arquivos.');
  const root=await fs.mkdtemp('/tmp/sdlc-browser-');let bytes=0;
- for(const file of input.files){const name=file.path;if(typeof name!=='string'||name.includes('\\')||name.startsWith('/')||name.split('/').some(p=>!p||p==='.'||p==='..'||p.startsWith('.'))||typeof file.content!=='string')throw Error('Caminho inválido.');bytes+=Buffer.byteLength(file.content);if(bytes>80000||Buffer.byteLength(file.content)>20000)throw Error('Orçamento da candidata.');const full=path.resolve(root,name);if(!full.startsWith(root+'/'))throw Error('Caminho fora do workspace.');await fs.mkdir(path.dirname(full),{recursive:true});await fs.writeFile(full,file.content,{flag:'wx'});}
- const names=input.files.map(f=>f.path);const entry=['src/main.jsx','src/main.tsx','src/index.jsx','src/index.tsx'].find(name=>names.includes(name));
+ for(const file of files){const name=file.path;if(typeof name!=='string'||name.includes('\\')||name.startsWith('/')||name.split('/').some(p=>!p||p==='.'||p==='..'||p.startsWith('.'))||typeof file.content!=='string')throw Error('Caminho inválido.');bytes+=Buffer.byteLength(file.content);if(bytes>80000||Buffer.byteLength(file.content)>20000)throw Error('Orçamento da candidata.');const full=path.resolve(root,name);if(!full.startsWith(root+'/'))throw Error('Caminho fora do workspace.');await fs.mkdir(path.dirname(full),{recursive:true});await fs.writeFile(full,file.content,{flag:'wx'});}
+ const names=files.map(f=>f.path);const entry=published?'published-dev':['src/main.jsx','src/main.tsx','src/index.jsx','src/index.tsx'].find(name=>names.includes(name));
  if(!entry){proof.applicable=false;proof.scope='Sem entrada React neste contexto; smoke de interface não aplicado.';}
  else{
+  let origin;
+  if(published){const url=new URL(input.origin);const octets=url.hostname.split('.').map(Number);if(url.protocol!=='http:'||!isIPv4(url.hostname)||!(octets[0]===10||octets[0]===172&&octets[1]>=16&&octets[1]<=31||octets[0]===192&&octets[1]===168)||url.port!=='8080'||url.username||url.password||url.pathname!=='/'||url.search||url.hash||input.liveSocket!=='/ipc/browser.sock'||steps.length)throw Error('Destino DEV fora do contrato.');origin=url.origin;proof.scope='Publicação DEV fixada pelo runtime; sessão limpa, mesma origem, somente GET/HEAD; sem escrita compartilhada ou aceite integral.';}
+  else{
   const allowed=['react','react-dom','scheduler'];
   const output=await build({absWorkingDir:root,entryPoints:[entry],bundle:true,write:false,outdir:'/tmp/sdlc-browser-output',entryNames:'app',platform:'browser',jsx:'automatic',nodePaths:['/app/apps/web/node_modules','/app/node_modules'],logLevel:'silent',plugins:[{name:'prepared-dependencies',setup(builder){builder.onResolve({filter:/^[^./]/},args=>{if(args.path.startsWith('/'))return;const pkg=args.path.startsWith('@')?args.path.split('/').slice(0,2).join('/'):args.path.split('/')[0];if(!allowed.includes(pkg))return {errors:[{text:'Dependência não preparada para a entrada web: '+pkg}]};});}}]});
   const assets=new Map(output.outputFiles.map(file=>['/'+path.basename(file.path),file.contents]));
-  let html=input.files.find(f=>['index.html','public/index.html'].includes(f.path))?.content??'<!doctype html><html><head></head><body><div id="root"></div></body></html>';
+  let html=files.find(f=>['index.html','public/index.html'].includes(f.path))?.content??'<!doctype html><html><head></head><body><div id="root"></div></body></html>';
   // The profile emits a single app.js; preserve the supplied mount markup.
   html=html.replace(/<script\b[^>]*\bsrc=["'][^"']+["'][^>]*>\s*<\/script>/gi,'');
   html=html.replace(/<\/head>/i,(assets.has('/app.css')?'<link rel="stylesheet" href="/app.css">':'')+'</head>');
   html=html.replace(/<\/body>/i,'<script src="/app.js"></script></body>');
   server=http.createServer((request,response)=>{const name=new URL(request.url,'http://localhost').pathname;if(name==='/'){response.setHeader('Content-Type','text/html; charset=utf-8');response.end(html);}else if(name==='/__sdlc_test__/image.svg'){response.setHeader('Content-Type','image/svg+xml');response.end('<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="10" cy="10" r="8" fill="blue"/></svg>');}else if(assets.has(name)){response.setHeader('Content-Type',name.endsWith('.css')?'text/css':'text/javascript');response.end(assets.get(name));}else{response.statusCode=404;response.end();}});
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const origin='http://127.0.0.1:'+server.address().port;
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));origin='http://127.0.0.1:'+server.address().port;
+  }
   browser=await chromium.launch({headless:true});const context=await browser.newContext({serviceWorkers:'block',acceptDownloads:false});
-  await context.route('**/*',route=>{const url=new URL(route.request().url());return url.origin===origin?route.continue():route.abort();});
+  let networkBlocked=false;
+  await context.route('**/*',route=>{const request=route.request(),url=new URL(request.url());if(url.origin!==origin||published&&!['GET','HEAD'].includes(request.method())){networkBlocked=true;return route.abort();}return route.continue();});
+  if(published){if(typeof context.routeWebSocket!=='function')throw Error('Bloqueio de WebSocket indisponível.');await context.routeWebSocket('**',ws=>{networkBlocked=true;ws.close();});}
   const page=await context.newPage();page.setDefaultTimeout(1000);let dialogAction='dismiss';
   page.on('pageerror',error=>{if(proof.errors.length<5)proof.errors.push(error.message.slice(0,1200));});page.on('dialog',dialog=>dialogAction==='accept'?dialog.accept():dialog.dismiss());
   await page.goto(origin,{waitUntil:'networkidle',timeout:12000});
+  if(published)try{await page.screenshot({path:'/ipc/initial.png'});}catch{}
   const visualObservation=()=>page.evaluate(()=>({viewport:{width:innerWidth,height:innerHeight},elements:['html','body','#root','main'].map(selector=>{const node=document.querySelector(selector);if(!node)return null;const style=getComputedStyle(node),box=node.getBoundingClientRect();return {element:selector,margin:style.margin,padding:style.padding,display:style.display,background:style.backgroundColor,font:style.fontFamily,x:box.x,y:box.y,width:box.width,height:box.height};}).filter(Boolean)}));
   const target=spec=>{if(!spec||Object.keys(spec).some(key=>!['by','name','role','index'].includes(key))||typeof spec.name!=='string'||(spec.name.length===0&&!(spec.by==='role'&&spec.role==='textbox'&&Number.isInteger(spec.index)&&spec.index>=0&&spec.index<=5))||spec.name.length>160)throw Error('Alvo de interface inválido.');let locator;if(spec.by==='role'){if(!['button','textbox','spinbutton','combobox','checkbox','heading','link','img','status','region','form','listitem'].includes(spec.role))throw Error('Papel de interface inválido.');locator=page.getByRole(spec.role,{name:accessibleName(spec.name)});}else if(spec.by==='label')locator=page.getByLabel(accessibleName(spec.name));else if(spec.by==='text')locator=page.getByText(accessibleName(spec.name));else throw Error('Seletor de interface inválido.');if(spec.index!==undefined){if(!Number.isInteger(spec.index)||spec.index<0||spec.index>5)throw Error('Índice de interface inválido.');locator=locator.nth(spec.index);}return locator;};
   const perform=async step=>{
@@ -79,7 +89,7 @@ try{
      const feedback=await target({by:'role',role:control.role,name:control.name,index:control.index}).evaluate(element=>({required:!!element.required,inputType:element.type??'text',editable:!element.disabled&&!element.readOnly,validity:element.validity?{valid:element.validity.valid,valueMissing:element.validity.valueMissing,message:element.validationMessage.slice(0,300)}:null}));
      Object.assign(control,feedback);
     }
-    proof.visualObservation=await visualObservation();proof.observedUI=full.slice(0,6000);proof.rendered=await page.locator('body').evaluate(body=>!!body.innerText.trim()||!!body.querySelector('canvas,svg,img'));proof.passed=proof.rendered&&proof.errors.length===0;return {...proof,controls:catalog.controls,controlsLimited:catalog.limited,observationTruncated:full.length>6000};
+    proof.visualObservation=await visualObservation();proof.observedUI=full.slice(0,6000);proof.rendered=await page.locator('body').evaluate(body=>!!body.innerText.trim()||!!body.querySelector('canvas,svg,img'));proof.passed=proof.rendered&&proof.errors.length===0;if(published)try{await page.screenshot({path:'/ipc/latest.png'});}catch{}return {...proof,controls:catalog.controls,controlsLimited:catalog.limited,observationTruncated:full.length>6000,...(published?{networkBlocked}: {})};
    };
    uiServer=http.createServer(async(req,res)=>{
     const reply=(status,value)=>{res.writeHead(status,{'Content-Type':'application/json','Connection':'close'});res.end(JSON.stringify(value));};
@@ -93,7 +103,7 @@ try{
      const action=JSON.parse(body);let step;
      try{
       step=registry.step(action);proof.uiProbe.planned++;await perform(step);const state=await observe();
-      const screenshot='step-'+requests+'.png';let captured=true;try{await page.screenshot({path:'/ipc/'+screenshot});}catch{captured=false;}
+      const screenshot=published?'latest.png':'step-'+requests+'.png';let captured=true;try{await page.screenshot({path:'/ipc/'+screenshot});}catch{captured=false;}
       reply(200,{...state,actionPassed:true,lastStep:step,screenshot:captured?screenshot:null});
      }catch(error){reply(200,{...await observe(),actionPassed:false,...(step?{lastStep:step}:{}),actionError:String(error.message).slice(0,1500)});}
     }catch(error){reply(422,{error:String(error.message).slice(0,500)});}finally{busy=false;}

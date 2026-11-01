@@ -51,6 +51,7 @@ export async function fixture(page:Page){
       return send({storyId,configured:true,operation:deployment,deployment,preparation:null,observation:{state:state.progress.state==='changed'?'changed':'healthy',operationId:state.progress.state==='changed'?'other-deployment':deployment.id,url:appUrl,observedAt:stamp},asOf:stamp});
     }
     if(path.endsWith('/development-test'))return send(state.tests);
+    if(path.endsWith('/development-ai-test'))return send({storyId,storyVersion:7,referenceDigest:digest,url:appUrl,deploymentId:'summary-deployment',sourceSha:sha,configured:false,allowed:false,blockers:['Executor por IA não configurado nesta fixture.'],token:digest,operation:null,asOf:stamp});
     if(path.endsWith('/development-approval/context'))return send(state.approvalContext);
     if(path.endsWith('/development-approval'))return send(state.approval);
     if(path.endsWith('/release'))return send({story:{...story,projectId:project.id,projectName:project.name,epicId:epic.id,epicName:epic.name},assignment:null,system,releases:[],truncated:false,totalChoices:0});

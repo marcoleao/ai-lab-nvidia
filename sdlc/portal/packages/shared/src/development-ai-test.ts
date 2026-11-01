@@ -1,0 +1,3 @@
+export type AiTestCase={index:number;title:string;status:'passed'|'failed'|'not_tested';code:string;steps:number;evidence:string[]};
+export type AiTestOperation={id:string;storyId:string;referenceDigest:string;sourceSha:string;deploymentId:string;version:number;state:'queued'|'running'|'succeeded'|'failed'|'inconclusive'|'unknown'|'stale';stage:string;message:string;cases:AiTestCase[];adjustments:string|null;completeAcceptance:false;createdAt:string;updatedAt:string;finishedAt:string|null;actorName:string};
+export type AiTestContext={storyId:string;storyVersion:number;referenceDigest:string;url:string|null;deploymentId:string|null;sourceSha:string|null;configured:boolean;allowed:boolean;blockers:string[];token:string;operation:AiTestOperation|null;asOf:string};

@@ -1,6 +1,6 @@
 """Sequential local specialists; one bounded repair of an observed UI failure."""
 import json,os,secrets,subprocess,time
-from coding_ui_agent import run_ui_verifier
+from coding_ui_agent import run_ui_verifier,UI_CAPABILITIES,context_coverage
 
 WORKFLOW='focused-local-v1'
 TOTAL_SECONDS=600
@@ -36,7 +36,7 @@ def execute_focused(e,intent,directory,receipt):
  working=intent['files'];events=[];proofs=[];phases=[];combined=None
  name='sdlc-coding-'+intent['id'][:24]
  def finish(value):
-  e.dump(directory/'receipt.json',{**receipt,**value,'tools':events,'browserChecks':proofs,'phases':phases,'workflow':WORKFLOW,'implementationMode':e.CONFIG.get('implementationMode','sdk'),'policy':e.POLICY,'imageId':e.CONFIG['imageId'],'browserImageId':e.CONFIG['browserImageId'],'model':e.CONFIG['model'],'uiModel':e.CONFIG.get('uiModel',e.CONFIG['model']),'inferenceCalls':job['totalCalls'],'diagnostics':job['diagnostics']})
+  e.dump(directory/'receipt.json',{**receipt,**value,'agentContract':{'context':context_coverage(intent),'uiCapabilities':UI_CAPABILITIES},'tools':events,'browserChecks':proofs,'phases':phases,'workflow':WORKFLOW,'implementationMode':e.CONFIG.get('implementationMode','sdk'),'policy':e.POLICY,'imageId':e.CONFIG['imageId'],'browserImageId':e.CONFIG['browserImageId'],'model':e.CONFIG['model'],'uiModel':e.CONFIG.get('uiModel',e.CONFIG['model']),'inferenceCalls':job['totalCalls'],'diagnostics':job['diagnostics']})
  def progress(stage):e.dump(directory/'receipt.json',{**receipt,'state':'running','stage':stage,'workflow':WORKFLOW,'phases':phases})
  def implement(phase,prompt,seconds):
   nonlocal working,combined
@@ -65,12 +65,15 @@ def execute_focused(e,intent,directory,receipt):
    job['readOnlyFiles']={file['path']:file['content'] for file in working};job['allowedTools']=e.tools_for_role('ui_validation')
    verification=run_ui_verifier(e,job,working,directory,proof,progress);phases.extend(verification['phases'])
    if not verification['passed']:
+    if verification.get('diagnosticCode')=='UI_CAPABILITY_UNSUPPORTED':
+     finish({'state':'waiting_input','diagnosticCode':'UI_CAPABILITY_UNSUPPORTED','blocker':{'reason':'O cenário aprovado requer uma capacidade de teste indisponível neste executor.','question':'Como verificar o cenário preservando os requisitos? A evidência privada contém a limitação observada. Não reduza o aceite para adequá-lo ao executor.','options':[],'requestedCapabilities':[]}});return
     failed={**verification.get('proof',{}),'applicable':True,'passed':False,'errors':[*verification.get('proof',{}).get('errors',[]),verification.get('error','UI não confirmada')[:1500]]};proofs.append(failed)
     if verification.get('repairable') is not True:
      finish({'state':'failed','error':verification.get('error','O operador não confirmou o cenário.')[:1500]});return
     # Keep the same executed recipe/expected assertion. The repair agent cannot
     # change tests, source identity, capabilities or the approved business scope.
     steps=e.validate_ui_steps(verification['steps'])
+    job['failedAssertion']=next((step for step in reversed(steps) if step['op'].startswith('expect_')),None)
     job['repairPaths']=[file['path'] for file in combined['files']]
     job['visualObservation']=failed.get('visualObservation')
     diagnostic={'allowedWritePaths':job['repairPaths'],'observedUI':failed.get('observedUI',''),'visualObservation':job['visualObservation'],'error':verification.get('error',''),'recordedSteps':steps}
