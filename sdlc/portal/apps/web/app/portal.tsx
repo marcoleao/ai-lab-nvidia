@@ -23,6 +23,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Box, ChevronRight, Circle, FolderTree, Home, Menu, MessageSquare, Plug, Plus, ShieldCheck } from 'lucide-react';
 import './navigation.css';
+import HelpNavigation from './help-navigation';
+import './help-navigation.css';
 import ItemCollection, { rememberedCollection } from './item-collection';
 import HistoryQuery from './history-collection';
 import ConversationHistory from './conversation-history';
@@ -63,6 +65,7 @@ function AssistantMobileNavigation() {
     <dialog ref={dialog} id="assistant-navigation-dialog" className="assistant-mobile-menu" aria-labelledby="assistant-navigation-title" onCancel={event => { event.preventDefault(); close(); }} onClose={() => setOpen(false)}>
       <header><h2 id="assistant-navigation-title">Menu principal</h2><button type="button" onClick={close}>Fechar menu</button></header>
       <nav aria-label="Principal"><Link href="/" onClick={close}><Home size={19} aria-hidden="true" />Visão geral</Link><Link href="/assistant" aria-current="page" onClick={close}><MessageSquare size={19} aria-hidden="true" />Assistente</Link><Link href="/systems" onClick={close}><FolderTree size={19} aria-hidden="true" />Sistemas</Link><Link href="/releases" onClick={close}><Box size={19} aria-hidden="true" />Releases</Link><Link href="/integrations" onClick={close}><Plug size={19} aria-hidden="true" />Integrações</Link></nav>
+      <HelpNavigation onNavigate={close}/>
     </dialog>
   </>;
 }
@@ -89,18 +92,19 @@ async function request<T>(path: string, persona: string, body?: unknown, method 
   return result;
 }
 
-export default function Portal() {
-  return <Suspense fallback={<main><LoadingState>Carregando navegação…</LoadingState></main>}><PortalContent /></Suspense>;
+export default function Portal({helpDocument}:{helpDocument?:string}) {
+  return <Suspense fallback={<main><LoadingState>Carregando navegação…</LoadingState></main>}><PortalContent helpDocument={helpDocument}/></Suspense>;
 }
 
-function PortalContent() {
+function PortalContent({helpDocument}:{helpDocument?:string}) {
   const pathname = usePathname();
   const router = useRouter();
   const search = useSearchParams();
   const releaseRoute = /^\/releases(?:\/|$)/.test(pathname);
   const assistantRoute = pathname === '/assistant';
+  const helpRoute = pathname === '/help';
   const integrationsRoute = pathname === '/integrations';
-  const id = releaseRoute || assistantRoute || integrationsRoute ? undefined : pathname.split('/')[2];
+  const id = releaseRoute || assistantRoute || integrationsRoute || helpRoute ? undefined : pathname.split('/')[2];
   const overview = pathname === '/';
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [persona, setPersona] = useState('');
@@ -167,13 +171,14 @@ function PortalContent() {
   const planningApproval = false;
 
   useEffect(() => {
+    if(helpRoute)return;
     request<{ personas: Persona[] }>('/personas', '').then(result => {
       setPersonas(result.personas);
       const stored = sessionStorage.getItem('sdlc-persona');
       if (stored && result.personas.some(p => p.id === stored)) setPersona(stored);
       else sessionStorage.removeItem('sdlc-persona');
     }).catch(failure => setError(failure.message));
-  }, []);
+  }, [helpRoute]);
 
   useEffect(() => {
     let active = true;
@@ -186,7 +191,7 @@ function PortalContent() {
     if (contextChanged) { setChildTotal(null); setLoading(true); setDetail(null); if (!keepForm) setForm(null); }
     preserveForm.current = false;
     if (contextChanged) setArchiveOpen(false);
-    const load = overview || releaseRoute || assistantRoute || integrationsRoute ? Promise.resolve() : id ? request<Detail>(detailPath(id), '').then(result => {
+    const load = overview || releaseRoute || assistantRoute || integrationsRoute || helpRoute ? Promise.resolve() : id ? request<Detail>(detailPath(id), '').then(result => {
       if (!active) return;
       setDetail(result);
       if (keepForm) { editVersion.current = result.item.version; setNotice('Dados atualizados; seu rascunho foi preservado. Revise o contexto mais recente antes de salvar novamente.'); }
@@ -194,7 +199,7 @@ function PortalContent() {
     load.catch(failure => { if (active) setError(contextChanged ? failure.message : `${failure.message} O último contexto confirmado e seus rascunhos foram preservados.`); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
     // Read-only detail does not depend on the acting persona. Keep confirmations mounted when changing roles.
-  }, [id, pathname, revision, overview, releaseRoute, assistantRoute, integrationsRoute]);
+  }, [id, pathname, revision, overview, releaseRoute, assistantRoute, integrationsRoute, helpRoute]);
 
   useEffect(() => {
     if (!id) return;
@@ -284,24 +289,24 @@ function PortalContent() {
     : item.kind === 'epic' ? 'Escolha uma História para acompanhar sua execução e próxima ação.'
     : item.kind === 'task' ? 'Atualize esta Tarefa pelas ações disponíveis ao lado.' : 'Acompanhe a situação da execução e sua próxima ação.';
 
-  return <div className="shell navigation-shell">
+  return <div className={`shell navigation-shell${helpRoute?' help-page-shell':''}`}>
     <a className="skip-link" href="#main">Ir para o conteúdo</a>
     <aside className="sidebar">
       <div className="brand">Dell Technologies<span>Portal SDLC</span></div>
       <nav aria-label="Principal">
         <Link href="/" className={overview ? 'selected' : ''} aria-current={overview ? 'page' : undefined}><Home size={19} />Visão geral</Link>
         <Link href="/assistant" className={assistantRoute ? 'selected' : ''} aria-current={assistantRoute ? 'page' : undefined}><MessageSquare size={19} />Assistente</Link>
-        <Link href="/systems" className={!overview && !releaseRoute && !assistantRoute && !integrationsRoute ? 'selected' : ''} aria-current={!overview && !releaseRoute && !assistantRoute && !integrationsRoute ? 'page' : undefined}><FolderTree size={19} />Sistemas</Link>
+        <Link href="/systems" className={!overview && !releaseRoute && !assistantRoute && !integrationsRoute && !helpRoute ? 'selected' : ''} aria-current={!overview && !releaseRoute && !assistantRoute && !integrationsRoute && !helpRoute ? 'page' : undefined}><FolderTree size={19} />Sistemas</Link>
         <Link href="/releases" className={releaseRoute ? 'selected' : ''} aria-current={releaseRoute ? 'page' : undefined}><Box size={19} />Releases</Link>
         <Link href="/integrations" className={integrationsRoute ? 'selected' : ''} aria-current={integrationsRoute ? 'page' : undefined}><Plug size={19} />Integrações</Link>
       </nav>
-      <p className="sidebar-note">Da ideia à entrega.<br />Um processo, contexto completo.</p>
+      <div className="sidebar-bottom"><HelpNavigation active={helpRoute}/><p className="sidebar-note">Da ideia à entrega.<br />Um processo, contexto completo.</p></div>
     </aside>
     <div className="workspace">
-      <header className="topbar">{assistantRoute && <AssistantMobileNavigation />}<span>{overview ? 'Indicadores do processo' : assistantRoute ? 'Entrevista e especificação' : releaseRoute ? 'Composição de releases' : integrationsRoute ? 'Disponibilidade das integrações' : 'Planejamento e entrega'}</span><label className="persona"><span>Modo demo local · Persona</span><select aria-label={assistantRoute ? 'Persona' : undefined} value={persona} onChange={event => { setPersona(event.target.value); sessionStorage.setItem('sdlc-persona', event.target.value); }}><option value="">Selecione para atuar</option>{personas.map(p => <option key={p.id} value={p.id}>{p.name} · {roleLabel(p.role)}</option>)}</select></label></header>
+      <header className="topbar">{assistantRoute && <AssistantMobileNavigation />}<span>{helpRoute ? 'HELP · Guia do SDLC' : overview ? 'Indicadores do processo' : assistantRoute ? 'Entrevista e especificação' : releaseRoute ? 'Composição de releases' : integrationsRoute ? 'Disponibilidade das integrações' : 'Planejamento e entrega'}</span>{helpRoute?<span className="help-reading-note">Documentação de consulta</span>:<label className="persona"><span>Modo demo local · Persona</span><select aria-label={assistantRoute ? 'Persona' : undefined} value={persona} onChange={event => { setPersona(event.target.value); sessionStorage.setItem('sdlc-persona', event.target.value); }}><option value="">Selecione para atuar</option>{personas.map(p => <option key={p.id} value={p.id}>{p.name} · {roleLabel(p.role)}</option>)}</select></label>}</header>
       <main id="main">
         {returnToStory && ['system','project'].includes(item?.kind || '') && <p className="hint"><Link href={returnToStory}>← Voltar ao destino da História</Link></p>}
-        <section className={`workflow-bar${journeyView ? ' story-journey-bar' : ''}${overview ? ' dashboard-workflow' : ''}`} aria-label="Situação e próxima ação">
+        {!helpRoute&&<section className={`workflow-bar${journeyView ? ' story-journey-bar' : ''}${overview ? ' dashboard-workflow' : ''}`} aria-label="Situação e próxima ação">
           <nav className="breadcrumb" aria-label="Localização">
             {overview ? <span aria-current="page">Visão geral</span> : assistantRoute ? <span aria-current="page">Assistente</span> : releaseRoute ? <Link href="/releases">Releases</Link> : integrationsRoute ? <span aria-current="page">Integrações</span> : <Link href={item ? rememberedCollection('/systems') : '/systems'}>Sistemas</Link>}
             {releaseRoute && <span id="release-breadcrumb-context" />}
@@ -313,7 +318,7 @@ function PortalContent() {
           {busy && <LoadingState>Processando solicitação…</LoadingState>}
           {archivedContext && <p className="archive-notice" role="status"><span className="badge">ARCHIVED</span>Registro arquivado. Consulta somente leitura; status e dados preservados.</p>}
           {!overview && !integrationsRoute && !archivedContext && !persona && <p className="persona-required" role="status"><ShieldCheck size={17} />Nenhuma persona selecionada. Você pode consultar; selecione uma persona no topo para atuar.</p>}
-          {!journeyView && !archivedContext && !overview && !releaseRoute && !assistantRoute && !integrationsRoute && !loading && <div className="workflow-context">
+          {!journeyView && !archivedContext && !overview && !releaseRoute && !assistantRoute && !integrationsRoute && !helpRoute && !loading && <div className="workflow-context">
             <div><strong>{form ? form === 'edit' ? `Editar ${names[item!.kind]}` : `Criar ${names[childKind!]}` : item ? `${names[item.kind]} · ${label(item.status)}` : 'Sistemas'} </strong><p>{form ? 'Preencha os dados abaixo e confirme aqui na faixa superior.' : statusHint}</p></div>
             <div className="actions">
               {form ? <><button type="submit" form="item-form" className="primary" disabled={busy || !canPlan}>{busy ? <><Spinner />Salvando…</> : 'Salvar'}</button><button type="button" disabled={busy} onClick={() => setForm(null)}>Cancelar</button></> : <>
@@ -330,11 +335,11 @@ function PortalContent() {
           {journeyView && <div id="story-journey-header" />}
           {!journeyView && item?.kind === 'story' && <><div id="story-workflow-actions" hidden={Boolean(form) || selectedTab === 'releases'} /><div id="release-workflow-actions" hidden={Boolean(form) || selectedTab !== 'releases'} /></>}
           {releaseRoute && <div id="release-workflow-actions" />}
-        </section>
+        </section>}
 
         {item?.kind === 'system' && !archivedContext && <><div id={`application-preparation-recovery-${item.id}`} /><div id={`contract-proposal-recovery-${item.id}`} /><div id={`contract-publication-recovery-${item.id}`} /><div id={`environment-target-recovery-${item.id}`} /></>}
 
-        {overview ? <Dashboard /> : assistantRoute ? <AssistantWorkspace persona={persona} role={role} canPlan={canPlan} /> : releaseRoute ? <Releases persona={persona} role={role} /> : integrationsRoute ? <Integrations /> : loading ? <LoadingState className="panel">Carregando planejamento…</LoadingState> : id && !item ? <section className="panel"><h1>Item indisponível</h1><p>Não foi possível carregar este item. Verifique a mensagem acima ou retorne aos Sistemas.</p><Link href="/systems">Voltar para Sistemas</Link></section> : archivedContext && detail ? <ArchivedItem detail={detail} /> : <>
+        {helpRoute ? helpDocument?<div dangerouslySetInnerHTML={{__html:helpDocument}}/>:<ErrorState>O documento da ajuda não foi carregado.</ErrorState> : overview ? <Dashboard /> : assistantRoute ? <AssistantWorkspace persona={persona} role={role} canPlan={canPlan} /> : releaseRoute ? <Releases persona={persona} role={role} /> : integrationsRoute ? <Integrations /> : loading ? <LoadingState className="panel">Carregando planejamento…</LoadingState> : id && !item ? <section className="panel"><h1>Item indisponível</h1><p>Não foi possível carregar este item. Verifique a mensagem acima ou retorne aos Sistemas.</p><Link href="/systems">Voltar para Sistemas</Link></section> : archivedContext && detail ? <ArchivedItem detail={detail} /> : <>
           {journeyView && item && <StoryWorkspace item={item} persona={persona} canPlan={authorized} tab={search.get('tab') || ''} headerTargetId="story-journey-header" onRefresh={() => window.dispatchEvent(new Event('sdlc-plan-applied'))} onEdit={() => begin('edit')} onCreate={() => begin('create')}
             planningContext={system && project ? <PlanningAssistant systemId={system.id} projectId={project.id} contextName={project.name} withinProject /> : <p className="hint">Consulte o Projeto de origem para planejar com a assistente.</p>}
             formTitle={form ? form === 'edit' ? `Editar ${names[item.kind].toLowerCase()}` : `Criar ${names[childKind!].toLowerCase()}` : undefined}

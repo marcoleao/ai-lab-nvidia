@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-31T23:20:04.431Z",
+  "phase": "before",
+  "measure": [
+    {
+      "status": 200,
+      "ms": 119,
+      "action": "Preparar versão DEV",
+      "progress": null
+    },
+    {
+      "status": 200,
+      "ms": 55,
+      "action": "Preparar versão DEV",
+      "progress": null
+    },
+    {
+      "status": 200,
+      "ms": 49,
+      "action": "Preparar versão DEV",
+      "progress": null
+    },
+    {
+      "status": 200,
+      "ms": 48,
+      "action": "Preparar versão DEV",
+      "progress": null
+    },
+    {
+      "status": 200,
+      "ms": 49,
+      "action": "Preparar versão DEV",
+      "progress": null
+    }
+  ]
+}

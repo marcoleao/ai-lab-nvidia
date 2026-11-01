@@ -493,7 +493,7 @@ export function createApp(options:Options){
   const {processExecutionJobs}=registerExecution(app,assistantHelpers,git);
   const {processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs}=registerMerge(app,assistantHelpers,options.merge);
   const {processQualityJobs}=registerQuality(app,assistantHelpers,git,options.scannerUrl);
-  registerJourney(app,assistantHelpers,{git,merge:options.merge,scannerUrl:options.scannerUrl,developmentDeploymentsConfigured:!!options.deployments,developmentBuildsConfigured:!!options.developmentBuilds});
+  registerJourney(app,assistantHelpers,{git,merge:options.merge,scannerUrl:options.scannerUrl,developmentDeploymentsConfigured:!!options.deployments,developmentBuildsConfigured:!!options.developmentBuilds,deployments:options.deployments});
   async function reconcileStoryPhases(plan:{id:string;expectedVersion:number;executionId:string}[]){
     return db.$transaction(async tx=>{
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(741852963)`;

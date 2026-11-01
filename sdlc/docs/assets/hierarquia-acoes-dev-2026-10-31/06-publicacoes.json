@@ -1,0 +1,46 @@
+[
+    {
+        "id":  "dev-stage-hierarchy-verified-20261031-47b9e5a7",
+        "image":  "sha256:1adbfbcf0500eabcd85032fc00fa30c456230a7b8f568449cfae98ae39672fb1",
+        "source":  "41cf119a120310be822c20a89d8b57e409c8f376ef248c9fc5bae42834390653",
+        "published":  true,
+        "verifiedAt":  "2026-11-01T01:47:36.058689+00:00",
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   },
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-stage-hierarchy-verified-20261031-47b9e5a7",
+                       "bytes":  426899,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   }
+    },
+    {
+        "id":  "dev-stage-hierarchy-verified-20261031-bba3971b",
+        "image":  "sha256:67be261aac0b1a136c664018f2da0fcd0c08a05a9af562c2b39669344ce21a95",
+        "source":  "c52cdda1ac307d6645ecebb3596ec7b909f8004b542844fd64e36fbd36cc711a",
+        "published":  true,
+        "verifiedAt":  "2026-11-01T01:53:30.453476+00:00",
+        "health":  {
+                       "status":  "ready",
+                       "scope":  "portal-foundation",
+                       "demoMode":  true,
+                       "databaseMode":  "preview"
+                   },
+        "tablesChecked":  49,
+        "exactTablesPreserved":  true,
+        "backup":  {
+                       "backupId":  "dev-stage-hierarchy-verified-20261031-bba3971b",
+                       "bytes":  426899,
+                       "privatePermissions":  true,
+                       "digestVerified":  true,
+                       "archiveReadable":  true
+                   }
+    }
+]

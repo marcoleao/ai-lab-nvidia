@@ -416,6 +416,33 @@
             "required": true
         },
         {
+            "id": "UIFILE-story-dev-summary",
+            "file": "story-dev-summary.spec.ts",
+            "area": "story",
+            "requirements": ["NAV-DEV-01", "NAV-DEV-02"],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-dev-stage-actions",
+            "file": "dev-stage-actions.spec.ts",
+            "area": "story",
+            "requirements": ["NAV-DEV-04"],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
+            "id": "UIFILE-help-flow",
+            "file": "help-flow.spec.ts",
+            "area": "help",
+            "requirements": ["HELP-FLOW-01"],
+            "isolation": "fresh-database",
+            "providers": "simulated",
+            "required": true
+        },
+        {
             "id": "UIFILE-system-environments",
             "file": "system-environments.spec.ts",
             "area": "system",

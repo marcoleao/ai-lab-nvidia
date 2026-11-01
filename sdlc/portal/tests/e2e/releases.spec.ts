@@ -1,3 +1,4 @@
+import { expectFooterPagination } from './pagination-assertions';
 import {test,expect,type APIRequestContext,type Page} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
 import {join} from 'node:path';
@@ -36,7 +37,7 @@ test('Releases shows DEV and the other System destinations separately from compo
  await expect(page.getByRole('heading',{name:'Estado da release',exact:true})).toBeVisible();await expect(page.getByText(/Legado/)).toHaveCount(0);
  await expect(page.getByTestId('release-stage-CLOSED')).toContainText('CLOSED · Fechada');
  await expect(page.getByTestId('release-stage-CANCELED')).toContainText('CANCELED · Cancelada');
- await page.screenshot({path:snapshot('releases-destinations-desktop.png'),fullPage:true});await page.setViewportSize({width:390,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:snapshot('releases-destinations-mobile.png'),fullPage:true});
+ await page.screenshot({path:snapshot('releases-destinations-desktop.png'),fullPage:true});await page.setViewportSize({width:390,height:900});await expectFooterPagination(page.getByRole('region',{name:'Lista de releases'}).locator('.experience-pagination'),page.locator('.real-release-grid'));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:snapshot('releases-destinations-mobile.png'),fullPage:true});
  await page.route(`**/api/systems/${own.system.id}/environments`,route=>route.fulfill({status:503,json:{error:{message:'Ambientes indisponíveis no ensaio.'}}}));await page.reload();
  await expect(environments.getByRole('alert')).toContainText('Ambientes indisponíveis no ensaio.');await expect(environments.getByTestId('release-environment-count-DEV')).toHaveText('1');await expect(environments.getByText('Referência não cadastrada',{exact:true})).toHaveCount(0);
  await page.unroute(`**/api/systems/${own.system.id}/environments`);await page.route(url=>url.pathname==='/api/releases',route=>route.fulfill({status:503,json:{error:{message:'Totais indisponíveis no ensaio.'}}}));await page.reload();
@@ -146,7 +147,7 @@ test('visual release consultation uses real compositionStatus counts and newest-
   expect(await page.getByTestId('release-card').getByRole('heading').allTextContents()).toEqual(api.releases.map((release:any)=>release.name));
   const times=await page.getByTestId('release-card').locator('time').evaluateAll(elements=>elements.map(element=>Date.parse(element.getAttribute('datetime')!)));expect(times.every((time,index)=>!index||time<=times[index-1])).toBe(true);
   await expect(page.getByTestId('release-stage-OPEN')).toContainText('21');await expect(page.getByTestId('release-stage-CLOSED')).toContainText('0');await expect(page.getByTestId('release-environment-count-DEV')).toHaveText('21');
-  const pager=page.getByRole('navigation',{name:'Paginação superior de releases',exact:true});await pager.getByRole('button',{name:'Próxima',exact:true}).click();
+  const pager=page.getByRole('navigation',{name:'Paginação de releases',exact:true});await expectFooterPagination(page.getByRole('region',{name:'Lista de releases'}).locator('.experience-pagination'),page.locator('.real-release-grid'));await pager.getByRole('button',{name:'Próxima',exact:true}).click();
   await expect(page).toHaveURL(/page=2/);await expect(page.getByTestId('release-card')).toHaveCount(1);await expect(page.getByTestId('release-environment-count-DEV')).toHaveText('21');await expect(pager.getByRole('button',{name:'Próxima',exact:true})).toBeDisabled();
   await page.getByTestId('release-stage-CLOSED').click();await expect(page.getByText('Nenhuma release neste recorte',{exact:true})).toBeVisible();await expect(page.getByTestId('release-environment-count-DEV')).toHaveText('0');await expect(page.getByTestId('release-stage-OPEN')).toContainText('21');
   await page.getByTestId('release-stage-OPEN').click();await expect(page.getByTestId('release-card')).toHaveCount(20);
@@ -170,7 +171,7 @@ test('composition keeps selections from two server pages when a later filter hid
   const rows=page.locator('.real-release-story');await expect(rows).toHaveCount(20);
   await expect(page.locator('details.experience-filters').filter({visible:true})).not.toHaveAttribute('open');
   await page.getByRole('checkbox',{name:new RegExp(first.name)}).check();
-  const pager=page.getByRole('navigation',{name:'Paginação superior de Histórias para composição',exact:true});await pager.getByRole('button',{name:'Próxima',exact:true}).click();
+  const pager=page.getByRole('navigation',{name:'Paginação de Histórias para composição',exact:true});await expectFooterPagination(page.locator('.real-release-picker .experience-pagination'),page.locator('.real-release-story-list'));await pager.getByRole('button',{name:'Próxima',exact:true}).click();
   await expect(page).toHaveURL(/picker.page=2/);await expect(rows).toHaveCount(5);await page.getByRole('checkbox',{name:new RegExp(second.name)}).check();
   await expect(actions(page).getByText('2 escolhidas, ainda não salvas · 1 fora desta página ou dos filtros. Rascunho vazio é válido.')).toBeVisible();
   const filters=await openFilters(page,'Filtrar Histórias');await filters.getByRole('searchbox',{name:'Buscar História, Projeto ou Épico',exact:true}).fill(first.name);await filters.getByRole('button',{name:'Aplicar filtros',exact:true}).click();

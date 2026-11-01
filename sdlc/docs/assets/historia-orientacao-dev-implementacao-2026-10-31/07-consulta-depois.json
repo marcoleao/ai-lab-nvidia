@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-31T23:33:04.475Z",
+  "phase": "after",
+  "measure": [
+    {
+      "status": 200,
+      "ms": 139,
+      "action": "Ver pendências de aceitação",
+      "progress": "technical_only"
+    },
+    {
+      "status": 200,
+      "ms": 146,
+      "action": "Ver pendências de aceitação",
+      "progress": "technical_only"
+    },
+    {
+      "status": 200,
+      "ms": 142,
+      "action": "Ver pendências de aceitação",
+      "progress": "technical_only"
+    },
+    {
+      "status": 200,
+      "ms": 148,
+      "action": "Ver pendências de aceitação",
+      "progress": "technical_only"
+    },
+    {
+      "status": 200,
+      "ms": 135,
+      "action": "Ver pendências de aceitação",
+      "progress": "technical_only"
+    }
+  ]
+}

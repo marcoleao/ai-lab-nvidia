@@ -1,0 +1,52 @@
+[
+    {
+        "file":  "01-historia-desktop.png",
+        "bytes":  230934,
+        "sha256":  "3f150f3d6ef751ea5db87d3d8ec239875c754f748bbf8a24f47b8c904159afb5"
+    },
+    {
+        "file":  "02-resumo-desktop.png",
+        "bytes":  26781,
+        "sha256":  "0552a6f6301e62e56ab849f3e21c166062b7897a61b7a187796bea8d875946bf"
+    },
+    {
+        "file":  "03-entrada-celular.png",
+        "bytes":  65501,
+        "sha256":  "289373118321019462b86c591b2e610c90cfb411cd33839b5c9e0ff186bb76fc"
+    },
+    {
+        "file":  "04-resumo-celular.png",
+        "bytes":  67053,
+        "sha256":  "6a01278fb07d4e3ca4f503512231dc36a18afdd1f731c4343edc5ab90a5434e8"
+    },
+    {
+        "file":  "05-pendencias-celular.png",
+        "bytes":  69372,
+        "sha256":  "e7c38691d6d11116afa767dc7c65fe2662aecd4c9ef8771f3d28b7e007546248"
+    },
+    {
+        "file":  "06-consulta-antes.json",
+        "bytes":  644,
+        "sha256":  "5cc44bf04c61a617f007c8169faa8decc862f152e1dfe7bcd3014b1ea6926a3c"
+    },
+    {
+        "file":  "07-consulta-depois.json",
+        "bytes":  757,
+        "sha256":  "0b2379dc3c247a12d22f117412d5cdba0a447d4754952ac124c1886a42ec7b6c"
+    },
+    {
+        "file":  "08-resumo-especificacao.json",
+        "bytes":  825,
+        "sha256":  "1af4d87e7eed832afca57b413dd3867686e54acaee3d85fbb886217a2c0f6271"
+    },
+    {
+        "file":  "09-publicacao.json",
+        "bytes":  892,
+        "sha256":  "e468a32ef862c483de3d79ecf020730b8ce856c30859b2a0d3d1678abfc31c9f"
+    },
+    {
+        "file":  "10-conferencia-interface.json",
+        "bytes":  823,
+        "sha256":  "1e8d625d3224587e4c94acd433d21a6786af498c2ef8f0cccaf6779805823466"
+    }
+]

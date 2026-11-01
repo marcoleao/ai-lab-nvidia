@@ -1,3 +1,4 @@
+import { expectFooterPagination } from './pagination-assertions';
 import {test,expect,type Page} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
 import type {ReleaseDevelopmentReadiness as Reading,ReleaseDevelopmentStory as Story} from '../../packages/shared/src/release-development-readiness';
@@ -55,6 +56,7 @@ for(const width of [1440,390]){
   await expect(p.getByRole('link',{name:'DEV-21 · História 21',exact:true})).toBeVisible();
   await p.getByRole('combobox',{name:'Histórias consultadas',exact:true}).selectOption('all');await p.getByRole('button',{name:'Aplicar filtros da conferência',exact:true}).click();
   await expect(p.getByText('Há impedimentos na composição',{exact:true})).toBeVisible();await expect(p.getByRole('link',{name:'DEV-21 · História 21',exact:true})).toHaveCount(0);
+  await expectFooterPagination(p.locator('.experience-pagination'),p.locator('ol.release-composition-list'));
   await p.getByRole('navigation',{name:'Paginação de Histórias na conferência',exact:true}).getByRole('button',{name:'Próxima',exact:true}).click();await expect(p.getByRole('link',{name:'DEV-21 · História 21',exact:true})).toBeVisible();
   await p.getByRole('textbox',{name:'Buscar História na conferência',exact:true}).fill('DEV-01');await p.getByRole('button',{name:'Aplicar filtros da conferência',exact:true}).click();await expect(p.getByRole('link',{name:'DEV-01 · História 1',exact:true})).toBeVisible();await expect(p.getByText('Há impedimentos na composição',{exact:true})).toBeVisible();
   expect(new URL(page.url()).searchParams.get('picker.project')).toBe('readiness-project');expect(new URL(page.url()).searchParams.get('history.q')).toBe('keep-history');await capture(page,`ra15-filter-${width}`);clean(state);

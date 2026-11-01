@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-31T23:33:41.493Z",
+  "storyId": "cmvwutzrh001001t5lxja9hez",
+  "tab": "specification",
+  "persona": "",
+  "appHref": "http://localhost:33991/",
+  "summary": "ENTREGA ATUAL DA HISTÓRIA · DEV\n\nVersão disponível em DEV\n\nOs testes técnicos passaram. A aceitação dos 6 critérios ainda está pendente; esta suíte não registra sua cobertura de aceitação.\n\nAbrir aplicação em DEV ↗\nVer pendências de aceitação\n\nhttp://localhost:33991/\n\nDisponibilidade observada em 31/10/2026, 20:33.",
+  "layout": {
+    "rect": {
+      "x": 15,
+      "y": 754.875,
+      "width": 360,
+      "height": 350.125,
+      "top": 754.875,
+      "right": 375,
+      "bottom": 1105,
+      "left": 15
+    },
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "horizontalOverflow": false
+  }
+}

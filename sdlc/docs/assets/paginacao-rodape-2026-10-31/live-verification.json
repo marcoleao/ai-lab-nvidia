@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "startedAt": "2026-11-01T02:57:21.004Z",
+  "readOnly": true,
+  "realDataCreated": false,
+  "screenshotsCaptured": false,
+  "writesAttempted": 0,
+  "pageErrorCount": 0,
+  "checks": [
+    {
+      "label": "systems-list",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "releases-list",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "system-projects",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "system-audit",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "project-epics",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "epic-stories",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-tasks",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-audit",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-conversations",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "task-attempts",
+      "width": 1440,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "systems-list",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "releases-list",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "system-projects",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "system-audit",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "project-epics",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "epic-stories",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-tasks",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-audit",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "story-conversations",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    },
+    {
+      "label": "task-attempts",
+      "width": 390,
+      "paginationCount": 1,
+      "singlePagerPerCollection": true,
+      "namedNavigation": true,
+      "resultsBeforePager": true,
+      "belowResults": true,
+      "navigationButtonsPresent": true
+    }
+  ],
+  "skipped": [
+    {
+      "family": "release",
+      "reason": "No representative existing record in the bounded discovery sample."
+    },
+    {
+      "family": "compositionRevision",
+      "reason": "No representative existing record in the bounded discovery sample."
+    }
+  ],
+  "failures": [],
+  "limitations": [
+    "Representative existing records only; the live run does not cover every record or every portal workflow.",
+    "No screenshots or real record names, identifiers, messages or URLs are included in this report.",
+    "Empty or unavailable record families are identified as skipped, without creating data."
+  ],
+  "finishedAt": "2026-11-01T02:57:29.450Z",
+  "ok": true
+}

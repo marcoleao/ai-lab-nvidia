@@ -1,0 +1,152 @@
+{
+  "scope": "HELP: documentação estática; sem alteração da navegação operacional",
+  "reviewDate": "2026-10-31 America/Sao_Paulo",
+  "canonicalHtmlSha256": "b0b8cb778895543111892509fb5c5bdf07acab1458ad21eb7c654b63cfcb5e67",
+  "publications": [
+    {
+      "id": "help-flow-docs-verified-20261031-c6fc6fde",
+      "source": "77c45a311fa74a666d43fa305b4f745406bdeb7db6c0c44785e5fda54dd3440f",
+      "candidateImage": "sha256:3e5563b77031d01c14ea0287b1d073417c92c557475d2210403e935365ddf788",
+      "verifiedAt": "2026-11-01T02:33:37.277391+00:00",
+      "health": {
+        "status": "ready",
+        "scope": "portal-foundation",
+        "demoMode": true,
+        "databaseMode": "preview"
+      },
+      "tablesChecked": 49,
+      "exactTablesPreserved": true,
+      "backupVerification": {
+        "backupId": "help-flow-docs-verified-20261031-c6fc6fde",
+        "bytes": 426899,
+        "privatePermissions": true,
+        "digestVerified": true,
+        "archiveReadable": true
+      }
+    },
+    {
+      "id": "help-flow-docs-verified-20261031-8371cac0",
+      "source": "93ec8e7701a90e6f68cf056002e7399e1ef3daa41a1ac81097f11345eca0de80",
+      "candidateImage": "sha256:ba8cd529e7219f41d8e82cf580685e277dd164a374b22ee3b5b0c803b76c745b",
+      "verifiedAt": "2026-11-01T02:37:23.870862+00:00",
+      "health": {
+        "status": "ready",
+        "scope": "portal-foundation",
+        "demoMode": true,
+        "databaseMode": "preview"
+      },
+      "tablesChecked": 49,
+      "exactTablesPreserved": true,
+      "backupVerification": {
+        "backupId": "help-flow-docs-verified-20261031-8371cac0",
+        "bytes": 426899,
+        "privatePermissions": true,
+        "digestVerified": true,
+        "archiveReadable": true
+      }
+    }
+  ],
+  "administrativeAudit": {
+    "records": 154,
+    "head": "a5e1b4f0277c2e29d071ba46a3c758c57c65e5036064e7b9d4992d9d573a0758",
+    "epochId": "6619b0cd-805e-4049-805f-476410fc8312",
+    "pendingOperations": []
+  },
+  "browser": {
+    "checkedAt": "2026-11-01T02:37:24.137Z",
+    "origin": "Portal local; navegação nativa, sem comandos de negócio",
+    "desktop": {
+      "width": 1440,
+      "overflow": false,
+      "selected": "page",
+      "h1": "Como a execução percorre o SDLC",
+      "steps": 15,
+      "loops": 47,
+      "personaControls": 0,
+      "footerTop": 809
+    },
+    "mobile": {
+      "width": 390,
+      "overflow": false,
+      "loopColumns": "326px",
+      "dictionary": {
+        "focusable": true,
+        "overflow": false,
+        "regionWidth": 326
+      }
+    },
+    "print": {
+      "numberColor": "rgb(0, 0, 0)",
+      "numberBorder": "1px",
+      "sidebarDisplay": "none"
+    },
+    "assistantMobile": {
+      "tested": true,
+      "dialogClosed": true,
+      "contextPreservedInSourceUrl": true
+    },
+    "standalone": {
+      "body": {
+        "padding": "24px",
+        "background": "rgb(244, 246, 248)",
+        "font": "\"Segoe UI\", Arial, sans-serif"
+      },
+      "url": "/help/fluxo-execucao.html",
+      "title": "HELP · Fluxo de execução do SDLC",
+      "noForms": true
+    },
+    "writes": [],
+    "helpApis": [],
+    "pageErrors": []
+  },
+  "regression": [
+    {
+      "id": "20261101T023029Z-5fb464",
+      "ok": true,
+      "sourceStable": true,
+      "scope": "selected",
+      "total": 14,
+      "stats": {
+        "startTime": "2026-11-01T02:30:44.558Z",
+        "duration": 21756.231,
+        "expected": 14,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "limitations": [
+        "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+      ]
+    },
+    {
+      "id": "20261101T023422Z-fa7e0b",
+      "ok": true,
+      "sourceStable": true,
+      "scope": "selected",
+      "total": 6,
+      "stats": {
+        "startTime": "2026-11-01T02:34:37.313Z",
+        "duration": 7648.108,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "limitations": [
+        "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+      ]
+    }
+  ],
+  "catalogue": {
+    "cases": 633,
+    "files": 58,
+    "report": "20261101T023410Z-8a0ada",
+    "fullRun": false
+  },
+  "limits": [
+    "Famílias de retornos inspecionadas, sem reexecutar todos os caminhos de negócio.",
+    "Sem ensaio de usabilidade com usuários ou validação assistiva integral.",
+    "Sem implementação de aceite funcional UI ou promoções QA/HML/PROD.",
+    "Decisão da navegação operacional permanece para a análise com o usuário."
+  ]
+}

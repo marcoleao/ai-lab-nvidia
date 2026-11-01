@@ -1,0 +1,25 @@
+{
+    "observedAt":  "2026-10-31T23:32:54.152Z",
+    "source":  "Conferência dirigida pelos controles da interface publicada; sem comandos de negócio.",
+    "storyId":  "cmvwutzrh001001t5lxja9hez",
+    "persona":  "",
+    "viewports":  [
+                      "1440x1000",
+                      "390x844"
+                  ],
+    "openedApplication":  "http://localhost:33991/",
+    "applicationHeading":  "Hello World",
+    "apiWrites":  [
+
+                  ],
+    "devStep":  "approval",
+    "focusedHeading":  "Desenvolvimento Finalizado",
+    "focusedTitleTop":  322.390625,
+    "stickyBarBottom":  308.09375,
+    "coveredCriteria":  0,
+    "totalCriteria":  6,
+    "decisionFormOpened":  false,
+    "repeatedLinkFocused":  true,
+    "reloadFocused":  true,
+    "horizontalOverflow":  false
+}

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "runtimeHash": "764b9588246199ed7f51fc8c7e641d18a375e02ff7e091e158198bc698146c1f",
-  "testHash": "73b2a1901786b1990aef4ae35609878c58e01855419c4f13d82b25ddeb4b98f3",
+  "runtimeHash": "57b6ffc1a1ccfc7043c70c8e474a88926f798638e9f9c7e26136b51d46bcfe7c",
+  "testHash": "fd52c6bb56f45467242e70540425b2ab0a7cf0af659f2f1c759d6d87a4a3a03a",
   "database": "portal_test",
   "externalProviders": "simulated",
   "workers": "manual",
@@ -1519,6 +1519,90 @@
       "expected": "passed"
     },
     {
+      "id": "UI-ef7b48b48d3c",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "Guided DEV prioritizes the current acceptance issue and folds completed controls at 1440px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a2ed505ed249",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "Opening a completed DEV result is readonly and secondary construction has an honest blocked preview at 1440px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-912d1606343c",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "DEV deep links reopen the exact completed stage on reload and repeated same-URL navigation at 1440px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f18dfee84e23",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "DEV review stays open until Back and preserves its draft and recoverable query error at 1440px",
+      "line": 74,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-24362aaf0f91",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "Guided DEV prioritizes the current acceptance issue and folds completed controls at 390px",
+      "line": 16,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bfe1daf3930d",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "Opening a completed DEV result is readonly and secondary construction has an honest blocked preview at 390px",
+      "line": 41,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3564e1bd20bc",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "DEV deep links reopen the exact completed stage on reload and repeated same-URL navigation at 390px",
+      "line": 58,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-0b70613fdc06",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "DEV review stays open until Back and preserves its draft and recoverable query error at 390px",
+      "line": 74,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-8a787b3d844c",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "A newer local construction queued stays visible and preserves recovery across tabs",
+      "line": 94,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-46a06c9e419c",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "A newer local construction unknown stays visible and preserves recovery across tabs",
+      "line": 94,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-462a595109ff",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "A newer local construction pending stays visible and preserves recovery across tabs",
+      "line": 94,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-2cf77ee6f4fb",
+      "file": "dev-stage-actions.spec.ts",
+      "title": "DEV fixtures without the shared progress contract retain the legacy flat controls and labels",
+      "line": 111,
+      "expected": "passed"
+    },
+    {
       "id": "UI-f8ec284fb4c6",
       "file": "development-approval.spec.ts",
       "title": "development approval reviews the complete evidence chain without equating SHAs at 1440px",
@@ -2531,6 +2615,48 @@
       "file": "experience-standards.spec.ts",
       "title": "archived consultation preserves its query across tabs and mobile tables remain within their scroll region",
       "line": 57,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-f5168d9b13f5",
+      "file": "help-flow.spec.ts",
+      "title": "HELP opens from the navigation footer while APIs are unavailable at 1440px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-a0c7eb7be5c1",
+      "file": "help-flow.spec.ts",
+      "title": "HELP opens from the navigation footer while APIs are unavailable at 390px",
+      "line": 21,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-b73eda0b48a2",
+      "file": "help-flow.spec.ts",
+      "title": "The Portal HELP is independent of APIs and every local index link resolves to a unique accessible target",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-4396cb6f8155",
+      "file": "help-flow.spec.ts",
+      "title": "The independent HELP HTML has a complete document and remains readable with JavaScript disabled",
+      "line": 59,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-85976958c1d1",
+      "file": "help-flow.spec.ts",
+      "title": "The Assistant mobile menu offers HELP by keyboard while APIs are offline and closes its dialog on navigation",
+      "line": 85,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-3a58610136bd",
+      "file": "help-flow.spec.ts",
+      "title": "HELP separates implemented execution, command recovery and the current acceptance and release limitations",
+      "line": 102,
       "expected": "passed"
     },
     {
@@ -3594,6 +3720,55 @@
       "id": "UI-da270fa32edd",
       "file": "stabilization.spec.ts",
       "title": "inactive ancestors freeze editing and explicit Story reopening preserves cancelled Tasks",
+      "line": 79,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5116a523c274",
+      "file": "story-dev-summary.spec.ts",
+      "title": "Story exposes current DEV result and opens the application without a writing persona at 1440px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-bebb88d2f5fb",
+      "file": "story-dev-summary.spec.ts",
+      "title": "Story exposes current DEV result and opens the application without a writing persona at 390px",
+      "line": 12,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-e97a9de47d60",
+      "file": "story-dev-summary.spec.ts",
+      "title": "Story DEV guidance preserves the query and focuses its exact readonly evidence panel after navigation and reload",
+      "line": 32,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-5da07055e824",
+      "file": "story-dev-summary.spec.ts",
+      "title": "A failed current reading preserves dated DEV facts without advertising the last URL as current",
+      "line": 56,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-41a8bfb22f71",
+      "file": "story-dev-summary.spec.ts",
+      "title": "A different version in shared DEV never receives this Story application link",
+      "line": 66,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-85fd024689fc",
+      "file": "story-dev-summary.spec.ts",
+      "title": "Initial DEV loading is explicit and does not claim that no version was published",
+      "line": 73,
+      "expected": "passed"
+    },
+    {
+      "id": "UI-9e2aaf8e0792",
+      "file": "story-dev-summary.spec.ts",
+      "title": "An invalid DEV step keeps the destination readable without focusing a hidden approval or sending commands",
       "line": 79,
       "expected": "passed"
     },

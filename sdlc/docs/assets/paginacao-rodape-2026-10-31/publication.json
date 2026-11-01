@@ -1,0 +1,31 @@
+{
+  "id": "pagination-footer-20261031-554ca3f6",
+  "source": "0dd54beefbb56c2cb67ee5392d863f65070980afd68b3699916831e1333dbdc7",
+  "candidateImage": "sha256:7515ca826f25c5a4df7a2dc4b95747ed5a75bf2ab6188962137a437e00c37a56",
+  "published": true,
+  "verifiedAt": "2026-11-01T02:56:55.065838+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "tablesChecked": 49,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "pagination-footer-20261031-554ca3f6",
+    "bytes": 426899,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "apiImagePreserved": true,
+  "apiContainerPreserved": true,
+  "migrationsApplied": false,
+  "administrativeAudit": {
+    "records": 158,
+    "head": "ca6cda828264a37cfc133c75abf6ab79cf6e45c151d5564eaf8cd664078d1dc3",
+    "epochId": "6619b0cd-805e-4049-805f-476410fc8312",
+    "pendingOperations": []
+  }
+}

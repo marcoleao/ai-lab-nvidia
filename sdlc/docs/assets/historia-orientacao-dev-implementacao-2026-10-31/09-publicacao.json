@@ -1,0 +1,22 @@
+{
+    "id":  "story-dev-guidance-verified-20261031-7a86b6f1",
+    "image":  "sha256:0aa72ec98599e52beba0bca3df578588a3a823f0f4e7e2aa652cbf97e625806c",
+    "source":  "131881e52cd97b1bd592d4668173d10bd832544300be2fac6c8f7d933e95897c",
+    "published":  true,
+    "verifiedAt":  "2026-10-31T23:32:57.319654+00:00",
+    "health":  {
+                   "status":  "ready",
+                   "scope":  "portal-foundation",
+                   "demoMode":  true,
+                   "databaseMode":  "preview"
+               },
+    "tablesChecked":  49,
+    "exactTablesPreserved":  true,
+    "backup":  {
+                   "backupId":  "story-dev-guidance-verified-20261031-7a86b6f1",
+                   "bytes":  426899,
+                   "privatePermissions":  true,
+                   "digestVerified":  true,
+                   "archiveReadable":  true
+               }
+}

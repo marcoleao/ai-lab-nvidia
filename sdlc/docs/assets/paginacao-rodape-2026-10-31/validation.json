@@ -1,0 +1,63 @@
+{
+    "version":  1,
+    "command":  "browser",
+    "startedAt":  "2026-11-01T02:48:39.187Z",
+    "runtimeHash":  "4888a4aab54a0cb3bd815a98c85aaab92484c197ee7a364cf7c3df9f7830d521",
+    "testHash":  "16846d6d95c19b0562ff51729a84887ee6372949308cf82872e176f92258dcb1",
+    "database":  "portal_test",
+    "externalProviders":  "simulated",
+    "workers":  "manual",
+    "phases":  [
+                   {
+                       "name":  "case-registration",
+                       "exitCode":  0,
+                       "durationMs":  1350
+                   },
+                   {
+                       "name":  "browser",
+                       "exitCode":  0,
+                       "durationMs":  111258
+                   }
+               ],
+    "limitations":  [
+                        "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+                    ],
+    "browser":  {
+                    "stats":  {
+                                  "startTime":  "2026-11-01T02:48:41.900Z",
+                                  "duration":  110781.32400000001,
+                                  "expected":  62,
+                                  "skipped":  0,
+                                  "unexpected":  0,
+                                  "flaky":  0
+                              },
+                    "total":  62,
+                    "failed":  [
+
+                               ],
+                    "errors":  [
+
+                               ],
+                    "scope":  "selected"
+                },
+    "finishedAt":  "2026-11-01T02:50:32.782Z",
+    "sourceStable":  true,
+    "ok":  true,
+    "runId":  "20261101T024827Z-be9cb6",
+    "scope":  "Validação isolada anterior à publicação: paginação única no rodapé; 12 duplicações removidas em 9 consumidores",
+    "selectedFiles":  [
+                          "experience-standards.spec.ts",
+                          "story-experience.spec.ts",
+                          "conversation-history.spec.ts",
+                          "release-branch-plan.spec.ts",
+                          "release-development-readiness.spec.ts",
+                          "releases.spec.ts",
+                          "release-compositions.spec.ts",
+                          "assistant-workspace.spec.ts"
+                      ],
+    "frontendTypecheck":  {
+                              "exitCode":  0,
+                              "command":  "pnpm --filter @sdlc/web typecheck",
+                              "environment":  "sdlc-regression-ui-runner"
+                          }
+}

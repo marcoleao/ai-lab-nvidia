@@ -146,7 +146,6 @@ export function HistoryQuery({ itemId, endpoint, id, title = 'Histórico e rastr
     </form></FilterPanel>
     <p className="experience-scope" role="status"><strong>Recorte {loading || error ? 'solicitado / último confirmado' : 'aplicado'}:</strong> {summary} · {data ? `${data.total} resultados` : 'Quantidade ainda não confirmada'}{data?.asOf && <> · Consulta até {displayDate(data.asOf)}. Use Atualizar histórico para incluir novas ocorrências.</>}</p>
     {loading && <LoadingState>{data ? 'Atualizando histórico; o último resultado confirmado permanece abaixo.' : 'Consultando histórico…'}</LoadingState>}{error && <ErrorState onRetry={() => setRetry(value => value + 1)}>{error}</ErrorState>}
-    <Pagination page={data?.page || page} total={data?.total || 0} onPageChange={next => navigate({ page: next })} label="Paginação do histórico" disabled={loading} />
     {data?.coverage?.description && <p className="hint audit-coverage">Cobertura: {data.coverage.description}</p>}
     <div className="table-wrap" role="region" aria-label="Resultados do histórico" tabIndex={0}><table className="audit-events"><caption className="sr-only">{title} · {data?.total ?? 'Quantidade não confirmada'} resultados</caption><thead><tr><SortHeader column="timestamp" label="Quando" sort="timestamp" direction={appliedDirection} onSort={() => navigate({ dir: appliedDirection === 'asc' ? 'desc' : 'asc', page: 1 })} /><th scope="col">Quem</th><th scope="col">Entidade</th><th scope="col">Ação</th><th scope="col">Resultado da execução</th><th scope="col">Alterações e evidências</th></tr></thead><tbody>{data?.events.map(event => {
       const failure = isFailure(event.result) || /_(FAILED|ERROR)$/.test(event.action), audit = event.audit, target = audit?.target;
@@ -165,7 +164,7 @@ export function HistoryQuery({ itemId, endpoint, id, title = 'Histórico e rastr
       </tr>;
     })}</tbody></table></div>
     {!loading && !error && data?.total === 0 && <p className="experience-empty">Nenhuma ocorrência neste recorte. Ajuste os filtros para consultar outros registros.</p>}
-    <Pagination page={data?.page || page} total={data?.total || 0} onPageChange={next => navigate({ page: next })} label="Paginação inferior do histórico" disabled={loading} />
+    <Pagination page={data?.page || page} total={data?.total || 0} onPageChange={next => navigate({ page: next })} label="Paginação do histórico" disabled={loading} />
   </section>;
 }
 export default HistoryQuery;

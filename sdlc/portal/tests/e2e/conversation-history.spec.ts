@@ -1,3 +1,4 @@
+import { expectFooterPagination } from './pagination-assertions';
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { mockPersonas, uiJourney } from './journey-fixtures';
@@ -65,6 +66,7 @@ test('conversations preserve pagination, filters, direct links and the last conf
   await expect(collection.getByText('Mensagem registrada 21', { exact: true })).toHaveCount(0);
   await expect(collection.locator('details.experience-filters')).not.toHaveAttribute('open', '');
   expect(state.queries.at(-1)?.searchParams.get('includeArchived')).toBe('false');
+  await expectFooterPagination(collection.locator('.experience-pagination'),collection.locator('.conversation-entries'));
   await collection.getByRole('navigation', { name: 'Paginação das conversas', exact: true }).getByRole('button', { name: 'Próxima' }).click();
   await expect(page).toHaveURL(/conversations.page=2/);
   await expect(collection.getByText('Mensagem registrada 21', { exact: true })).toBeVisible();
@@ -183,7 +185,7 @@ test('registered plan revisions remain distinct from the original model response
   await expect(history.getByRole('region', { name: 'Revisão 2 do plano' })).toContainText('Revisão humana exata número dois.');
   await expect(history).toContainText('Resposta registrada 1');
   const directory = process.env.SCREENSHOT_DIR || 'test-results/screenshots'; mkdirSync(directory, { recursive: true });
-  for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1000 }); await page.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); }); await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: `${directory}/conversations-${width}.png`, fullPage: true }); }
+  for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1000 }); await expectFooterPagination(page.getByRole('region', { name: 'Conversas e referências' }).locator('.experience-pagination'),page.locator('.conversation-entries')); await page.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); window.scrollTo({ top: 0, behavior: 'instant' }); }); await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: `${directory}/conversations-${width}.png`, fullPage: true }); }
 });
 
 test('failed messages show a red failure signal and only the cause captured by their own source', async ({ page }) => {

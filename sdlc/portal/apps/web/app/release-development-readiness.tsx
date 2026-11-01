@@ -74,7 +74,6 @@ export default function ReleaseDevelopmentReadiness({releaseId,releaseVersion,co
    </form>
    {data&&<>
     <p>Último recorte confirmado: {filters[data.query.filter]}{data.query.search?` · busca: ${data.query.search}`:''} · ordem: {data.query.sort==='key'?'chave':'nome'} {data.query.direction==='asc'?'crescente':'decrescente'} · {data.pagination.total} resultados. Os totais acima sempre consideram toda a composição.</p>
-    {pager('Paginação de Histórias na conferência')}
     <ol className="release-composition-list">{data.stories.map(story=><li key={story.id}>
      <h3><Link href={`/stories/${encodeURIComponent(story.id)}?tab=planning&process=environment&environment=DEV`}>{story.key} · {story.name}</Link></h3>
      <p><strong>{outdated?'Último resultado conhecido: ':''}{story.state==='ready'?'Requisitos de desenvolvimento atendidos':story.state==='blocked'?'Bloqueada':'Sem confirmação'}</strong> · {story.development.label}{story.development.state==='valid'&&!story.development.matchesComposition?' · aprovação da revisão atual ainda não corresponde à composição salva':''}</p>
@@ -82,7 +81,7 @@ export default function ReleaseDevelopmentReadiness({releaseId,releaseVersion,co
      <details><summary>Referências de {story.key}</summary><p>Aprovação: {story.development.approval?`nº ${story.development.approval.number}, por ${story.development.approval.actorName}`:'não registrada'}</p><dl>{Object.entries(story.references).map(([key,value])=><div key={key}><dt>{referenceLabels[key]}</dt><dd><code>{value??'não confirmado'}</code></dd></div>)}</dl></details>
     </li>)}</ol>
     {!data.stories.length&&!loading&&!error&&<p>{data.evaluation.complete?'Nenhuma História neste recorte. Os filtros não alteram a composição nem os totais.':'Nenhuma página de Histórias foi qualificada por esta conferência incompleta.'}</p>}
-    {pager('Paginação final de Histórias na conferência')}
+    {pager('Paginação de Histórias na conferência')}
    </>}
   </details>
   <details><summary>Alcance desta conferência</summary><p>{data?.coverage??'A leitura confere as fontes registradas da composição vigente; não constrói ou promove uma versão.'}</p></details>

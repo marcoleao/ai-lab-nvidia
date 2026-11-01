@@ -180,3 +180,109 @@ Aceite da primeira fatia: em 1440/390, identificar o resultado disponível e abr
 
 Não houve execução de suíte de regressão ou build nesta análise, pois só documentação/evidências foram acrescentadas. A primeira implementação deve adaptar os contratos já cobertos em `journey`, `story-delivery` e `development-{deployments,tests,approvals}`, com cenários integrados de navegação; a cobertura existente não comprova o comportamento proposto. Catálogo atual de 608 cenários/55 arquivos não foi executado integralmente. QA/HML/PROD, outras Histórias, acervo e jornada completa do assistente não foram certificados por este ensaio.
 
+<a id="navegacao-dev-implementacao"></a>
+
+## Implementação da orientação e do acesso a DEV
+
+Implementação autorizada após a análise acima. O recorte entrega NAV-DEV-01 e a parte de NAV-DEV-02 referente ao destino exato dos quadros; não implementa o executor de aceite de interface nem a leitura estruturada completa no assistente (NAV-DEV-03).
+
+`StoryDevProgress` compartilha os fatos e checks da aprovação existente. A jornada pós-merge consulta a disponibilidade fora da transação e relê as referências antes de anunciar a URL da aplicação. Observação desconhecida, antiga, substituída por outra publicação, divergência de revisão ou mudança durante a consulta não recebe link de versão atual. A sonda remota tem prazo de um segundo; consultas simultâneas idênticas são coalescidas, sem cache de progresso concluído. Não há novo comando, tabela, migration, autorização de domínio ou indicador.
+
+O resumo fica no fluxo normal, depois do título e antes das abas, também na entrada por Tarefas. Situação, próxima orientação, URL e instante observado usam a leitura compartilhada. A falha preserva a última leitura datada, identifica a situação não confirmada e suspende o link atual. O marcador de DEV deixa de anunciar Próximo quando a leitura já comprova publicação. Navegar ou abrir a aplicação não exige persona com permissão de escrita.
+
+`devStep=build|deployment|test|approval` aprofunda a URL existente de Execução → DEV. O título do quadro recebe foco abaixo da faixa fixa; repetir o mesmo link volta ao destino, e polling não desloca o foco. A consulta preserva os demais parâmetros, incluindo filtros e tentativa histórica. O quadro de Desenvolvimento Finalizado mostra cobertura e checks pendentes em leitura, sem abrir automaticamente o formulário de confirmação. Os comandos continuam revalidando versão, evidências, autoria, permissão e confirmação pelas operações originais.
+
+Recibos de construção conservam a mensagem registrada nos detalhes. O resumo do êxito descreve somente a construção, sem declarar publicação/testes ainda pendentes quando outra fonte já os confirmou. A orientação de aceitação distingue a suíte técnica da cobertura funcional e identifica a limitação do perfil HTTP, sem prometer que repetir testes ou iniciar outro ciclo resolve testes de interface ausentes.
+
+A nova leitura acrescenta consultas locais no pós-merge e uma sonda remota à jornada, que já possui polling. Não houve ensaio de carga ou certificação de escala. A medição dirigida retornou cinco GETs em 119/55/49/48/49 ms antes e 139/146/142/148/135 ms depois: mediana de 49 para 142 ms nesta amostra local. Esse custo adicional precisa ser considerado ao ampliar concorrência; não é uma meta/SLA nem um novo KPI. Contagens de critérios e checks continuam sendo evidências da revisão. [Antes](assets/historia-orientacao-dev-implementacao-2026-10-31/06-consulta-antes.json) e [depois](assets/historia-orientacao-dev-implementacao-2026-10-31/07-consulta-depois.json).
+
+### Validação e publicação deste recorte
+
+- Backend: **96/96**, sem falhas ou skips, em `20261031T232039Z-f1719e`: aprovação 49, construção 16, jornada 23 e contrato de entrega 8. Doze casos novos incluem ausência de escrita, papéis de consulta, história paginada independente, observação antiga/lenta/indisponível, DEV compartilhado, resultado incerto, mudança de escopo/referência durante consulta e URL com credenciais. Os testes de aprovação existentes conservam rollback/replay e bloqueio de suíte técnica.
+- Navegador: a rodada ampliada de seis arquivos teve **141/143 aprovados**, em `20261031T232340Z-55fe1e`. Os sete cenários novos passaram. Os dois casos reprovados eram expectativas antigas de texto do diagnóstico técnico (completo versus registrado), corrigidas no teste sem alterar a implementação desse diagnóstico. A rodada final `20261031T232946Z-08a465` aprovou **9/9**, incluindo os dois casos corrigidos, os sete cenários novos e a verificação adicional do retorno à atividade atual ao consultar uma tentativa anterior. Sem skips, flaky ou fonte alterada durante as rodadas.
+- O navegador cobre desktop/celular, abertura da aplicação por teclado sem persona, pendências visíveis sem formulário de decisão, foco abaixo da faixa fixa, repetição do mesmo link, polling sem roubar foco, recarga, filtros/tentativa preservados, falha com leitura datada e URL suspensa, DEV substituído e parâmetro de quadro inválido. Fixtures interceptam os dados e recusam comandos de domínio nos casos de navegação.
+- Catálogo atualizado: **615 cenários/56 arquivos**, sete cenários novos. Não equivale a regressão completa executada. Revisão visual UX das capturas isoladas em 1440/390 sem impedimento; a primeira viewport real permanece uma conferência operacional separada.
+- Build de produção API/web aprovado, incluindo TypeScript, sem rede ou alteração de dependências. Imagem candidata `0aa72ec98599…`, fonte `131881e52cd9…`.
+
+Publicado no portal local em 31/10/2026, às 20:32, imagem `0aa72ec98599…` e fonte `131881e52cd9…`. Backup privado validado por digest/leitura/permissões; **49 tabelas preservadas exatamente**, sem migrations pendentes. Saúde `ready/preview`, manifesto conferido e ledger administrativo com 136 registros e nenhuma operação pendente ao concluir a publicação. [Projeção segura da publicação](assets/historia-orientacao-dev-implementacao-2026-10-31/09-publicacao.json).
+
+Conferência real pelos controles da interface em 1440/390, sem persona de escrita: resumo disponível na entrada por Tarefas e na Especificação; link abriu a aplicação Hello World; pendência abriu o quadro exato com foco, cobertura **0 de 6** visível sem formulário, repetição do link e recarga corretas. Nenhum comando de negócio foi enviado. No celular, o título focado ficou em 322,39 px e a faixa fixa terminou em 308,09 px. [Conferência dirigida](assets/historia-orientacao-dev-implementacao-2026-10-31/10-conferencia-interface.json) e [Especificação](assets/historia-orientacao-dev-implementacao-2026-10-31/08-resumo-especificacao.json).
+
+Evidências reais: [História desktop](assets/historia-orientacao-dev-implementacao-2026-10-31/01-historia-desktop.png), [resumo desktop](assets/historia-orientacao-dev-implementacao-2026-10-31/02-resumo-desktop.png), [entrada celular](assets/historia-orientacao-dev-implementacao-2026-10-31/03-entrada-celular.png), [resumo celular](assets/historia-orientacao-dev-implementacao-2026-10-31/04-resumo-celular.png) e [pendências celular](assets/historia-orientacao-dev-implementacao-2026-10-31/05-pendencias-celular.png). [Manifesto SHA-256](assets/historia-orientacao-dev-implementacao-2026-10-31/sha256.json). Revisão UX final sem impedimento no recorte: no celular, cabeçalho/trilho ainda dominam a primeira viewport e o botão exige rolagem vertical comum. A fatia remove a necessidade de descobrir uma aba/destino oculto; não promete o botão na primeira dobra.
+
+- [x] NAV-DEV-01: resumo factual e acesso DEV publicados e conferidos.
+- [x] NAV-DEV-02, parte dos quadros: URL, foco, leitura direta das pendências, recarga e retorno validados.
+- [ ] NAV-DEV-02, restante: harmonizar rótulos de atividade e reduzir a predominância do cabeçalho/trilho móvel.
+- [ ] NAV-DEV-03: leitura estruturada completa no assistente.
+- [ ] ACEITE-UI: produzir evidência funcional vinculada ao G1 pelo fluxo apropriado.
+
+Os gates e a ausência de evidência formal de aceite UI do Hello World permanecem independentes desta alteração de navegação. Não houve edição da aplicação produzida, de dados de negócio ou de resultados de agentes para demonstrar esta fatia. Acervo, demais níveis, QA/HML/PROD e o catálogo completo não são declarados certificados.
+
+<a id="dev-acoes-hierarquia"></a>
+
+## Hierarquia dos quadros e das ações DEV
+
+NAV-DEV-04 responde ao feedback posterior: o acesso à aplicação passou a funcionar, mas os quatro quadros ainda apresentavam consulta prévia, atualização, nova execução e confirmação no mesmo nível. O recorte reorganiza a apresentação, preservando os contratos dos controladores e os gates.
+
+Onde a jornada oferece `StoryDevProgress`, as quatro etapas têm assunto e situação explícitos. A etapa da próxima orientação abre inicialmente; um `devStep` explícito prefere o quadro solicitado. Construção e publicação confirmadas ficam recolhidas. Testes técnicos aprovados são identificados como verificação técnica, com aceitação pendente; não são anunciados como a etapa de aceitação concluída. Os estados resumidos usam os checks atuais, não qualquer recibo histórico `succeeded`.
+
+| Intenção | Apresentação |
+| --- | --- |
+| Consultar o que aconteceu | Abrir a etapa compacta e ler o resultado. Não inicia pedido. |
+| Atualizar a leitura | Controle secundário **Atualizar consulta**, com indicação de que não inicia outra execução. |
+| Conferir um avanço ainda necessário | Revisar construção, publicação, execução dos testes ou Desenvolvimento Finalizado, conforme a etapa atual. |
+| Reavaliar uma etapa anterior | **Outras ações**, com rótulo específico de outra construção/publicação ou nova execução dos testes. |
+| Confirmar um efeito | Formulário somente após revisão explícita; motivo, aceite e Confirmar não aparecem quando a prévia respondeu `allowed=false`. |
+| Resultado incerto ou pedido em andamento | Acompanhamento/recuperação do mesmo pedido, preservando a identidade original; não se converte em executar novamente. |
+
+O disclosure conserva um único controlador montado por operação. Não muda `active` ao recolher: esse sinal continua representando o destino DEV ativo, mantendo polling, rascunhos e recuperação. Revisão em aberto, consulta explícita em andamento, erro, recibo à frente da leitura e pedidos pendentes/incertos mantêm o quadro visível. Para fechar uma revisão, o usuário usa Voltar ao acompanhamento; motivo é preservado e o aceite da revisão local é limpo pelas regras existentes. A expansão acontece antes de foco/rolagem, inclusive quando o endereço já é o mesmo.
+
+O quadro de aprovação no Hello World mostra a cobertura 0/6 e a limitação de aceite de interface. Consultar suas condições fica como opção secundária; não é apresentado como um avanço já disponível. Prévia impedida mostra a causa e o retorno, em vez de um botão de confirmação desabilitado e campos sem uso.
+
+Compatibilidade: onde ainda não há projeção integrada de progresso, a apresentação plana e os nomes anteriores são preservados; não se declara migração do assistente, pré-merge ou demais fluxos por esta fatia. O formulário de uma prévia negada é simplificado também nesses consumidores, mantendo o mesmo bloqueio. Não há mudança de corpo, assinatura, token, autorização, mutation, política ou indicador.
+
+### Validação e publicação NAV-DEV-04
+
+- **109/109 cenários de navegador aprovados**, sem skips ou flaky e com fonte estável, em `20261101T014253Z-807173`: doze cenários novos de hierarquia, sete do resumo e noventa de construção/publicação/testes/aprovação. A primeira rodada `20261101T013616Z-1b87dd` teve 99/109: duas expectativas de abertura não respeitavam o alvo explícito do deep link e oito ainda esperavam campos desabilitados numa prévia negada. Os testes passaram a exigir ausência dos controles de decisão e retorno operável, preservando as verificações de autorização, contextos permitidos, pedidos, assinaturas e rascunhos.
+- Cobertura em 1440/390: etapas recolhidas e pendência atual aberta, testes técnicos distintos de aceitação, ações secundárias, GET sem comando, prévia negada sem motivo/checkbox/Confirmar, navegação repetida/recarga, motivo preservado, revisão que exige Voltar antes de recolher, erro de consulta recuperável, queued/unknown/pedido sem recibo e recuperação entre abas. A fixture recusa comandos nos casos de consulta e mantém simulações somente no ambiente isolado.
+- Catálogo **627 cenários/57 arquivos**, com doze novos; não houve execução completa do catálogo. Consumidores sem a projeção integrada mantêm o contrato de apresentação legado, com cenário próprio de compatibilidade.
+- Build de produção API/web e TypeScript aprovados. Sem mudança de backend nesta fatia, sem nova suíte de regressão backend além da evidência anterior.
+
+A primeira conferência real em leitura confirmou os quatro estados, as três etapas anteriores recolhidas, o bloqueio de outra publicação já ativa sem campos de decisão, retorno/recolhimento, foco abaixo da faixa fixa e aplicação Hello World acessível. Nenhum comando de negócio foi enviado. A inspeção da representação ARIA encontrou título e estado sem separador textual; o ajuste recebeu asserção nos cenários existentes, **19/19 aprovações focais** em `20261101T014943Z-b8be29` e novo build de produção aprovado.
+
+Revisão UX das capturas reais sem impedimento na hierarquia. Permanecem melhorias de texto: reduzir repetição da explicação HTTP/aceite no celular e substituir a frase genérica “a implantação ainda exige confirmação” quando a própria conferência já identificou impedimento. O bloqueio e a ausência de comando executável estão explícitos nessa situação; não se declara revisão integral de toda a cópia dos painéis. O aceite funcional de UI, a integração completa ao assistente e a compactação do cabeçalho móvel permanecem nas suas fatias próprias.
+
+Publicado e conferido no portal local em **31/10/2026 às 22:53**, imagem final `67be261aac0b…`, fonte `c52cdda1ac30…`. As duas atualizações desta fatia conservaram backup privado verificável e **49 tabelas preservadas exatamente**, sem migrations pendentes. Saúde `ready/preview`, manifesto preparado conferido e ledger com 144 registros e nenhuma operação pendente ao final da publicação. [Projeções seguras das publicações](assets/hierarquia-acoes-dev-2026-10-31/06-publicacoes.json).
+
+Conferência final nativa em 1440/390 com Ana: construção/publicação/testes técnicos recolhidos, cobertura 0/6 aberta, outras ações disponíveis somente após escolha explícita; consulta de outra publicação já ativa mostrou impedimento, sem campos/checkbox/Confirmar. Voltar permitiu recolher novamente, o foco da pendência permaneceu abaixo da faixa e o link abriu Hello World em DEV. **Zero comandos de negócio** nessa conferência e sem overflow horizontal. A leitura ARIA registra “Construção Artefato confirmado Consultar resultado”, com separação textual entre assunto e estado. [Registro](assets/hierarquia-acoes-dev-2026-10-31/05-conferencia-real.json).
+
+Evidências: [etapas desktop](assets/hierarquia-acoes-dev-2026-10-31/01-etapas-desktop.png), [etapas celular](assets/hierarquia-acoes-dev-2026-10-31/02-etapas-celular.png), [prévia impedida](assets/hierarquia-acoes-dev-2026-10-31/03-publicacao-impedida.png), [foco na pendência](assets/hierarquia-acoes-dev-2026-10-31/04-foco-pendencia.png) e [manifesto SHA-256](assets/hierarquia-acoes-dev-2026-10-31/sha256.json). Nenhuma aplicação produzida, dado de negócio ou resultado de agente foi alterado para demonstrar esta apresentação.
+
+<a id="help-fluxo-execucao"></a>
+
+## HELP: documentação do percurso e dos retornos
+
+Por solicitação do usuário, esta fatia interrompe a evolução da navegação operacional para documentar o que existe. A entrada **HELP — Guia do SDLC** fica na parte inferior do menu lateral e também no menu móvel do Assistente. A rota `/help` apresenta o documento na identidade visual do portal; [o HTML canônico](../portal/apps/web/public/help/fluxo-execucao.html) é independente, imprimível e utilizável sem JavaScript ou API. As duas apresentações compartilham a mesma fonte editorial.
+
+O mapa possui **15 etapas** e **47 famílias identificadas de alternativas e retornos (L01–L47)**, agrupadas por contexto. Cada retorno informa gatilho, caminho, o que permanece válido, condição de saída e limite. A documentação inclui Sistema e base técnica, planejamento pelo Assistente ou manual, especificação aplicada/G1, execução e correções, publicação do código no GitLab, Code Review/Security Scan, merge, construção, destino/publicação/testes DEV, aprovação de desenvolvimento e fronteira das releases. A numeração descreve o percurso de leitura; não promete uma única sequência obrigatória para todos os contextos.
+
+Revisões técnicas e de UX participaram do mapa. Foram conferidos os ramos starter/contrato/repositório pronto, tentativas automáticas do provisionador, substituição da proposta antes do G1, correção técnica versus alteração de escopo, revisão de qualidade por SHA e recuperação de pedidos. Consultar, reapresentar um comando com a identidade original e reconciliar um resultado incerto têm efeitos diferentes e aparecem separados no glossário. Publicar código no GitLab, implantar em DEV, passar na verificação HTTP e aprovar os critérios da História também são resultados distintos.
+
+**Limites e backlog:** o HELP é uma fotografia datada do contrato implementado, sem consultar o estado de projetos. A lista de loops cobre as famílias mapeadas nos fluxos atuais; não afirma esgotar falhas de infraestrutura ou combinações futuras. Aceite funcional de UI e candidata imutável/promoções QA/HML/PROD/conclusão continuam nas suas fatias pendentes. Links repetidos e retornos entre telas operacionais continuam sujeitos à análise com o usuário a partir deste mapa. Não houve mudança das ações operacionais, dos gates, dos dados de negócio ou das aplicações geradas para ilustrar a documentação.
+
+### Validação do HELP
+
+A rodada isolada `20261101T023029Z-5fb464` aprovou **14/14 cenários de navegador**, com fonte estável e sem flaky: seis de HELP e oito de compatibilidade do Assistente. A cobertura inclui acesso em 1440/390 com APIs indisponíveis; entrada direta sem consultas de persona/itens; destinos únicos de todas as âncoras internas; teclado no índice, região da tabela e menu móvel; seleção atual e fechamento do diálogo; ausência de formulários/comandos; e HTML independente com JavaScript desabilitado. O cenário móvel carrega contexto isolado válido do Assistente antes de indisponibilizar as APIs e navegar até a ajuda. A primeira rodada, preservada, revelou esse requisito de montagem da fixture e não uma falha do link.
+
+O catálogo ficou em **633 cenários/58 arquivos**, conferido em `20261101T022958Z-65bc0b`; não houve execução completa do catálogo. A revisão de fonte verificou alternativas e fronteiras; esses testes não reexecutam os 47 caminhos de negócio. A revisão UX ajustou a introdução para a próxima ação, tornou a tabela rolável uma região nomeada/focável e preservou números do mapa com texto preto/contorno na impressão sem fundos.
+
+A inspeção real do arquivo independente encontrou a primeira regra de CSS descartada por marcadores de seção escritos como comentários HTML dentro de `style`. A fonte canônica passou a usar comentários CSS nessa seção, com extração correspondente na rota. A rodada focal final `20261101T023422Z-fa7e0b` aprovou **6/6 cenários HELP**, sem flaky e com fonte estável, incluindo as novas asserções de margem, espaçamento, fonte e fundo do documento sem JavaScript e cores/contorno do contador sob mídia de impressão. Catálogo final conferido em `20261101T023410Z-8a0ada`, conservando 633/58.
+
+A revisão UX de quatro capturas reais não encontrou impedimento visual em 1440/390: entrada separada no rodapé, mapa e retornos legíveis, fronteira parcial identificada por texto e borda. O documento é longo; índice, busca nativa e rolagem continuam necessários, e o índice móvel fica depois da introdução. Não se declara ensaio de usabilidade com usuários ou validação assistiva integral. A preservação de contexto/rascunhos ao sair e retornar à ajuda permanece como verificação de uma fatia futura, junto à decisão da navegação operacional.
+
+Publicado no portal local em **31/10/2026 às 23:37**, imagem final `ba8cd529e721…`, fonte `93ec8e7701a9…`, após build de produção API/web aprovado. As duas publicações desta entrega conservaram backup privado verificável e **49 tabelas preservadas exatamente**, sem migrations pendentes. Saúde `ready/preview`, manifesto/imagens conferidos e trilha administrativa com 154 registros e nenhuma operação pendente ao final. Nenhuma aplicação gerada foi modificada.
+
+A conferência real final abriu a ajuda pelo rodapé da História e, no celular, pelo diálogo do Assistente em contexto válido, usando teclado e confirmando o fechamento do menu. Confirmou 15 etapas/47 retornos, seleção atual, ausência de overflow horizontal em 1440/390, região da tabela focável, navegação por âncoras e HTML independente com fonte/fundo/espaçamento aplicados. A inspeção da mídia de impressão confirmou contador preto com contorno e menu oculto. **Zero comandos de negócio, zero consultas de API enquanto na ajuda e zero erros de página** nessa conferência. Esses resultados não representam validação de todos os fluxos operacionais documentados.
+
+Evidências: [HELP desktop](assets/help-fluxo-2026-10-31/01-help-desktop.png), [mapa desktop](assets/help-fluxo-2026-10-31/02-mapa-desktop.png), [HELP celular](assets/help-fluxo-2026-10-31/03-help-celular.png), [retornos no celular](assets/help-fluxo-2026-10-31/04-retornos-celular.png), [HTML independente](assets/help-fluxo-2026-10-31/05-html-independente.png), [projeção segura de validação/publicação](assets/help-fluxo-2026-10-31/06-validacao-publicacao.json) e [manifesto SHA-256](assets/help-fluxo-2026-10-31/sha256.json).
+

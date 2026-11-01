@@ -1,0 +1,44 @@
+{
+  "at": "2026-11-01T01:53:38.229Z",
+  "persona": "ana",
+  "stages": [
+    {
+      "id": "dev-stage-build",
+      "open": false,
+      "text": "Construção Artefato confirmado\nConsultar resultado"
+    },
+    {
+      "id": "dev-stage-deployment",
+      "open": false,
+      "text": "Publicação em DEV Aplicação disponível\nConsultar resultado"
+    },
+    {
+      "id": "dev-stage-test",
+      "open": false,
+      "text": "Testes em DEV Verificações técnicas aprovadas; aceitação pendente\nConsultar resultado"
+    },
+    {
+      "id": "dev-stage-approval",
+      "open": true,
+      "text": "Desenvolvimento Finalizado Aceitação pendente: 0 de 6 critérios\nDetalhes da etapa"
+    }
+  ],
+  "buildAria": "- text: Construção Artefato confirmado Consultar resultado",
+  "blocked": {
+    "text": "Conferência da publicação DEV\n\nPublicar somente o artefato conferido desta História no ambiente DEV do Sistema. O destino é compartilhado e a revisão ativa poderá ser substituída por esta publicação.\n\nO destino foi conferido nesta consulta; a implantação ainda exige confirmação.\n\nArtefato e destino conferidos\nPublicação DEV impedida\nEsta construção já está ativa em DEV. Consulte sua saúde ou construa outra revisão.\nVoltar ao acompanhamento da publicação",
+    "textboxes": 0,
+    "checkboxes": 0,
+    "confirmButtons": 0
+  },
+  "focused": {
+    "top": 269.75,
+    "stickyBottom": 256.09375
+  },
+  "appUrl": "http://localhost:33991/",
+  "writes": [],
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "horizontalOverflow": false
+}

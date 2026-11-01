@@ -1,0 +1,32 @@
+[
+    {
+        "file":  "01-etapas-desktop.png",
+        "bytes":  135955,
+        "sha256":  "869551b422ef2cc67845d484574a0c98b7e0e5e3fdb811eff0624fd1bd22c339"
+    },
+    {
+        "file":  "02-etapas-celular.png",
+        "bytes":  136753,
+        "sha256":  "e106e470179bdf0d9fdc86a25ac5b296a4207b557f0a9aa9be0ab7311d0f1aae"
+    },
+    {
+        "file":  "03-publicacao-impedida.png",
+        "bytes":  32589,
+        "sha256":  "c1900aa6712312d8bfa4c943cddfac05baf143ca93930267ef1cb0e3a262c819"
+    },
+    {
+        "file":  "04-foco-pendencia.png",
+        "bytes":  69723,
+        "sha256":  "6073541712e4b52da1879cde4acdab42bc6e6fe5925c4bde8614263d2be4e1e1"
+    },
+    {
+        "file":  "05-conferencia-real.json",
+        "bytes":  1581,
+        "sha256":  "a7e8f49bcfb1262aae3e41c60349e40de286b1b54bdb914b406a7b73dfa33a3b"
+    },
+    {
+        "file":  "06-publicacoes.json",
+        "bytes":  1973,
+        "sha256":  "71382462d70e8d48b19ba68b8ed625230a911f31d0505fe19dbfd1a21ea9a3d9"
+    }
+]

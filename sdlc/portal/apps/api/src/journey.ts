@@ -19,6 +19,9 @@ import {pipelineStageOf} from './pipeline-tasks.ts';
 import {specificationContentFromStory,technicalPlanReadiness,storySpecificationContentSchema} from './story-specifications.ts';
 import {currentSpecificationReadiness} from './planning-dependencies.ts';
 import {storyDeliveryReading} from '../../../packages/shared/src/story-delivery.ts';
+import {readStoryDevProgress} from './story-dev-progress.ts';
+import type {DeploymentProvider} from './deployment-provider.ts';
+import type {StoryDevProgress} from '../../../packages/shared/src/story-dev-progress.ts';
 import {storyLifecycleViews} from './story-lifecycle-reading.ts';
 import {developmentCycleReview} from './development-cycle.ts';
 
@@ -28,8 +31,9 @@ const object=(value:unknown):Record<string,any>=>value&&typeof value==='object'&
 const publicItem=(item:any)=>({id:item.id,key:item.key,name:item.name,description:item.description,status:item.status,version:item.version,parentId:item.parentId,kind:item.kind});
 type Action={id:string;kind:string;label:string;enabled:boolean;reason?:string;method?:string;path?:string;href?:string;body?:Record<string,unknown>;confirmation?:{title:string;description:string;checkboxLabel:string}};
 
-export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{git?:GitProvider;merge?:MergeProvider;scannerUrl?:string;developmentDeploymentsConfigured?:boolean;developmentBuildsConfigured?:boolean}){
- app.get<{Params:{id:string}}>('/api/items/:id/journey',async request=>h.db.$transaction(async tx=>{
+export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{git?:GitProvider;merge?:MergeProvider;scannerUrl?:string;developmentDeploymentsConfigured?:boolean;developmentBuildsConfigured?:boolean;deployments?:DeploymentProvider}){
+ app.get<{Params:{id:string}}>('/api/items/:id/journey',async request=>{
+ const journey=await h.db.$transaction(async tx=>{
   const selected=await h.live(tx,request.params.id),story=selected.kind==='task'?await h.live(tx,selected.parentId!):selected;
   if(story.kind!=='story')throw new DomainError('STORY_REQUIRED','Consulte uma História ou uma de suas Tarefas.',409);
   const parents=await h.ancestors(tx,story),tasks=await tx.item.findMany({where:{parentId:story.id,kind:'task',archived:false},orderBy:{createdAt:'asc'}});
@@ -203,7 +207,20 @@ export function registerJourney(app:FastifyInstance,h:AssistantHelpers,options:{
   const delivery=storyDeliveryReading({publicationAvailable:!!options.developmentDeploymentsConfigured,status:story.status,mergeConfirmed:scope.current&&run?.state==='succeeded'&&!object(story.data).requiresNewG1&&merge?.state==='succeeded'&&merge.sha===run.commitSha,release:assignment?.release??null});
   const storyLifecycle=(await storyLifecycleViews(tx,[story],{executionId:run?.id??null,current:scope.current})).get(story.id)!;
   return {historicalCloseReadings,storyLifecycle,delivery,story:publicItem(story),selectedItem:publicItem(selected),current:{phase:upper(story.status),label:labels[kind],state,kind,taskId:currentActivity?.taskId||null,activityId:currentActivity?.id||null,title,message,who,updatedAt:latestEvent?.timestamp||attempt?.updatedAt||run?.updatedAt||story.updatedAt},nextAction:primaryAction,secondaryActions:actions.filter(action=>action!==primaryAction),tasks:taskViews,activities,run:run?{id:run.id,destinationReviewRequired:object(run.snapshot).destinationReviewRequired===true,codeDestination:destinationSummary(run.snapshot),state:run.state,stage:run.stage,error:run.error,specification:run.specification,discussionVersion:run.discussionVersion,technicalRetryAvailable:retryTechnical,validationIssues:object(object(run.snapshot).patchRepair).issues||[],branch:run.branch,commitSha:run.commitSha,mergeRequestUrl:run.mergeRequestUrl,createdAt:run.createdAt,updatedAt:run.updatedAt}:null,merge:merge?{id:merge.id,integrationReference:integrationViews.get(merge.id),state:merge.state,sha:merge.sha,message:merge.message,blocks:merge.blocks,origin:merge.origin,mergedBy:merge.mergedBy,finishedAt:merge.finishedAt}:null,readiness,preparation,permissions:{canAct,canManageLifecycle:authorized&&!parentBlock},configured,chat:{mode:chatMode,executionId:run?.id||null,enabled:chatEnabled,reason:!canAct?permissionReason:!h.llm?'Configure o modelo local.':chatMode==='execution'&&!chatEnabled?'A conversa permanece no histórico; a execução segue as decisões e aprovações vigentes.':undefined,guidance:message,contextLabel:`${labels[kind]} · ${story.key}`},signals:{lastEventAt:latestEvent?.timestamp||null,lastHeartbeatAt:attempt?.heartbeatAt||null,heartbeatStaleAfterMs:attempt?.heartbeatStaleAfterMs||45000,provider:attempt?.provider||null,stage:attempt?.stage||run?.stage||null,waitingSince:attempt?.waitingSince||null,queuedAt:attempt?.queuedAt||null,startedAt:attempt?.startedAt||null,queueReason:state==='queued'?'Aguarda recurso de execução compartilhado.':null,legacy:!!attempt?.legacy},events:currentEvents,binding:{activityId:codingActivity?.id||null,expectedLinksVersion:workLinksVersion(codingActivity?.taskLinks||[]),tasks:bindingTasks,path:`/api/items/${story.id}/work-links`,enabled:canAct&&!work.some((a:any)=>a.kind==='coding'&&a.attempts.some((attempt:any)=>['queued','running'].includes(attempt.state))),expectedVersion:story.version},history:history.map(normalizeEvent),repositoryName:repository?.name||links[0]?.repository.name||null};
- },{isolationLevel:'RepeatableRead'}));
+ },{isolationLevel:'RepeatableRead'});
+ let devProgress:StoryDevProgress|undefined;
+ if((options.developmentBuildsConfigured||options.developmentDeploymentsConfigured)&&journey.current.kind==='merge'&&journey.merge?.state==='succeeded'&&journey.run?.state==='succeeded'&&journey.delivery.development.next){
+  devProgress=await readStoryDevProgress(h,journey.story.id,{storyVersion:journey.story.version,executionId:journey.run.id},options.deployments);
+  journey.delivery=storyDeliveryReading({status:journey.story.status,mergeConfirmed:journey.delivery.development.next,publicationAvailable:!!options.developmentDeploymentsConfigured,release:journey.delivery.release.reference,devProgress});
+  if(journey.nextAction?.id==='prepare_dev'||journey.nextAction?.id==='development_cycle'){
+   journey.current.title=devProgress.title;journey.current.message=devProgress.message;journey.chat.guidance=devProgress.message;
+   const previous=journey.nextAction;
+   journey.nextAction={id:'prepare_dev',kind:'prepare_dev',enabled:true,label:devProgress.nextAction?.label??'Consultar desenvolvimento em DEV',href:`/stories/${journey.story.id}?tab=planning&process=environment&environment=DEV${devProgress.nextAction?'&devStep='+devProgress.nextAction.step:''}`};
+   if(previous.id==='development_cycle')journey.secondaryActions.unshift(previous);
+  }
+ }
+ return {...journey,...(devProgress?{devProgress}:{})};
+ });
  app.post<{Params:{id:string}}>('/api/items/:id/work-links',async request=>{
   const body=z.object({expectedVersion:z.number().int().positive(),expectedLinksVersion:z.string().regex(/^[a-f0-9]{64}$/),links:z.array(z.object({taskId:z.string().min(1),scope:z.string().trim().min(1).max(1000),completion:z.enum(['publish_code','manual_evidence']).default('manual_evidence')})).max(100)}).strict().parse(request.body);
   return h.mutate(request,async(tx,person)=>{

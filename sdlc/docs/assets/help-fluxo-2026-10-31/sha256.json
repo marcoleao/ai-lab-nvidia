@@ -1,0 +1,32 @@
+[
+  {
+    "file": "01-help-desktop.png",
+    "bytes": 145017,
+    "sha256": "2915b47501464ce26c6865fd77af1072ec42371accff35a354292e0a1f684730"
+  },
+  {
+    "file": "02-mapa-desktop.png",
+    "bytes": 174401,
+    "sha256": "19f90339c38e28cbb2b96cbd6ece75d458503017e6e0e773d0483fe4277f9b37"
+  },
+  {
+    "file": "03-help-celular.png",
+    "bytes": 65472,
+    "sha256": "9af4b4220405ccc69bf620574565259ec3c50e1a8678eb9adff5768b32f338d5"
+  },
+  {
+    "file": "04-retornos-celular.png",
+    "bytes": 63607,
+    "sha256": "cabca21f35b434faf77df4476c5515f93a64be1884640d92810faddf037d98a7"
+  },
+  {
+    "file": "05-html-independente.png",
+    "bytes": 135673,
+    "sha256": "88eee19170e5a12b1dfbf6631dac36965297791811762d22d1f5f605ac4f9f19"
+  },
+  {
+    "file": "06-validacao-publicacao.json",
+    "bytes": 4664,
+    "sha256": "126062a181db7103c7054719c003f3928f2fba7ec408370b71ffc20e85f52041"
+  }
+]

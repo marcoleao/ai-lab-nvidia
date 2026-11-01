@@ -1,3 +1,4 @@
+import { expectFooterPagination } from './pagination-assertions';
 import { test, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { assistantMessagePage } from './assistant-fixtures';
@@ -152,6 +153,7 @@ test('context search and all result pages preserve the selected destination and 
   const selector = page.locator('.analyst-context-lookup').first();
   await expect(selector.getByRole('combobox', { name: 'Sistema', exact: true })).toHaveValue('system-a');
   await expect(selector).toContainText('O contexto escolhido foi preservado fora desta página.');
+  await expectFooterPagination(selector.locator('.experience-pagination'),selector.getByRole('combobox', { name: 'Sistema', exact: true }));
   await selector.getByRole('button', { name: 'Próxima', exact: true }).click();
   await expect(page).toHaveURL(/context.system.page=2/);
   await expect(selector).toContainText('21–25 de 25 resultados');
@@ -180,6 +182,8 @@ test('historical pages do not replace the current proposal and explicit historic
   await expect(coverage).toContainText('Consulta vigente');
   await expect(coverage).not.toContainText('Consulta histórica');
   await page.getByRole('button', { name: 'Histórico de propostas', exact: true }).click();
+  const history = page.getByRole('region', { name: 'Histórico de propostas', exact: true });
+  await expectFooterPagination(history.locator('.experience-pagination'),history.locator('.assistant-proposal-history'));
   await page.getByRole('button', { name: 'Consultar proposta', exact: true }).click();
   coverage = await openCoverage(page);
   await expect(coverage).toContainText('Consulta histórica');
