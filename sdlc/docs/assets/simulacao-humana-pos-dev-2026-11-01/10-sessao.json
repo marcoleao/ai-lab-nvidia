@@ -1,0 +1,57 @@
+{
+    "schemaVersion":  1,
+    "kind":  "human-ui-simulation-safe-projection",
+    "date":  "2026-11-01",
+    "timezone":  "America/Sao_Paulo",
+    "firstRecordedActionUtc":  "2026-11-01T04:51:06.187Z",
+    "lastRecordedActionUtc":  "2026-11-01T05:00:31.194Z",
+    "finalHubObservedUtc":  "2026-11-01T05:00:04.360Z",
+    "persona":  "Ana · Product Owner",
+    "storyId":  "cmvwutzrh001001t5lxja9hez",
+    "storyKey":  "HELLOW-SITEHW-1",
+    "specificationRevision":  4,
+    "finalUrl":  "http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez/execution",
+    "applicationUrl":  "http://localhost:33991/",
+    "observedState":  {
+                          "story":  "TESTING",
+                          "developmentApproval":  "not_registered",
+                          "acceptanceCovered":  0,
+                          "acceptanceTotal":  6,
+                          "technicalHttpCasesPassed":  4,
+                          "technicalHttpCasesTotal":  4
+                      },
+    "nativeAppObservations":  8,
+    "formalAcceptanceRecorded":  false,
+    "assistant":  {
+                      "messagesSentThroughUi":  2,
+                      "responsesCompleted":  2,
+                      "fullContent":  "Preserved in the controlled Story conversation; not exported here."
+                  },
+    "activityObservation":  {
+                                "hub":  "Previous integration result, gitlab, gitlab_response, last signal 2026-10-31 19:12 America/Sao_Paulo",
+                                "conversationOnReturn":  "RUNNING · gerando resposta",
+                                "limitation":  "Single navigation window; no latency or internal agent progress measurement."
+                            },
+    "findings":  [
+                     "SH-01",
+                     "SH-02",
+                     "SH-03",
+                     "SH-04",
+                     "SH-05"
+                 ],
+    "commands":  {
+                     "build":  0,
+                     "deployment":  0,
+                     "tests":  0,
+                     "approval":  0,
+                     "newCycle":  0,
+                     "cancellation":  0
+                 },
+    "sourceChangesThisSession":  "Documentation and selected evidence only; no Portal runtime or generated application change.",
+    "limits":  [
+                   "Human browser check, not formal criterion acceptance.",
+                   "Native UI consultation as Ana; not an inventory of every permission or capability.",
+                   "Source log also contains earlier sessions; only this segment is summarized.",
+                   "No publication, automated regression or assistive-technology qualification in this session."
+               ]
+}

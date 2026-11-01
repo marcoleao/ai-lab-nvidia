@@ -962,14 +962,41 @@ model StoryDevelopmentApproval {
  imageId String
  archiveDigest String
  deploymentId String
- testId String
- suiteDigest String
+ testId String?
+ manualAcceptanceId String?
+ suiteDigest String?
  reviewId String
  securityId String
  qualityPolicy String
  actorId String
  actorName String
  reason String
+ createdAt DateTime @default(now())
+ @@unique([storyId,number])
+ @@index([storyId,createdAt])
+}
+
+model DevelopmentManualAcceptance {
+ id String @id @default(cuid())
+ storyId String
+ taskId String
+ number Int
+ policyVersion String
+ scope String @default("criteria")
+ referenceDigest String
+ specificationId String
+ executionId String
+ buildId String
+ deploymentId String
+ sourceSha String
+ imageId String
+ archiveDigest String
+ criteria Json
+ results Json
+ result String
+ actorId String
+ actorName String
+ notes String
  createdAt DateTime @default(now())
  @@unique([storyId,number])
  @@index([storyId,createdAt])

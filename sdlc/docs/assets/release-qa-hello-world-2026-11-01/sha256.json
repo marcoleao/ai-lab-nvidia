@@ -1,0 +1,17 @@
+[
+    {
+        "file":  "01-release-planejada.png",
+        "bytes":  215168,
+        "sha256":  "213c6d72f35f7bcb14957037f757f2994180e24a1eefe0a12fdd9187326a62f3"
+    },
+    {
+        "file":  "02-auditoria.png",
+        "bytes":  187096,
+        "sha256":  "2a411a57bf3a1b1a8a5763b05b327b2b2224218f6413557ef2d5fc6816a80eae"
+    },
+    {
+        "file":  "03-situacao.json",
+        "bytes":  3456,
+        "sha256":  "d2db1b144013a348cb5c4a01a83ea5ca53a252fc0798bae067b5206eda027e87"
+    }
+]

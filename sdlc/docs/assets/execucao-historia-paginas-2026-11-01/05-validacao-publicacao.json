@@ -1,0 +1,183 @@
+{
+  "scope": "História não arquivada: dois quadros em Execução, páginas próprias e recuperação; sem alteração de aplicação produzida ou dados de negócio.",
+  "publication": {
+    "id": "story-execution-pages-verified-20261101-d2280624",
+    "source": "b228aceefc9e8547942b2a1833bce96ef37132dcc230f5b3fca0578229211226",
+    "candidateImage": "sha256:476ad5b7eb7ed95f0b7b6c269896e89b12d58fbde9d397f7a739f3f00cdc783f",
+    "verifiedAt": "2026-11-01T04:33:53.321715+00:00",
+    "health": {
+      "status": "ready",
+      "scope": "portal-foundation",
+      "demoMode": true,
+      "databaseMode": "preview"
+    },
+    "tablesChecked": 49,
+    "exactTablesPreserved": true,
+    "backupVerification": {
+      "backupId": "story-execution-pages-verified-20261101-d2280624",
+      "bytes": 426899,
+      "privatePermissions": true,
+      "digestVerified": true,
+      "archiveReadable": true
+    }
+  },
+  "comparisonPolicy": {
+    "tables": 49,
+    "otherTables": "All columns compared, including ExecutionContractPublication resolutions.",
+    "mergeOperationAlwaysExcluded": [
+      "leaseId",
+      "leaseUntil",
+      "checkedAt",
+      "updatedAt"
+    ],
+    "automaticTrackingWithoutHumanRequestAlsoExcluded": [
+      "message",
+      "blocks"
+    ],
+    "automaticTrackingCondition": "state=tracking and requestedAt, actorId, finishedAt are null; polling observations only.",
+    "byteForByteAllPollingMetadata": false
+  },
+  "administrativeAudit": {
+    "records": 168,
+    "head": "f62627ba30f01475dcf4a9b7632e1638b7e59999c5cfeb8a6deae8a57ea996f6",
+    "epochId": "6619b0cd-805e-4049-805f-476410fc8312",
+    "pendingOperations": []
+  },
+  "regression": {
+    "acceptedDistinctCases": 301,
+    "files": 25,
+    "acceptanceMethod": "300 casos aprovados no broad e o único caso com espera de navegação corrigida aprovado no focal; runtime idêntico. Não é 301/301 em uma única rodada.",
+    "runtimeHash": "3b6f46d0254bad738d80c791a4b8d6887f200a47748d9096e3c0de147b8c7896",
+    "finalTestHash": "37ed8533fac096afc321f279ae45079e08df8e5f4e542d1b0e0ea1c23c1c399c",
+    "broad": {
+      "id": "20261101T041754Z-1c8bd3",
+      "total": 301,
+      "passed": 300,
+      "failed": [
+        "UI-8cbc40f0d208"
+      ],
+      "ok": false,
+      "sourceStable": true
+    },
+    "focal": {
+      "id": "20261101T043014Z-cfa300",
+      "total": 1,
+      "passed": 1,
+      "caseId": "UI-8cbc40f0d208",
+      "ok": true,
+      "sourceStable": true
+    },
+    "limitations": [
+      "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+    ],
+    "routeFocusEvidence": [
+      {
+        "name": "g1-1440-route-focus.json",
+        "headingTop": 309.6875,
+        "headingBottom": 344.78125,
+        "workflowBottom": 260.1875,
+        "viewportHeight": 1000,
+        "focused": true
+      },
+      {
+        "name": "action-reload-1440-route-focus.json",
+        "headingTop": 309.6875,
+        "headingBottom": 344.78125,
+        "workflowBottom": 260.1875,
+        "viewportHeight": 1000,
+        "focused": true
+      },
+      {
+        "name": "g1-390-route-focus.json",
+        "headingTop": 232.09375,
+        "headingBottom": 291.875,
+        "workflowBottom": 202.09375,
+        "viewportHeight": 844,
+        "focused": true
+      },
+      {
+        "name": "action-reload-390-route-focus.json",
+        "headingTop": 243.09375,
+        "headingBottom": 302.875,
+        "workflowBottom": 202.09375,
+        "viewportHeight": 844,
+        "focused": true
+      }
+    ]
+  },
+  "catalogue": {
+    "cases": 650,
+    "files": 59,
+    "report": "20261101T043001Z-4f0381",
+    "fullRun": false
+  },
+  "live": {
+    "checkedAt": "2026-11-01T04:34:46.112Z",
+    "scope": "História existente; navegação nativa e somente leitura",
+    "views": [
+      {
+        "width": 1440,
+        "overflow": false,
+        "panels": 2,
+        "visibleFields": 0,
+        "activeTab": "Execução",
+        "heading": "Hello World com troca de cor de fundo e fonte",
+        "actionLinks": [
+          {
+            "label": "Ver pendências de aceitação",
+            "href": "/stories/cmvwutzrh001001t5lxja9hez/execution/dev/approval"
+          }
+        ],
+        "devUrl": "http://localhost:33991/",
+        "actionPage": {
+          "path": "/stories/cmvwutzrh001001t5lxja9hez/execution/dev/approval",
+          "title": "Revisar aprovação de desenvolvimento",
+          "visibleDevSteps": [
+            "approval"
+          ]
+        }
+      },
+      {
+        "width": 390,
+        "overflow": false,
+        "panels": 2,
+        "visibleFields": 0,
+        "activeTab": "Execução",
+        "heading": "Hello World com troca de cor de fundo e fonte",
+        "actionLinks": [
+          {
+            "label": "Ver pendências de aceitação",
+            "href": "/stories/cmvwutzrh001001t5lxja9hez/execution/dev/approval"
+          }
+        ],
+        "devUrl": "http://localhost:33991/",
+        "actionPage": {
+          "path": "/stories/cmvwutzrh001001t5lxja9hez/execution/dev/approval",
+          "title": "Revisar aprovação de desenvolvimento",
+          "visibleDevSteps": [
+            "approval"
+          ]
+        }
+      }
+    ],
+    "processing": {
+      "title": "Detalhes da execução",
+      "back": "/stories/cmvwutzrh001001t5lxja9hez/execution"
+    },
+    "writes": [],
+    "pageErrors": [],
+    "apiReads": 53,
+    "devVisit": {
+      "url": "http://localhost:33991/",
+      "heading": "Hello World",
+      "writes": []
+    }
+  },
+  "limits": [
+    "Atualização por consultas e sinais registrados; sem stream completo do trabalho interno dos agentes.",
+    "Memória preservada entre subrotas da mesma História; recarga sem armazenamento e saída do layout não têm nova garantia de rascunho.",
+    "Sem ensaio de carga ou validação assistiva integral.",
+    "Tarefa, acervo e demais entidades conservam seus contratos próprios.",
+    "Aceitação funcional UI e promoções ausentes não foram implementadas por esta navegação."
+  ]
+}

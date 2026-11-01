@@ -1,0 +1,27 @@
+[
+  {
+    "file": "01-acompanhamento-desktop.png",
+    "bytes": 236283,
+    "sha256": "eefbd9350a8a4ba4d6114a6539ee5ead7e2c5634cf33b68956bee25812901264"
+  },
+  {
+    "file": "02-acao-desktop.png",
+    "bytes": 192464,
+    "sha256": "0d0175f056990d5024b223a9cf1e9857cc409d5fd77ca84ad85e7494802c06c5"
+  },
+  {
+    "file": "03-acompanhamento-celular.png",
+    "bytes": 204268,
+    "sha256": "43e2c6c0d0c25be48ad3377d4f3b3061d5ee8b7775f04ae93f73acb025e0f4b9"
+  },
+  {
+    "file": "04-acao-celular.png",
+    "bytes": 163308,
+    "sha256": "0ff0804473aaf95def6997ab6199cd919ef84e84549408f2c1b41b15c97aebcd"
+  },
+  {
+    "file": "05-validacao-publicacao.json",
+    "bytes": 6055,
+    "sha256": "888fcf64d13367a0e86e91262d617a549ff8f1426ab76a544b95bcfa6c54d994"
+  }
+]

@@ -1,0 +1,27 @@
+[
+    {
+        "file":  "01-manual-desktop.png",
+        "bytes":  246577,
+        "sha256":  "84f88e016f24f2b6744590ef2466b008bbdc98029e322da8fcf51ebaf9d19042"
+    },
+    {
+        "file":  "02-manual-mobile.png",
+        "bytes":  224405,
+        "sha256":  "29f55dbe311d3f2cd5d57a574378dd4b0e065030a13a1fa11ee6f7c5a8b5304f"
+    },
+    {
+        "file":  "03-tarefa-fontes.png",
+        "bytes":  161233,
+        "sha256":  "9bc09223279a052d0b324fbaca648c8437502763c9a196d1bc3a7f827b1bfa81"
+    },
+    {
+        "file":  "04-navegacao-real.json",
+        "bytes":  1808,
+        "sha256":  "2e3c881ac547a981eca2901e20a41f0bb5257e612dbe64c9bfe872805730ad0c"
+    },
+    {
+        "file":  "05-validacao-publicacao.json",
+        "bytes":  8883,
+        "sha256":  "a748b10d80e75186dc7dd6a5b26851e71be943b1e9d195d77f18740fa41deb1e"
+    }
+]

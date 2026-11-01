@@ -1,0 +1,25 @@
+{
+  "id": "story-adjustments-field-verified-20261101-cf2ae9b7",
+  "source": "47a1df8333694d80b5bddb4e0f29c504021c31fe0cd7ca026ad5b04b8e82bf5a",
+  "candidateImage": "sha256:6f2a99380d2465bd3e25ae98c27c40b06bd1cb1842f66efbb6c130e59d91ea88",
+  "verifiedAt": "2026-11-01T17:54:55.215810+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [],
+  "tablesChecked": 50,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "story-adjustments-field-verified-20261101-cf2ae9b7",
+    "bytes": 452746,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "apiImage": "sha256:ee582f713090a895ef9ec191c1460e320dd15bb0c648f946baff583624605477",
+  "apiContainerPreserved": true,
+  "scope": "Somente web; nenhuma migração nova. Dados de negócio comparados em 50 tabelas; metadados de lease/polling de MergeOperation conservam exclusões operacionais anteriores."
+}

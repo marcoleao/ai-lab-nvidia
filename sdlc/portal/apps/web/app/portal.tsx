@@ -16,7 +16,7 @@ import ProjectLifecycle from './project-lifecycle';
 import SystemLifecycle from './system-lifecycle';
 import EpicExecution from './epic-execution';
 import ManualTaskActions from './manual-task-actions';
-import StoryReopen from './story-reopen';
+
 import ResumeWork from './resume-work';
 import PlanningAssistant from './planning-assistant';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -24,6 +24,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Box, ChevronRight, Circle, FolderTree, Home, Menu, MessageSquare, Plug, Plus, ShieldCheck } from 'lucide-react';
 import './navigation.css';
 import HelpNavigation from './help-navigation';
+import {storyExecutionHref,storyReturnHref} from './story-execution-navigation';
 import './help-navigation.css';
 import ItemCollection, { rememberedCollection } from './item-collection';
 import HistoryQuery from './history-collection';
@@ -140,9 +141,9 @@ function PortalContent({helpDocument}:{helpDocument?:string}) {
   const system = item?.kind === 'system' ? item : detail?.ancestors.find(a => a.kind === 'system');
   const project = item?.kind === 'project' ? item : detail?.ancestors.find(a => a.kind === 'project');
   const requestedReturn = search.get('returnTo');
-  const returnToStory = requestedReturn && /^\/stories\/[A-Za-z0-9_-]+(?:\?.*)?$/.test(requestedReturn) ? requestedReturn : null;
+  const returnToStory=storyReturnHref(requestedReturn);
   const destinationParams = new URLSearchParams(search.toString()); destinationParams.delete('interact'); destinationParams.delete('returnTo'); destinationParams.set('tab', 'planning'); destinationParams.set('process', 'destination');
-  const destinationReturn = item?.kind === 'story' ? `${pathname}?${destinationParams}` : returnToStory;
+  const destinationReturn = item?.kind === 'story' ? storyExecutionHref(item.id,'destination',destinationParams) : returnToStory;
   const setupHref = (target: string) => destinationReturn ? `${target}&${new URLSearchParams({returnTo:destinationReturn})}` : target;
   const tabs: Tab[] = !item ? [] : item.kind === 'story' ? [
     { id: 'overview', title: 'Acompanhamento' }, { id: 'specification', title: 'Especificação' }, { id: 'blockers', title: 'Impedimentos' },
@@ -174,17 +175,18 @@ function PortalContent({helpDocument}:{helpDocument?:string}) {
     if(helpRoute)return;
     request<{ personas: Persona[] }>('/personas', '').then(result => {
       setPersonas(result.personas);
-      const stored = sessionStorage.getItem('sdlc-persona');
+      let stored:string|null=null;try{stored=sessionStorage.getItem('sdlc-persona');}catch{}
       if (stored && result.personas.some(p => p.id === stored)) setPersona(stored);
-      else sessionStorage.removeItem('sdlc-persona');
+      else try{sessionStorage.removeItem('sdlc-persona');}catch{}
     }).catch(failure => setError(failure.message));
   }, [helpRoute]);
 
   useEffect(() => {
     let active = true;
     const keepForm = preserveForm.current;
-    const contextChanged = loadedContext.current !== pathname;
-    loadedContext.current = pathname;
+    const contextKey=pathname.startsWith('/stories/')&&id?`/stories/${id}`:pathname;
+    const contextChanged = loadedContext.current !== contextKey;
+    loadedContext.current = contextKey;
     setError('');
     // A refresh of this item must keep its workspace, conversation and drafts mounted.
     // Clear the previous item only when navigation changes the actual context.
@@ -303,7 +305,7 @@ function PortalContent({helpDocument}:{helpDocument?:string}) {
       <div className="sidebar-bottom"><HelpNavigation active={helpRoute}/><p className="sidebar-note">Da ideia à entrega.<br />Um processo, contexto completo.</p></div>
     </aside>
     <div className="workspace">
-      <header className="topbar">{assistantRoute && <AssistantMobileNavigation />}<span>{helpRoute ? 'HELP · Guia do SDLC' : overview ? 'Indicadores do processo' : assistantRoute ? 'Entrevista e especificação' : releaseRoute ? 'Composição de releases' : integrationsRoute ? 'Disponibilidade das integrações' : 'Planejamento e entrega'}</span>{helpRoute?<span className="help-reading-note">Documentação de consulta</span>:<label className="persona"><span>Modo demo local · Persona</span><select aria-label={assistantRoute ? 'Persona' : undefined} value={persona} onChange={event => { setPersona(event.target.value); sessionStorage.setItem('sdlc-persona', event.target.value); }}><option value="">Selecione para atuar</option>{personas.map(p => <option key={p.id} value={p.id}>{p.name} · {roleLabel(p.role)}</option>)}</select></label>}</header>
+      <header className="topbar">{assistantRoute && <AssistantMobileNavigation />}<span>{helpRoute ? 'HELP · Guia do SDLC' : overview ? 'Indicadores do processo' : assistantRoute ? 'Entrevista e especificação' : releaseRoute ? 'Composição de releases' : integrationsRoute ? 'Disponibilidade das integrações' : 'Planejamento e entrega'}</span>{helpRoute?<span className="help-reading-note">Documentação de consulta</span>:<label className="persona"><span>Modo demo local · Persona</span><select aria-label={assistantRoute ? 'Persona' : undefined} value={persona} onChange={event => { setPersona(event.target.value); try{sessionStorage.setItem('sdlc-persona', event.target.value);}catch{} }}><option value="">Selecione para atuar</option>{personas.map(p => <option key={p.id} value={p.id}>{p.name} · {roleLabel(p.role)}</option>)}</select></label>}</header>
       <main id="main">
         {returnToStory && ['system','project'].includes(item?.kind || '') && <p className="hint"><Link href={returnToStory}>← Voltar ao destino da História</Link></p>}
         {!helpRoute&&<section className={`workflow-bar${journeyView ? ' story-journey-bar' : ''}${overview ? ' dashboard-workflow' : ''}`} aria-label="Situação e próxima ação">
@@ -348,7 +350,7 @@ function PortalContent({helpDocument}:{helpDocument?:string}) {
             systemRepositoryHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined}
             components={<Repositories key={item.id} systemHref={system ? setupHref(`/systems/${system.id}?tab=components`) : undefined} repositories={detail?.repositories || []} />}
             history={<HistoryQuery itemId={item.id} revision={revision} />}
-            administration={<section className="panel"><h2>{item.kind === 'story' ? 'Configuração da História' : `Configurações de ${names[item.kind]}`}</h2>{item.kind === 'story' && item.status === 'cancelled' && <StoryReopen version={item.version} enabled={canManageLifecycle && !busy} onChange={body=>mutate(()=>request(`/items/${item.id}/reopen`,persona,body,'POST'),'História reaberta; novo Gateway de Especificação obrigatório.')} />}<p>Use Editar para alterar os campos permitidos. Arquivamento exige item finalizado.</p><button disabled={!canArchive || busy} onClick={()=>setArchiveOpen(true)}>Arquivar {names[item.kind].toLowerCase()}</button></section>}
+            administration={<section className="panel"><h2>{item.kind === 'story' ? 'Configuração da História' : `Configurações de ${names[item.kind]}`}</h2>{item.kind === 'story' && item.status === 'cancelled' && <Link href={storyExecutionHref(item.id,'action',search.toString(),'reopen_story')}>Reabrir História</Link>}<p>Use Editar para alterar os campos permitidos. Arquivamento exige item finalizado.</p><button disabled={!canArchive || busy} onClick={()=>setArchiveOpen(true)}>Arquivar {names[item.kind].toLowerCase()}</button></section>}
             manualActions={item.kind === 'task' ? <ManualTaskActions status={item.status} version={item.version} enabled={canPlan && !busy} onChange={body=>mutate(()=>request(`/items/${item.id}/status`,persona,body,'POST'),'Trabalho da Tarefa atualizado.')} /> : undefined}
             releases={item.kind === 'story' ? (choosing, onChoose) => <Releases persona={persona} role={role} storyId={item.id} systemId={system?.id} choosing={choosing} onChoose={onChoose} onChanged={() => window.dispatchEvent(new Event('sdlc-plan-applied'))} /> : undefined}
           />}

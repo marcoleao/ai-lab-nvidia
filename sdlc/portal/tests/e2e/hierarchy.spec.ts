@@ -79,6 +79,8 @@ test('user creates an active hierarchy, inherits its System repository and recor
   const pipelineTasks=storyDetail.children.filter((item:{kind:string})=>item.kind==='task');
   expect(pipelineTasks.map((task:{name:string})=>task.name).sort()).toEqual(['Codificação','Teste em DEV','Revisão de Código','Revisão de Segurança','Teste em QA','Merge de Código'].sort());
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();
+  await expect(page.getByTestId('story-execution-hub')).toBeVisible();
+  await openWorkPanel(page);
   await expect(page.getByTestId('story-process')).toBeVisible();
   await expect(page.getByRole('list',{name:'Ciclo da História'})).toBeVisible();
   await expect(page.getByRole('region',{name:'Ciclo da História',exact:true})).toHaveCount(0);
@@ -86,6 +88,8 @@ test('user creates an active hierarchy, inherits its System repository and recor
   await expect(page.getByTestId('story-process').getByRole('button',{name:'Preparar especificação',exact:true})).toBeDisabled();
   await expect(page.getByTestId('story-journey-header').getByRole('status')).toHaveText('Aguardando início');
   await page.screenshot({path:join(screenshotDir,'story-desktop.png'),fullPage:true});
+  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:/^Tarefas/}).click();
+  await expect(page.getByRole('heading',{name:'Tarefas da História',exact:true})).toBeVisible();
   await create('Tarefa do ensaio');
   const taskId=new URL(page.url()).pathname.split('/')[2];
   await expect(page.getByRole('navigation',{name:'Localização'})).toContainText('História: História do ensaio');
@@ -120,10 +124,13 @@ test('user creates an active hierarchy, inherits its System repository and recor
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.screenshot({path:join(screenshotDir,'story-tablet.png'),fullPage:true});
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();
-  await expect(page.getByTestId('story-process')).toBeVisible();
-  await expect(page.getByRole('navigation',{name:'Detalhes da execução'})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Acompanhamento da execução',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'O que você pode fazer agora',exact:true})).toBeVisible();
+  await expect(page.getByTestId('story-process')).toBeHidden();
   await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');
-  await page.reload();await expect(page.getByRole('heading',{name:'História do ensaio',exact:true})).toBeVisible();
+  await page.reload();await expect(page.getByRole('heading',{name:'História do ensaio',level:1,exact:true})).toBeVisible();
+  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:/^Tarefas/}).click();
+  await expect(page.getByRole('heading',{name:'Tarefas da História',exact:true})).toBeVisible();
   await createTask.focus();
   await expect(createTask).toBeFocused();
   await page.keyboard.press('Enter');

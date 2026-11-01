@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-01",
+  "scope": "Aprovação humana global da História em DEV",
+  "uxReview": "Revisão de fonte: decisão única, critérios em consulta, vigência atual, consulta legada e encaminhamento após decisão negativa.",
+  "backend": {
+    "report": "20261101T173157Z-b2ecbf",
+    "passed": 94,
+    "failed": 0,
+    "files": 4,
+    "checks": [
+      "decisões atômicas e correlação",
+      "rollback de ambos os recorders e retry",
+      "concorrência/replay",
+      "permissões/contexto/versão ativa",
+      "registros legados imutáveis",
+      "migração e rollback vazio/populado"
+    ]
+  },
+  "browser": {
+    "broad": {
+      "report": "20261101T173521Z-1da475",
+      "passed": 76,
+      "failed": 1,
+      "files": 6,
+      "resolvedFailure": "Helper do teste exigia consulta habilitada enquanto havia pedido pendente; esse bloqueio é esperado. A expectativa foi corrigida."
+    },
+    "final": {
+      "report": "20261101T173810Z-0ad5af",
+      "passed": 25,
+      "failed": 0,
+      "files": 2,
+      "scope": "Aprovação global e consulta da aprovação, após ajustes finais de vigência/nome acessível e expectativa de recuperação."
+    },
+    "distinctValidated": 77,
+    "limitations": "União da rodada ampliada e focal; não é uma rodada única de 77/77 nem regressão integral do catálogo. Provedores externos simulados e dados isolados."
+  },
+  "catalog": {
+    "cases": 651,
+    "files": 60
+  },
+  "operationalWrites": "Nenhuma aprovação, resultado humano ou resultado de agente criado para validar o portal. Publicação e migração têm recibos administrativos próprios.",
+  "productionBuild": "API types, web types, next production build, prepared fingerprint verification passed",
+  "live": {
+    "checkedAt": "2026-11-01T17:41:35.169Z",
+    "views": 5,
+    "widths": [
+      1440,
+      390
+    ],
+    "writes": 0,
+    "pageErrors": 0,
+    "optionalNote": true,
+    "criterionInputs": 0,
+    "globalConfirmationEnabled": true,
+    "taskStatus": "doing; nenhuma aprovação de negócio foi criada na validação"
+  }
+}

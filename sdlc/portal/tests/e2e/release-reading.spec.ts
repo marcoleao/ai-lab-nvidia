@@ -36,7 +36,7 @@ for(const compositionStatus of ['OPEN','CLOSED','CANCELED'])test(`RA-01 ${compos
  const state=await fixture(page,compositionStatus);await page.goto(`/releases?system=reading-system&compositionStatus=${compositionStatus}&sort=compositionStatus&direction=asc`);await check(page,compositionStatus);
  await expect(page).toHaveURL(url=>url.searchParams.get('compositionStatus')===compositionStatus&&url.searchParams.get('sort')==='compositionStatus');
  await page.getByTestId('release-card').click();await check(page,compositionStatus);await page.reload();await check(page,compositionStatus);
- await page.locator('#release-stories').getByRole('link').click();await expect(page).toHaveURL(url=>url.pathname==='/stories/reading-story');await check(page,compositionStatus);
+ await page.locator('#release-stories').getByRole('link').click();await expect(page).toHaveURL(url=>url.pathname==='/stories/reading-story/execution/release');await check(page,compositionStatus);
  await page.getByRole('link',{name:/Consultar Release da leitura/}).click();await check(page,compositionStatus);expect(state.writes).toEqual([]);
 });
 test('RA-01 mobile composition refresh failure preserves the last confirmed reading and never replaces it with a successful result',async({page})=>{

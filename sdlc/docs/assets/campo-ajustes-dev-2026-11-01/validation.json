@@ -1,0 +1,8 @@
+﻿{
+ "scope":"Campo próprio na solicitação de ajustes da História em DEV",
+ "browser":{"run":"20261101T175126Z-361064","passed":22,"failed":0,"files":2,"widths":[1440,390],"coverage":["Campo próprio com foco inicial e descrição obrigatória","Erro associado para vazio/espaços e ausência de envio","Texto separado da observação de aprovação","Voltar preserva texto e restaura foco","Navegação/recarga preservam rascunho","Nova versão separa o rascunho anterior","Rejeição enviada em notes sem resultados por critério","Resposta perdida recupera descrição, chave, corpo e persona originais","Aprovação mantém observação opcional","HELP estático preservado"]},
+ "build":{"apiTypes":"passed","webTypes":"passed","productionBuild":"passed"},
+ "catalog":{"cases":655,"files":60},
+ "domain":{"newCommands":0,"newEvents":0,"migrations":0,"apiChanged":false,"notesSource":"DevelopmentManualAcceptance.notes, política existente"},
+ "limitations":"Regressão focal de apresentação, com dados isolados e provedores simulados. Não é regressão integral ou execução da correção da aplicação. Contrato de backend preservado; descrição obrigatória se aplica a esse formulário."
+}

@@ -1,0 +1,52 @@
+[
+    {
+        "file":  "01-dev-desktop.png",
+        "bytes":  16980,
+        "sha256":  "74b19deab2a0b69076741d22ba359e78624dc7aacd1d1e940702a15aa2bedcb9"
+    },
+    {
+        "file":  "02-dev-celular.png",
+        "bytes":  13410,
+        "sha256":  "4dff3f9bf682c9fc2a9ef8f36c608d6fa77d5415526a30fc53445535dff1c4d4"
+    },
+    {
+        "file":  "03-dev-teclado.png",
+        "bytes":  12777,
+        "sha256":  "f40f16a5e7782fcd18e4b6a9d8c918b9b91e55616f7d327462c37a01bfe00c7e"
+    },
+    {
+        "file":  "04-aprovacao-impedida.png",
+        "bytes":  289291,
+        "sha256":  "52ca41d7d7a69e4b34e9169c008083d6a9856be3d91c0ce0def9cb134e2263f3"
+    },
+    {
+        "file":  "05-testes-http.png",
+        "bytes":  210672,
+        "sha256":  "6c86142bcbcf3b1c6808a3e17a93792355ac00434705ef9fb954aad77370ba04"
+    },
+    {
+        "file":  "06-hub-durante-conversa.png",
+        "bytes":  206283,
+        "sha256":  "e547513d40c525fc0995432cef95d2dec605bd39f0a4b8d19ad007d9480d5ba1"
+    },
+    {
+        "file":  "07-tarefa-evidencias.png",
+        "bytes":  132779,
+        "sha256":  "81b1b02dad71f8269a30b40f65e49927d6467d22664268748ae932173529936d"
+    },
+    {
+        "file":  "08-hub-final.png",
+        "bytes":  212195,
+        "sha256":  "e564168f3214e6effe85aff026665528cd3002621d40602ee15404c4533458d6"
+    },
+    {
+        "file":  "09-conferencia-aplicacao.json",
+        "bytes":  5546,
+        "sha256":  "5809792fec7049d6c18699b4d48a991afb15f232c284ac9b02389d8e124d08bb"
+    },
+    {
+        "file":  "10-sessao.json",
+        "bytes":  2784,
+        "sha256":  "2665bf9fff1568003a3eabd3ecd4cac71621c8407da3eb518bbedfe61c02b6a6"
+    }
+]

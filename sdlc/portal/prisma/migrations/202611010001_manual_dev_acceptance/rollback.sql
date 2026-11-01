@@ -1,0 +1,40 @@
+BEGIN;
+DO $$BEGIN IF EXISTS(SELECT 1 FROM "DevelopmentManualAcceptance") OR EXISTS(SELECT 1 FROM "StoryDevelopmentApproval" WHERE "manualAcceptanceId" IS NOT NULL) THEN RAISE EXCEPTION 'Retain immutable manual acceptance; populated rollback refused';END IF;END $$;
+CREATE OR REPLACE FUNCTION sdlc_development_approval_validity(story_id TEXT,current_quality_policy TEXT) RETURNS JSONB LANGUAGE plpgsql STABLE AS $$
+DECLARE a "StoryDevelopmentApproval";i "Item";r JSONB;reasons TEXT[]:=ARRAY[]::TEXT[];uncertain BOOLEAN:=false;q "QualityCheck";t "DevelopmentTest";
+BEGIN
+ SELECT * INTO a FROM "StoryDevelopmentApproval" WHERE "storyId"=story_id ORDER BY number DESC LIMIT 1;
+ IF a.id IS NULL THEN RETURN jsonb_build_object('state','not_recorded','label','Sem aprovação registrada','reasons','[]'::jsonb);END IF;
+ SELECT * INTO i FROM "Item" WHERE id=story_id;r:=sdlc_development_reference(story_id);
+ IF r->>'referenceDigest' IS DISTINCT FROM a."referenceDigest" THEN reasons:=array_append(reasons,'A revisão, o ciclo, o código ou o artefato da própria História mudou.');END IF;
+ IF i.status='cancelled' OR coalesce(i.data->>'cancellationRequested' NOT IN ('false','null','','0'),false) THEN reasons:=array_append(reasons,'A História foi cancelada ou tem cancelamento solicitado.');END IF;
+ IF a."qualityPolicy"<>current_quality_policy THEN reasons:=array_append(reasons,'A política de revisão/segurança mudou; confira os controles atuais.');END IF;
+ IF EXISTS(SELECT 1 FROM "DevelopmentTest" WHERE "storyId"=story_id AND "executionId"=a."executionId" AND result='failed' AND number>(SELECT number FROM "DevelopmentTest" WHERE id=a."testId")) THEN reasons:=array_append(reasons,'Há reprovação de testes posterior à aprovação desta revisão.');END IF;
+ IF EXISTS(SELECT 1 FROM "QualityCheck" WHERE "executionId"=a."executionId" AND state='blocked' AND "createdAt">a."createdAt") THEN reasons:=array_append(reasons,'Há reprovação de revisão de código ou segurança posterior à aprovação.');END IF;
+ FOR q IN SELECT DISTINCT ON(kind) * FROM "QualityCheck" WHERE "executionId"=a."executionId" ORDER BY kind,"createdAt" DESC,id DESC LOOP
+  IF q.state='blocked' THEN reasons:=array_append(reasons,'Há reprovação de revisão de código ou segurança nesta revisão.');END IF;
+  IF q.state<>'passed' OR q.sha<>a."sourceSha" OR q."policyVersion"<>current_quality_policy OR coalesce(q.evidence->>'digest','') !~ '^[a-f0-9]{64}$' THEN uncertain:=true;END IF;
+ END LOOP;
+ SELECT * INTO t FROM "DevelopmentTest" WHERE "storyId"=story_id AND "executionId"=a."executionId" AND state<>'cancelled' ORDER BY number DESC LIMIT 1;
+ IF t.state IN ('queued','running','paused','unknown','blocked') OR t.state='failed' AND t.result IS NULL THEN uncertain:=true;END IF;
+ IF EXISTS(SELECT 1 FROM "DevelopmentBuild" WHERE "storyId"=story_id AND state IN ('queued','running','paused','unknown')) OR EXISTS(SELECT 1 FROM "DevelopmentDeployment" WHERE "storyId"=story_id AND state IN ('queued','running','paused','unknown')) THEN uncertain:=true;END IF;
+ IF cardinality(reasons)>0 THEN RETURN jsonb_build_object('state','outdated','label','Aprovação anterior não vigente','reasons',to_jsonb(reasons));END IF;
+ IF uncertain THEN RETURN jsonb_build_object('state','unconfirmed','label','Aprovação registrada; controles atuais sem confirmação','reasons',jsonb_build_array('Há trabalho ou controle da própria História sem resultado confirmado. A aprovação histórica foi preservada.'));END IF;
+ RETURN jsonb_build_object('state','valid','label','Desenvolvimento Finalizado','reasons','[]'::jsonb);
+END $$;
+CREATE OR REPLACE FUNCTION validate_development_approval() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE e "StoryExecution";b "DevelopmentBuild";d "DevelopmentDeployment";t "DevelopmentTest";m "MergeIntegrationReference";q "QualityCheck";s "QualityCheck";r JSONB;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Retain immutable development approval';END IF;
+ r:=sdlc_development_reference(NEW."storyId");SELECT * INTO e FROM "StoryExecution" WHERE id=NEW."executionId";SELECT * INTO b FROM "DevelopmentBuild" WHERE id=NEW."buildId";SELECT * INTO d FROM "DevelopmentDeployment" WHERE id=NEW."deploymentId";SELECT * INTO t FROM "DevelopmentTest" WHERE id=NEW."testId";SELECT * INTO m FROM "MergeIntegrationReference" WHERE id=NEW."integrationReferenceId";SELECT * INTO q FROM "QualityCheck" WHERE id=NEW."reviewId";SELECT * INTO s FROM "QualityCheck" WHERE id=NEW."securityId";
+ IF r->>'executionId' IS DISTINCT FROM NEW."executionId" OR r->>'buildId' IS DISTINCT FROM NEW."buildId" OR r->>'deploymentId' IS DISTINCT FROM NEW."deploymentId" OR r->>'repositoryId' IS DISTINCT FROM NEW."repositoryId" OR r->>'repositoryVersion' IS DISTINCT FROM NEW."repositoryVersion"::text OR r->>'requiresNewG1'='true' OR q."executionId"<>e.id OR s."executionId"<>e.id OR coalesce(q.evidence->>'digest','') !~ '^[a-f0-9]{64}$' OR coalesce(s.evidence->>'digest','') !~ '^[a-f0-9]{64}$' OR d."storyId"<>NEW."storyId" OR t."storyId"<>NEW."storyId" OR q.id IS DISTINCT FROM (SELECT id FROM "QualityCheck" WHERE "executionId"=e.id AND kind='code_review' ORDER BY "createdAt" DESC,id DESC LIMIT 1) OR s.id IS DISTINCT FROM (SELECT id FROM "QualityCheck" WHERE "executionId"=e.id AND kind='security_scan' ORDER BY "createdAt" DESC,id DESC LIMIT 1) OR t.id IS DISTINCT FROM (SELECT id FROM "DevelopmentTest" WHERE "storyId"=NEW."storyId" AND "executionId"=e.id AND state<>'cancelled' ORDER BY number DESC LIMIT 1) OR EXISTS(SELECT 1 FROM jsonb_array_elements(t.coverage) WITH ORDINALITY c(value,n) WHERE c.value::text<>((c.n-1)::text)) OR EXISTS(SELECT 1 FROM jsonb_array_elements(t.proof->'cases') c WHERE coalesce((c->>'passed')::boolean,false)=false) OR jsonb_array_length(t.coverage)<>jsonb_array_length(coalesce((SELECT data->'requirements'->'functionalCriteria' FROM "Item" WHERE id=NEW."storyId"),'[]'::jsonb)) OR r->>'referenceDigest' IS DISTINCT FROM NEW."referenceDigest" OR r->>'specificationId' IS DISTINCT FROM NEW."specificationId" OR e.id IS NULL OR e.state<>'succeeded' OR e.snapshot->>'scopeRevision' IS DISTINCT FROM '3' OR e."storyId"<>NEW."storyId" OR e."repositoryId"<>NEW."repositoryId" OR e."commitSha" IS DISTINCT FROM NEW."sourceSha" OR m.id IS NULL OR m."executionId"<>e.id OR m."sourceSha"<>NEW."sourceSha" OR m."integrationSha" IS DISTINCT FROM NEW."integrationSha" OR b.id IS NULL OR b.state<>'succeeded' OR b."executionId"<>e.id OR b."integrationReferenceId"<>m.id OR b."sourceSha"<>NEW."buildSourceSha" OR b."imageId" IS DISTINCT FROM NEW."imageId" OR b."archiveDigest" IS DISTINCT FROM NEW."archiveDigest" OR d.id IS NULL OR d.state<>'succeeded' OR d."buildId"<>b.id OR t.id IS NULL OR t."deploymentId"<>d.id OR t.state<>'succeeded' OR t.result IS DISTINCT FROM 'passed' OR t."suiteScope"<>'acceptance' OR t."suiteDigest"<>NEW."suiteDigest" OR q.id IS NULL OR q.kind<>'code_review' OR q.state<>'passed' OR q.sha<>NEW."sourceSha" OR q."policyVersion"<>NEW."qualityPolicy" OR s.id IS NULL OR s.kind<>'security_scan' OR s.state<>'passed' OR s.sha<>NEW."sourceSha" OR s."policyVersion"<>NEW."qualityPolicy" OR NEW.number<>coalesce((SELECT max(number)+1 FROM "StoryDevelopmentApproval" WHERE "storyId"=NEW."storyId"),1) THEN RAISE EXCEPTION 'Complete source-bound development approval required';END IF;
+ RETURN NEW;
+END $$;
+ALTER TABLE "StoryDevelopmentApproval" DROP CONSTRAINT development_acceptance_source;
+ALTER TABLE "StoryDevelopmentApproval" DROP COLUMN "manualAcceptanceId";
+ALTER TABLE "StoryDevelopmentApproval" ALTER COLUMN "testId" SET NOT NULL;
+ALTER TABLE "StoryDevelopmentApproval" ALTER COLUMN "suiteDigest" SET NOT NULL;
+DROP TABLE "DevelopmentManualAcceptance";
+DROP FUNCTION validate_manual_dev_acceptance();
+DROP FUNCTION retain_manual_dev_acceptance();
+COMMIT;

@@ -1,4 +1,5 @@
 import {test, expect, type Page} from '@playwright/test';
+import {openWorkPanel} from './journey-fixtures';
 
 async function setup(page: Page, kind = 'story', managed = false) {
   const stamp = '2026-10-24T15:00:00.000Z';
@@ -25,8 +26,8 @@ async function setup(page: Page, kind = 'story', managed = false) {
     if(path.startsWith('/api/items/'))return send({item:kind==='story'?story:task,ancestors:[system,project,epic,...(kind==='task'?[story]:[])],children:[],repositories:[repository],availableRepositories:[repository],environments:[],history:[]});
     return send({items:[]});
   });
-  await page.goto(`/${kind==='story'?'stories':'tasks'}/${kind}?tab=planning`);
-  const card=kind==='story'?page.getByTestId('story-process'):page.getByRole('region',{name:'Ciclo da Tarefa',exact:true});
+  await page.goto(kind==='story'?'/stories/story/execution':`/tasks/${kind}?tab=planning`);
+  const card=kind==='story'?page.getByRole('region',{name:'Acompanhamento da execução',exact:true}):page.getByRole('region',{name:'Ciclo da Tarefa',exact:true});
   await expect(card).toBeVisible();
   await expect(page.getByRole('navigation',{name:kind==='story'?'Seções de História':'Seções de Tarefa'}).getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');
   return {card,writes,errors,readTask:()=>task};
@@ -51,16 +52,16 @@ async function expectInheritedRepository(page:Page){
 test('Story execution preserves actual phase, contextual decisions and detail access without status writes',async({page})=>{
   const {card,writes,errors}=await setup(page);
   await expect(page.getByTestId('story-phase')).toHaveText('CODE REVIEW');
-  await expect(card.getByRole('heading',{name:'Revisar o código',exact:true})).toBeVisible();
+  await expect(card.getByRole('status').first()).toHaveText('Revisar o código');
   await expect(page.getByRole('region',{name:'Ciclo da História',exact:true})).toHaveCount(0);
   await expect(page.getByRole('link',{name:'Abrir Assistente neste contexto'})).toHaveCount(0);
   await expect(page.getByRole('navigation',{name:'Localização'}).getByRole('link',{name:/Projeto:/})).toHaveAttribute('href',/^\/projects\/project(?:\?|$)/);
-  await page.getByRole('navigation',{name:'Detalhes da execução'}).getByRole('button',{name:'Consultar sinais e evidências',exact:true}).click();
-  await expect(page).toHaveURL(/process=processing/);
-  await expect(card.getByRole('heading',{name:'Sinais e evidências da execução',exact:true})).toBeVisible();
-  await card.getByRole('button',{name:/Voltar à etapa atual/}).click();
-  await expect(page).toHaveURL(/process=action/);
-  await expect(page.getByTestId('story-process')).toBeVisible();
+  const details=await openWorkPanel(page,'processing');
+  await expect(page).toHaveURL(/\/stories\/story\/execution\/processing$/);
+  await expect(details.getByRole('heading',{name:'Sinais e evidências da execução',exact:true})).toBeVisible();
+  await page.getByRole('link',{name:'Voltar à Execução',exact:true}).click();
+  await expect(page).toHaveURL(/\/stories\/story\/execution$/);
+  await expect(page.getByTestId('story-process')).toBeHidden();
   await expect(page.getByTestId('story-interaction')).toHaveCount(0);
   await page.reload();await expect(card).toBeVisible();
   await expect(page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');
@@ -103,7 +104,7 @@ test('Managed Task planning keeps status controlled by process and exposes no ma
 
 for(const kind of ['story','task'])test(`${kind} preserves history query and current phase in its own audit navigation`,async({page})=>{
   const {writes,errors}=await setup(page,kind);
-  await page.goto(`/${kind==='story'?'stories':'tasks'}/${kind}?tab=planning&history.q=consulta`);
+  await page.goto(kind==='story'?'/stories/story/execution?history.q=consulta':`/tasks/${kind}?tab=planning&history.q=consulta`);
   const navigation=page.getByRole('navigation',{name:kind==='story'?'Seções de História':'Seções de Tarefa'});
   if(kind==='story'){
     await expect(navigation.getByRole('link')).toHaveText([/^Tarefas/,'Execução','Especificação','Conversas','Auditoria','Configurações']);
@@ -124,10 +125,10 @@ for(const kind of ['story','task'])test(`${kind} preserves history query and cur
     await navigation.getByRole('link',{name:'Auditoria',exact:true}).click();
     await expect(page).toHaveURL(/tab=activity/);await expect(history).toHaveCount(1);
     await navigation.getByRole('link',{name:'Execução',exact:true}).click();await expect(history).toHaveCount(0);
-    await page.getByRole('navigation',{name:'Detalhes da execução'}).getByRole('button',{name:'Repositório do Sistema',exact:true}).click();
+    await openWorkPanel(page,'destination');
     await expectInheritedRepository(page);
     await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');
-    await expect(page).toHaveURL(/process=destination/);await expect(page).toHaveURL(/history.q=consulta/);
+    await expect(page).toHaveURL(/\/execution\/destination\?/);await expect(page).toHaveURL(/history.q=consulta/);
     await expect(page.getByRole('navigation',{name:'Informações complementares'})).toHaveCount(0);
     await page.goto('/stories/story?tab=activity&history.q=consulta');await expect(history).toHaveCount(1);
     await expect(navigation.getByRole('link',{name:'Auditoria',exact:true})).toHaveAttribute('aria-current','page');
@@ -158,10 +159,10 @@ test('Story uses six tabs, preserves filters and resolves former Summary, delive
   await page.reload();await expect(tasks).toHaveAttribute('aria-current','page');
   await page.goBack();await expect(navigation.getByRole('link',{name:'Especificação',exact:true})).toHaveAttribute('aria-current','page');
   await page.goto('/stories/story?tab=overview&tasks.q=consulta');await expect(tasks).toHaveAttribute('aria-current','page');await expect(page).toHaveURL(/tasks.q=consulta/);
-  await page.goto('/stories/story?tab=overview&interact=administration&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expect(page).toHaveURL(/process=administration/);await expect(page).toHaveURL(/tasks.q=consulta/);
-  await page.goto('/stories/story?tab=delivery&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expect(page.getByRole('heading',{name:'Entrega de código',exact:true})).toBeVisible();
+  await page.goto('/stories/story?tab=overview&interact=administration&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expect(page).toHaveURL(/\/execution\/administration\?/);await expect(page).toHaveURL(/tasks.q=consulta/);
+  await page.goto('/stories/story?tab=delivery&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expect(page.getByRole('heading',{name:'Entrega de código',level:2,exact:true})).toBeVisible();
   await page.goto('/stories/story?tab=releases&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expect(page.getByRole('heading',{name:'Escolher uma release existente',exact:true})).toBeVisible();
-  await page.goto('/stories/story?tab=components&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expectInheritedRepository(page);await expect(page).toHaveURL(/process=destination/);await expect(page).toHaveURL(/tasks.q=consulta/);
+  await page.goto('/stories/story?tab=components&tasks.q=consulta');await expect(navigation.getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');await expectInheritedRepository(page);await expect(page).toHaveURL(/\/execution\/destination\?/);await expect(page).toHaveURL(/tasks.q=consulta/);
   await page.goto('/stories/story?tab=tasks');await expect(tasks).toHaveAttribute('aria-current','page');
   await setup(page,'task');await page.goto('/tasks/task');await expect(page.getByRole('navigation',{name:'Seções de Tarefa'}).getByRole('link').first()).toHaveText('Resumo');
   expect(writes).toEqual([]);expect(errors).toEqual([]);

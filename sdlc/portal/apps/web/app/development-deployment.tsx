@@ -8,7 +8,7 @@ import {ErrorState,LoadingState,Spinner,displayDate} from './experience-ui';
 import {DevStageActions,useDevStage,useDevStageAttention} from './dev-stage';
 import './development-deployment.css';
 
-type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;reviewKey?:string;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void};
+type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;reviewKey?:string;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void;onPendingChange?:(pending:boolean)=>void};
 type Mode='deploy'|'resume'|'cancel'|null;
 const states:Record<string,string>={queued:'Publicação DEV solicitada · na fila',running:'Publicando versão em DEV',paused:'Publicação DEV pausada',blocked:'Publicação DEV impedida',failed:'Falha na publicação DEV',unknown:'Resultado da publicação DEV não confirmado',succeeded:'Publicação DEV confirmada',cancelled:'Pedido de publicação DEV cancelado'};
 const preparationStates:Record<string,string>={queued:'na fila',running:'em preparação',paused:'pausada',blocked:'impedida',failed:'falhou',unknown:'resultado não confirmado',succeeded:'recursos confirmados',cancelled:'pedido cancelado'};
@@ -21,13 +21,13 @@ function validReading(value:unknown,storyId:string):value is Reading{if(!value||
 function safeUrl(value:string|null|undefined){if(!value)return null;try{const url=new URL(value);return ['http:','https:'].includes(url.protocol)&&!url.username&&!url.password?value:null;}catch{return null;}}
 async function get<T>(path:string,signal?:AbortSignal,persona?:string):Promise<T>{const response=await fetch('/api'+path,{cache:'no-store',signal,headers:persona?{'X-Persona':persona}:{}}),body=await response.json();if(!response.ok)throw Error(body.error?.message||'Não foi possível consultar a publicação DEV.');return body;}
 
-export default function DevelopmentDeployment({storyId,storyVersion,persona,role,active,readOnly,stale,reviewKey,recoveryTargetId,onReturn,onRefresh}:Props){
+export default function DevelopmentDeployment({storyId,storyVersion,persona,role,active,readOnly,stale,reviewKey,recoveryTargetId,onReturn,onRefresh,onPendingChange}:Props){
  const {guided,secondary}=useDevStage();
  const base=`/items/${storyId}/development-deployment`,storage=`sdlc-development-deployment:${storyId}`;
  const [data,setData]=useState<Reading|null>(null),[known,setKnown]=useState<Deployment|null>(null),[reason,setReason]=useState(''),[restored,setRestored]=useState('');
  const [loading,setLoading]=useState(true),[queryError,setQueryError]=useState(''),[refresh,setRefresh]=useState(0),[context,setContext]=useState<{value:Context;signature:string}|null>(null),[consulting,setConsulting]=useState(false),[consultError,setConsultError]=useState('');
  const [mode,setMode]=useState<Mode>(null),[accepted,setAccepted]=useState(false),[decisionSignature,setDecisionSignature]=useState(''),[notice,setNotice]=useState(''),[target,setTarget]=useState<HTMLElement|null>(null);
- const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),abort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),jump=useRef(false),callbacks=useRef({onReturn,onRefresh});callbacks.current={onReturn,onRefresh};
+ const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),abort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),jump=useRef(false),callbacks=useRef({onReturn,onRefresh,onPendingChange});callbacks.current={onReturn,onRefresh,onPendingChange};
  const reload=()=>setRefresh(v=>v+1),refreshAll=()=>{reload();callbacks.current.onRefresh();};
  const operation=newer(data?.operation??null,known),deployment=newer(data?.deployment??null,known?.state==='succeeded'?known:null),preparation=data?.preparation??null;
  const receiptAhead=!!known&&(!data?.operation||known.number>data.operation.number||known.id===data.operation.id&&known.version>data.operation.version),metadataUnknown=loading||!!queryError||!data||receiptAhead||stale;
@@ -53,6 +53,7 @@ export default function DevelopmentDeployment({storyId,storyVersion,persona,role
  const liveUrl=healthy?safeUrl(observed?.url||deployment?.url):null;
  const recover=!!op.pending||operation?.state==='unknown',feedback=op.feedback;
  const previewBlocked=mode==='deploy'&&context?.value.allowed===false;
+ useEffect(()=>{const notify=callbacks.current.onPendingChange;notify?.(recover);return()=>notify?.(false);},[recover,storyId]);
  useDevStageAttention(Boolean(op.pending||op.busy||working||mode||queryError||consultError||receiptAhead||consulting));
  return <>{!active&&recover&&target&&createPortal(<section className="alert development-deployment-recovery" aria-label="Recuperação da publicação DEV" data-testid="development-deployment-recovery"><strong>A publicação DEV desta História precisa de confirmação.</strong>{feedback}<button type="button" onClick={()=>{jump.current=true;callbacks.current.onReturn();}}>Voltar à publicação DEV</button></section>,target)}
   <section className="development-deployment" hidden={!active} aria-label="Publicação da História em DEV" data-testid="development-deployment">

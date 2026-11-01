@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {storyExecutionHref} from './story-execution-navigation';
 import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import type {DevelopmentTestOperation as Job,DevelopmentTestReading as Reading,DevelopmentTestContext as Context,DevCaseResult} from '../../../packages/shared/src/development-test';
@@ -8,7 +9,7 @@ import {ErrorState,LoadingState,Spinner,displayDate} from './experience-ui';
 import {DevStageActions,useDevStage,useDevStageAttention} from './dev-stage';
 import './development-test.css';
 
-type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void;onCorrection:()=>void};
+type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void;onPendingChange?:(pending:boolean)=>void;onCorrection:()=>void};
 type Mode='test'|'resume'|'cancel'|null;
 const labels:Record<string,string>={queued:'Testes DEV solicitados · na fila',running:'Executando testes em DEV',paused:'Testes DEV pausados',blocked:'Testes DEV impedidos',unknown:'Resultado dos testes DEV não confirmado',cancelled:'Pedido de testes DEV cancelado'};
 const unsettled=['queued','running','paused','unknown'],text=(v:unknown)=>typeof v==='string'&&v.trim().length>0,positive=(v:unknown)=>Number.isSafeInteger(v)&&Number(v)>0;
@@ -25,13 +26,13 @@ function title(job:Job){return job.state==='succeeded'?'Testes DEV aprovados':jo
 async function get<T>(path:string,signal?:AbortSignal,persona?:string):Promise<T>{const response=await fetch('/api'+path,{cache:'no-store',signal,headers:persona?{'X-Persona':persona}:{}}),body=await response.json();if(!response.ok)throw Error(body.error?.message||'Não foi possível consultar os testes DEV.');return body;}
 function Cases({job}:{job:Job}){return <ol className="development-test-cases" aria-label="Resultados dos casos da suíte">{job.cases?.map(item=><li key={item.id}><strong>{item.name}</strong><span className={item.passed?'development-test-passed':'development-test-failed'}>{item.passed?'Aprovado':'Reprovado'}</span><details><summary>Dados técnicos deste caso</summary><p>Critérios G1: {criterionLabel(item.criterionIndices)}. HTTP esperado {item.expectedStatus} · recebido {item.actualStatus??'sem resposta'} · {item.durationMs} ms.</p><p>Referência <code>{item.id}</code> · resultado <code>{item.code}</code>.</p></details></li>)}</ol>;}
 
-export default function DevelopmentTest({storyId,storyVersion,persona,role,active,readOnly,stale,recoveryTargetId,onReturn,onRefresh,onCorrection}:Props){
+export default function DevelopmentTest({storyId,storyVersion,persona,role,active,readOnly,stale,recoveryTargetId,onReturn,onRefresh,onPendingChange,onCorrection}:Props){
  const {guided,secondary}=useDevStage();
  const base=`/items/${storyId}/development-test`,storage=`sdlc-development-test:${storyId}`;
  const [data,setData]=useState<Reading|null>(null),[known,setKnown]=useState<Job|null>(null),[reason,setReason]=useState(''),[restored,setRestored]=useState('');
  const [loading,setLoading]=useState(true),[queryError,setQueryError]=useState(''),[refresh,setRefresh]=useState(0),[context,setContext]=useState<{value:Context;signature:string}|null>(null),[consulting,setConsulting]=useState(false),[consultError,setConsultError]=useState('');
  const [mode,setMode]=useState<Mode>(null),[accepted,setAccepted]=useState(false),[decisionSignature,setDecisionSignature]=useState(''),[notice,setNotice]=useState(''),[target,setTarget]=useState<HTMLElement|null>(null);
- const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),abort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),jump=useRef(false),reported=useRef(''),callbacks=useRef({onReturn,onRefresh,onCorrection});callbacks.current={onReturn,onRefresh,onCorrection};
+ const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),abort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),jump=useRef(false),reported=useRef(''),callbacks=useRef({onReturn,onRefresh,onPendingChange,onCorrection});callbacks.current={onReturn,onRefresh,onPendingChange,onCorrection};
  const reload=()=>setRefresh(v=>v+1),refreshAll=()=>{reload();callbacks.current.onRefresh();};
  const operation=newer(data?.operation??null,known),evidence=newer(data?.evidence??null,known&&['succeeded','failed'].includes(known.state)&&known.cases?.length&&known.result?known:null);
  const receiptAhead=!!known&&(!data?.operation||known.number>data.operation.number||known.id===data.operation.id&&known.version>data.operation.version),metadataUnknown=loading||!!queryError||!data||receiptAhead||stale;
@@ -56,9 +57,11 @@ export default function DevelopmentTest({storyId,storyVersion,persona,role,activ
  const observed=data?.observation,currentEvidence=!!evidence&&!metadataUnknown&&!!data?.current&&observed?.state==='healthy'&&observed.operationId===evidence.deploymentId;
  const recover=!!op.pending||operation?.state==='unknown',failed=operation?.state==='failed'||evidence?.result==='failed';
  const previewBlocked=mode==='test'&&context?.value.allowed===false;
+ useEffect(()=>{const notify=callbacks.current.onPendingChange;notify?.(recover);return()=>notify?.(false);},[recover,storyId]);
  useDevStageAttention(Boolean(op.pending||op.busy||working||mode||queryError||consultError||receiptAhead||consulting));
  return <>{!active&&recover&&target&&createPortal(<section className="alert development-test-recovery" aria-label="Recuperação dos testes DEV" data-testid="development-test-recovery"><strong>Os testes DEV desta História precisam de confirmação.</strong>{op.feedback}<button type="button" onClick={()=>{jump.current=true;callbacks.current.onReturn();}}>Voltar aos testes DEV</button></section>,target)}
   <section className="development-test" hidden={!active} aria-label="Testes da História em DEV" data-testid="development-test"><h3 className="sw-dev-step-title" tabIndex={-1}>{guided?'Testes em DEV':'Testar versão em DEV'}</h3><p>{guided?'Consulte os resultados e o alcance da suíte executada. Verificação técnica e aceitação dos critérios são evidências distintas.':'Execute a suíte versionada contra a implantação DEV conferida desta História. A confirmação fixa o artefato, a implantação e os casos; não exige release.'}</p>
+   <p>Já conferiu a aplicação? <Link href={storyExecutionHref(storyId,'environment',undefined,'acceptance')}>Aprovar História em DEV</Link></p>
    {loading&&<LoadingState>Consultando testes DEV…</LoadingState>}{queryError&&<ErrorState onRetry={refreshAll}>{queryError}{data&&<p>Última leitura preservada, de {displayDate(data.asOf)}. Novas decisões aguardam uma consulta confirmada.</p>}</ErrorState>}{active&&op.feedback}{notice&&<p className="alert success" role="status">{notice}</p>}
    {!loading&&!queryError&&data&&!data.configured&&<p className="hint">O executor de testes DEV ainda não está configurado. Confira a execução para consultar os impedimentos.</p>}
    <section ref={result} tabIndex={-1} aria-label="Resultado dos testes DEV" data-testid="development-test-result">{operation?<><h4>{title(operation)}</h4>{['failed','blocked','unknown'].includes(operation.state)?<ErrorState>{operation.message}{operation.state==='failed'&&!operation.cases?.length&&<p>Não há resultados de casos nesta tentativa. Esta falha do executor não é uma reprovação dos critérios da História.</p>}</ErrorState>:<p>{['queued','running'].includes(operation.state)&&!queryError&&<Spinner/>}{operation.message}</p>}<p className="hint">{scopeName(operation.suiteScope)} · pedido {operation.number} · {operation.actorName} · atualizado em {displayDate(operation.updatedAt)}.</p><details><summary>Referências do pedido de testes</summary><p>Operação <code>{operation.id}</code> · suíte <code>{operation.suiteDigest}</code> · fonte <code>{operation.sourceSha}</code>.</p><p>Motivo registrado: {operation.reason}</p></details></>:!loading&&!queryError&&<p>Nenhuma execução de testes DEV solicitada nesta História.</p>}

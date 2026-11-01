@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-11-01T17:55:10.517Z",
+  "scope": "Portal publicado, navegação somente leitura: nenhum texto simulado ou decisão gravado",
+  "checks": [
+    {
+      "width": 1440,
+      "label": "manual-adjustments-cmvwutzrh001001t5lxja9hez",
+      "required": true,
+      "focused": true,
+      "confirmVisible": true,
+      "layout": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "visibleText": "Solicitar ajustes\nDescreva os ajustes necessários\n\nDescrição obrigatória. Informe o que deve mudar e o resultado esperado. Confirmar registra sua decisão; nenhuma correção é iniciada automaticamente.\n\nA História não será aprovada e a Tarefa Teste em DEV ficará pendente.\n\nConfirmar solicitação de ajustes\nVoltar à decisão"
+    },
+    {
+      "width": 390,
+      "label": "manual-adjustments-cmvwutzrh001001t5lxja9hez",
+      "required": true,
+      "focused": true,
+      "confirmVisible": true,
+      "layout": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "visibleText": "Solicitar ajustes\nDescreva os ajustes necessários\n\nDescrição obrigatória. Informe o que deve mudar e o resultado esperado. Confirmar registra sua decisão; nenhuma correção é iniciada automaticamente.\n\nA História não será aprovada e a Tarefa Teste em DEV ficará pendente.\n\nConfirmar solicitação de ajustes\nVoltar à decisão"
+    }
+  ],
+  "writes": [],
+  "errors": []
+}

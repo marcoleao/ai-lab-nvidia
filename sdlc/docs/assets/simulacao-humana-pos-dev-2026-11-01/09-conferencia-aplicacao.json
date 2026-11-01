@@ -1,0 +1,258 @@
+{
+  "checkedAt": "2026-11-01T04:53:47.324Z",
+  "scope": "Conferência pelo navegador com controles nativos; não é aceite registrado no SDLC",
+  "results": [
+    {
+      "label": "Inicial Branco e Arial",
+      "color": "#FFFFFF",
+      "font": "Arial",
+      "observed": {
+        "text": "Hello World",
+        "font": "Arial",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(255, 255, 255)"
+          },
+          {
+            "x": 1432,
+            "y": 992,
+            "color": "rgb(255, 255, 255)"
+          },
+          {
+            "x": 8,
+            "y": 992,
+            "color": "rgb(255, 255, 255)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Azul claro preserva Arial",
+      "color": "#DDEEFF",
+      "font": "Arial",
+      "observed": {
+        "text": "Hello World",
+        "font": "Arial",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 1432,
+            "y": 992,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 8,
+            "y": 992,
+            "color": "rgb(221, 238, 255)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Georgia preserva Azul claro",
+      "color": "#DDEEFF",
+      "font": "Georgia",
+      "observed": {
+        "text": "Hello World",
+        "font": "Georgia",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 1432,
+            "y": 992,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 8,
+            "y": 992,
+            "color": "rgb(221, 238, 255)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Amarelo claro preserva Georgia",
+      "color": "#FFF4CC",
+      "font": "Georgia",
+      "observed": {
+        "text": "Hello World",
+        "font": "Georgia",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 1432,
+            "y": 992,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 8,
+            "y": 992,
+            "color": "rgb(255, 244, 204)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Courier New preserva Amarelo claro",
+      "color": "#FFF4CC",
+      "font": "Courier New",
+      "observed": {
+        "text": "Hello World",
+        "font": "\"Courier New\"",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          1440,
+          1000
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 1432,
+            "y": 992,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 8,
+            "y": 992,
+            "color": "rgb(255, 244, 204)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Celular com fundo até a borda inferior",
+      "color": "#FFF4CC",
+      "font": "Courier New",
+      "observed": {
+        "text": "Hello World",
+        "font": "\"Courier New\"",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          390,
+          844
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 382,
+            "y": 836,
+            "color": "rgb(255, 244, 204)"
+          },
+          {
+            "x": 8,
+            "y": 836,
+            "color": "rgb(255, 244, 204)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Teclado altera seletores e transfere foco",
+      "color": "#DDEEFF",
+      "font": "Georgia",
+      "observed": {
+        "text": "Hello World",
+        "font": "Georgia",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          390,
+          844
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 382,
+            "y": 836,
+            "color": "rgb(221, 238, 255)"
+          },
+          {
+            "x": 8,
+            "y": 836,
+            "color": "rgb(221, 238, 255)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Recarregar restaura Branco e Arial",
+      "color": "#FFFFFF",
+      "font": "Arial",
+      "observed": {
+        "text": "Hello World",
+        "font": "Arial",
+        "color": "rgb(0, 0, 0)",
+        "viewport": [
+          390,
+          844
+        ],
+        "backgroundPoints": [
+          {
+            "x": 8,
+            "y": 8,
+            "color": "rgb(255, 255, 255)"
+          },
+          {
+            "x": 382,
+            "y": 836,
+            "color": "rgb(255, 255, 255)"
+          },
+          {
+            "x": 8,
+            "y": 836,
+            "color": "rgb(255, 255, 255)"
+          }
+        ]
+      }
+    }
+  ],
+  "keyboard": {
+    "focused": true,
+    "outline": "auto"
+  }
+}

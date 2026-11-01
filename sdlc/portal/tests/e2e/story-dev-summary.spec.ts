@@ -29,25 +29,27 @@ for(const width of [1440,390])test(`Story exposes current DEV result and opens t
   await capture(page,`story-dev-summary-${width}`);clean(state);
 });
 
-test('Story DEV guidance preserves the query and focuses its exact readonly evidence panel after navigation and reload',async({page})=>{
+test('Story DEV guidance preserves the query and focuses its owning evidence page after navigation and reload',async({page})=>{
   const state=await fixture(page);await open(page,390,'?tasks.q=preservar&attempt=historical-merge');
-  await page.getByTestId('story-journey-header').getByRole('button',{name:'Ir à atividade atual',exact:true}).click();
-  await expect(page).toHaveURL(/\/tasks\/summary-merge-task\?tab=planning&process=action/);
+  await page.getByRole('navigation',{name:'Seções de História',exact:true}).getByRole('link',{name:'Execução',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/stories/${storyId}/execution\\?`));
+  const hub=page.getByTestId('story-execution-hub');await expect(hub).toBeVisible();await expect(summary(page)).toHaveCount(0);await expect(hub.getByRole('link',{name:'Abrir aplicação em DEV ↗',exact:true})).toHaveAttribute('href',appUrl+'/');
   await page.goBack();await expect(summary(page)).toBeVisible();
   const next=summary(page).getByRole('link',{name:'Ver pendências de aceitação',exact:true});
-  await next.click();await expect(page).toHaveURL(/devStep=approval/);await expect(page).toHaveURL(/tasks.q=preservar/);await expect(page).toHaveURL(/attempt=historical-merge/);
-  const heading=page.getByTestId('development-approval').getByRole('heading',{name:'Desenvolvimento Finalizado',exact:true});
+  await next.click();await expect(page).toHaveURL(new RegExp(`/stories/${storyId}/execution/dev/approval\\?`));await expect(page).toHaveURL(/tasks.q=preservar/);await expect(page).toHaveURL(/attempt=historical-merge/);
+  const heading=page.getByRole('heading',{name:'Revisar aprovação de desenvolvimento',level:1,exact:true});
   await expect(heading).toBeFocused();await expect(page.getByTestId('development-approval-confirmation')).toHaveCount(0);
-  await expect(page.getByTestId('development-approval-pendencies')).toContainText('0 de 6 critérios');
+  await expect(page.getByTestId('development-approval-pendencies')).toContainText('Confira a situação da aprovação da História.');
   await expect(page.getByTestId('development-approval-pendencies')).toContainText('Os testes técnicos não comprovam os critérios da interface.');
-  const titleBox=(await heading.boundingBox())!,barBox=(await page.getByRole('region',{name:'Situação e próxima ação',exact:true}).boundingBox())!;
-  expect(titleBox.y).toBeGreaterThanOrEqual(barBox.y+barBox.height-1);
+  await expect(summary(page)).toHaveCount(0);for(const step of ['build','deployment','test'])await expect(page.getByTestId(`development-${step}`)).toBeHidden();
+  const titleBox=(await heading.boundingBox())!;
+  expect(titleBox.y).toBeGreaterThanOrEqual(0);
   expect(titleBox.y+titleBox.height).toBeLessThanOrEqual(844);
-  await next.click();await expect(heading).toBeFocused();
+  const destination=page.url();await page.goBack();await expect(summary(page)).toBeVisible();await next.click();await expect(page).toHaveURL(destination);await expect(heading).toBeFocused();
   const readsBeforePolling=state.journeyReads;
   await expect.poll(()=>state.journeyReads).toBeGreaterThan(readsBeforePolling);
   await expect(heading).toBeFocused();
-  await page.reload();await expect(heading).toBeFocused();await expect(liveLink(page)).toHaveAttribute('href',appUrl+'/');
+  await page.reload();await expect(heading).toBeFocused();await expect(summary(page)).toHaveCount(0);
   await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Auditoria',exact:true}).click();
   await expect(summary(page)).toBeVisible();await expect(liveLink(page)).toHaveAttribute('href',appUrl+'/');
   clean(state);
@@ -66,7 +68,7 @@ test('A failed current reading preserves dated DEV facts without advertising the
 test('A different version in shared DEV never receives this Story application link',async({page})=>{
   const state=await fixture(page);Object.assign(state.progress,{state:'changed',title:'DEV está atendendo outra versão',message:'A publicação desta História permanece no histórico. O destino atual mudou.',liveUrl:null,nextAction:{label:'Consultar publicação DEV',step:'deployment'}});
   await open(page);await expect(summary(page)).toContainText('DEV está atendendo outra versão');await expect(liveLink(page)).toHaveCount(0);
-  await expect(summary(page).getByRole('link',{name:'Consultar publicação DEV',exact:true})).toHaveAttribute('href',/devStep=deployment/);
+  const destination=summary(page).getByRole('link',{name:'Consultar publicação DEV',exact:true});await expect(destination).toHaveAttribute('href',`/stories/${storyId}/execution/dev/deployment`);await destination.click();await expect(page.getByTestId('development-deployment')).toBeVisible();await expect(page.getByTestId('development-deployment')).toContainText('O destino está em outra versão');await expect(page.getByTestId('development-deployment').getByRole('link',{name:'Abrir aplicação em DEV ↗',exact:true})).toHaveCount(0);
   clean(state);
 });
 
@@ -76,8 +78,9 @@ test('Initial DEV loading is explicit and does not claim that no version was pub
   state.holdJourney=null;release();await expect(liveLink(page)).toBeVisible();clean(state);
 });
 
-test('An invalid DEV step keeps the destination readable without focusing a hidden approval or sending commands',async({page})=>{
-  const state=await fixture(page);await open(page,390,'?tab=planning&process=environment&environment=DEV&devStep=untrusted&tasks.q=preservar');
-  await expect(page.getByTestId('story-environment-detail')).toBeVisible();await expect(summary(page)).toContainText('Versão disponível em DEV');
-  await expect(page.getByTestId('development-approval-confirmation')).toHaveCount(0);await expect(page).toHaveURL(/tasks.q=preservar/);clean(state);
+test('An invalid legacy DEV step normalizes safely and an unknown canonical stage never opens a decision',async({page})=>{
+  const state=await fixture(page);await page.setViewportSize({width:390,height:844});await page.goto(`/stories/${storyId}?tab=planning&process=environment&environment=DEV&devStep=untrusted&tasks.q=preservar`);
+  await expect(page).toHaveURL(new RegExp(`/stories/${storyId}/execution/dev/approval\\?tasks.q=preservar$`));await expect(page.getByTestId('story-environment-detail')).toBeVisible();await expect(summary(page)).toHaveCount(0);
+  await expect(page.getByTestId('development-approval')).toBeVisible();for(const step of ['build','deployment','test'])await expect(page.getByTestId(`development-${step}`)).toBeHidden();await expect(page.getByTestId('development-approval-confirmation')).toHaveCount(0);await expect(page.getByRole('heading',{level:1,name:'Revisar aprovação de desenvolvimento',exact:true})).toBeFocused();
+  const response=await page.goto(`/stories/${storyId}/execution/dev/untrusted?tasks.q=preservar`);expect(response?.status()).toBe(404);await expect(page.getByTestId('development-approval-confirmation')).toHaveCount(0);await expect(page).toHaveURL(/tasks.q=preservar/);clean(state);
 });

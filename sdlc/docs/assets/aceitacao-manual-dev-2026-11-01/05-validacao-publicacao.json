@@ -1,0 +1,151 @@
+{
+    "schemaVersion":  1,
+    "scope":  "Manual DEV criterion verification; no operational acceptance or development approval was registered for this validation.",
+    "publication":  {
+                        "verifiedAt":  "2026-11-01T14:55:50.847173+00:00",
+                        "image":  "sha256:2a7617585ba869a16fd7369d59b5e212ebe34456cb6375e4f37ea85168bd114e",
+                        "source":  "dd6237463120199eb0e2af58da30dacb904583b89955e49e4b4ea596e1d31e6e",
+                        "health":  {
+                                       "status":  "ready",
+                                       "scope":  "portal-foundation",
+                                       "demoMode":  true,
+                                       "databaseMode":  "preview"
+                                   },
+                        "existingTablesChecked":  50,
+                        "tablesChecked":  50,
+                        "newTables":  [
+
+                                      ],
+                        "exactTablesPreserved":  true,
+                        "backup":  {
+                                       "backupId":  "manual-dev-acceptance-final-verified-20261101-e467cbc4",
+                                       "bytes":  452040,
+                                       "privatePermissions":  true,
+                                       "digestVerified":  true,
+                                       "archiveReadable":  true
+                                   },
+                        "migrations":  [
+
+                                       ],
+                        "initialMigrationPublication":  {
+                                                            "verifiedAt":  "2026-11-01T14:48:48.247682+00:00",
+                                                            "image":  "sha256:730289578c4ddc3dc68d0cac50b75d5f14c397d9dc5f5c81eb0b7bdfb17a4ff7",
+                                                            "migrations":  [
+                                                                               "202611010001_manual_dev_acceptance"
+                                                                           ],
+                                                            "existingTablesChecked":  49,
+                                                            "newTables":  [
+                                                                              "DevelopmentManualAcceptance"
+                                                                          ],
+                                                            "exactTablesPreserved":  true
+                                                        }
+                    },
+    "preservationProjection":  [
+                                   "MergeOperation lease and polling metadata exclusions match the previous publication contract.",
+                                   "StoryDevelopmentApproval projection omits the added manualAcceptanceId column; it is null in pre-existing approval rows.",
+                                   "No agent content, business-row contents or private backup path exported."
+                               ],
+    "backend":  {
+                    "run":  "20261101T144050Z-13eb17",
+                    "files":  [
+                                  {
+                                      "file":  "audit-guard.test.ts",
+                                      "exitCode":  0,
+                                      "durationMs":  814,
+                                      "passed":  2,
+                                      "failed":  0,
+                                      "skipped":  0,
+                                      "todo":  0,
+                                      "report":  "/reports/20261101T144050Z-13eb17/audit-guard.test.ts.json",
+                                      "collectionErrors":  [
+
+                                                           ],
+                                      "skipReason":  null
+                                  },
+                                  {
+                                      "file":  "audit.test.ts",
+                                      "exitCode":  0,
+                                      "durationMs":  414,
+                                      "passed":  6,
+                                      "failed":  0,
+                                      "skipped":  0,
+                                      "todo":  0,
+                                      "report":  "/reports/20261101T144050Z-13eb17/audit.test.ts.json",
+                                      "collectionErrors":  [
+
+                                                           ],
+                                      "skipReason":  null
+                                  },
+                                  {
+                                      "file":  "development-approvals.test.ts",
+                                      "exitCode":  0,
+                                      "durationMs":  59439,
+                                      "passed":  68,
+                                      "failed":  0,
+                                      "skipped":  0,
+                                      "todo":  0,
+                                      "report":  "/reports/20261101T144050Z-13eb17/development-approvals.test.ts.json",
+                                      "collectionErrors":  [
+
+                                                           ],
+                                      "skipReason":  null
+                                  },
+                                  {
+                                      "file":  "development-tests.test.ts",
+                                      "exitCode":  0,
+                                      "durationMs":  12477,
+                                      "passed":  17,
+                                      "failed":  0,
+                                      "skipped":  0,
+                                      "todo":  0,
+                                      "report":  "/reports/20261101T144050Z-13eb17/development-tests.test.ts.json",
+                                      "collectionErrors":  [
+
+                                                           ],
+                                      "skipReason":  null
+                                  }
+                              ],
+                    "passed":  93,
+                    "failed":  0
+                },
+    "browser":  {
+                    "broadRun":  "20261101T144136Z-d736d6",
+                    "broadStats":  {
+                                       "startTime":  "2026-11-01T14:41:51.353Z",
+                                       "duration":  140306.29799999998,
+                                       "expected":  87,
+                                       "skipped":  0,
+                                       "unexpected":  0,
+                                       "flaky":  0
+                                   },
+                    "finalFocalRun":  "20261101T145131Z-fbb08d",
+                    "finalFocalStats":  {
+                                            "startTime":  "2026-11-01T14:51:46.722Z",
+                                            "duration":  58856.193,
+                                            "expected":  35,
+                                            "skipped":  0,
+                                            "unexpected":  0,
+                                            "flaky":  0
+                                        },
+                    "uniqueCases":  87,
+                    "note":  "Six-file broad run, then focal validation of the final manual/provenance interface changes. Not a full catalogue run."
+                },
+    "catalogue":  {
+                      "cases":  661,
+                      "files":  60,
+                      "registeredRun":  "20261101T143150Z-9ec22c"
+                  },
+    "retainedFailedRuns":  [
+                               "20261101T141602Z-835d26",
+                               "20261101T142009Z-da9ad5",
+                               "20261101T142421Z-65456b",
+                               "20261101T143326Z-f1da0b",
+                               "20261101T144050Z-1090d3"
+                           ],
+    "limitations":  [
+                        "External deployment providers and actor identity are simulated in isolated contract tests.",
+                        "Real UI check used GETs only and did not count the users previous navigation as formal acceptance.",
+                        "No full regression, load test, assistive-technology qualification or QA package/deployment in this change.",
+                        "SH-02 to SH-04 and the rest of the legacy Task process remain separate backlog."
+                    ]
+}

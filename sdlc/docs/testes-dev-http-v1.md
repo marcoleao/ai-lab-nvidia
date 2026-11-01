@@ -1,5 +1,9 @@
 # Execução de testes DEV — RA-13
 
+**Atualização de política — 01/11/2026:** novas decisões humanas passam à [aprovação global da História em DEV](aprovacao-humana-historia-dev-v2.md). O registro por critério e a segunda confirmação descritos no percurso v1 são históricos; resultados anteriores são preservados.
+
+O [registro manual de aceitação](aceitacao-manual-dev-v1.md), publicado em 01/11/2026, acrescenta uma fonte humana própria para os critérios de interface. Não altera o perfil HTTP descrito abaixo nem converte testes técnicos em aceitação automática. Fonte manual completa pode concluir a Tarefa Teste em DEV; Desenvolvimento Finalizado permanece uma decisão separada.
+
 O portal executa casos HTTP versionados contra a implantação DEV confirmada da História. O pedido fixa execução, build, imagem, arquivo, implantação e digest da suíte. Não usa a disponibilidade HTTP como aprovação funcional. QA, HML e PRD continuam ambientes do ciclo de release.
 
 A suíte fica em `tests/dev-http.json`, na fonte original preservada pelo executor do build. O perfil `dev-http-v1` não aceita caminho de arquivo, URL de destino, shell ou comando escolhido pelo modelo. O executor confere a proveniência do artefato, a instância ativa e a suíte antes do envio. Preparação, publicação e testes usam o mesmo lock do destino; o domínio impede publicação ou novo ciclo enquanto houver testes pendentes.

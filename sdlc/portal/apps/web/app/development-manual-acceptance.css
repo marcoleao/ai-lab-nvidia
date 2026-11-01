@@ -1,0 +1,5 @@
+﻿.manual-dev-acceptance{display:grid;gap:1rem;min-width:0}
+.manual-dev-acceptance p{margin:0}
+.manual-dev-acceptance article,.manual-dev-acceptance [aria-label="Solicitar ajustes"]{border:1px solid var(--border,#d6dfe8);border-radius:6px;padding:1rem;display:grid;gap:.75rem;min-width:0}
+.manual-dev-acceptance textarea{display:block;width:100%;box-sizing:border-box;margin-top:.5rem}
+.manual-dev-acceptance code{overflow-wrap:anywhere;white-space:normal}

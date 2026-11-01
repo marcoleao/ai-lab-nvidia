@@ -37,6 +37,7 @@ async function fixture(page: Page) {
       return route.fulfill({ json: { run: state.journey.run, confirmed: true } });
     }
     if (path === '/api/personas') return route.fulfill({ json: { personas: personae } });
+    if (path === `/api/items/${story.id}/development-build`) return route.fulfill({ json: { storyId: story.id, configured: false, operation: null, artifact: null, asOf: now } });
     if (path === `/api/items/${story.id}/development-deployment`) return route.fulfill({ json: { storyId: story.id, configured: false, operation: null, deployment: null, preparation: null, asOf: now } });
     if (path === `/api/items/${story.id}/development-test`) return route.fulfill({ json: { storyId: story.id, configured: false, operation: null, evidence: null, current: false, taskId: null, asOf: now } });
     if (path === `/api/items/${story.id}/development-approval`) return route.fulfill({ json: { storyId: story.id, approval: null, validity: { state: 'not_recorded', label: 'Sem aprovação registrada', reasons: [] }, approvalAvailable: false, asOf: now } });
@@ -63,8 +64,20 @@ async function fixture(page: Page) {
 }
 
 const interaction = (page: Page) => page.getByTestId('story-process');
+const storyHub='/stories/journey-story/execution';
+const hub=(page:Page)=>page.getByTestId('story-execution-hub');
+const choices=(page:Page)=>page.getByRole('region',{name:'O que você pode fazer agora',exact:true});
 async function actAsAdmin(page: Page) { await page.getByRole('combobox', { name: /Persona/ }).selectOption('admin'); }
-async function openInteraction(page: Page) { return openWorkPanel(page); }
+async function openInteraction(page: Page) {
+  return openWorkPanel(page);
+}
+async function openDetails(page:Page){
+  await page.getByRole('navigation',{name:'Seções de História',exact:true}).getByRole('link',{name:'Execução',exact:true}).click();
+  const events=hub(page).locator('details.story-execution-events');
+  if(!await events.evaluate(node=>node.hasAttribute('open')))await events.locator(':scope>summary').click();
+  await events.getByRole('link',{name:'Consultar sinais e evidências →',exact:true}).click();
+  await expect(page).toHaveURL(url=>url.pathname===storyHub+'/processing');
+}
 
 for(const [width,height] of [[1440,1000],[390,844]])test(`pre-publication interruption exposes direct technical retry and a folded diagnostic at ${width}px`,async({page})=>{
  const state=await fixture(page),summary='Não foi possível confirmar a conclusão desta tentativa de implementação. Esta tentativa não publicou alterações. Retome a correção técnica com o mesmo escopo.';
@@ -72,12 +85,12 @@ for(const [width,height] of [[1440,1000],[390,844]])test(`pre-publication interr
  Object.assign(state.journey.run,{state:'failed',stage:'generation',technicalRetryAvailable:true,error:'CODING_EXECUTOR_UNKNOWN: resultado local sem confirmação; evidência preservada.',commitSha:null});
  state.journey.nextAction={id:'retry',kind:'retry',label:'Retomar correção técnica',enabled:true,path:'/api/executions/journey-run/retry',method:'POST',body:{}};state.journey.secondaryActions=[];
  state.onWrite=()=>{Object.assign(state.journey.current,{state:'queued',title:'Solicitação recebida; aguardando processamento'});state.journey.nextAction=null;Object.assign(state.journey.run,{state:'queued',technicalRetryAvailable:false,error:null});};
- await page.setViewportSize({width,height});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);await openInteraction(page);
+ await page.setViewportSize({width,height});await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);await openInteraction(page);
  const panel=interaction(page),retry=panel.getByRole('button',{name:'Retomar correção técnica',exact:true});
  await expect(retry).toBeVisible();await expect(panel.getByText(summary,{exact:true})).toBeVisible();await expect(panel.getByRole('button',{name:'Responder impedimento',exact:true})).toHaveCount(0);
  const diagnostic=panel.getByTestId('activity-message-details');await expect(diagnostic).not.toHaveAttribute('open','');await expect(diagnostic.getByLabel('Relato integral da atividade')).toBeHidden();expect(state.writes).toHaveLength(0);
  await diagnostic.getByText('Consultar diagnóstico técnico registrado',{exact:true}).click();await expect(diagnostic.getByLabel('Relato integral da atividade')).toContainText('CODING_EXECUTOR_UNKNOWN');expect(state.writes).toHaveLength(0);
- await retry.click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0]).toMatchObject({path:'/api/executions/journey-run/retry',body:{},persona:'admin'});await expect(panel.getByText('Solicitação recebida; aguardando processamento',{exact:true})).toBeVisible();
+ await retry.click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0]).toMatchObject({path:'/api/executions/journey-run/retry',body:{},persona:'admin'});await expect(hub(page).getByRole('status').filter({hasText:'Solicitação recebida; aguardando processamento'})).toBeVisible();
 });
 
 async function planningFixture(page: Page) {
@@ -292,12 +305,15 @@ test('Story remains macro and task drill down keeps phase and one place for inte
   await expect(tabs.getByRole('link', { name: 'Resumo', exact: true })).toHaveCount(0);
   await expect(tabs.getByRole('link', { name: 'Componentes', exact: true })).toHaveCount(0);
   await tabs.getByRole('link', { name: 'Execução', exact: true }).click();
-  await expect(interaction(page)).toBeVisible();
+  await expect(hub(page)).toBeVisible();
+  await expect(hub(page).locator(':scope>section.panel')).toHaveCount(2);
+  await expect(interaction(page)).toBeHidden();
   await expect(page.getByRole('region', { name: 'Ciclo da História', exact: true })).toHaveCount(0);
   await expect(cycle).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Excecução com Assistente de I.A.', exact: true })).toHaveCount(0);
   await expect(interaction(page).getByRole('group', { name: 'Conteúdo do processo' })).toHaveCount(0);
-  await expect(page.getByRole('navigation', { name: 'Detalhes da execução' })).toBeVisible();
+  await hub(page).getByText('Eventos recentes da atividade',{exact:true}).click();
+  await expect(hub(page).getByRole('link',{name:'Consultar sinais e evidências →',exact:true})).toBeVisible();
   await tabs.getByRole('link', { name: /^Tarefas/ }).click();
   await expect(page.getByText('Remover credencial fixa do código.')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Assistente IA', exact: true })).toHaveCount(0);
@@ -368,7 +384,7 @@ for (const width of [1440,390]) test(`blocked merge explains Draft and resolutio
   Object.assign(state.journey.current,{kind:'merge',state:'blocked',title:'Integração impedida; consulte o diagnóstico',message:'O MR está em Draft.'});
   Object.assign(state.journey,{merge:{state:'blocked',blocks:[{category:'draft',message:'O MR está em Draft.'},{category:'checks',message:'Condição recusada: draft_status.'}]}});
   Object.assign(state.journey.nextAction,{id:'merge',label:'Solicitar merge ao assistente',path:'/api/executions/journey-run/merge',body:{expectedVersion:state.story.version,expectedSha:sha},confirmation:{title:'Confirmar integração',description:'Confirme a revisão atual sem remover bloqueios.',checkboxLabel:'Confirmo a integração desta revisão.'}});
-  await page.setViewportSize({width,height:844});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);
+  await page.setViewportSize({width,height:844});await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);
   const diagnostic=page.getByTestId('merge-impediment');
   await expect(diagnostic.getByRole('alert')).toBeVisible();await expect(diagnostic.getByRole('heading',{name:'Merge impedido',exact:true})).toBeVisible();
   await expect(diagnostic).toContainText('retirar a marcação Draft');await expect(diagnostic).toContainText('Como resolver');
@@ -387,7 +403,7 @@ for (const width of [1440,390]) test(`blocked merge explains Draft and resolutio
 test('merge failure requests reconciliation without claiming a confirmed blocker; resolved state clears old diagnosis',async({page})=>{
   const state=await fixture(page);
   Object.assign(state.journey.current,{kind:'merge',state:'failed',title:'Resultado da integração precisa ser reconciliado',message:'A confirmação não chegou.'});
-  await page.goto('/stories/journey-story?tab=planning');
+  await page.goto(storyHub+'/processing');
   const diagnostic=page.getByTestId('merge-impediment');await expect(diagnostic).toContainText('Resultado do merge precisa ser verificado');await expect(diagnostic).toContainText('Reconciliar a solicitação');await expect(diagnostic.getByRole('heading',{name:'Merge impedido',exact:true})).toHaveCount(0);
   state.journey.current.state='queued';await expect(diagnostic).toHaveCount(0);expect(state.writes).toEqual([]);
 });
@@ -399,29 +415,30 @@ for(const width of [1440,390]) test(`Draft is released from the assistant with s
  Object.assign(state.journey.nextAction,release);
  await page.route('**/api/executions/journey-run/merge/discussion',route=>route.fulfill({json:{version:0,turns:[],configured:true}}));
  state.onWrite=path=>{if(path.endsWith('/prepare')){Object.assign(state.journey.current,{state:'queued',title:'Liberação em andamento'});state.journey.nextAction=null as any;Object.assign(state.journey,{preparation:{eligible:false,preparation:{id:'release-ui',state:'queued',sha,message:'Liberação solicitada; aguardando confirmação.'}}});}};
- await page.setViewportSize({width,height:844});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);
+ await page.setViewportSize({width,height:844});await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);
  await page.getByTestId('merge-impediment').getByRole('button',{name:'Conversar sobre impedimento do merge'}).click();
  const proposed=page.getByRole('region',{name:'Ação proposta pelo assistente'});await expect(proposed).toBeVisible();await proposed.getByRole('button',{name:'Revisar liberação para integração'}).click();
+ await interaction(page).getByRole('button',{name:'Liberar para integração',exact:true}).click();
  const confirm=interaction(page).getByRole('button',{name:'Confirmar liberação',exact:true});await expect(confirm).toBeDisabled();expect(state.writes).toEqual([]);
  await interaction(page).getByRole('checkbox',{name:'Confirmo a liberação desta revisão para integração.'}).check();
  const directory=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(directory,{recursive:true});await page.screenshot({path:`${directory}/release-confirmation-${width}.png`,fullPage:true});
- await confirm.click();await expect(interaction(page)).toContainText('Liberação solicitada');expect(state.writes).toHaveLength(1);expect(state.writes[0]).toMatchObject({path:release.path,body:release.body,persona:'admin'});
+ await confirm.click();await expect(hub(page)).toContainText('Liberação solicitada');expect(state.writes).toHaveLength(1);expect(state.writes[0]).toMatchObject({path:release.path,body:release.body,persona:'admin'});
  Object.assign(state.journey.current,{state:'tracking',message:'Draft removido · integração ainda não solicitada.'});Object.assign(state.journey,{preparation:{eligible:false,preparation:{id:'release-ui',state:'succeeded',sha,message:'Draft removido · integração ainda não solicitada.'}}});state.journey.nextAction={...release,id:'merge',label:'Solicitar merge ao assistente',path:'/api/executions/journey-run/merge'} as any;
- await expect(interaction(page).getByRole('button',{name:'Solicitar merge ao assistente',exact:true})).toBeVisible();await page.reload();await expect(interaction(page)).toContainText('Draft removido');expect(state.writes).toHaveLength(1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await expect(choices(page).getByRole('link',{name:'Solicitar merge ao assistente',exact:true})).toBeVisible();await choices(page).getByRole('link',{name:'Solicitar merge ao assistente',exact:true}).click();await expect(interaction(page).getByRole('button',{name:'Solicitar merge ao assistente',exact:true})).toBeVisible();await page.reload();await expect(interaction(page)).toContainText('Draft removido');expect(state.writes).toHaveLength(1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
 test('assistant requests architect diagnosis inside the portal and preserves specialist attribution without release writes',async({page})=>{
  const state=await fixture(page);Object.assign(state.journey.current,{kind:'merge',state:'blocked'});Object.assign(state.journey,{chat:{mode:'merge',executionId:'journey-run',enabled:true}});
  let version=0;const turns:any[]=[];const writes:any[]=[];
  await page.route('**/api/executions/journey-run/merge/discussion',async route=>{if(route.request().method()==='POST'){const body=route.request().postDataJSON();writes.push(body);version++;turns.push({id:'specialist-ui',specialist:body.specialist,input:body.message,output:'Diagnóstico e plano propostos; nenhuma alteração executada.',state:'succeeded',createdAt:now});return route.fulfill({json:{turnId:'specialist-ui'}});}return route.fulfill({json:{version,turns,configured:true}});});
- await page.goto('/stories/journey-story?tab=planning&process=conversation');await actAsAdmin(page);await page.getByRole('button',{name:'Pedir diagnóstico de arquitetura',exact:true}).click();
+ await page.goto('/stories/journey-story/execution/conversation');await actAsAdmin(page);await page.getByRole('button',{name:'Pedir diagnóstico de arquitetura',exact:true}).click();
  await expect(page.getByRole('log',{name:'Histórico da conversa de merge'})).toContainText('Agente arquiteto');expect(writes).toHaveLength(1);expect(writes[0]).toMatchObject({specialist:'architecture',expectedVersion:0});expect(state.writes).toEqual([]);
 });
 
 test('unknown Draft release offers result verification without claiming Draft remains or requesting another release confirmation',async({page})=>{
  const state=await fixture(page);Object.assign(state.journey.current,{kind:'merge',state:'blocked'});Object.assign(state.journey,{preparation:{eligible:false,preparation:{id:'release-uncertain',state:'failed',sha,message:'A confirmação não chegou.'}}});
  Object.assign(state.journey.nextAction,{id:'release_draft',label:'Verificar resultado da liberação',path:'/api/executions/journey-run/merge/prepare',confirmation:undefined,body:{expectedVersion:state.story.version,expectedSha:sha,confirmed:true}});
- await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);await expect(interaction(page)).toContainText('Resultado da liberação precisa ser verificado');await expect(page.getByTestId('merge-impediment')).toHaveCount(0);expect(state.writes).toEqual([]);
+ await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);await expect(interaction(page)).toContainText('Resultado da liberação precisa ser verificado');await expect(page.getByTestId('merge-impediment')).toHaveCount(0);expect(state.writes).toEqual([]);
  await interaction(page).getByRole('button',{name:'Verificar resultado da liberação',exact:true}).click();await expect.poll(()=>state.writes.length).toBe(1);expect(state.writes[0].path).toBe('/api/executions/journey-run/merge/prepare');await expect(interaction(page).getByRole('checkbox')).toHaveCount(0);
 });
 
@@ -516,7 +533,7 @@ for(const width of [1440,390])test(`stale specification presents interruption di
   Object.assign(state.journey.run,{state:'waiting_approval',stage:'gate',commitSha:null});
   state.journey.nextAction={id:'cancel',kind:'cancel',label:'Interromper tentativa',enabled:true,path:'/api/executions/journey-run/cancel',method:'POST',body:{},confirmation:{title:'Interromper tentativa',description:'Interrompe esta tentativa para permitir revisão. A História permanece aberta; branches e evidências existentes são preservados.',checkboxLabel:'Confirmo a interrupção desta tentativa.'}};
   state.journey.secondaryActions=[{id:'cancel_story',kind:'cancel_story',label:'Cancelar História',enabled:true,path:'/api/items/journey-story/cancel',method:'POST',body:{expectedVersion:state.story.version}}];
-  await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);
+  await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);
   const panel=interaction(page),primary=panel.locator('.sw-action-primary').getByRole('button',{name:'Interromper tentativa',exact:true});
   await expect(primary).toBeVisible();await expect(primary).toBeEnabled();
   await expect(panel).toContainText('Use Interromper tentativa');await expect(panel.getByText('Nenhuma ação executável disponível nesta etapa.',{exact:true})).toHaveCount(0);
@@ -541,7 +558,7 @@ for(const width of [1440,390])test(`stale specification presents interruption di
   const verify=panel.getByRole('button',{name:'Verificar a mesma solicitação',exact:true});
   await expect(verify).toBeDisabled();await actAsAdmin(page);await expect(verify).toBeEnabled();await verify.click();
   await expect(page.getByTestId('pending-command')).toHaveCount(0);
-  await expect(panel.locator('.sw-action-primary').getByRole('button',{name:'Preparar nova especificação',exact:true})).toBeEnabled();
+  await expect(choices(page).getByRole('link',{name:'Preparar nova especificação',exact:true})).toBeVisible();
   await expect(panel.getByRole('button',{name:'Revisar aprovação',exact:true})).toHaveCount(0);
   const operation=page.getByTestId('story-journey-header').locator('.sw-operation');
   await expect(page.getByTestId('story-phase')).toHaveText('SPECIFICATION');await expect(operation).toHaveText('Tentativa interrompida');
@@ -559,7 +576,7 @@ test('processing distinguishes screen connection, executor heartbeat and last re
   const state = await fixture(page);
   state.journey.current.state = 'running'; state.journey.current.title = 'Aguardando resposta do modelo'; state.journey.nextAction = null; state.journey.secondaryActions = [];
   state.journey.signals.lastHeartbeatAt = '2020-01-01T12:00:00Z';
-  await page.goto('/stories/journey-story?interact=processing');
+  await page.goto('/stories/journey-story/execution/processing');
   await expect(interaction(page).getByText('Relatório recebido e validado.', { exact: true }).first()).toBeVisible();
   await expect(interaction(page).getByText(/Sem confirmação recente. Último sinal/)).toBeVisible();
   await expect(interaction(page).getByText(/O sinal não comprova progresso interno/)).toBeVisible();
@@ -576,7 +593,7 @@ test('processing distinguishes screen connection, executor heartbeat and last re
 
 test('planned work binding has explicit scope and a completion criterion without silently completing tasks', async ({ page }) => {
   const state = await fixture(page);
-  await page.goto('/stories/journey-story?interact=administration');
+  await page.goto('/stories/journey-story/execution/administration');
   await actAsAdmin(page);
   await interaction(page).getByText('Vincular Tarefas à codificação', { exact: true }).click();
   await interaction(page).getByRole('checkbox', { name: 'Integrar serviço planejado', exact: true }).check();
@@ -607,7 +624,7 @@ test('existing results remain readable without creating artificial process tasks
 
 test('a binding draft keeps its original concurrency token until the user reviews a newer selection', async ({ page }) => {
   const state = await fixture(page);
-  await page.goto('/stories/journey-story?interact=administration');
+  await page.goto('/stories/journey-story/execution/administration');
   await actAsAdmin(page);
   await interaction(page).getByText('Vincular Tarefas à codificação', { exact: true }).click();
   await interaction(page).getByRole('checkbox', { name: 'Integrar serviço planejado', exact: true }).check();
@@ -660,11 +677,12 @@ test('manual task status updates preserve the active central planning section fr
 
 test('refreshing the same item preserves edit and binding drafts and the interaction section', async ({ page }) => {
   const state = await fixture(page);
-  await page.goto('/stories/journey-story?interact=administration');
+  await page.goto('/stories/journey-story/execution/administration');
   await actAsAdmin(page);
   await interaction(page).getByText('Vincular Tarefas à codificação', { exact: true }).click();
   await interaction(page).getByRole('checkbox', { name: 'Integrar serviço planejado', exact: true }).check();
   await interaction(page).getByRole('textbox', { name: 'Escopo atendido' }).fill('Escopo mantido durante a atualização.');
+  await page.getByRole('navigation',{name:'Seções de História',exact:true}).getByRole('link',{name:/^Tarefas/}).click();
   await page.getByTestId('edit-item').click();
   const form = page.getByRole('form', { name: 'Formulário do item' });
   await form.getByRole('textbox', { name: /Nome ou título/ }).fill('Nome mantido durante a atualização');
@@ -673,7 +691,10 @@ test('refreshing the same item preserves edit and binding drafts and the interac
   await page.getByRole('alert').filter({hasText:'Seu rascunho permanece disponível.'}).getByRole('button', { name: 'Tentar novamente', exact: true }).click();
   await expect(form.getByRole('textbox', { name: /Nome ou título/ })).toHaveValue('Nome mantido durante a atualização');
   await page.getByRole('region',{name:'Situação e próxima ação'}).getByRole('button', { name: 'Cancelar', exact: true }).click();
-  await expect(page).toHaveURL(url => url.searchParams.get('tab') === 'planning' && url.searchParams.get('process') === 'administration');
+  await expect(form).toHaveCount(0);
+  await expect(page.getByRole('navigation',{name:'Seções de História',exact:true}).getByRole('link',{name:/^Tarefas/})).toHaveAttribute('aria-current','page');
+  await openWorkPanel(page,'administration');
+  await expect(page).toHaveURL(url => url.pathname === storyHub+'/administration');
   await expect(interaction(page).getByRole('heading', { name: 'Escopo das Tarefas', exact: true })).toBeVisible();
   await expect(interaction(page).getByRole('textbox', { name: 'Escopo atendido' })).toHaveValue('Escopo mantido durante a atualização.');
 });
@@ -736,22 +757,26 @@ test('legacy Task interaction URLs normalize to central process views and surviv
 for (const width of [1440,390]) test(`delivery destinations separate DEV from immutable release and retain current phase at ${width}px`,async({page})=>{
  const state=await fixture(page);state.story.status='merge_request';Object.assign(state.journey.current,{phase:'MERGE REQUEST',kind:'merge',state:'succeeded'});
  state.journey.delivery=storyDeliveryReading({status:'merge_request',mergeConfirmed:true,release:null});
+ state.journey.nextAction={id:'prepare_dev',label:'Consultar publicação DEV',href:'/stories/journey-story?tab=planning&process=environment&environment=DEV&devStep=deployment',enabled:true};
  await page.setViewportSize({width,height:844});await page.goto('/stories/journey-story?taskFilter=planned&taskSearch=servico');await actAsAdmin(page);
  const cycle=page.getByRole('list',{name:'Ciclo da História',exact:true});
  await expect(cycle.getByRole('listitem').nth(6)).toContainText('DEV');await expect(cycle.getByRole('listitem').nth(9)).toContainText('PROD');
- await expect(cycle.locator('[aria-current="step"]')).toContainText('MERGE REQUEST');
- await expect(cycle.locator('[data-state="previous"].sw-destination')).toHaveCount(0);
- await cycle.getByRole('button',{name:/Consultar DEV/}).click();
- const detail=page.getByTestId('story-environment-detail');await expect(detail).toContainText('sem associação a uma release');await expect(detail).toContainText('A História pode seguir com publicação e testes em DEV');
+ await expect(cycle.locator('[aria-current="step"]')).toContainText('MERGE REQUEST');await expect(cycle.locator('[data-state="previous"].sw-destination')).toHaveCount(0);
+ await expect(cycle.getByRole('button',{name:/Consultar DEV|Consultar QA/})).toHaveCount(0);
+ await page.getByRole('navigation',{name:'Seções de História',exact:true}).getByRole('link',{name:'Execução',exact:true}).click();
+ await choices(page).getByRole('link',{name:'Consultar publicação DEV',exact:true}).click();
+ const detail=page.getByTestId('story-environment-detail');await expect(detail).toContainText('Outra publicação exige revisão e confirmação próprias.');
+ await expect(page.locator('.sw-delivery-scope')).toContainText('DEV: desenvolvimento da História, com release opcional.');
  await expect(detail.getByRole('button',{name:'Escolher release'})).toHaveCount(0);await expect(interaction(page)).toBeHidden();
- const destinationScreens=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(destinationScreens,{recursive:true});await page.screenshot({path:`${destinationScreens}/story-dev-${width}.png`,fullPage:true});
- await expect(page).toHaveURL(/process=environment/);expect(new URL(page.url()).searchParams.get('taskSearch')).toBe('servico');
- await cycle.getByRole('button',{name:/Consultar QA/}).click();await expect(detail).toContainText('História ainda sem release associada');await expect(detail).toContainText('Todas as Histórias');await expect(detail).toContainText('pacote imutável');
- await expect(cycle.locator('[aria-current="step"]')).toContainText('MERGE REQUEST');await expect(cycle.getByRole('button',{name:/Consultar QA/})).toHaveAttribute('aria-pressed','true');
- await detail.getByRole('button',{name:'Escolher release',exact:true}).click();await expect(page).toHaveURL(/returnEnvironment=QA/);
+ await expect(page).toHaveURL(url=>url.pathname===storyHub+'/dev/deployment'&&url.searchParams.get('taskSearch')==='servico');
+ const directory=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(directory,{recursive:true});await page.screenshot({path:`${directory}/story-dev-${width}.png`,fullPage:true});
+ await openDetails(page);await page.getByRole('navigation',{name:'Detalhes da execução',exact:true}).getByRole('link',{name:'Consultar QA',exact:true}).click();
+ await expect(page).toHaveURL(url=>url.pathname===storyHub+'/environments/QA');
+ await expect(detail).toContainText('História ainda sem release associada');await expect(detail).toContainText('Todas as Histórias');await expect(detail).toContainText('pacote imutável');
+ await expect(cycle.locator('[aria-current="step"]')).toContainText('MERGE REQUEST');await expect(cycle.locator('.sw-destination-qa')).toHaveAttribute('data-selected','true');
+ await detail.getByRole('button',{name:'Escolher release',exact:true}).click();await expect(page).toHaveURL(url=>url.pathname===storyHub+'/release'&&url.searchParams.get('returnEnvironment')==='QA');
  await page.getByRole('button',{name:'Voltar à consulta de QA',exact:true}).click();await expect(detail).toBeVisible();
- await page.reload();await expect(detail).toContainText('História ainda sem release associada');
- const directory=process.env.SCREENSHOT_DIR??'test-results/screenshots';mkdirSync(directory,{recursive:true});await page.screenshot({path:`${directory}/story-qa-${width}.png`,fullPage:true});
+ await page.reload();await expect(detail).toContainText('História ainda sem release associada');await page.screenshot({path:`${directory}/story-qa-${width}.png`,fullPage:true});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(state.writes).toEqual([]);
 });
 
@@ -761,7 +786,8 @@ test('Task destination consultation preserves historical attempt, current journe
  const detail=page.getByTestId('story-environment-detail');await expect(detail).toContainText('PROD');await expect(detail).toContainText('preserva a tentativa');await expect(detail.getByRole('button',{name:'Voltar à atividade consultada',exact:true})).toBeVisible();
  await expect(detail.getByRole('button',{name:'Escolher release'})).toHaveCount(0);await expect(page.getByRole('list',{name:'Ciclo da História',exact:true}).locator('[aria-current="step"]')).toContainText('CODE REVIEW');
  await page.getByRole('button',{name:/Consultar DEV/}).click();expect(new URL(page.url()).searchParams.get('attempt')).toBe('attempt-old');
- const parent=detail.getByRole('link',{name:/Consultar entrega na História/});expect(new URL(await parent.getAttribute('href')??'',page.url()).searchParams.getAll('tab')).toEqual(['planning']);
+ const parent=detail.getByRole('link',{name:/Consultar entrega na História/});await expect(parent).toHaveAttribute('href',new RegExp(`${storyHub}/environments/DEV\\?`));const parentUrl=new URL(await parent.getAttribute('href')??'',page.url());
+ expect(parentUrl.pathname).toBe(storyHub+'/environments/DEV');expect(parentUrl.searchParams.getAll('tab')).toEqual([]);expect(parentUrl.searchParams.get('taskSearch')).toBe('servico');
  await parent.click();await expect(page).toHaveURL(/stories\/journey-story/);expect(new URL(page.url()).searchParams.get('taskSearch')).toBe('servico');expect(state.writes).toEqual([]);
 });
 
@@ -769,13 +795,14 @@ test('Task destination consultation preserves historical attempt, current journe
 test('destination keyboard consultation keeps unsaved release choice separate from confirmed association across tabs',async({page})=>{
  const state=await fixture(page);state.journey.delivery=storyDeliveryReading({status:'code_review',release:null});
  await page.route('**/api/items/journey-story/release',route=>route.fulfill({json:{story:{...state.story},assignment:null,system:{id:'system',name:'Sistema isolado'},releases:[{id:'pending-release',key:'R-P',name:'Escolha pendente',version:1,compositionStatus:'OPEN'}],truncated:false,totalChoices:1}}));
- await page.goto('/stories/journey-story');await actAsAdmin(page);
- const qa=page.getByRole('button',{name:/Consultar QA/});await qa.focus();await qa.press('Enter');
- const detail=page.getByTestId('story-environment-detail');await expect(detail).toBeFocused();await detail.getByRole('button',{name:'Escolher release',exact:true}).click();
+ await page.goto('/stories/journey-story');await actAsAdmin(page);await openDetails(page);
+ const qa=page.getByRole('navigation',{name:'Detalhes da execução',exact:true}).getByRole('link',{name:'Consultar QA',exact:true});await qa.focus();await qa.press('Enter');
+ const detail=page.getByTestId('story-environment-detail');await expect(page.getByRole('heading',{name:'Entrega em QA',exact:true,level:1})).toBeFocused();await expect(detail).toBeVisible();
+ await detail.getByRole('button',{name:'Escolher release',exact:true}).click();
  const choice=page.getByRole('combobox',{name:'Release planejada',exact:true});await choice.selectOption('pending-release');
  await page.getByRole('button',{name:'Voltar à consulta de QA',exact:true}).click();await expect(detail).toContainText('História ainda sem release associada');await expect(detail).not.toContainText('Escolha pendente');
  await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:/Tarefas/}).click();
- await qa.click();await detail.getByRole('button',{name:'Escolher release',exact:true}).click();await expect(choice).toHaveValue('pending-release');
+ await openDetails(page);await qa.click();await detail.getByRole('button',{name:'Escolher release',exact:true}).click();await expect(choice).toHaveValue('pending-release');
  expect(state.writes).toEqual([]);
 });
 
@@ -827,7 +854,7 @@ test('RA-03 collection keeps phase primary and the same reading as Story details
 for(const width of [1440,390])test(`successful Draft release is a stage record instead of an outdated integration claim at ${width}px`,async({page})=>{
  const state=await fixture(page),releaseMessage='Draft removido · integração ainda não solicitada. Solicite o merge na atividade.';
  Object.assign(state.journey.current,{phase:'MERGE REQUEST',kind:'merge',state:'succeeded',title:'Código integrado',message:'Integração da revisão corrente confirmada.'});Object.assign(state.journey,{merge:{state:'succeeded',sha,blocks:[]},preparation:{eligible:false,preparation:{id:'release-record-ui',state:'succeeded',sha,message:releaseMessage}},nextAction:{id:'development_build',label:'Preparar versão DEV',href:'/stories/journey-story?tab=planning&process=environment&environment=DEV',enabled:true},secondaryActions:[]});
- await page.setViewportSize({width,height:1000});await page.goto('/stories/journey-story?tab=planning');await actAsAdmin(page);const workPanel=await openInteraction(page),record=workPanel.getByTestId('draft-release-record');await expect(record.getByRole('status')).toContainText('A integração da revisão atual já foi confirmada');await expect(record.getByText(releaseMessage,{exact:true})).not.toBeVisible();await expect(workPanel.getByRole('link',{name:'Preparar versão DEV',exact:true})).toBeEnabled();
+ await page.setViewportSize({width,height:1000});await page.goto(storyHub);await actAsAdmin(page);await openInteraction(page);const workPanel=await openInteraction(page),record=workPanel.getByTestId('draft-release-record');await expect(record.getByRole('status')).toContainText('A integração da revisão atual já foi confirmada');await expect(record.getByText(releaseMessage,{exact:true})).not.toBeVisible();await expect(workPanel.getByRole('link',{name:'Preparar versão DEV',exact:true})).toBeEnabled();
  if(process.env.SCREENSHOT_DIR){mkdirSync(process.env.SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:`${process.env.SCREENSHOT_DIR}/integrated-draft-record-${width}.png`,fullPage:true});}
  await record.locator('summary').focus();await page.keyboard.press('Enter');await expect(record.getByText(releaseMessage,{exact:true})).toBeVisible();await expect(record).toContainText('Mensagem registrada na etapa de liberação');await expect(record).toContainText('release-record-ui');await expect(record).toContainText(sha);await record.locator('summary').click();expect(state.writes).toEqual([]);
  state.journey.merge.sha=oldSha;await expect(record.getByRole('status')).toContainText('Acompanhe a integração pela situação atual');await expect(record.getByRole('status')).not.toContainText('já foi confirmada');state.journey.merge.sha=sha;state.journey.current.state='failed';state.journey.current.title='Resultado atual da integração não confirmado';await expect(record.getByRole('status')).not.toContainText('já foi confirmada');

@@ -1,5 +1,8 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import Link from 'next/link';
+import {usePathname,useSearchParams} from 'next/navigation';
+import {storyExecutionHref} from './story-execution-navigation';
 import {Server} from 'lucide-react';
 import type {AssistantDevAction} from '../../../packages/shared/src/assistant-dev-actions';
 import EnvironmentTargetPreparation from './environment-target-preparation';
@@ -23,6 +26,7 @@ export function validAssistantDevAction(value:unknown,context:Context):value is 
 /** Navigation metadata only. Existing domain components retain every preview,
  * confirmation, pending request, body/persona/key and observed receipt. */
 export default function AssistantDevActionDialog({action,context,persona,role,readOnly,fresh,active=true,recoveryTargetId,onRefresh}:Props){
+ const pathname=usePathname(),search=useSearchParams();
  const [open,setOpen]=useState(false),dialog=useRef<HTMLDialogElement>(null),trigger=useRef<HTMLButtonElement>(null),heading=useRef<HTMLHeadingElement>(null);
  const scoped=validAssistantDevAction(action,context)?action:null,target=scoped?.kind==='environment_target',following=!!scoped?.operationId;
  const label=target?following?'Acompanhar destino DEV':'Preparar destino DEV':following?'Acompanhar publicação DEV':'Publicar em DEV';
@@ -32,6 +36,7 @@ export default function AssistantDevActionDialog({action,context,persona,role,re
  function show(){if(scoped&&active)setOpen(true);}
  function close(){dialog.current?.close();setOpen(false);requestAnimationFrame(()=>trigger.current?.isConnected&&trigger.current.focus());}
  useEffect(()=>{if(!active){setOpen(false);return;}if(open&&!dialog.current?.open){dialog.current?.showModal();requestAnimationFrame(()=>heading.current?.focus());}if(!open&&dialog.current?.open)dialog.current.close();},[open,active]);
+ if(context.kind==='story'&&!pathname.startsWith('/tasks/'))return <span role="group" className="assistant-system-action-entry assistant-dev-entry" aria-label="Ações DEV do contexto">{scoped&&active?<Link className="assistant-system-action-trigger" href={storyExecutionHref(context.id,'environment',pathname.startsWith('/stories/')?search.toString():undefined,'deployment')}><Server size={15} aria-hidden="true"/>{label}</Link>:<span role="status">Ação DEV indisponível neste contexto.</span>}</span>;
  return <>
   <span role="group" className="assistant-system-action-entry assistant-dev-entry" aria-label="Ações DEV do contexto"><button ref={trigger} type="button" className="assistant-system-action-trigger" aria-haspopup="dialog" aria-expanded={open&&active} aria-controls={`assistant-dev-dialog-${context.id}`} disabled={!scoped||!active} onClick={show}><Server size={15} aria-hidden="true"/>{scoped?label:'Ação DEV indisponível'}</button>{!scoped&&<span role="status">Situação DEV não confirmada.</span>}</span>
   {scoped&&active&&<dialog ref={dialog} id={`assistant-dev-dialog-${context.id}`} className="assistant-application-dialog assistant-dev-dialog" aria-labelledby={`assistant-dev-title-${context.id}`} onCancel={event=>{event.preventDefault();close();}} onClose={()=>setOpen(false)}>

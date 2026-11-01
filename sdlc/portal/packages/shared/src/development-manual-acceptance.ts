@@ -1,0 +1,11 @@
+export type ManualCriterionResult={index:number;passed:boolean|null};
+export type ManualAcceptance={id:string;storyId:string;taskId:string;number:number;scope?:'criteria'|'story';referenceDigest:string;specificationId:string;executionId:string;buildId:string;deploymentId:string;sourceSha:string;imageId:string;archiveDigest:string;criteria:string[];results:ManualCriterionResult[];result:'passed'|'failed'|'pending';actorId:string;actorName:string;notes:string;createdAt:string};
+export type ManualAcceptanceReading={storyId:string;record:ManualAcceptance|null;current:boolean;development?:import('./development-approval.js').DevelopmentApprovalReading;asOf:string};
+export type ManualAcceptanceContext=ManualAcceptanceReading&{storyVersion:number;taskId:string|null;criteria:string[];specificationNumber:number|null;deploymentId:string|null;buildId:string|null;sourceSha:string|null;url:string|null;allowed:boolean;blockers:string[];checks?:{id:string;label:string;passed:boolean;detail:string}[];development?:import('./development-approval.js').DevelopmentApprovalReading;token:string};
+
+export function isManualAcceptance(value:unknown,storyId:string):value is ManualAcceptance{
+ if(!value||typeof value!=='object')return false;const v=value as ManualAcceptance;
+ if(!(v.storyId===storyId&&['id','taskId','referenceDigest','specificationId','executionId','buildId','deploymentId','sourceSha','imageId','archiveDigest','actorId','actorName'].every(key=>typeof v[key as keyof ManualAcceptance]==='string'&&String(v[key as keyof ManualAcceptance]).trim().length>0)&&typeof v.notes==='string'&&Number.isSafeInteger(v.number)&&v.number>0&&Number.isFinite(Date.parse(v.createdAt))&&Array.isArray(v.criteria)&&v.criteria.every(c=>typeof c==='string'&&c.trim().length>0)&&Array.isArray(v.results)))return false;
+ if(v.scope==='story')return v.results.length===0&&['passed','failed'].includes(v.result);
+ return (v.scope===undefined||v.scope==='criteria')&&v.criteria.length>0&&v.notes.trim().length>0&&v.results.length===v.criteria.length&&v.results.every((c,i)=>!!c&&c.index===i&&(c.passed===null||typeof c.passed==='boolean'))&&v.result===(v.results.some(c=>c.passed===false)?'failed':v.results.every(c=>c.passed===true)?'passed':'pending');
+}

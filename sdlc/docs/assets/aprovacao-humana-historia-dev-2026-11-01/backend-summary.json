@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "command": "backend",
+  "startedAt": "2026-11-01T17:32:07.532Z",
+  "runtimeHash": "b5a635fbb58eb0492e477110f3d93bc3b937e48ab92d37c288571722d580f9e3",
+  "testHash": "cc2136a571f5f6755894003ee523f7ebbd33e9bd3c0a788d6726fbd02a1f4b62",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "guards",
+      "exitCode": 0,
+      "durationMs": 979
+    },
+    {
+      "name": "backend",
+      "exitCode": 0,
+      "durationMs": 71163
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "backend": {
+    "kind": "backend",
+    "database": "portal_test",
+    "startedAt": "2026-11-01T17:32:08.582Z",
+    "results": [
+      {
+        "file": "audit-guard.test.ts",
+        "exitCode": 0,
+        "durationMs": 787,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "report": "/reports/20261101T173157Z-b2ecbf/audit-guard.test.ts.json",
+        "collectionErrors": [],
+        "skipReason": null
+      },
+      {
+        "file": "audit.test.ts",
+        "exitCode": 0,
+        "durationMs": 379,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "report": "/reports/20261101T173157Z-b2ecbf/audit.test.ts.json",
+        "collectionErrors": [],
+        "skipReason": null
+      },
+      {
+        "file": "development-approvals.test.ts",
+        "exitCode": 0,
+        "durationMs": 55201,
+        "passed": 69,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "report": "/reports/20261101T173157Z-b2ecbf/development-approvals.test.ts.json",
+        "collectionErrors": [],
+        "skipReason": null
+      },
+      {
+        "file": "development-tests.test.ts",
+        "exitCode": 0,
+        "durationMs": 9814,
+        "passed": 17,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "report": "/reports/20261101T173157Z-b2ecbf/development-tests.test.ts.json",
+        "collectionErrors": [],
+        "skipReason": null
+      }
+    ],
+    "errors": [],
+    "finishedAt": "2026-11-01T17:33:19.694Z",
+    "ok": true
+  },
+  "finishedAt": "2026-11-01T17:33:19.705Z",
+  "sourceStable": true,
+  "ok": true
+}

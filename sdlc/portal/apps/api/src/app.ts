@@ -1,5 +1,6 @@
 import {registerDevelopmentApprovals} from './development-approvals.ts';
 import {registerDevelopmentTests} from './development-tests.ts';
+import {registerDevelopmentManualAcceptance} from './development-manual-acceptance.ts';
 import type {DevelopmentTestProvider} from './development-test-provider.ts';
 import {registerDevelopmentDeployments} from './development-deployments.ts';
 import type {DeploymentProvider} from './deployment-provider.ts';
@@ -485,6 +486,7 @@ export function createApp(options:Options){
   const {processContractIntegrationJobs}=registerContractIntegrations(app,assistantHelpers,options.contractIntegrations);
   registerDevelopmentApprovals(app,assistantHelpers);
   const {processDevelopmentTestJobs}=registerDevelopmentTests(app,assistantHelpers,options.developmentTests,options.deployments);
+  registerDevelopmentManualAcceptance(app,assistantHelpers,options.deployments);
   const {processDevelopmentDeploymentJobs}=registerDevelopmentDeployments(app,assistantHelpers,options.deployments,options.runtime);
   const {processEnvironmentTargetJobs}=registerEnvironmentTargets(app,assistantHelpers,options.runtime);
   const {processDevelopmentBuildJobs}=registerDevelopmentBuilds(app,assistantHelpers,options.developmentBuilds);

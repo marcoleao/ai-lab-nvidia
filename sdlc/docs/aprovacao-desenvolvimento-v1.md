@@ -1,5 +1,9 @@
 # Desenvolvimento Finalizado — contrato v1
 
+**Atualização de política — 01/11/2026:** novas decisões humanas passam à [aprovação global da História em DEV](aprovacao-humana-historia-dev-v2.md). O registro por critério e a segunda confirmação descritos no percurso v1 são históricos; resultados anteriores são preservados.
+
+Extensão de 01/11/2026, publicada localmente: a aceitação completa pode vir de [verificação manual por critério](aceitacao-manual-dev-v1.md), com fonte imutável e implantação/revisão vinculadas. A aprovação referencia essa fonte por `manualAcceptanceId`, com `testId`/`suiteDigest` nulos, ou referencia o teste automatizado completo existente. Os outros controles e a confirmação humana da aprovação permanecem. Validação, publicação e limites estão no recibo da extensão.
+
 RA-14 · 30/10/2026. Evidências de entrega e aceite no [plano incremental](plano-incremental-releases-ambientes-2026-10-27.md#46-ra-14--aprovação-de-desenvolvimento-finalizado).
 
 Desenvolvimento Finalizado é uma aprovação humana de uma revisão da História, separada da fase do fluxo, do ambiente e da conclusão. A História continua aberta até a entrada confirmada em PRD da release contendo sua revisão. A aprovação não exige associação a release; ela será uma entrada da avaliação integral da composição na RA-15.

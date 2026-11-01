@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "command": "browser",
+  "startedAt": "2026-11-01T17:35:34.039Z",
+  "runtimeHash": "7b27dddf365fc435305a48d325a3696bc60bb97fe2b8139a8d753624fc2b065f",
+  "testHash": "cc2136a571f5f6755894003ee523f7ebbd33e9bd3c0a788d6726fbd02a1f4b62",
+  "database": "portal_test",
+  "externalProviders": "simulated",
+  "workers": "manual",
+  "phases": [
+    {
+      "name": "case-registration",
+      "exitCode": 0,
+      "durationMs": 1080
+    },
+    {
+      "name": "browser",
+      "exitCode": 1,
+      "durationMs": 119435
+    }
+  ],
+  "limitations": [
+    "Real GitLab/LLM/registry/deployment acceptance is a separate opt-in run; this report does not attest DEV/QA/HML/PRD deployments."
+  ],
+  "browser": {
+    "stats": {
+      "startTime": "2026-11-01T17:35:36.492Z",
+      "duration": 118902.047,
+      "expected": 76,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "total": 77,
+    "failed": [
+      {
+        "id": "UI-619f411aa4a6",
+        "file": "development-approval.spec.ts",
+        "title": "an original pending legacy approval can be recovered without creating another human intention"
+      }
+    ],
+    "errors": [],
+    "scope": "selected"
+  },
+  "finishedAt": "2026-11-01T17:37:35.605Z",
+  "sourceStable": true,
+  "ok": false
+}

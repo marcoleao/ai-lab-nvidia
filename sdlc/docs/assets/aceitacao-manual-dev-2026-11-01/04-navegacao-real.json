@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-11-01T14:57:55.447Z",
+  "scope": "Real Portal UI; read-only verification, no acceptance/approval registered",
+  "checks": [
+    {
+      "step": "hub",
+      "actions": "O que você pode fazer agora\n\nEscolha uma opção para abrir sua página de consulta ou revisão. A confirmação, quando disponível, acontece nessa página.\n\nRegistrar verificação manual\nOutras ações disponíveis",
+      "visibleFields": 0
+    },
+    {
+      "step": "manual-desktop",
+      "url": "http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez/execution/dev/acceptance",
+      "criteria": 6,
+      "approvedRadios": 0,
+      "existingRecord": 0,
+      "reviewEnabled": false,
+      "layout": {
+        "scrollWidth": 1440,
+        "width": 1440
+      }
+    },
+    {
+      "step": "approval",
+      "manualActions": 1,
+      "confirmButtons": 0
+    },
+    {
+      "step": "task",
+      "text": "Testes e aceitação em DEV\n\nOs testes técnicos e a verificação humana têm evidências próprias. A Tarefa conclui quando a aceitação completa da revisão estiver registrada.\n\nÚltima verificação automatizada: aprovada. Escopo técnico; não comprova aceitação dos critérios. Vinculada ao DEV nesta observação. Leitura de 01/11/2026, 11:57.\n\nAceitação humana: 0 de 6 critérios registrados. Registre o resultado depois de conferir a aplicação. Leitura de 01/11/2026, 11:57.\n\nRegistrar verificação manual\n\nConsultar testes automatizados em DEV",
+      "doingVisible": 1
+    },
+    {
+      "step": "manual-mobile",
+      "url": "http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez/execution/dev/acceptance",
+      "criteria": 6,
+      "layout": {
+        "scrollWidth": 390,
+        "width": 390,
+        "scrollY": 0
+      }
+    }
+  ],
+  "writes": [],
+  "errors": []
+}

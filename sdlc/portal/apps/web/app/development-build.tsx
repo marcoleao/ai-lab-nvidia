@@ -7,7 +7,7 @@ import {ErrorState,LoadingState,Spinner,displayDate} from './experience-ui';
 import {DevStageActions,useDevStage,useDevStageAttention} from './dev-stage';
 import './development-build.css';
 
-type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void};
+type Props={storyId:string;storyVersion:number;persona:string;role:string;active:boolean;readOnly:boolean;stale:boolean;recoveryTargetId:string;onReturn:()=>void;onRefresh:()=>void;onPendingChange?:(pending:boolean)=>void};
 type Mode='build'|'resume'|'cancel'|null;
 const labels:Record<DevelopmentBuildOperation['state'],string>={queued:'Construção solicitada · na fila',running:'Construção em execução',paused:'Construção pausada',blocked:'Construção impedida',failed:'Falha na construção',unknown:'Resultado da construção não confirmado',succeeded:'Artefato de trabalho confirmado',cancelled:'Construção cancelada'};
 const unsettled=['queued','running','paused','unknown'];
@@ -15,13 +15,13 @@ function newer(old:DevelopmentBuildOperation|null,next:DevelopmentBuildOperation
 function combine(old:DevelopmentBuildReading|null,next:DevelopmentBuildReading):DevelopmentBuildReading{return !old?next:{...next,operation:newer(old.operation,next.operation),artifact:newer(old.artifact,next.artifact)};}
 async function read<T>(path:string,signal?:AbortSignal):Promise<T>{const response=await fetch('/api'+path,{cache:'no-store',signal}),body=await response.json();if(!response.ok)throw Error(body.error?.message||'Não foi possível consultar a construção DEV.');return body;}
 
-export default function DevelopmentBuild({storyId,storyVersion,persona,role,active,readOnly,stale,recoveryTargetId,onReturn,onRefresh}:Props){
+export default function DevelopmentBuild({storyId,storyVersion,persona,role,active,readOnly,stale,recoveryTargetId,onReturn,onRefresh,onPendingChange}:Props){
  const {guided,secondary}=useDevStage();
  const base=`/items/${storyId}/development-build`,storage=`sdlc-development-build:${storyId}`;
  const [data,setData]=useState<DevelopmentBuildReading|null>(null),[known,setKnown]=useState<DevelopmentBuildOperation|null>(null),[reason,setReason]=useState(''),[restored,setRestored]=useState('');
  const [loading,setLoading]=useState(true),[queryError,setQueryError]=useState(''),[refresh,setRefresh]=useState(0),[context,setContext]=useState<{value:DevelopmentBuildContext;signature:string}|null>(null),[contextBusy,setContextBusy]=useState(false),[contextError,setContextError]=useState('');
  const [mode,setMode]=useState<Mode>(null),[decisionSignature,setDecisionSignature]=useState(''),[accepted,setAccepted]=useState(false),[notice,setNotice]=useState(''),[target,setTarget]=useState<HTMLElement|null>(null);
- const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),contextAbort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),callbacks=useRef({onReturn,onRefresh});callbacks.current={onReturn,onRefresh};
+ const confirmation=useRef<HTMLElement>(null),result=useRef<HTMLElement>(null),trigger=useRef<HTMLButtonElement>(null),contextAbort=useRef<AbortController|null>(null),focus=useRef<'confirmation'|'result'|'trigger'|null>(null),callbacks=useRef({onReturn,onRefresh,onPendingChange});callbacks.current={onReturn,onRefresh,onPendingChange};
  const reload=()=>setRefresh(value=>value+1);
  const operation=newer(data?.operation??null,known),artifact=newer(data?.artifact??null,known?.state==='succeeded'&&known.artifact?known:null);
  const receiptAhead=!!known&&(!data?.operation||known.number>data.operation.number||known.id===data.operation.id&&known.version>data.operation.version);
@@ -62,6 +62,7 @@ export default function DevelopmentBuild({storyId,storyVersion,persona,role,acti
  const confirmationTitle=mode==='resume'?'Confirmar retomada da construção':mode==='cancel'?'Confirmar cancelamento da construção':'Confirmar construção DEV';
  const recover=!!op.pending||!!operation&&operation.state==='unknown';
  const previewBlocked=mode==='build'&&context?.value.allowed===false;
+ useEffect(()=>{const notify=callbacks.current.onPendingChange;notify?.(recover);return()=>notify?.(false);},[recover,storyId]);
  useDevStageAttention(Boolean(op.pending||op.busy||working||mode||queryError||contextError||receiptAhead||contextBusy));
  const feedback=<>{op.feedback}</>;
  const recovery=!active&&recover&&target?createPortal(<section className="alert development-build-recovery" aria-label="Recuperação da construção DEV" data-testid="development-build-recovery"><strong>A construção DEV desta História precisa de confirmação.</strong>{feedback}<button type="button" onClick={()=>callbacks.current.onReturn()}>Voltar à construção DEV</button></section>,target):null;

@@ -5,7 +5,7 @@ import {qualityPolicy} from './merge-readiness.ts';
 export const developmentApprovalPolicy='development-approval-v1';
 export type DevelopmentReference={referenceDigest:string;storyId:string;specificationId:string|null;specificationNumber:number|null;executionId:string|null;sourceSha:string|null;repositoryId:string|null;repositoryVersion:number|null;integrationReferenceId:string|null;integrationSha:string|null;buildId:string|null;buildSourceSha:string|null;imageId:string|null;archiveDigest:string|null;deploymentId:string|null};
 export function approvalProjection(v:StoryDevelopmentApproval|Record<string,unknown>):DevelopmentApproval{
- const fields=['id','storyId','number','policyVersion','actorId','actorName','reason','specificationId','executionId','sourceSha','integrationReferenceId','integrationSha','buildId','buildSourceSha','imageId','archiveDigest','deploymentId','testId','suiteDigest','reviewId','securityId'];
+ const fields=['id','storyId','number','policyVersion','actorId','actorName','reason','specificationId','executionId','sourceSha','integrationReferenceId','integrationSha','buildId','buildSourceSha','imageId','archiveDigest','deploymentId','testId','manualAcceptanceId','suiteDigest','reviewId','securityId'];
  const value=Object.fromEntries(fields.map(k=>[k,(v as unknown as Record<string,unknown>)[k]]));const date=v.createdAt;return {...value,createdAt:date instanceof Date?date.toISOString():new Date(String(date).match(/(?:Z|[+-]\d\d:\d\d)$/)?String(date):String(date)+'Z').toISOString()} as DevelopmentApproval;
 }
 export async function developmentApprovalViews(tx:Transaction,ids:readonly string[]){

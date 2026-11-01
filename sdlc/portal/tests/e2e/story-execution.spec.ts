@@ -43,9 +43,17 @@ test('story execution prepares specification, requires G1, recovers uncertain re
  for(const width of[1440,390]){await page.setViewportSize({width,height:1000});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`${process.env.SCREENSHOT_DIR||'/output'}/story-execution-${width}.png`,fullPage:true});}
  await page.setViewportSize({width:1440,height:1000});
  await panel.getByRole('checkbox',{name:/Revisei a especificação/}).check();await panel.getByRole('button',{name:'Aprovar e enfileirar codificação',exact:true}).click();
- await expect(panel.getByRole('button',{name:'Retomar execução',exact:true})).toBeEnabled();await panel.getByText('Alternativas e controle da atividade',{exact:true}).click();await expect(panel.getByRole('button',{name:'Cancelar execução',exact:true})).toBeEnabled();
+ await expect(page.getByTestId('story-execution-hub')).toBeVisible();
+ const choices=page.getByRole('region',{name:'O que você pode fazer agora',exact:true});
+ await choices.getByText('Outras ações disponíveis',{exact:true}).click();
+ await choices.getByRole('link',{name:'Cancelar execução',exact:true}).click();
+ await expect(panel.getByRole('button',{name:'Cancelar execução',exact:true})).toBeEnabled();
+ await page.getByRole('link',{name:'Voltar à Execução',exact:true}).click();
+ await expect(page.getByTestId('story-execution-hub')).toBeVisible();
+ await openWorkPanel(page);
+ await expect(panel.getByRole('button',{name:'Retomar execução',exact:true})).toBeEnabled();
  await panel.getByRole('button',{name:'Retomar execução',exact:true}).click();await panel.getByRole('button',{name:'Verificar a mesma solicitação'}).click();expect(resumeRequests).toBe(2);
- await page.getByRole('navigation',{name:'Seções de História'}).getByRole('link',{name:'Execução',exact:true}).click();await page.getByRole('navigation',{name:'Detalhes da execução',exact:true}).getByRole('button',{name:'Entrega de código e release',exact:true}).click();await expect(page.getByRole('link',{name:'Abrir Merge Request no GitLab',exact:true})).toHaveAttribute('href',run.mergeRequestUrl);await expect(page.getByText('sdlc/ui-story-execution',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Preparar nova execução'})).toHaveCount(0);
+ await expect(page.getByTestId('story-execution-hub')).toBeVisible();await openWorkPanel(page,'delivery');await expect(page.getByRole('link',{name:'Abrir Merge Request no GitLab',exact:true})).toHaveAttribute('href',run.mergeRequestUrl);await expect(page.getByText('sdlc/ui-story-execution',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Preparar nova execução'})).toHaveCount(0);
 });
 
 test('processing visibility preserves the confirmed execution during a lost update and recovers without resending',async({page,request})=>{
@@ -54,7 +62,7 @@ test('processing visibility preserves the confirmed execution during a lost upda
  await page.route(url=>url.pathname==='/api/items/processing-ui-only',r=>r.fulfill({json:{item,ancestors:[],children:[],repositories:[],availableRepositories:[],environments:[],history:[]}}));
  await page.route('**/api/items/processing-ui-only/execution',r=>{if(r.request().method()!=='GET')writes++;return r.fulfill({json:{run,configured:true}});});
  await page.route('**/api/items/processing-ui-only/journey',r=>disconnected?r.fulfill({status:503,json:{error:{message:'Conexão temporariamente indisponível no teste.'}}}):r.fulfill({json:uiJourney(item,run,{current:{kind:'coding',state:'running',title:'Aguardando resposta do modelo'},signals:{lastHeartbeatAt:now,lastEventAt:now,provider:'local-llm',stage:'generation',heartbeatStaleAfterMs:45000},events:[{id:'generation',timestamp:now,message:'Proposta de código enviada ao modelo; aguardando resposta.'}]})}));
- await page.goto('/stories/processing-ui-only');const panel=await openWorkPanel(page),header=page.getByTestId('story-journey-header');await page.getByRole('navigation',{name:'Detalhes da execução',exact:true}).getByRole('button',{name:'Consultar sinais e evidências',exact:true}).click();
+ await page.goto('/stories/processing-ui-only');const panel=await openWorkPanel(page,'processing'),header=page.getByTestId('story-journey-header');
  const monitor=panel.getByTestId('processing-signals');await expect(header.getByRole('status')).toHaveText('Em processamento');await expect(monitor).toContainText('Confirmada em');await expect(monitor).toContainText('Último sinal');await expect(monitor).toContainText('Proposta de código enviada ao modelo');
  disconnected=true;await expect(page.getByText('A atualização da situação não chegou.',{exact:true})).toBeVisible({timeout:10000});await expect(header.getByRole('status')).toHaveText('Situação atual não confirmada');await expect(monitor).toContainText('A última consulta falhou');await expect(monitor).toContainText('Proposta de código enviada ao modelo');
  disconnected=false;await page.getByRole('alert').filter({hasText:'A atualização da situação não chegou.'}).getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(page.getByText('A atualização da situação não chegou.',{exact:true})).toHaveCount(0);await expect(header.getByRole('status')).toHaveText('Em processamento');await expect(monitor).toContainText('Confirmada em');expect(writes).toBe(0);

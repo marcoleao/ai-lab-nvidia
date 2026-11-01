@@ -1,0 +1,27 @@
+{
+  "id": "human-story-approval-verified-20261101-a40fdc36",
+  "source": "ff21af654c5a4746c4d8193732d2d2cc6bacdcf36bd2e56a098197b965fa418c",
+  "candidateImage": "sha256:ee582f713090a895ef9ec191c1460e320dd15bb0c648f946baff583624605477",
+  "verifiedAt": "2026-11-01T17:41:42.611427+00:00",
+  "health": {
+    "status": "ready",
+    "scope": "portal-foundation",
+    "demoMode": true,
+    "databaseMode": "preview"
+  },
+  "migrationsPlanned": [
+    "202611010002_human_story_acceptance"
+  ],
+  "existingTablesChecked": 50,
+  "tablesChecked": 50,
+  "exactTablesPreserved": true,
+  "backupVerification": {
+    "backupId": "human-story-approval-verified-20261101-a40fdc36",
+    "bytes": 452040,
+    "privatePermissions": true,
+    "digestVerified": true,
+    "archiveReadable": true
+  },
+  "preservationProjection": "Comparação dos registros antes/depois: a coluna aditiva scope é removida da projeção somente em decisões legadas criteria; lease/polling de MergeOperation conserva a normalização já documentada. Referências de aprovação e demais dados não foram excluídos da comparação.",
+  "operationalAcceptanceCreated": false
+}

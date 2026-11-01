@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-11-01T17:41:35.169Z",
+  "scope": "Real Portal UI, read-only; no Story acceptance, task result or approval created",
+  "checks": [
+    {
+      "step": "hub",
+      "actions": "O que você pode fazer agora\n\nEscolha uma opção para abrir sua página de consulta ou revisão. A confirmação, quando disponível, acontece nessa página.\n\nAprovar História em DEV\nOutras ações disponíveis",
+      "visibleFields": 0
+    },
+    {
+      "step": "approval-desktop",
+      "url": "http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez/execution/dev/acceptance",
+      "text": "Aprovar História em DEV\n\nVocê está aprovando esta versão da História em DEV. A decisão registra sua aprovação humana e Desenvolvimento Finalizado, concluindo a Tarefa Teste em DEV. A História permanece aberta até a entrega em produção.\n\nEspecificação: revisão 4. Consulta em 01/11/2026, 14:41.\n\nAbrir aplicação em DEV ↗\n\nVersão em aprovação\nConsultar critérios da História\n\nReferência para sua avaliação. A decisão é sobre a História inteira.\n\nAo abrir, exibe Hello World com fundo branco #FFFFFF e fonte Arial; os seletores mostram Branco e Arial.\nCor do fundo oferece Branco #FFFFFF, Azul claro #DDEEFF e Amarelo claro #FFF4CC; selecionar qualquer opção altera imediatamente TODO o fundo visível da janela sem recarga, inclusive a área abaixo do conteúdo curto e ao redimensionar para desktop ou celular; não deve restar faixa branca.\nFonte oferece Arial, Georgia e Courier New; selecionar qualquer opção altera imediatamente a fonte da página, incluindo Hello World, sem recarga.\nTrocar a cor preserva a fonte selecionada e trocar a fonte preserva a cor selecionada.\nDois selects HTML nativos rotulados Cor do fundo e Fonte ficam um abaixo do outro, funcionam por teclado e mantêm texto escuro legível nas três cores.\nRecarregar retorna a branco e Arial sem aviso; não salva preferências e não exige login, banco, API, fontes ou outros recursos externos.\nConsultar controles técnicos\nObservação da aprovação — opcional\nConfirmar aprovação da História em DEV\nSolicitar ajustes\n\nAtualizar consulta da aprovação da História",
+      "radios": 0,
+      "checkboxes": 0,
+      "noteRequired": false,
+      "confirmEnabled": true,
+      "layout": {
+        "scrollWidth": 1440,
+        "width": 1440
+      }
+    },
+    {
+      "step": "old-approval-consultation",
+      "globalActions": 1,
+      "confirmButtons": 0,
+      "visibleFields": 0
+    },
+    {
+      "step": "task",
+      "text": "Testes e aceitação em DEV\n\nOs testes técnicos e a verificação humana têm evidências próprias. A Tarefa conclui quando a História for aprovada em DEV.\n\nÚltima verificação automatizada: aprovada. Escopo técnico; não comprova aceitação dos critérios. Vinculada ao DEV nesta observação. Leitura de 01/11/2026, 14:41.\n\nAprovação humana da História: pendente. Leitura de 01/11/2026, 14:41.\n\nAprovar História em DEV\n\nConsultar testes automatizados em DEV",
+      "doingVisible": 1
+    },
+    {
+      "step": "approval-mobile",
+      "url": "http://127.0.0.1:3310/stories/cmvwutzrh001001t5lxja9hez/execution/dev/acceptance",
+      "radios": 0,
+      "checkboxes": 0,
+      "layout": {
+        "scrollWidth": 390,
+        "width": 390,
+        "scrollY": 0
+      }
+    }
+  ],
+  "writes": [],
+  "errors": []
+}

@@ -8,6 +8,7 @@ import type {Repository} from '../../apps/web/app/repos';
 // GitLab, a scanner or a model; API/worker rules have their own integration tests.
 const storyId = 'flow-story-only', runId = 'flow-run-only';
 const storyUrl = `/stories/${storyId}`, approvePath = `/api/executions/${runId}/approve`;
+const executionUrl = `${storyUrl}/execution`, approvalUrl = `${executionUrl}/actions/approve`;
 const checkboxName = 'Revisei a especificação e autorizo gerar o código e abrir o Merge Request.';
 type Write = {path:string; method:string; body:any; persona:string; key:string};
 
@@ -88,7 +89,6 @@ async function fixture(page:Page) {
 
 const navigation=(page:Page)=>page.getByRole('navigation',{name:'Seções de História',exact:true});
 const process=(page:Page)=>page.getByTestId('story-process');
-const executionDetails=(page:Page)=>page.getByRole('navigation',{name:'Detalhes da execução',exact:true});
 const review=(page:Page)=>process(page).getByRole('button',{name:'Revisar aprovação',exact:true});
 const confirmation=(page:Page)=>process(page).getByRole('region',{name:'Confirmar decisão da etapa',exact:true});
 const approve=(page:Page)=>process(page).getByRole('button',{name:'Aprovar e enfileirar codificação',exact:true});
@@ -115,6 +115,10 @@ test('História preserva shell, seis abas e entrada em Tarefas; Execução conce
   await expect(navigation(page).getByRole('link')).toHaveText([/^Tarefas/,'Execução','Especificação','Conversas','Auditoria','Configurações']);
   await expect(navigation(page).getByRole('link',{name:/^Tarefas/})).toHaveAttribute('aria-current','page');
   await expect(page.getByRole('heading',{name:'Tarefas da História',exact:true})).toBeVisible();
+  await navigation(page).getByRole('link',{name:'Execução',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Acompanhamento da execução',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'O que você pode fazer agora',exact:true})).toBeVisible();
+  await expect(process(page)).toBeHidden();
   await openWorkPanel(page);
   await expect(page.getByRole('region',{name:'Ciclo da História',exact:true})).toHaveCount(0);
   await expect(page.getByRole('link',{name:'Abrir Assistente neste contexto'})).toHaveCount(0);
@@ -125,7 +129,7 @@ test('História preserva shell, seis abas e entrada em Tarefas; Execução conce
 });
 
 test('Gateway usa confirmação inline com foco e preserva o comando, corpo e autoria originais',async({page})=>{
-  const state=await fixture(page); await page.goto(`${storyUrl}?tab=planning`);
+  const state=await fixture(page); await page.goto(approvalUrl);
   await expect(review(page)).toBeEnabled(); await review(page).focus(); await page.keyboard.press('Enter');
   await expect(confirmation(page)).toBeVisible(); await expect(confirmation(page)).toBeFocused();
   await capture(page,'story-flow-gateway-confirmation-desktop');
@@ -135,14 +139,16 @@ test('Gateway usa confirmação inline com foco e preserva o comando, corpo e au
   await expect(review(page)).toBeFocused(); expect(state.writes).toEqual([]);
   await review(page).click(); await process(page).getByRole('checkbox',{name:checkboxName,exact:true}).check();
   await approve(page).click();
-  await expect(process(page)).toContainText('Na fila; o início do trabalho ainda não foi confirmado.');
+  await expect(page.getByTestId('story-execution-hub')).toBeVisible();
+  await expect(page.getByRole('region',{name:'Acompanhamento da execução',exact:true})).toContainText('Codificação na fila');
+  await expect(page.getByRole('region',{name:'Acompanhamento da execução',exact:true})).toContainText('Na fila');
   expect(state.writes).toHaveLength(1);
   expect(state.writes[0]).toMatchObject({path:approvePath,method:'POST',body:{expectedVersion:7},persona:'ana'});
   expect(state.writes[0].key).toBeTruthy(); expect(state.approvalEffects).toBe(1); clean(state);
 });
 
 test('mudança de versão durante a confirmação exige revisar a decisão nova',async({page})=>{
-  const state=await fixture(page); await page.goto(`${storyUrl}?tab=planning`);
+  const state=await fixture(page); await page.goto(approvalUrl);
   await review(page).click(); await process(page).getByRole('checkbox',{name:checkboxName,exact:true}).check();
   state.story.version=8; state.action={...state.action,body:{expectedVersion:8}};
   await expect(confirmation(page)).toHaveCount(0,{timeout:10000});
@@ -156,7 +162,9 @@ test('mudança de versão durante a confirmação exige revisar a decisão nova'
 });
 
 test('editar mantém formulário e rascunho centrais, sem decisão concorrente ou escrita ao cancelar',async({page})=>{
-  const state=await fixture(page); await page.goto(`${storyUrl}?tab=planning`); await review(page).click();
+  const state=await fixture(page); await page.goto(approvalUrl); await review(page).click();
+  await navigation(page).getByRole('link',{name:/^Tarefas/}).click();
+  await expect(page.getByRole('heading',{name:'Tarefas da História',exact:true})).toBeVisible();
   await page.getByTestId('edit-item').click();
   const form=page.getByRole('form',{name:'Formulário do item',exact:true});
   await expect(form).toBeVisible(); await expect(process(page)).toBeHidden();
@@ -178,25 +186,26 @@ for (const currentState of ['queued','running']) test(`${currentState} mostra a 
   state.run={...state.run,state:currentState,stage:'generation'}; state.action=null;
   state.current={kind:'coding',state:currentState,title:currentState==='queued'?'Codificação na fila':'O agente está codificando',message:'Aguardando o resultado observado do executor.',who:'Executor de codificação'};
   state.signals={lastHeartbeatAt:currentState==='running'?new Date().toISOString():null,heartbeatStaleAfterMs:45000};
-  await page.goto(`${storyUrl}?tab=planning`); await expect(process(page)).toBeVisible();
-  await expect(process(page).locator('button.primary:visible')).toHaveCount(0);
-  await expect(process(page).getByRole('button',{name:/Continuar|Iniciar codificação|Próxima etapa/i})).toHaveCount(0);
-  await expect(process(page)).toContainText(currentState==='queued'?'o início do trabalho ainda não foi confirmado':'Última confirmação do executor');
-  await executionDetails(page).getByRole('button',{name:'Consultar sinais e evidências',exact:true}).click();
+  await page.goto(executionUrl); const hub=page.getByTestId('story-execution-hub');await expect(hub).toBeVisible();
+  await expect(hub.locator('button.primary:visible')).toHaveCount(0);
+  await expect(hub.getByRole('button',{name:/Continuar|Iniciar codificação|Próxima etapa/i})).toHaveCount(0);
+  await expect(hub).toContainText(state.current.title);
+  await expect(hub).toContainText(currentState==='queued'?'Na fila':'Em execução');
+  await openWorkPanel(page,'processing');
   await expect(process(page).getByTestId('processing-signals')).toBeVisible();
-  await process(page).getByRole('button',{name:'← Voltar à etapa atual',exact:true}).click();
-  await expect(page).toHaveURL(/process=action/); expect(state.writes).toEqual([]); clean(state);
+  await page.getByRole('link',{name:'Voltar à Execução',exact:true}).click();
+  await expect(page).toHaveURL(value=>value.pathname===executionUrl);await expect(hub).toBeVisible(); expect(state.writes).toEqual([]); clean(state);
 });
 
 test('persona de consulta e tentativa histórica não liberam aprovação por caminhos secundários',async({page})=>{
-  const state=await fixture(page); await page.goto(`${storyUrl}?tab=planning`); await review(page).click();
+  const state=await fixture(page); await page.goto(approvalUrl); await review(page).click();
   await page.getByRole('combobox',{name:/Persona/}).selectOption('carla');
   await expect(confirmation(page)).toHaveCount(0); await expect(review(page)).toBeDisabled();
   await page.getByRole('combobox',{name:/Persona/}).selectOption('ana'); await expect(review(page)).toBeEnabled();
-  await page.goto(`${storyUrl}?tab=planning&attempt=old-attempt&tasks.q=endereço`);
+  await page.goto('/tasks/flow-task-1?tab=planning&attempt=old-attempt&tasks.q=endereço');
   await expect(process(page)).toContainText('Tentativa anterior, somente leitura.');
   await expect(review(page)).toHaveCount(0); await expect(process(page).getByRole('checkbox',{name:checkboxName})).toHaveCount(0);
-  await executionDetails(page).getByRole('button',{name:'Conversar sobre esta etapa',exact:true}).click();
+  await process(page).getByRole('button',{name:'Conversa',exact:true}).click();
   await expect(process(page)).toContainText('Para conversar sobre a pendência atual');
   await expect(process(page).getByRole('textbox')).toHaveCount(0);
   expect(state.writes).toEqual([]); clean(state);
@@ -206,7 +215,7 @@ test('Gateway permanece no shell e acessível por teclado em celular e altura re
   const state=await fixture(page);
   for (const height of [844,500]) {
     await page.setViewportSize({width:390,height});
-    await page.goto(`${storyUrl}?tab=planning`);
+    await page.goto(approvalUrl);
     await expect(page.locator('.sidebar .brand')).toBeVisible();
     await expect(navigation(page).getByRole('link',{name:'Execução',exact:true})).toHaveAttribute('aria-current','page');
     await review(page).focus(); await page.keyboard.press('Enter');
@@ -222,7 +231,7 @@ test('Gateway permanece no shell e acessível por teclado em celular e altura re
 
 test('Componentes legado consulta o repositório herdado sem escolhas e conserva filtros e retorno pelo Sistema',async({page})=>{
   const state=await fixture(page); await page.goto(`${storyUrl}?tab=components&tasks.q=endereço&tasks.direction=asc`);
-  await expect(page).toHaveURL(/tab=planning/); await expect(page).toHaveURL(/process=destination/);
+  await expect(page).toHaveURL(value=>value.pathname===`${executionUrl}/destination`);
   await expect(page).toHaveURL(/tasks.q=endere%C3%A7o/);
   const destination=page.getByRole('region',{name:'Destino da implementação',exact:true});
   await expect(destination).toBeVisible();
@@ -248,6 +257,7 @@ test('Componentes legado consulta o repositório herdado sem escolhas e conserva
   await page.getByRole('link',{name:'← Voltar ao destino da História',exact:true}).click();
   await expect(destination).toBeVisible();await expect(page).toHaveURL(destinationUrl.href);
   await destination.getByRole('button',{name:'Voltar à etapa atual',exact:true}).click();
+  await openWorkPanel(page);
   await expect(review(page)).toBeEnabled();await expect(page).toHaveURL(/tasks.q=endere%C3%A7o/);
   expect(state.writes).toEqual([]);
   clean(state);
@@ -257,7 +267,7 @@ test('mais de um repositório legado permanece consultável sem escolha automát
   const state=await fixture(page);
   state.systemRepositories.push({...state.systemRepositories[0],id:'flow-repository-legacy',name:'Repositório legado preservado',key:'legacy',gitlabProjectId:43,gitlabPath:'lab/flow/legacy',gitlabUrl:'http://gitlab.invalid/lab/flow/legacy'});
   state.action=null;state.current={...state.current,state:'blocked',title:'Repositórios legados precisam de revisão'};
-  await page.goto(`${storyUrl}?tab=planning&process=destination`);
+  await page.goto(`${executionUrl}/destination`);
   const destination=page.getByRole('region',{name:'Destino da implementação',exact:true});
   await expect(destination.getByRole('article')).toHaveCount(2);
   await expect(destination.getByRole('heading',{name:state.system.name,exact:true})).toBeVisible();
@@ -275,10 +285,10 @@ test('mais de um repositório legado permanece consultável sem escolha automát
 });
 
 test('pedido incerto permite consultar o repositório herdado e retornar antes de reconciliar a intenção original',async({page})=>{
-  const state=await fixture(page); state.abortApprovalOnce=true; await page.goto(`${storyUrl}?tab=planning`);
+  const state=await fixture(page); state.abortApprovalOnce=true; await page.goto(approvalUrl);
   await review(page).click(); await process(page).getByRole('checkbox',{name:checkboxName,exact:true}).check(); await approve(page).click();
   await expect(process(page).getByTestId('pending-command')).toBeVisible();
-  await executionDetails(page).getByRole('button',{name:'Repositório do Sistema',exact:true}).click();
+  await openWorkPanel(page,'destination');
   const destination=page.getByRole('region',{name:'Destino da implementação',exact:true});
   await expect(destination).toBeVisible();
   await expect(destination.getByRole('heading',{name:state.system.name,exact:true})).toBeVisible();
@@ -286,6 +296,7 @@ test('pedido incerto permite consultar o repositório herdado e retornar antes d
   await expect(destination.getByRole('button',{name:/Selecionar|Salvar seleção|Criar repositório/})).toHaveCount(0);
   expect(state.writes).toHaveLength(1);
   await destination.getByRole('button',{name:'Voltar à etapa atual',exact:true}).click();
+  await openWorkPanel(page);
   await expect(process(page).getByTestId('pending-command')).toBeVisible();
   await process(page).getByRole('button',{name:'Verificar a mesma solicitação',exact:true}).click();
   await expect.poll(()=>state.writes.length).toBe(2);
@@ -293,7 +304,7 @@ test('pedido incerto permite consultar o repositório herdado e retornar antes d
 });
 
 test('confirmação incerta reconcilia a mesma intenção após recarga sem repetir o efeito',async({page})=>{
-  const state=await fixture(page); state.abortApprovalOnce=true; await page.goto(`${storyUrl}?tab=planning`);
+  const state=await fixture(page); state.abortApprovalOnce=true; await page.goto(approvalUrl);
   await review(page).click(); await process(page).getByRole('checkbox',{name:checkboxName,exact:true}).check(); await approve(page).click();
   await expect(process(page).getByTestId('pending-command')).toBeVisible();
   await expect(page.getByTestId('edit-item')).toBeDisabled();
@@ -331,7 +342,7 @@ test('acervo conserva o estado registrado e o destino em consulta sem ações op
 
 test('pendência de repositório conserva a razão do backend e leva ao Sistema com retorno ao recorte da História',async({page})=>{
   const state=await fixture(page);missingRepository(state);
-  await page.goto(`${storyUrl}?tab=planning&tasks.q=cliente`);
+  await page.goto(`${executionUrl}/actions/prepare?tasks.q=cliente`);
   const prepare=process(page).getByRole('button',{name:'Preparar especificação',exact:true});await expect(prepare).toBeDisabled();
   await expect(prepare).toHaveAccessibleDescription('O Sistema ainda não possui repositório. Crie-o na página do Sistema.');
   await expect(process(page)).not.toContainText('acesso de consulta');
@@ -347,6 +358,7 @@ test('pendência de repositório conserva a razão do backend e leva ao Sistema 
   await expect(destination.getByRole('link',{name:/Selecionar repositórios do Projeto/})).toHaveCount(0);
   await expect(page).toHaveURL(/tasks.q=cliente/);
   await destination.getByRole('button',{name:'Voltar à etapa atual',exact:true}).click();
+  await openWorkPanel(page);
   await expect(prepare).toBeDisabled();expect(state.writes).toEqual([]);clean(state);
 });
 
