@@ -1,0 +1,256 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:08ca9c4d5c6424c4781734181c3bff390fa85cbd65eeddf5941117324a52abc2",
+  "executorDigest": "90976b7baf79744a180b06f962c18fdb45d8b4a92f9e5c9decd7d5705eddc412",
+  "toolchainDigest": "9cdc1a2b322d231c91d37e73389fd0b8c259ab3a9424165ba585b10428f08b98",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-prerequisites",
+      "fixtureDigest": "39bfa675cb20bf735f85360c1d462f07f3ac8e7013b8f7170dca3502f15c47c3",
+      "state": "succeeded",
+      "elapsedMs": 35652,
+      "inferenceCalls": 17,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 6,
+        "executed": 6,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "emptyCategoryBlocked": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-native-required",
+      "fixtureDigest": "e9b440ba7aee3d88931ffe9d3eec1587e81af01c5747340b8b6e4c65caf3940b",
+      "state": "succeeded",
+      "elapsedMs": 21124,
+      "inferenceCalls": 14,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "uiProbe": {
+        "planned": 5,
+        "executed": 5,
+        "assertions": 1
+      },
+      "exactPriceConfirmed": true,
+      "emptyRequiredBlocked": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-appearance",
+      "fixtureDigest": "5d6214c509fed8e3b455572df0ff874549bee681312a08bb941a29d1521a4911",
+      "state": "succeeded",
+      "elapsedMs": 27138,
+      "inferenceCalls": 15,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "visualAssertionUsed": true,
+      "layoutFragmentUsed": true,
+      "independentVisualCheckPassed": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-booking",
+      "fixtureDigest": "b8cc9a55b781bb03e6c4e0d588c088d0c16ae2dd192cd2120df83e692ac65ecb",
+      "state": "succeeded",
+      "elapsedMs": 25627,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentBookingCheckPassed": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-scalar-validation",
+      "fixtureDigest": "59337990d678526cde9780d1eef4716ef8250384ab793fa3febbcf220d15488b",
+      "state": "succeeded",
+      "elapsedMs": 26124,
+      "inferenceCalls": 13,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "emptyFormBlocked": true,
+      "controlsPreserved": true,
+      "independentInputs": [
+        {
+          "input": "12.50,5",
+          "passed": true
+        },
+        {
+          "input": "12kg",
+          "passed": true
+        },
+        {
+          "input": "Infinity",
+          "passed": true
+        },
+        {
+          "input": "0",
+          "passed": true
+        },
+        {
+          "input": "-1",
+          "passed": true
+        },
+        {
+          "input": "1.234",
+          "passed": true
+        },
+        {
+          "input": "12.50",
+          "passed": true
+        },
+        {
+          "input": "12,50",
+          "passed": true
+        },
+        {
+          "input": "12",
+          "passed": true
+        }
+      ],
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-replacement",
+      "fixtureDigest": "922d108212b649714fb91be0972c904573feee4c1c9141f10f90cbf5a68a3f48",
+      "state": "succeeded",
+      "elapsedMs": 20087,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentCheckPassed": true,
+      "onlyPatternChanged": true,
+      "replacementEvidenceSeparated": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-two-goals",
+      "fixtureDigest": "dc9e11006d6bf013617870c4cb723db567813400fc77b1e10e22d5640c0798dd",
+      "state": "succeeded",
+      "elapsedMs": 31174,
+      "inferenceCalls": 15,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "independentCheckPassed": true,
+      "twoGoalsSameFile": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-review-context",
+      "fixtureDigest": "2bfd8b61ff09d03ebded773e89c31b6c369cb549e8315439a6a87a8a9e2a7e7f",
+      "state": "succeeded",
+      "elapsedMs": 29167,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentBookingCheckPassed": true,
+      "nativeContextSharedOnce": true,
+      "implementationFindingsPreserved": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-initial-context",
+      "fixtureDigest": "4ee3ec91a5c7b809d64e8e0aa14939ee027423cf5ac2a8424e4b4cc90bfa29ff",
+      "state": "succeeded",
+      "elapsedMs": 27647,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentBookingCheckPassed": true,
+      "nativeInitialEnvelopeSharedOnce": true,
+      "additionalInstructionsRetained": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-planned-fields",
+      "fixtureDigest": "d6fc56fdea76de233e8bb869d5a8298694154faae9bfd0381ffd152ef1376622",
+      "state": "succeeded",
+      "elapsedMs": 38723,
+      "inferenceCalls": 13,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "emptyFormBlocked": true,
+      "independentFormSaved": true,
+      "clearedAfterSave": true,
+      "boundInitialInputs": 5,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-unnamed-select",
+      "fixtureDigest": "f63d7e73963d1c9d59f5c838741814bed622d024120a53fc55b219dd65ab71d8",
+      "state": "succeeded",
+      "elapsedMs": 31156,
+      "inferenceCalls": 13,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "observedUnnamedSelectUsed": true,
+      "frozenConfirmationChecked": true,
+      "emptySelectionBlocked": true,
+      "independentDeliveryPassed": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "unsupported-keyboard",
+      "passed": true,
+      "state": "not_tested",
+      "inferenceCalls": 1,
+      "completeAcceptance": false
+    }
+  ],
+  "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4",
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "replacementPattern": false,
+    "fragmentSelection": true,
+    "singletonFragmentSelection": false,
+    "expression": false,
+    "geometry": false,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

@@ -87,6 +87,12 @@ class CodingContract(unittest.TestCase):
   valid=[{'op':'fill','target':{'by':'label','name':'Preço'},'value':'0'},{'op':'click','target':{'by':'role','role':'button','name':'Salvar'}},{'op':'expect_text','value':'R$ 0,00'}]
   self.assertEqual(service.validate_ui_steps(valid),valid)
   self.assertEqual(service.validate_ui_steps([{'op':'fill','target':{'by':'role','role':'textbox','name':'','index':0},'value':'x'},{'op':'expect_text','value':'x'}])[0]['target']['index'],0)
+  unnamed={'op':'select','target':{'by':'role','role':'combobox','name':'','index':1},'value':'Expresso'}
+  self.assertEqual(service.validate_ui_steps([unnamed,{'op':'expect_text','value':'Concluído'}])[0],unnamed)
+  for index in [None,True,-1,6]:
+   with self.assertRaises(ValueError):service.validate_ui_steps([{**unnamed,'target':{**unnamed['target'],'index':index}},{'op':'expect_text','value':'Concluído'}])
+  for op in ['fill','click','check','expect_visible']:
+   with self.assertRaises(ValueError):service.validate_ui_steps([{'op':op,'target':unnamed['target'],**({'value':'x'} if op=='fill' else {})},{'op':'expect_text','value':'Concluído'}])
   for target in [{'by':'label','name':''},{'by':'role','role':'textbox','name':''},{'by':'role','role':'textbox','name':'','index':True},{'by':'role','role':'button','name':'','index':0}]:
    with self.assertRaises(ValueError):service.validate_ui_steps([{'op':'fill','target':target,'value':'x'},{'op':'expect_text','value':'x'}])
   invalid=[[{'op':'evaluate','value':'process.env'}],[{'op':'goto','value':'http://remote'}],[{'op':'storage','value':'inject'}],valid+[{'op':'click','target':{'by':'css','name':'body'}}],[{'op':'fill','target':{'by':'label','name':'Preço'},'value':'0'}],valid*8,valid+[{'op':'reload','url':'http://remote'}],valid+[{'op':'check','target':{'by':'label','name':'Aceite','index':True}}]]

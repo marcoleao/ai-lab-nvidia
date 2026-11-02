@@ -1,0 +1,1093 @@
+﻿{
+    "method":  "Navegação e decisões pela interface real; nenhuma chamada direta a API ou banco",
+    "timezone":  "America/Sao_Paulo",
+    "browserRecords":  84,
+    "distinctFinalUrls":  36,
+    "records":  [
+                    {
+                        "at":  "2026-11-01T23:34:53.633Z",
+                        "url":  "chrome-error://chromewebdata/",
+                        "evidence":  1793576093552,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:3310/"
+                    },
+                    {
+                        "at":  "2026-11-01T23:35:19.246Z",
+                        "url":  "http://127.0.0.1:3310/",
+                        "evidence":  1793576119109,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:35:38.177Z",
+                        "url":  "http://127.0.0.1:3310/systems",
+                        "evidence":  1793576138113,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "locator.click: Timeout 12000ms exceeded."
+                    },
+                    {
+                        "at":  "2026-11-01T23:35:46.580Z",
+                        "url":  "http://127.0.0.1:3310/systems",
+                        "evidence":  1793576146475,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:36:08.905Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx",
+                        "evidence":  1793576168812,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "locator.click: Timeout 12000ms exceeded."
+                    },
+                    {
+                        "at":  "2026-11-01T23:36:15.776Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx",
+                        "evidence":  1793576175647,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:36:26.377Z",
+                        "url":  "http://127.0.0.1:3310/assistant",
+                        "evidence":  1793576186309,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:36:46.362Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx",
+                        "evidence":  1793576206292,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "locator.selectOption: Timeout 12000ms exceeded."
+                    },
+                    {
+                        "at":  "2026-11-01T23:36:51.875Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij",
+                        "evidence":  1793576211805,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:06.752Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=conversation\u0026assistant.page=1",
+                        "evidence":  1793576226678,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/assistant/turns"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:16.704Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576236544,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:24.055Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576243886,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:30.974Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576250798,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:38.545Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576258247,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:49.241Z",
+                        "url":  "http://127.0.0.1:3310/assistant",
+                        "evidence":  1793576269165,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/systems/cmvygxn2f000001mlv3v8fzwx/application-preparation"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:37:55.263Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij",
+                        "evidence":  1793576275159,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:38:38.140Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=conversation\u0026assistant.page=1",
+                        "evidence":  1793576318057,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/assistant/turns"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:38:47.931Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576327777,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:38:55.066Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576334912,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:39:00.980Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576340823,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:39:28.857Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576368719,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/systems/cmvygxn2f000001mlv3v8fzwx/application-preparations/a3ce8366-6d3f-476a-b4b1-81225017852f/actions"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:39:36.496Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576376342,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:39:44.824Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij",
+                        "evidence":  1793576384722,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/systems/cmvygxn2f000001mlv3v8fzwx/application-preparations/a3ce8366-6d3f-476a-b4b1-81225017852f/actions"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:39:51.739Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576391651,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/assistant/plans"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:00.971Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=components",
+                        "evidence":  1793576400773,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:08.708Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=environments",
+                        "evidence":  1793576408589,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/systems/cmvygxn2f000001mlv3v8fzwx/application-preparations/a3ce8366-6d3f-476a-b4b1-81225017852f/actions"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:18.372Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=environments",
+                        "evidence":  1793576418229,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:28.184Z",
+                        "url":  "http://127.0.0.1:3310/systems/cmvygxn2f000001mlv3v8fzwx?tab=environments",
+                        "evidence":  1793576428054,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/systems/cmvygxn2f000001mlv3v8fzwx/environments/DEV/target"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:34.250Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576434150,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:41.828Z",
+                        "url":  "http://127.0.0.1:3310/releases",
+                        "evidence":  1793576441675,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:47.914Z",
+                        "url":  "http://127.0.0.1:3310/releases/new",
+                        "evidence":  1793576447826,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:40:56.227Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj",
+                        "evidence":  1793576456111,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/releases"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:41:04.924Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj",
+                        "evidence":  1793576464790,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:41:08.388Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576468293,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:41:34.156Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576494064,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:41:43.804Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576503714,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:41:56.684Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576516606,
+                        "writes":  [
+                                       {
+                                           "method":  "PATCH",
+                                           "path":  "/api/assistant/plans/cmvyh40i4001h01mlioq41tbn"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:42:17.547Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576537472,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "locator.check: Timeout 12000ms exceeded."
+                    },
+                    {
+                        "at":  "2026-11-01T23:42:45.150Z",
+                        "url":  "http://127.0.0.1:3310/assistant?system=cmvygxn2f000001mlv3v8fzwx\u0026project=cmvygy9p4000d01mlly5c7fij\u0026assistant.view=proposal",
+                        "evidence":  1793576565081,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/assistant/plans/cmvyh40i4001h01mlioq41tbn/apply"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "expect(locator).toContainText(expected) failed"
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:02.124Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576581996,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:08.271Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/prepare",
+                        "evidence":  1793576588199,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:14.457Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576594321,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items/cmvyh5z8e001p01ml2qgnhqry/execution"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:21.971Z",
+                        "url":  "http://127.0.0.1:3310/projects/cmvygy9p4000d01mlly5c7fij",
+                        "evidence":  1793576601845,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:31.276Z",
+                        "url":  "http://127.0.0.1:3310/epics/cmvyh7dh8003f01mlkgb644dy",
+                        "evidence":  1793576611160,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:41.782Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh7lft003h01mlcz3dmhcq?tab=specification",
+                        "evidence":  1793576621656,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:43:47.610Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh7lft003h01mlcz3dmhcq?tab=specification",
+                        "evidence":  1793576627485,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:00.631Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh7lft003h01mlcz3dmhcq?tab=specification",
+                        "evidence":  1793576640488,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:12.994Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh7lft003h01mlcz3dmhcq?tab=specification",
+                        "evidence":  1793576652852,
+                        "writes":  [
+                                       {
+                                           "method":  "PUT",
+                                           "path":  "/api/items/cmvyh7lft003h01mlcz3dmhcq/specification/draft"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:23.428Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh8hiu003z01mlp4yg6rzn?tab=specification",
+                        "evidence":  1793576663310,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items/cmvyh7lft003h01mlcz3dmhcq/specification/apply"
+                                       },
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:40.669Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh8hiu003z01mlp4yg6rzn?tab=specification",
+                        "evidence":  1793576680537,
+                        "writes":  [
+                                       {
+                                           "method":  "PUT",
+                                           "path":  "/api/items/cmvyh8hiu003z01mlp4yg6rzn/specification/draft"
+                                       },
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/items/cmvyh8hiu003z01mlp4yg6rzn/specification/apply"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:46.634Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576686494,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:44:53.954Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+                        "evidence":  1793576693772,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:05.379Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+                        "evidence":  1793576705296,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:12.513Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+                        "evidence":  1793576712414,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:19.100Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+                        "evidence":  1793576718996,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:27.356Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576727207,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/executions/cmvyh70nk003201mlzaa9ckku/approve"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:35.847Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576735716,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:48.465Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj?view=planning\u0026tab=composition",
+                        "evidence":  1793576748320,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:45:59.913Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj?view=planning\u0026tab=composition",
+                        "evidence":  1793576759770,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:46:14.914Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj?tab=composition\u0026picker.association=all\u0026picker.view=all\u0026picker.sort=name",
+                        "evidence":  1793576774777,
+                        "writes":  [
+                                       {
+                                           "method":  "PUT",
+                                           "path":  "/api/releases/cmvyh41xk001j01mlqmknc9jj/stories"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:46:26.805Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj?tab=activity\u0026picker.association=all\u0026picker.view=all\u0026picker.sort=name",
+                        "evidence":  1793576786640,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:46:46.315Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry",
+                        "evidence":  1793576806119,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:02.631Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb",
+                        "evidence":  1793576822489,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:15.750Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb?tab=conversations\u0026taskResults.page=1\u0026taskResults.asOf=2026-11-01T23%3A47%3A13.838Z",
+                        "evidence":  1793576835205,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:29.136Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576849036,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:39.115Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/retry",
+                        "evidence":  1793576859014,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:45.875Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/retry",
+                        "evidence":  1793576865769,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:47:54.545Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576874405,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/executions/cmvyh70nk003201mlzaa9ckku/retry"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:48:04.946Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/dev/ai-tests",
+                        "evidence":  1793576884795,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:48:19.863Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb?tab=attempts",
+                        "evidence":  1793576899708,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:48:28.021Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb?tab=evidence\u0026attempt=cmvyh9vw0004k01ml5st68ify\u0026taskResults.page=1\u0026taskResults.asOf=2026-11-01T23%3A48%3A26.956Z",
+                        "evidence":  1793576907872,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:48:42.403Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z9s001z01ml2ku6jf6u?tab=planning\u0026process=environment\u0026environment=QA",
+                        "evidence":  1793576922242,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:48:55.567Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576935419,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:49:13.956Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793576953821,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:49:22.809Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/retry",
+                        "evidence":  1793576962709,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:49:26.546Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/conversation",
+                        "evidence":  1793576966439,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:49:44.681Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/conversation",
+                        "evidence":  1793576984545,
+                        "writes":  [
+                                       {
+                                           "method":  "POST",
+                                           "path":  "/api/executions/cmvyh70nk003201mlzaa9ckku/messages"
+                                       }
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:50:31.712Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/conversation",
+                        "evidence":  1793577031567,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:51:16.503Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb?tab=attempts",
+                        "evidence":  1793577076386,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  "expect(locator).toHaveCount(expected) failed"
+                    },
+                    {
+                        "at":  "2026-11-01T23:51:27.694Z",
+                        "url":  "http://127.0.0.1:3310/tasks/cmvyh5z8v001r01mlaiiypxjb?tab=evidence\u0026attempt=cmvyhfdrg005m01ml0k7w7nsy\u0026taskResults.page=1\u0026taskResults.asOf=2026-11-01T23%3A51%3A26.595Z",
+                        "evidence":  1793577087578,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:51:43.317Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj",
+                        "evidence":  1793577103178,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:51:55.448Z",
+                        "url":  "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj?qaReadiness.composition=cmvyhavtf005001mld80qicw4\u0026qaReadiness.evaluation=ac24c39271053f4927717f34b908429b91f4f623eec98f403b8c04c403a474d4\u0026qaReadiness.page=1",
+                        "evidence":  1793577115295,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:52:31.490Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793577151351,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    },
+                    {
+                        "at":  "2026-11-01T23:55:11.139Z",
+                        "url":  "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+                        "evidence":  1793577311014,
+                        "writes":  [
+
+                                   ],
+                        "browserErrors":  [
+
+                                          ],
+                        "harnessError":  null
+                    }
+                ]
+}

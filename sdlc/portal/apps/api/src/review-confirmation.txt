@@ -1,0 +1,5 @@
+Confira somente os achados propostos no rascunho contra a fonte atual e os requisitos. O rascunho é falível, não é evidência. Retorne o relatório definitivo no mesmo schema, em português.
+
+Para cada achado, percorra seu counterexample.input pela operação realmente usada e confirme o resultado. Mantenha apenas os defeitos cujo resultado atual difere do exigido. Retire hipóteses contraditas pela fonte e não acrescente suspeitas. Não reinicie uma busca geral por outros defeitos: esta etapa confere os contraexemplos que a revisão integral propôs.
+
+Preserve o escopo aprovado. Uma sugestão de implementação mais estrita não demonstra um resultado incorreto. Interprete guardas, normalização, alternativas e âncoras como escritas. Se nenhum achado se sustentar, findings deve ser []. Não alegue execução de testes. Resuma somente as conclusões confirmadas.

@@ -1,0 +1,54 @@
+{
+  "model": "qwen3:14b",
+  "promptDigest": "fef557cac48ca8a719b43efc59a526b55a8586274825f586e35ba6eb4c56558e",
+  "sourcePresentation": "actual-reviewReferenceMessages",
+  "productionChanged": false,
+  "settings": {
+    "num_ctx": 32768,
+    "num_predict": 8192,
+    "temperature": 0.2,
+    "think": true
+  },
+  "results": [
+    {
+      "fixture": "outer-space-before-normalization",
+      "passed": false,
+      "defectCount": 2,
+      "expectedDefectCount": 1,
+      "elapsedMs": 49007,
+      "promptTokens": 1560,
+      "outputTokens": 1559,
+      "finishReason": "stop"
+    },
+    {
+      "fixture": "valid-normalization",
+      "passed": true,
+      "defectCount": 0,
+      "expectedDefectCount": 0,
+      "elapsedMs": 126601,
+      "promptTokens": 1558,
+      "outputTokens": 4061,
+      "finishReason": "stop"
+    },
+    {
+      "fixture": "silent-inner-space-filter",
+      "passed": false,
+      "defectCount": 2,
+      "expectedDefectCount": 1,
+      "elapsedMs": 52144,
+      "promptTokens": 1563,
+      "outputTokens": 1694,
+      "finishReason": "stop"
+    }
+  ],
+  "sourceDigests": {
+    "apps/api/src/code-review-prompt.txt": "e0bac6a305dc2b2c9dc1ef98ba87515f664048f27d595e82f69dc79207345b66",
+    "apps/api/src/agent-context.ts": "c514c50956dcf31f8af0243570122cc97ed5ec77da5dc0f684c62240cf8c2c61",
+    "apps/api/src/quality.ts": "c0ef5a94e803bd5b17fb4ab4f727254b2e724e0dfcabe8342db82db4cc9f2c11",
+    "apps/api/src/llm.ts": "09c98ef93268bad681dfe8c01f097ba21062da0c50f6626b4ea43eb1b27e9c01",
+    "apps/api/src/structured-output.ts": "bd415137a59b82d13a4a25ac850d5f548235e727aa72b5a586a10e81d5d8a2a7",
+    "scripts/llm-relay.py": "7bce50f85e89b4dc5d4beb221dbf55b3a2cdb0c1f3de2d970e999722424cc5bb"
+  },
+  "sourceStable": true,
+  "passed": false
+}

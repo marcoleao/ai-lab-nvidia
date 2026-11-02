@@ -1,0 +1,69 @@
+{
+  "job": "99ebcb4becbe7bb8c499a63f103106a6033820bab57b6cee4881d4806cd39559",
+  "state": "succeeded",
+  "expectedSha": "25a91c018698e482af4791c16bb50475edd56a5c",
+  "model": "qwen3:14b",
+  "uiModel": "qwen3:14b",
+  "inferenceCalls": 20,
+  "changedFiles": [
+    {
+      "path": "src/App.jsx",
+      "sha256": "327078c9a4aaf6d212c28a7bf04a9bed3c02ac6c782a4c235f20fdec8cc9586e"
+    }
+  ],
+  "browserChecks": [
+    {
+      "passed": true,
+      "rendered": true,
+      "uiProbe": {
+        "planned": 0,
+        "executed": 0,
+        "assertions": 0
+      },
+      "errorCount": 0
+    },
+    {
+      "passed": true,
+      "rendered": true,
+      "uiProbe": {
+        "planned": 7,
+        "executed": 7,
+        "assertions": 1
+      },
+      "errorCount": 0
+    }
+  ],
+  "phases": [
+    {
+      "role": "diagnosis",
+      "state": "observed",
+      "inferenceCalls": null
+    },
+    {
+      "role": "implementation",
+      "state": "succeeded",
+      "inferenceCalls": 7
+    },
+    {
+      "role": "test_planning",
+      "state": "succeeded",
+      "inferenceCalls": 4
+    },
+    {
+      "role": "ui_preconditions",
+      "state": "succeeded",
+      "inferenceCalls": 2
+    },
+    {
+      "role": "ui_input_binding",
+      "state": "succeeded",
+      "inferenceCalls": 5
+    },
+    {
+      "role": "ui_operator",
+      "state": "succeeded",
+      "inferenceCalls": 9
+    }
+  ],
+  "completeAcceptance": false
+}

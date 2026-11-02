@@ -1,0 +1,54 @@
+{
+  "at": "2026-11-02T17:28:56.211Z",
+  "url": "http://localhost:44959/",
+  "scope": "Cenários adicionais para aceite; contexto novo por caso; sem alteração de fonte ou injeção de armazenamento",
+  "completeAcceptance": false,
+  "rows": [
+    {
+      "id": "A01",
+      "criterion": 1,
+      "name": "Rótulos associados acessivelmente aos controles",
+      "passed": false,
+      "error": "expect(locator).toHaveCount(expected) failed"
+    },
+    {
+      "id": "A02",
+      "criterion": 2,
+      "name": "Código remove somente espaços das pontas",
+      "passed": false,
+      "error": "expect(locator).toHaveValue(expected) failed"
+    },
+    {
+      "id": "A03",
+      "criterion": 2,
+      "name": "Código rejeita caractere não alfanumérico",
+      "passed": false,
+      "error": "expect(locator).toHaveCount(expected) failed"
+    },
+    {
+      "id": "A04",
+      "criterion": 3,
+      "name": "Nome vazio impede salvar",
+      "passed": true
+    },
+    {
+      "id": "A05",
+      "criterion": 4,
+      "name": "Categoria fixa e obrigatória",
+      "passed": true
+    },
+    {
+      "id": "A06",
+      "criterion": 5,
+      "name": "Material vazio impede salvar",
+      "passed": true
+    },
+    {
+      "id": "A07",
+      "criterion": 9,
+      "name": "Lista mostra os dados da peça cadastrada",
+      "passed": false,
+      "error": "expect(received).toContain(expected) // indexOf"
+    }
+  ]
+}

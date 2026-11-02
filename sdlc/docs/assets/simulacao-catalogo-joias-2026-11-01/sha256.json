@@ -1,0 +1,107 @@
+﻿[
+    {
+        "file":  "01-sistema-criado.png",
+        "sha256":  "1cda9b8b60d2922741365fcad039ace3fc2b833ac16309e5b1c66f1c90348999",
+        "bytes":  144458
+    },
+    {
+        "file":  "02-contrato-integrado.png",
+        "sha256":  "801710cd124c1cfdf29eeb34326c07da70b883488543e6a36bd2cfd469a4335e",
+        "bytes":  361360
+    },
+    {
+        "file":  "03-plano-aplicado.png",
+        "sha256":  "b8af50dd006afd20aa94c724e66cdda0284d8c42567e374ee741f53b0d89dacb",
+        "bytes":  128934
+    },
+    {
+        "file":  "04-projeto-dois-epicos.png",
+        "sha256":  "34c951086cd0e1ca9a3d30fbec21ef0714827884359d5d1a9da058cf13badb14",
+        "bytes":  164965
+    },
+    {
+        "file":  "05-gateway-destino.png",
+        "sha256":  "12b6e33e0975424d0689cea2ae5801a927e5cdd6994d86677e0eb3ec371bbc10",
+        "bytes":  163542
+    },
+    {
+        "file":  "06-codificacao-em-execucao.png",
+        "sha256":  "2e8261d708027c6e35fce29bcb9bd5bc07c5fa2b055cea4a56756963454048b1",
+        "bytes":  228493
+    },
+    {
+        "file":  "07-falha-celular.png",
+        "sha256":  "407b8bd0b45870c864410d53a7feea06b56f84f34a9e123183eac4bee8438a94",
+        "bytes":  190228
+    },
+    {
+        "file":  "08-primeiro-diagnostico.png",
+        "sha256":  "161d43793964b1c2dba3d9faf1c637d1522efd821bdca3f1440ae501f5a35468",
+        "bytes":  169915
+    },
+    {
+        "file":  "09-segundo-diagnostico.png",
+        "sha256":  "8e4e9597192a75cc000b0826d2a98166577b61c5e90c2d2ba366c7c01fbfa5dd",
+        "bytes":  152529
+    },
+    {
+        "file":  "10-tentativa-historica.png",
+        "sha256":  "00fefaef053c1fd43894ebd9270cd19fff8bc92d378077c3ed99997a5db25154",
+        "bytes":  185322
+    },
+    {
+        "file":  "11-release-composicao.png",
+        "sha256":  "3325388f4c3de4a6cac5b311b153ed1e08bef57ca37c1da6fe01de0790a2555b",
+        "bytes":  192798
+    },
+    {
+        "file":  "12-release-auditoria.png",
+        "sha256":  "1fd39d030affedab54567a5c369fd65b48105e1e5a024b9110a3039febc254de",
+        "bytes":  188897
+    },
+    {
+        "file":  "13-consulta-qa.png",
+        "sha256":  "8285b426fe3f539463f998114e82c7f5b536438ef4c0511a22d387a275422e6c",
+        "bytes":  254279
+    },
+    {
+        "file":  "14-qa-celular.png",
+        "sha256":  "02a2e4c6fa63106f91345a2490392770692bd37b77bc366ac8c8a0a6da3df70f",
+        "bytes":  127200
+    },
+    {
+        "file":  "15-registro-auxiliar-conversa.png",
+        "sha256":  "1bf9e893c9bdf2e2ed2ddeba0187c3765d81a9ebeeba49c726f23cb8d1892c3a",
+        "bytes":  179634
+    },
+    {
+        "file":  "16-conferencia-final.png",
+        "sha256":  "0bcff623dd14bb312b52e02ae96f2303cebe273fc2c7d55f8cc5556d0c5e3f42",
+        "bytes":  297604
+    },
+    {
+        "file":  "17-filtro-vazio-bloqueio-global.png",
+        "sha256":  "cdac9cad3d15473248cbebd67580ba55bc63e09c7619d6830788136bbbbe14ae",
+        "bytes":  237333
+    },
+    {
+        "file":  "18-historia-final.png",
+        "sha256":  "c8ff06f5926f7f9d04f62f3d4ee541942997c19ee31e310611da77a360cff544",
+        "bytes":  223692
+    },
+    {
+        "file":  "final-state.json",
+        "sha256":  "f56e90354c4126ff132661f2818d8aaf7088748f6b417edf85853560cba1b4b1",
+        "bytes":  1907
+    },
+    {
+        "file":  "inventario.json",
+        "sha256":  "76ffc6873cfcb7398a2712bb1c74215633f5a19ac17b8a444d0f8214debba10f",
+        "bytes":  4727
+    },
+    {
+        "file":  "navegacao.json",
+        "sha256":  "91ee57c11c91eed71c728687fedb290dc35c0ebf0b8ea0f3b0e29192f58ce91c",
+        "bytes":  48585
+    }
+]

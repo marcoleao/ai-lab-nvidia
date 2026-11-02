@@ -1,0 +1,28 @@
+{
+    "model":  "qwen3.5:9b",
+    "passed":  false,
+    "results":  [
+                    {
+                        "promptTokens":  1381,
+                        "outputTokens":  6828,
+                        "fixture":  "outer-space-before-normalization",
+                        "elapsedMs":  130984,
+                        "passed":  true
+                    },
+                    {
+                        "error":  "INVALID_JSON",
+                        "fixture":  "valid-normalization",
+                        "rawResponsePreserved":  false,
+                        "passed":  false
+                    },
+                    {
+                        "fixture":  "silent-inner-space-filter",
+                        "executed":  false
+                    }
+                ],
+    "maxTokens":  8192,
+    "source":  "Observed qualification tool execution; raw second response was not saved before JSON parsing failed",
+    "thinking":  true,
+    "completed":  false,
+    "productionChanged":  false
+}

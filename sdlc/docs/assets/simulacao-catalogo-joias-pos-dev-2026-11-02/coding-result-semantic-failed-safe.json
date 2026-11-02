@@ -1,0 +1,34 @@
+{
+  "job": "1365f42db6be08e6a52c90d87def4a35a23d811079f2dcc13abc56fbcaca466c",
+  "state": "failed",
+  "expectedSha": "25a91c018698e482af4791c16bb50475edd56a5c",
+  "model": "qwen3:14b",
+  "uiModel": "qwen3:14b",
+  "inferenceCalls": 9,
+  "changedFiles": [],
+  "browserChecks": [
+    {
+      "passed": true,
+      "rendered": true,
+      "uiProbe": {
+        "planned": 0,
+        "executed": 0,
+        "assertions": 0
+      },
+      "errorCount": 0
+    }
+  ],
+  "phases": [
+    {
+      "role": "diagnosis",
+      "state": "observed",
+      "inferenceCalls": null
+    },
+    {
+      "role": "implementation",
+      "state": "succeeded",
+      "inferenceCalls": 5
+    }
+  ],
+  "completeAcceptance": false
+}

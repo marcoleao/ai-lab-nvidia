@@ -27,14 +27,14 @@ class RelayTests(unittest.TestCase):
                 calls.append((self.path, self.headers.get('Authorization'), body))
                 self.send_response(200)
                 self.end_headers()
-                self.wfile.write(b'{"model":"local-model","done":true,"done_reason":"stop","message":{"content":"resposta completa"}}')
+                self.wfile.write(b'{"model":"local-model","done":true,"done_reason":"stop","message":{"content":"resposta completa","thinking":"private-internal-analysis"}}')
 
             def log_message(self, *_):
                 pass
 
         upstream = ThreadingHTTPServer(('127.0.0.1', 0), Upstream)
         threading.Thread(target=upstream.serve_forever, daemon=True).start()
-        config = {'sourceSubnet': '127.0.0.0/8', 'tokenFile': 'fixture-only', 'model': 'local-model', 'upstream': f'http://127.0.0.1:{upstream.server_port}'}
+        config = {'sourceSubnet': '127.0.0.0/8', 'tokenFile': 'fixture-only', 'model': 'local-model', 'reviewModel':'review-model', 'upstream': f'http://127.0.0.1:{upstream.server_port}'}
         spec = importlib.util.spec_from_file_location('isolated_relay', Path(__file__).resolve().parents[1] / 'scripts/llm-relay.py')
         module = importlib.util.module_from_spec(spec)
         with patch.object(Path, 'read_text', side_effect=[json.dumps(config), 'private-fixture']):
@@ -55,6 +55,7 @@ class RelayTests(unittest.TestCase):
             self.assertEqual(request('/api/pull', {})[0], 404)
             body = {'model': 'local-model', 'messages': [{'role': 'user', 'content': 'Isolated test'}], 'max_tokens': 32, 'stream': False, 'reasoning_effort': 'none'}
             self.assertEqual(request('/v1/chat/completions', {**body, 'model': 'unapproved'})[0], 422)
+            self.assertEqual(request('/v1/chat/completions', {**body, 'model': None})[0], 422)
             self.assertEqual(request('/v1/chat/completions', {**body, 'tools': []})[0], 422)
             self.assertEqual(request('/v1/chat/completions', {**body, 'reasoning_effort': 'high'})[0], 422)
             self.assertEqual(calls, [])
@@ -68,6 +69,12 @@ class RelayTests(unittest.TestCase):
             self.assertEqual(request('/v1/chat/completions', {**body, 'max_tokens': 8192, 'response_format': schema_format})[0], 200)
             self.assertEqual(calls[-1][2]['format'], schema_format['json_schema']['schema'])
             self.assertEqual(calls[-1][2]['options']['num_predict'], 8192)
+            status, result = request('/v1/chat/completions', body)
+            self.assertEqual(status, 200)
+            self.assertFalse(calls[-1][2]['think'])
+            self.assertNotIn('private-internal-analysis', json.dumps(result))
+            self.assertEqual(request('/v1/chat/completions', {**body, 'model':'review-model'})[0], 200)
+            self.assertEqual(calls[-1][2]['model'],'review-model')
             self.assertEqual(request('/v1/chat/completions', {**body, 'options': {'num_ctx': 99999}})[0], 422)
             self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*16000}]*3})[0], 422)
             self.assertEqual(request('/v1/chat/completions', {**body, 'messages': [{'role': 'user', 'content': 'x'*14000}]*3})[0], 200)

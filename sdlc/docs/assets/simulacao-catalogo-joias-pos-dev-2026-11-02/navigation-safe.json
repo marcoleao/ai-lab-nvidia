@@ -1,0 +1,798 @@
+{
+  "scope": "Observed post-DEV continuation only; not complete domain history",
+  "navigationRecords": 74,
+  "distinctUrls": 16,
+  "observedWrites": 25,
+  "harnessErrors": 1,
+  "pageErrors": 0,
+  "requests": [
+    {
+      "request": "POST /api/executions/cmvyhz4dy006h01mlsmlo4l5p/replan",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjbf0k00js01mlqqa8jvo6/replan",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjgy3j00k401mlt2o73p95/approve",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjgy3j00k401mlt2o73p95/cancel",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjgy3j00k401mlt2o73p95/quality",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjgy3j00k401mlt2o73p95/quality/correct",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzjgy3j00k401mlt2o73p95/replan",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzm1jih00ma01mlofl39opg/approve",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzm1jih00ma01mlofl39opg/cancel",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzm1jih00ma01mlofl39opg/replan",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvzm1jih00ma01mlofl39opg/retry",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvznsouz00ni01ml3mq9bmua/approve",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvznsouz00ni01ml3mq9bmua/quality",
+      "count": 4
+    },
+    {
+      "request": "POST /api/executions/cmvznsouz00ni01ml3mq9bmua/quality/correct",
+      "count": 1
+    },
+    {
+      "request": "POST /api/executions/cmvznsouz00ni01ml3mq9bmua/retry",
+      "count": 1
+    },
+    {
+      "request": "POST /api/items/cmvyh5z8e001p01ml2qgnhqry/development-manual-acceptance",
+      "count": 1
+    },
+    {
+      "request": "POST /api/items/cmvyh5z8e001p01ml2qgnhqry/specification/apply",
+      "count": 3
+    },
+    {
+      "request": "PUT /api/items/cmvyh5z8e001p01ml2qgnhqry/specification/draft",
+      "count": 3
+    }
+  ],
+  "actions": [
+    {
+      "at": "2026-11-02T17:27:47.257Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/dev/acceptance",
+      "evidence": 1793640467154,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:28:57.252Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/dev/acceptance",
+      "evidence": 1793640537141,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:29:22.518Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/dev/acceptance",
+      "evidence": 1793640562412,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/development-manual-acceptance"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:29:32.265Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640572118,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:29:42.565Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640582435,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:29:56.947Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/development_cycle",
+      "evidence": 1793640596849,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:30:04.796Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/development_cycle",
+      "evidence": 1793640604699,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:30:25.190Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640625050,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvyhz4dy006h01mlsmlo4l5p/replan"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:31:41.759Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640701625,
+      "writes": [],
+      "errors": [],
+      "harnessError": true
+    },
+    {
+      "at": "2026-11-02T17:32:01.908Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=conversations",
+      "evidence": 1793640721252,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:32:50.720Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793640770468,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:33:54.466Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793640834262,
+      "writes": [
+        {
+          "method": "PUT",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/draft"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:34:11.637Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793640851456,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/apply"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:34:22.738Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640862604,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:34:33.697Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/replan",
+      "evidence": 1793640873568,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:34:43.443Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+      "evidence": 1793640883334,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjbf0k00js01mlqqa8jvo6/replan"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:34:56.997Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+      "evidence": 1793640896875,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:35:09.018Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640908883,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjgy3j00k401mlt2o73p95/approve"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:36:07.594Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793640967436,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:36:42.607Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641002431,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:38:01.898Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641081695,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:39:01.873Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641141722,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:39:21.961Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641161826,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjgy3j00k401mlt2o73p95/quality"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:40:42.419Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641242243,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:41:09.429Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/correct",
+      "evidence": 1793641269330,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:41:48.207Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641308073,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjgy3j00k401mlt2o73p95/quality/correct"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:43:38.370Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793641418224,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T17:55:12.555Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/conversation",
+      "evidence": 1793642112439,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:00:42.113Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793642441904,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:32:32.604Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793644352415,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:39:48.179Z",
+      "url": "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj",
+      "evidence": 1793644788024,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:40:23.954Z",
+      "url": "http://127.0.0.1:3310/releases/cmvyh41xk001j01mlqmknc9jj",
+      "evidence": 1793644823783,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:40:36.349Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793644836167,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:44:17.846Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793645057558,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:44:56.195Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793645095960,
+      "writes": [
+        {
+          "method": "PUT",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/draft"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:45:34.847Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793645134619,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/apply"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:45:51.393Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793645151230,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:46:10.138Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/cancel",
+      "evidence": 1793645170035,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:46:29.236Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793645189068,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjgy3j00k401mlt2o73p95/cancel"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:46:43.224Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793645203069,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzjgy3j00k401mlt2o73p95/replan"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T18:47:06.360Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+      "evidence": 1793645226244,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:12:17.339Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/approve",
+      "evidence": 1793646737235,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:12:26.113Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793646745911,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzm1jih00ma01mlofl39opg/approve"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:13:28.670Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793646808530,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:30:49.382Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793647849243,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzm1jih00ma01mlofl39opg/retry"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:31:41.831Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793647901605,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:33:02.039Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793647981909,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:35:25.310Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=specification",
+      "evidence": 1793648125121,
+      "writes": [
+        {
+          "method": "PUT",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/draft"
+        },
+        {
+          "method": "POST",
+          "path": "/api/items/cmvyh5z8e001p01ml2qgnhqry/specification/apply"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:35:51.256Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648151073,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzm1jih00ma01mlofl39opg/cancel"
+        },
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvzm1jih00ma01mlofl39opg/replan"
+        },
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/approve"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:36:39.791Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648199645,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:37:46.502Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648266338,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:39:19.380Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648359248,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:39:33.200Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648373061,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/quality"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:40:41.533Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648441400,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:42:05.030Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution/actions/correct",
+      "evidence": 1793648524937,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:42:33.288Z",
+      "url": "http://127.0.0.1:3310/tasks/cmvyh5z9b001v01mlb0iogkl1",
+      "evidence": 1793648553166,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:44:33.290Z",
+      "url": "http://127.0.0.1:3310/tasks/cmvyh5z9b001v01mlb0iogkl1?tab=planning&process=action",
+      "evidence": 1793648673157,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:44:46.041Z",
+      "url": "http://127.0.0.1:3310/tasks/cmvyh5z9b001v01mlb0iogkl1?tab=planning&process=action",
+      "evidence": 1793648685896,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/quality"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:46:19.019Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648778846,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:46:48.697Z",
+      "url": "http://127.0.0.1:3310/tasks/cmvyh5z9b001v01mlb0iogkl1",
+      "evidence": 1793648808562,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:47:36.272Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793648856135,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/quality/correct"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T19:50:52.065Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793649051931,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:00:49.781Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793649649651,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/retry"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:02:22.739Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793649742597,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:04:19.204Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793649859059,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:05:29.520Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793649929381,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/quality"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:06:53.680Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793650013551,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:08:28.506Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793650108368,
+      "writes": [
+        {
+          "method": "POST",
+          "path": "/api/executions/cmvznsouz00ni01ml3mq9bmua/quality"
+        }
+      ],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:09:27.424Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793650167293,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:09:47.403Z",
+      "url": "http://127.0.0.1:3310/tasks/cmvyh5z9b001v01mlb0iogkl1",
+      "evidence": 1793650187235,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T20:40:51.594Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution",
+      "evidence": 1793652051371,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T21:01:32.005Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=activity",
+      "evidence": 1793653291590,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T21:02:01.373Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry?tab=activity&history.page=2&history.asOf=2026-11-02T21%3A01%3A30.026Z",
+      "evidence": 1793653320969,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    },
+    {
+      "at": "2026-11-02T21:02:35.389Z",
+      "url": "http://127.0.0.1:3310/stories/cmvyh5z8e001p01ml2qgnhqry/execution?history.page=2&history.asOf=2026-11-02T21%3A01%3A30.026Z",
+      "evidence": 1793653355239,
+      "writes": [],
+      "errors": [],
+      "harnessError": false
+    }
+  ]
+}

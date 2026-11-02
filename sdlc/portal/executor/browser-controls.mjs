@@ -15,7 +15,7 @@ export class ControlRegistry{
    const role=match[1],name=match[2]?label(match[2]):'';if(name===null||name.length>160)continue;
    if(role==='heading'){const level=Number(trim.match(/\[level=(\d)\]/u)?.[1]??2);for(const key of headings.keys())if(key>=level)headings.delete(key);headings.set(level,name);current=null;continue;}
    if(role==='option'){if(current?.role==='combobox'&&indent>current.indent){if(current.options.length<32)current.options.push(name);else limited=true;if(trim.includes('[selected]'))current.selected=name;}continue;}
-   if(!roles.has(role)||(!name&&role!=='textbox'))continue;
+   if(!roles.has(role)||(!name&&!['textbox','combobox'].includes(role)))continue;
    const countKey=JSON.stringify([role,normalized(name)]),index=counts.get(countKey)??0;counts.set(countKey,index+1);if(index>5){limited=true;continue;}
    const section=[...headings.values(),...(rows.at(-1)?.name?[rows.at(-1).name]:[])].join(' › ').slice(0,250);
    const key=JSON.stringify([role,normalized(name),index,section]);let id=this.known.get(key);

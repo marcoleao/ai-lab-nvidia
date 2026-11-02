@@ -1,0 +1,26 @@
+{
+  "sourceSha256": "37268f0ca690e1b97fd4900035f633656a7fada36b3ec07356fc9f1b33558df5",
+  "model": "qwen3:14b",
+  "scope": "Synthetic planning only; no source edits or business data",
+  "cases": [
+    {
+      "domain": "Booking",
+      "changes": 1,
+      "readOnlyCount": 0,
+      "passed": true
+    },
+    {
+      "domain": "Expenses",
+      "changes": 1,
+      "readOnlyCount": 0,
+      "passed": true
+    },
+    {
+      "domain": "Materials",
+      "changes": 1,
+      "readOnlyCount": 0,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

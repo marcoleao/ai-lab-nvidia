@@ -1,0 +1,11 @@
+{
+    "source":  "Isolated backend regression",
+    "database":  "portal_test",
+    "sourceStable":  true,
+    "results":  {
+                    "file":  "quality.test.ts",
+                    "passed":  19,
+                    "failed":  0,
+                    "skipped":  0
+                }
+}

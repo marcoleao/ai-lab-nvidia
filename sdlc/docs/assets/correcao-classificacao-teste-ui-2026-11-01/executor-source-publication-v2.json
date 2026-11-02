@@ -1,0 +1,16 @@
+{
+  "qualifiedSource": "c6f9636f596dbea3d4158d83d6b302bf8501026e1eb128b1373a3245c1a42f92",
+  "qualification": "test-results/regression/coding-live-20261102T002406Z-4c8680/qualification.json",
+  "components": [
+    {
+      "executor": "coding",
+      "sourceDigest": "c6f9636f596dbea3d4158d83d6b302bf8501026e1eb128b1373a3245c1a42f92",
+      "backupId": "executor-source-coding-1e627c21d21b47d2b2c5f855eede5e7e",
+      "ready": true,
+      "configurationPreserved": true
+    }
+  ],
+  "portalApplicationCodeChanged": false,
+  "businessDataChanged": false,
+  "modelsImagesConfigurationPreserved": true
+}

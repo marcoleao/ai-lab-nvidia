@@ -1,0 +1,42 @@
+﻿{
+    "scope":  "Directed isolated contracts; no full regression or application acceptance",
+    "contractChecks":  [
+                           {
+                               "file":  "coding-ui-agent.test.py",
+                               "tests":  29
+                           },
+                           {
+                               "file":  "coding-micro.test.py",
+                               "tests":  31
+                           },
+                           {
+                               "file":  "coding-executor.test.py",
+                               "tests":  23
+                           },
+                           {
+                               "file":  "executor-source-update.test.py",
+                               "tests":  7
+                           },
+                           {
+                               "file":  "dev-ai-executor.test.py",
+                               "tests":  9
+                           },
+                           {
+                               "file":  "runtime-executor.test.py",
+                               "tests":  5
+                           },
+                           {
+                               "file":  "regression-runner.test.py",
+                               "tests":  4
+                           },
+                           {
+                               "file":  "test_audit_admin.py",
+                               "tests":  9
+                           }
+                       ],
+    "distinctContractTests":  117,
+    "passed":  true,
+    "browserRegistryTests":  5,
+    "chromiumIntegrationTests":  17,
+    "distinctTestsIncludingBrowser":  139
+}

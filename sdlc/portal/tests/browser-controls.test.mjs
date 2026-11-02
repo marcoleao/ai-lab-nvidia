@@ -26,6 +26,19 @@ test('IDs never grant code, URLs, forged roles, hidden options or mismatched act
  assert.deepEqual(r.step(action('expect_image',controls[2].id,'$ORIGIN/__sdlc_test__/image.svg')),{op:'expect_image',target:{by:'role',role:'img',name:'Foto',index:0},value:'$ORIGIN/__sdlc_test__/image.svg'});
  assert.throws(()=>r.step(action('click',controls[1].id,'http://unexpected.test')));
 });
+
+test('unnamed selects retain observed options and independent indices without inventing labels',()=>{
+ const r=new ControlRegistry(),snapshot='- heading "Entrega" [level=2]\n- combobox "Destino":\n  - option "Matriz" [selected]\n- combobox:\n  - option "Escolha" [selected]\n  - option "Expresso"\n- heading "Cobrança" [level=2]\n- combobox:\n  - option "Mensal" [selected]';
+ const {controls}=r.update(snapshot),first=controls[1],second=controls[2];
+ assert.equal(first.name,'');assert.equal(first.index,0);assert.equal(second.index,1);
+ assert.equal(first.section,'Entrega');assert.equal(second.section,'Cobrança');
+ assert.deepEqual(first.options,['Escolha','Expresso']);assert.equal(first.selected,'Escolha');
+ assert.deepEqual(r.step(action('select',first.id,'Expresso')),{op:'select',target:{by:'role',role:'combobox',name:'',index:0},value:'Expresso'});
+ assert.throws(()=>r.step(action('select',second.id,'Expresso')),/Opção/);
+ assert.throws(()=>r.step(action('fill',first.id,'Expresso')),/operação/);
+ assert.equal(r.update(snapshot).controls[1].id,first.id);
+ r.update('- button "Outro"');assert.throws(()=>r.step(action('select',first.id,'Expresso')),/desatualizado/);
+});
 test('catalog limits and duplicate indices are explicit; row context is preserved',()=>{
  const r=new ControlRegistry(),catalog=r.update('- heading "Produtos" [level=1]\n- list:\n  - listitem:\n    - strong: Anel\n    - button "Editar"\n  - listitem:\n    - strong: Colar\n    - button "Editar"');
  assert.match(catalog.controls[0].section,/Anel/);assert.match(catalog.controls[1].section,/Colar/);assert.equal(catalog.controls[1].index,1);

@@ -1,0 +1,104 @@
+{
+  "qualifiedSource": "90976b7baf79744a180b06f962c18fdb45d8b4a92f9e5c9decd7d5705eddc412",
+  "qualifications": [
+    "test-results/regression/coding-live-20261102T192300Z-5602b3/qualification.json",
+    "test-results/regression/coding-live-20261102T192451Z-ed69b3/qualification.json"
+  ],
+  "attempts": [
+    [
+      {
+        "fixture": "ui-fragmented-context",
+        "passed": true,
+        "state": "succeeded"
+      }
+    ],
+    [
+      {
+        "fixture": "ui-prerequisites",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-native-required",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-appearance",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-booking",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-scalar-validation",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-replacement",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-two-goals",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-review-context",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-initial-context",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-planned-fields",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-unnamed-select",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "passed": true,
+        "state": "not_tested"
+      }
+    ]
+  ],
+  "component": {
+    "executor": "coding",
+    "sourceDigest": "90976b7baf79744a180b06f962c18fdb45d8b4a92f9e5c9decd7d5705eddc412",
+    "backupId": "executor-source-coding-418f01a140bd48f1b6dd61078c237d50",
+    "ready": true,
+    "configurationPreserved": true,
+    "configurationOnlyBrowserChanged": false
+  },
+  "qualifiedFixtures": [
+    "ui-appearance",
+    "ui-booking",
+    "ui-fragmented-context",
+    "ui-initial-context",
+    "ui-native-required",
+    "ui-planned-fields",
+    "ui-prerequisites",
+    "ui-replacement",
+    "ui-review-context",
+    "ui-scalar-validation",
+    "ui-two-goals",
+    "ui-unnamed-select",
+    "unsupported-keyboard"
+  ],
+  "configurationModelsImagesPreserved": true,
+  "runtimeWebApiChanged": false,
+  "businessDataChangedByMaintenance": false
+}

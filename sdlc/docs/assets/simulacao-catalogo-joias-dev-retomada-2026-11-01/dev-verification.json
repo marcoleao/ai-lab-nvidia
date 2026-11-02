@@ -1,0 +1,76 @@
+{
+  "at": "2026-11-02T03:12:53.271Z",
+  "url": "http://localhost:44959",
+  "scope": "Verificação manual automatizada por navegação em contexto isolado; não é aceite integral nem aprovação QA",
+  "applicationSourceChanged": false,
+  "storageInjected": false,
+  "completeAcceptance": false,
+  "rows": [
+    {
+      "name": "Abertura HTTP e formulário",
+      "passed": true
+    },
+    {
+      "name": "Obrigatoriedade dos campos",
+      "passed": true
+    },
+    {
+      "name": "Cadastro válido e preço BRL",
+      "passed": true
+    },
+    {
+      "name": "Limpeza após sucesso",
+      "passed": true
+    },
+    {
+      "name": "Persistência após recarga",
+      "passed": true
+    },
+    {
+      "name": "Duplicidade com caixa/espaços e rascunho preservado",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço 199.90,5",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço Infinity",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço 0",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço -1",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço 199.999",
+      "passed": true
+    },
+    {
+      "name": "Rejeitar preço 199abc",
+      "passed": true
+    },
+    {
+      "name": "Cadastro válido com vírgula decimal",
+      "passed": true
+    },
+    {
+      "name": "Persistência dos dois cadastros",
+      "passed": true
+    },
+    {
+      "name": "Ausência de erro JavaScript observado",
+      "passed": true
+    },
+    {
+      "name": "Dados limitados ao contexto isolado",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "writes": []
+}

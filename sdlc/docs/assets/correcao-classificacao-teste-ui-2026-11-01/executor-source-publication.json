@@ -1,0 +1,23 @@
+{
+  "qualifiedSource": "078872061e7876e14bf7d47545991fcb91be824b0f1cce08fe89ad55805ecc6a",
+  "qualification": "test-results/regression/coding-live-20261102T001426Z-8844f5/qualification.json",
+  "components": [
+    {
+      "executor": "coding",
+      "sourceDigest": "078872061e7876e14bf7d47545991fcb91be824b0f1cce08fe89ad55805ecc6a",
+      "backupId": "executor-source-coding-839d7eadcf3646d48049bb10ea53e603",
+      "ready": true,
+      "configurationPreserved": true
+    },
+    {
+      "executor": "runtime",
+      "sourceDigest": "a1ebdde41421c49be0be36211886c47a730ae42077fedf1ae9766e90841f2b50",
+      "backupId": "executor-source-runtime-dc818d9749804eaab51688057030bfde",
+      "ready": true,
+      "configurationPreserved": true
+    }
+  ],
+  "portalApplicationCodeChanged": false,
+  "businessDataChanged": false,
+  "modelsImagesConfigurationPreserved": true
+}

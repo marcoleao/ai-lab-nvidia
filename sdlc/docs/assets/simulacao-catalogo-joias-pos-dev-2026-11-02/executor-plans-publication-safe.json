@@ -1,0 +1,89 @@
+{
+  "qualifiedSource": "d9ac0eaf5656b7c8595ae717e4ddd1550c1fe5fac11ee40771849f477ed68dd6",
+  "qualifications": [
+    "test-results/regression/coding-live-20261102T190654Z-074120/qualification.json"
+  ],
+  "attempts": [
+    [
+      {
+        "fixture": "ui-prerequisites",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-native-required",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-appearance",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-booking",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-scalar-validation",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-replacement",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-two-goals",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-review-context",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-planned-fields",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "ui-unnamed-select",
+        "passed": true,
+        "state": "succeeded"
+      },
+      {
+        "fixture": "unsupported-keyboard",
+        "passed": true,
+        "state": "not_tested"
+      }
+    ]
+  ],
+  "component": {
+    "executor": "coding",
+    "sourceDigest": "d9ac0eaf5656b7c8595ae717e4ddd1550c1fe5fac11ee40771849f477ed68dd6",
+    "backupId": "executor-source-coding-6d8c8fcbb9604dea867a72c43b5a977b",
+    "ready": true,
+    "configurationPreserved": true,
+    "configurationOnlyBrowserChanged": false
+  },
+  "qualifiedFixtures": [
+    "ui-appearance",
+    "ui-booking",
+    "ui-native-required",
+    "ui-planned-fields",
+    "ui-prerequisites",
+    "ui-replacement",
+    "ui-review-context",
+    "ui-scalar-validation",
+    "ui-two-goals",
+    "ui-unnamed-select",
+    "unsupported-keyboard"
+  ],
+  "configurationModelsImagesPreserved": true,
+  "runtimeWebApiChanged": false,
+  "businessDataChangedByMaintenance": false
+}

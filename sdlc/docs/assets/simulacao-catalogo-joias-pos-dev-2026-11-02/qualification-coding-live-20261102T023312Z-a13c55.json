@@ -1,0 +1,81 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:08ca9c4d5c6424c4781734181c3bff390fa85cbd65eeddf5941117324a52abc2",
+  "executorDigest": "ad01b8af5050720f1d4741e0281f54ff3147a9502caf2b66599e05ff57a21038",
+  "toolchainDigest": "9cdc1a2b322d231c91d37e73389fd0b8c259ab3a9424165ba585b10428f08b98",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-scalar-validation",
+      "fixtureDigest": "459ae1a9600ddc6a8bfd202518d8662eea4691b2c82252b4a06f10ec86e09602",
+      "state": "failed",
+      "elapsedMs": 128498,
+      "inferenceCalls": 24,
+      "toolCalls": 4,
+      "validationPassed": false,
+      "passed": false,
+      "emptyFormBlocked": true,
+      "controlsPreserved": true,
+      "independentInputs": [
+        {
+          "input": "12.50,5",
+          "passed": false
+        },
+        {
+          "input": "12kg",
+          "passed": false
+        },
+        {
+          "input": "Infinity",
+          "passed": false
+        },
+        {
+          "input": "0",
+          "passed": true
+        },
+        {
+          "input": "-1",
+          "passed": true
+        },
+        {
+          "input": "1.234",
+          "passed": false
+        },
+        {
+          "input": "12.50",
+          "passed": true
+        },
+        {
+          "input": "12,50",
+          "passed": true
+        },
+        {
+          "input": "12",
+          "passed": true
+        }
+      ],
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "error": "A repetição independente do mesmo roteiro de UI falhou. Nenhuma candidata publicada.",
+      "diagnostics": []
+    }
+  ],
+  "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4",
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "fragmentSelection": true,
+    "expression": true,
+    "geometry": false,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

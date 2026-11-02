@@ -1,0 +1,70 @@
+﻿[
+    {
+        "file":  "01-especificacao-esclarecida.png",
+        "sha256":  "5ff909eb1809592b6d911f34d9426984fefbefd11e40aee7de5656a91057a96f"
+    },
+    {
+        "file":  "02-novo-gateway.png",
+        "sha256":  "b68fb95be8c0c5737a921e275b3c37b415ce81da36bf64572f07b3aeaecb6df6"
+    },
+    {
+        "file":  "03-classificacao-recusada.png",
+        "sha256":  "bf96e3790a6364e95f287da9b768cdce7a58fc05c07554fce676c63d5a8c7f8d"
+    },
+    {
+        "file":  "04-reparo-recusado.png",
+        "sha256":  "a0819d03eaa8d000fa066a56ff37175a695cfacafcfdba19d02e2c5d00105bab"
+    },
+    {
+        "file":  "05-sintaxe-recusada.png",
+        "sha256":  "5a7820194d51ca066a9c070942938e77985d70a973aee18940f8fcb0820d9157"
+    },
+    {
+        "file":  "06-pre-requisito-de-selecao.png",
+        "sha256":  "2040192316264b34b61cf62f7bb2490f1a8378586033c65122f8b5d09afe3435"
+    },
+    {
+        "file":  "07-reenvio-pendente.png",
+        "sha256":  "2632c1420721103ff37c37a75f0dec8f46d6a56fac4b5e0440dc68643de2f0a7"
+    },
+    {
+        "file":  "08-codificacao-concluida.png",
+        "sha256":  "d55459cfc0d3dab65c82e03a5022a8dc589bb3f55e2b5e53f23d0279f3d56e58"
+    },
+    {
+        "file":  "10-confirmacao-correcao.png",
+        "sha256":  "4c63c104853c2d6288e5d1d7889b665a76cf4421cd374917c649df0cc3bcaa5e"
+    },
+    {
+        "file":  "11-gateway-revisado.png",
+        "sha256":  "75b0272a0d8b938ece4de844da22a7d88f1c2b94db2892c73e35a7ee13dd6843"
+    },
+    {
+        "file":  "12-limite-final.png",
+        "sha256":  "66b9c34e27f1df561efd109de837daf1a149bf79684b3af7de9a08b118cd4b07"
+    },
+    {
+        "file":  "13-release-bloqueada.png",
+        "sha256":  "38a87d49527c327b0e86b845d85ad3cfee18108b83a43d9c32de53af8d498582"
+    },
+    {
+        "file":  "14-estado-final.png",
+        "sha256":  "fca0c05161b643b8fcbc5ae731c500a3bf06218e8e0eb173a1d46d3a7ad4ecb6"
+    },
+    {
+        "file":  "coding-result-v1.json",
+        "sha256":  "6c50f2b458d911a00bb842348172b03986f03dbe45089676a52cb7081e31984e"
+    },
+    {
+        "file":  "final-journey-state.json",
+        "sha256":  "d2e110ee302b7f6f2b309a70ba8360c76673fea910e01196db3c0ca377b2e6f4"
+    },
+    {
+        "file":  "inventario.json",
+        "sha256":  "8660e8db9ec64e3b8f8f633e3e25d4397be4b6d175950d2e6aaaad9b8655233c"
+    },
+    {
+        "file":  "navegacao.json",
+        "sha256":  "88735e2a849be8ed7dda832299c85c45c3e3484457c7fcf002c80a878a5eda09"
+    }
+]

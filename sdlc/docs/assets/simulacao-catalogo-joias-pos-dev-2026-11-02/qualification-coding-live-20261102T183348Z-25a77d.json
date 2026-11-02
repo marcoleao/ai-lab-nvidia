@@ -1,0 +1,129 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:08ca9c4d5c6424c4781734181c3bff390fa85cbd65eeddf5941117324a52abc2",
+  "executorDigest": "98fb6589787446f624710d1480352a8a9b68d5f8938146a1cf833ec7aad38ae6",
+  "toolchainDigest": "9cdc1a2b322d231c91d37e73389fd0b8c259ab3a9424165ba585b10428f08b98",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-scalar-validation",
+      "fixtureDigest": "59337990d678526cde9780d1eef4716ef8250384ab793fa3febbcf220d15488b",
+      "state": "unknown",
+      "elapsedMs": 169777,
+      "inferenceCalls": 10,
+      "toolCalls": 0,
+      "validationPassed": false,
+      "passed": false,
+      "emptyFormBlocked": true,
+      "controlsPreserved": true,
+      "independentInputs": [
+        {
+          "input": "12.50,5",
+          "passed": false
+        },
+        {
+          "input": "12kg",
+          "passed": false
+        },
+        {
+          "input": "Infinity",
+          "passed": false
+        },
+        {
+          "input": "0",
+          "passed": true
+        },
+        {
+          "input": "-1",
+          "passed": true
+        },
+        {
+          "input": "1.234",
+          "passed": false
+        },
+        {
+          "input": "12.50",
+          "passed": true
+        },
+        {
+          "input": "12,50",
+          "passed": true
+        },
+        {
+          "input": "12",
+          "passed": true
+        }
+      ],
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "error": "Execução de especialista interrompida; candidata não confirmada e não repetida automaticamente.",
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-replacement",
+      "fixtureDigest": "922d108212b649714fb91be0972c904573feee4c1c9141f10f90cbf5a68a3f48",
+      "state": "succeeded",
+      "elapsedMs": 83404,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentCheckPassed": true,
+      "onlyPatternChanged": true,
+      "replacementEvidenceSeparated": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-two-goals",
+      "fixtureDigest": "dc9e11006d6bf013617870c4cb723db567813400fc77b1e10e22d5640c0798dd",
+      "state": "succeeded",
+      "elapsedMs": 39698,
+      "inferenceCalls": 15,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "independentCheckPassed": true,
+      "twoGoalsSameFile": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-planned-fields",
+      "fixtureDigest": "d6fc56fdea76de233e8bb869d5a8298694154faae9bfd0381ffd152ef1376622",
+      "state": "succeeded",
+      "elapsedMs": 37682,
+      "inferenceCalls": 13,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "emptyFormBlocked": true,
+      "independentFormSaved": true,
+      "clearedAfterSave": true,
+      "boundInitialInputs": 5,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    }
+  ],
+  "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4",
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "fragmentSelection": true,
+    "expression": false,
+    "geometry": false,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

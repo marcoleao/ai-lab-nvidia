@@ -1,0 +1,23 @@
+{
+  "job": "c4e9b862ddc4bcad01bbef2b101e67b5a1ba791fb8c48778a962187ed4f958aa",
+  "state": "failed",
+  "expectedSha": "02099a175ecbf33f6cf28642658f7d1ec7264625",
+  "model": "qwen3:14b",
+  "uiModel": "qwen3:14b",
+  "inferenceCalls": 6,
+  "changedFiles": [],
+  "browserChecks": [],
+  "phases": [
+    {
+      "role": "diagnosis",
+      "state": "observed",
+      "inferenceCalls": null
+    },
+    {
+      "role": "implementation",
+      "state": "failed",
+      "inferenceCalls": 6
+    }
+  ],
+  "completeAcceptance": false
+}

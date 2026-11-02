@@ -7,6 +7,68 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 import coding_micro as micro
 import coding_service as service
 class MicroContracts(unittest.TestCase):
+ def test_display_literal_is_copied_from_original_approval_not_intermediate_goal_or_source_code(self):
+  context={'behavior':'Exibir "Consulta agendada.".','criteria':['Não alterar a confirmação aprovada.'],'approved':{'requirements':{'businessRules':['Mensagem exata: "Consulta agendada.".']},'codeDestination':{'description':'"Segredo fora dos textos de interface"'}}}
+  choices=micro.display_text_choices(context);self.assertEqual(list(choices.values()),['Consulta agendada.'])
+  slot={'kind':'JSXElement','code':'<p>Criado</p>'};self.assertEqual(micro.source_role(slot),'display_text');self.assertEqual(micro.display_text_expression({'textId':'text1'},choices,slot),'<p>{"Consulta agendada."}</p>')
+  for code in ['<button>Criado</button>','<label>Criado</label>','<p>{message}</p>','<p onClick={run}>Criado</p>','<script>Criado</script>']:
+   self.assertIsNone(micro.display_text_source({**slot,'code':code}))
+  for proposal in [{'textId':'unknown'},{'textId':'text1','content':'fake'},{'text':'Consulta agendada'}]:
+   with self.assertRaises(ValueError):micro.display_text_expression(proposal,choices,slot)
+  escaped=micro.display_text_expression({'textId':'text1'},{'text1':'<b>Texto</b> "exato"'},slot);self.assertEqual(escaped,'<p>{"<b>Texto</b> \\"exato\\""}</p>'.replace('\\\\','\\'))
+ def test_current_goal_is_explicit_without_losing_reference_or_inference_guards(self):
+  data={'goal':'Corrigir apenas o segundo resultado','approvedRequirements':{'qualityFindings':['Outro resultado também exige correção.']},'sourceIndex':{'slots':['observed']}}
+  schema={'type':'object'}
+  with patch.object(micro,'_ask_local',return_value={'slots':[]}) as inference:
+   value=micro.ask_local(None,{},'Selecione trechos.',data,schema,180,reasoning=True)
+  self.assertEqual(value,{'slots':[]});self.assertEqual(inference.call_args.args[3],{'currentTask':{'goal':data['goal']},'reference':data});self.assertEqual(inference.call_args.args[4],schema);self.assertEqual(inference.call_args.args[5],180);self.assertTrue(inference.call_args.kwargs['reasoning'])
+  native={'approvedGeneration':{'story':{'qualityFindings':[{'message':'Corrigir somente Confirmation.'}]},'specification':{'requirements':'Preservar formulário já funcional.'}}}
+  self.assertEqual(micro.implementation_focus(native),{'qualityFindings':[{'message':'Corrigir somente Confirmation.'}]});self.assertEqual(micro.implementation_focus({'criteria':['Regra não desaparece.']}),{})
+  self.assertEqual(native['approvedGeneration']['specification']['requirements'],'Preservar formulário já funcional.');self.assertEqual(micro.implementation_focus(native,'Falha observada atual'),{'observedFailure':'Falha observada atual'})
+  self.assertEqual(micro.implementation_focus({'approvedGeneration':{'story':{'qualityFindings':[]},'specification':{'requirements':'Criar a interface aprovada.'}}}),{'technicalRequirements':'Criar a interface aprovada.'})
+  self.assertEqual(list(inference.call_args.args[3]),['reference','currentTask'])
+ def test_native_planning_focus_preserves_global_constraints_and_inference_policy(self):
+  focus={'qualityFindings':[{'message':'Validar a conversão completa.'}],'technicalRequirements':'Preservar os controles.'}
+  data={'implementationFocus':focus,'approvedRequirements':{'criteria':['Aceitar decimais completos.','Recusar prefixos parciais.']},'maxChanges':2}
+  schema={'type':'object','properties':{'changes':{'type':'array','maxItems':2}}}
+  with patch.object(micro,'_ask_local',return_value={'changes':[]}) as inference:micro.ask_local(None,{},'Planeje.',data,schema,600)
+  self.assertEqual(inference.call_args.args[3],{'currentTask':{'implementationFocus':focus},'reference':data});self.assertEqual(inference.call_args.args[4],schema);self.assertEqual(inference.call_args.args[5],600);self.assertEqual(inference.call_args.kwargs,{})
+  empty={'implementationFocus':{},'approvedRequirements':data['approvedRequirements']}
+  with patch.object(micro,'_ask_local',return_value={}) as inference:micro.ask_local(None,{},'Planeje.',empty,schema,600)
+  self.assertEqual(inference.call_args.args[3],empty)
+ def test_component_index_exposes_existing_guards_within_original_total_text_budget(self):
+  content='function App(){'+('const padding=0;'*200)+'if(empty)return;save();reset();}'
+  slot={'slot':'s1','kind':'FunctionDeclaration','binding':'App','line':1,'code':content}
+  view=micro.slot_index([slot],'Preservar bloqueio vazio e limpeza',['save'])
+  self.assertEqual(view['slots'][0]['code'],content);self.assertTrue(view['slots'][0]['codeComplete']);self.assertTrue(view['complete'])
+  many=[{**slot,'slot':'s'+str(index),'code':'x'*6000} for index in range(60)]
+  view=micro.slot_index(many,'Ajustar',[]);self.assertEqual(len(view['slots']),48);self.assertFalse(view['complete']);self.assertEqual(view['totalObservedSlots'],60);self.assertLessEqual(sum(len(item['code']) for item in view['slots']),48*180);self.assertTrue(all(not item['codeComplete'] for item in view['slots']))
+ def test_decimal_policy_cannot_supply_source_code_identifiers_or_unsupported_syntax(self):
+  slot={'kind':'CallExpression','code':"parseFloat(mass.replace(',', '.'))"}
+  policy={'maxFractionDigits':2,'allowSign':False,'allowLeadingDecimal':False,'trim':True,'positiveOnly':True}
+  self.assertEqual(micro.numeric_input_source(slot),'mass');self.assertEqual(micro.source_role(slot),'numeric_input')
+  self.assertEqual(micro.numeric_input_source({**slot,'code':'Number.parseFloat(payload.replace(",", "."))'}),'payload')
+  for code in ['parseFloat(number)','parseFloat(read().replace(",", "."))','parseFloat(mass.replace("x", "."))','parseFloat(mass.replace(/,/g, "."))','parseFloat(mass.replace(",", "."));evil()']:
+   with self.subTest(code=code):self.assertIsNone(micro.numeric_input_source({**slot,'code':code}))
+  for update in [{'maxFractionDigits':True},{'maxFractionDigits':13},{'decimalSeparators':['e']},{'decimalSeparators':['.','.']},{'trim':1},{'source':'other'},{'content':'evil()'}]:
+   with self.subTest(update=update),self.assertRaises(ValueError):micro.numeric_input_expression({**policy,**update},slot)
+  with self.assertRaises(ValueError):micro.numeric_input_expression(policy,{'kind':'CallExpression','code':'parseFloat(read())'})
+  self.assertIn('mass.trim()',micro.numeric_input_expression(policy,slot));self.assertIn('Number.isFinite',micro.numeric_input_expression(policy,slot))
+ def test_numeric_profile_compiles_policy_without_accepting_model_code_or_rewriting_controls(self):
+  content="export const amount=parseFloat(mass.replace(',', '.'));";path='src/amount.js'
+  slot={'slot':'s1','kind':'CallExpression','binding':'amount','line':1,'code':"parseFloat(mass.replace(',', '.'))",'contains':[]}
+  policy={'maxFractionDigits':2,'allowSign':False,'allowLeadingDecimal':False,'trim':True,'positiveOnly':True}
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':content}],'prompt':'Aceitar somente decimais completos positivos com até duas casas.','allowDependencies':False}
+  responses=[{'changes':[{'path':path,'goal':'Validar o número inteiro completo','queries':['amount']}]},{'path':path},{'slots':['s1']},policy]
+  compiled=[]
+  def compile(*args):
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':[slot]}
+   compiled.extend(args[5]);return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[{'path':path,'content':'export const amount='+args[5][0]['content']+';'}]},'tools':[]}
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   with patch.object(micro,'ask_local',side_effect=responses) as ask,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+  self.assertEqual(result['state'],'succeeded');self.assertEqual(compiled,[{'slot':'s1','content':micro.numeric_input_expression(policy,slot)}]);self.assertNotIn('content',ask.call_args.args[4]['properties']);self.assertNotIn('source',ask.call_args.args[4]['properties'])
+  self.assertFalse(ask.call_args_list[2].kwargs['reasoning']);self.assertEqual(ask.call_args_list[2].args[4]['properties']['slots']['items']['enum'],['s1']);self.assertNotIn('minItems',ask.call_args_list[2].args[4]['properties']['slots'])
  def test_small_capability_plan_covers_two_distinct_sources_but_repair_remains_one(self):
   changes=[{'path':'src/App.jsx','goal':'Implementar os controles nativos e seu estado','queries':['App']},{'path':'src/app.css','goal':'Aplicar o layout aprovado','queries':['main']}]
   self.assertEqual(micro.validate_plan({'changes':changes},{c['path'] for c in changes},2),changes)
@@ -39,7 +101,8 @@ class MicroContracts(unittest.TestCase):
     self.assertEqual(args[5],[{'slot':'s1','urlPolicy':policy,'flags':'i'}])
     return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[changed]},'tools':[]}
    with patch.object(micro,'ask_local',side_effect=responses) as ask,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,directory,{},intent['files'],'','implementation')
-   for call in ask.call_args_list:self.assertEqual(call.args[3]['approvedRequirements'],intent['testContext'])
+   for call in ask.call_args_list:
+    self.assertEqual(call.args[3]['approvedRequirements'],intent['testContext'])
    self.assertEqual(ask.call_args_list[1].args[3]['proposedPath'],path)
    self.assertEqual(result['patch']['files'],[changed]);self.assertEqual(result['state'],'succeeded')
    self.assertEqual(json.loads((directory/'micro-implementation-1-proposal-1.json').read_text())['attempted'][0]['proposal'],policy)
@@ -91,6 +154,17 @@ class MicroContracts(unittest.TestCase):
   with patch.object(micro,'ask_local',side_effect=RuntimeError('stop before model')) as ask:
    with self.assertRaisesRegex(RuntimeError,'stop before model'):micro.micro_implementation(SimpleNamespace(dump=Mock()),intent,Path('/unused'),{},files,'','implementation')
   self.assertEqual(ask.call_args.args[3]['allowedWritePaths'],['src/App.jsx'])
+ def test_single_source_repair_keeps_one_writable_path_without_weakening_preservation_guard(self):
+  files=[{'path':'src/Booking.jsx','content':'function Booking(){return null}'},{'path':'src/Settings.jsx','content':'function Settings(){return null}'}]
+  intent={'files':files,'prompt':'Corrigir somente o resultado observado, preservando configurações.','expectedSha':'a'*40}
+  with patch.object(micro,'ask_local',side_effect=RuntimeError('stop before inference')) as ask:
+   with self.assertRaisesRegex(RuntimeError,'stop before inference'):
+    micro.micro_implementation(SimpleNamespace(dump=Mock()),intent,Path('/unused'),{'repairPaths':['src/Booking.jsx']},files,'falha observada','targeted_repair')
+  self.assertEqual(ask.call_args.args[4]['properties']['readOnlyPaths']['maxItems'],0)
+  self.assertEqual(ask.call_args.args[3]['allowedWritePaths'],['src/Booking.jsx'])
+  edit={'path':'src/Booking.jsx','goal':'Corrigir resultado','queries':['Booking']}
+  with self.assertRaisesRegex(ValueError,'somente leitura'):
+   micro.validate_plan({'changes':[edit],'readOnlyPaths':['src/Booking.jsx']},{'src/Booking.jsx'})
  def test_literal_path_observations_find_compact_sources_and_disclose_partial_lines(self):
   files=[{'path':'src/Context.jsx','content':'export const store={items:[]};'},{'path':'src/Form.jsx','content':'x'*300+';const validateUrl=value=>/^https?:/.test(value);'},{'path':'src/View.jsx','content':'\n'.join('const photoURL'+str(i)+'=value;' for i in range(5))}]
   matches=micro.source_matches(files,['URL','HTTP','validação'])
@@ -116,6 +190,34 @@ class MicroContracts(unittest.TestCase):
   self.assertEqual(list(micro.literal_pattern_samples(requirements).values()),['PT-42','PT 42','AB.','2030-12-31'])
   for count in [301,600]:
    with self.subTest(count=count),self.assertRaisesRegex(ValueError,'300'):micro.literal_pattern_samples({'criteria':['Aceitar "'+'a'*count+'".']})
+ def test_native_implementation_keeps_review_findings_once_only_when_ui_projection_is_identical(self):
+  story={'name':'Reservas','runtime':{'name':'React'},'objective':'Confirmar reserva','behavior':'Conferir retorno','criteria':['Reserva confirmada.'],'requirements':{'businessRules':['Preservar consulta anterior.']},'decisions':[],'tasks':[],'codeDestination':None,'qualityFindings':[{'path':'src/Booking.jsx','line':9,'message':'Impedir confirmação sem modalidade.'}],'qualityCorrection':{'expectedSha':'a'*40}}
+  spec={'requirements':'Preservar formulário','architecture':'React atual','risks':['Não substituir campos'],'testCases':[{'criterionIndex':0,'description':'Confirmar pela interface.'}]}
+  payload={'story':story,'specification':spec,'specialistContract':{'workflow':'focused-local-v1'},'capabilities':{'dependencies':False}}
+  context={'contextVersion':2,'objective':story['objective'],'behavior':story['behavior'],'criteria':story['criteria'],'testCases':spec['testCases'],'approved':{**{key:story[key] for key in ['name','runtime','requirements','decisions','tasks','codeDestination']},'technicalPlan':{key:value for key,value in spec.items() if key!='testCases'},'scopeRevision':3}}
+  intent={'prompt':'user: '+json.dumps(payload,ensure_ascii=False),'testContext':context};original=json.dumps(intent)
+  value=micro.approved_requirements(intent)
+  self.assertEqual(value['approvedGeneration'],payload);self.assertEqual(value['testContextIdentity'],{'contextVersion':2,'scopeRevision':3});self.assertNotIn('approvedTestContext',value)
+  self.assertEqual(value['approvedGeneration']['story']['qualityFindings'],story['qualityFindings']);self.assertEqual(json.dumps(intent),original)
+  suffix='\n\nuser: Preservar a mensagem "Reserva confirmada." e o formulário.\nNão remover validações.'
+  initial={**intent,'prompt':intent['prompt']+suffix};shared=micro.approved_requirements(initial)
+  self.assertEqual(shared['approvedGeneration'],payload);self.assertEqual(shared['additionalInstructions'],suffix);self.assertEqual(shared['contextCoverage'],'generation_and_identical_ui_projection_with_additional_instructions');self.assertNotIn('approvedTestContext',shared)
+  self.assertEqual(micro.implementation_focus(shared),{'qualityFindings':story['qualityFindings']});self.assertEqual(shared['approvedGeneration']['specification']['requirements'],spec['requirements']);self.assertEqual(initial['prompt'],intent['prompt']+suffix)
+  divergent=micro.approved_requirements({**initial,'testContext':{**context,'criteria':['Outra regra.']}});self.assertEqual(divergent['approvedInstructions'],initial['prompt']);self.assertEqual(divergent['approvedTestContext']['criteria'],['Outra regra.'])
+  prefix=json.dumps({**payload,'transportEvidence':''},ensure_ascii=False,separators=(',',':')).split('"transportEvidence":"')[0]+'"transportEvidence":"';units=len(prefix.encode('utf-16-le'))//2
+  padded={**payload,'transportEvidence':'x'*(12999-units)+'💎'+'x'*2000};serialized=json.dumps(padded,ensure_ascii=False,separators=(',',':')).encode('utf-16-le');chunks=[serialized[index:index+26000].decode('utf-16-le',errors='surrogatepass') for index in range(0,len(serialized),26000)]
+  label='Escopo aprovado e manifesto do workspace de codificação'
+  messages=[f'user: {label} · parte {index+1}/{len(chunks)}. Dados de referência; leia todas as partes em ordem.\n'+chunk for index,chunk in enumerate(chunks)];fragmented_prompt='\n\n'.join(messages)
+  complete=micro.approved_requirements({'prompt':fragmented_prompt+suffix,'testContext':context});self.assertEqual(complete['approvedGeneration'],padded);self.assertEqual(complete['additionalInstructions'],suffix);self.assertTrue(complete['generationTransport']['complete']);self.assertEqual(complete['generationTransport']['fragmentCount'],len(chunks))
+  for malformed in [messages[0], '\n\n'.join(reversed(messages)),fragmented_prompt.replace('parte 2/','parte 3/',1),fragmented_prompt.replace(label,label+' errado',1),'\n\n'.join([messages[0]+'x',*messages[1:]])]:
+   with self.subTest(malformed=malformed[:50]):
+    retained=micro.approved_requirements({'prompt':malformed,'testContext':context});self.assertEqual(retained['approvedInstructions'],malformed);self.assertEqual(retained['approvedTestContext'],context)
+  for changed in [{**context,'extraRule':'Preservar detalhes extras'},{**context,'criteria':['Critério divergente']},{**context,'approved':{**context['approved'],'decisions':[{'summary':'Nova regra explícita'}]}}]:
+   with self.subTest(changed=changed):
+    preserved=micro.approved_requirements({**intent,'testContext':changed});self.assertEqual(preserved['approvedInstructions'],intent['prompt']);self.assertEqual(preserved['approvedTestContext'],changed)
+  fragmented={**intent,'prompt':'user: envelope parte 1/2\n'+json.dumps(payload)}
+  self.assertEqual(micro.approved_requirements(fragmented)['approvedInstructions'],fragmented['prompt'])
+  self.assertEqual(micro.approved_requirements(fragmented)['approvedTestContext'],context)
  def test_large_source_is_a_partial_index_and_only_the_selected_lines_can_change(self):
   content='\n'.join(f'export const marker_{i}={i};' for i in range(340))+'\nexport const formatAmount=n=>n.toFixed(2);\n';file={'path':'src/prices.js','content':content}
   index=micro.overview([file])[0];self.assertIsNone(index['smallSource']);self.assertFalse(index['complete']);self.assertTrue(index['symbolsLimited']);self.assertIn({'name':'toFixed','line':341},index['methodCalls'])
@@ -140,23 +242,97 @@ class MicroContracts(unittest.TestCase):
     calls.append({'path':path,'expectedDigest':expected,'files':files})
     if len(calls)<=compiler_fails:return {'state':'failed','expectedSha':intent['expectedSha'],'error':'Syntax issue','validation':{'valid':False,'issues':[{'message':'Syntax issue'}]},'tools':[]}
     return {'state':'succeeded','expectedSha':intent['expectedSha'],'patch':{'files':[{'path':path,'content':'export const sum=(a,b)=>a+b;\n'}]},'validation':{'valid':True},'tools':[{'tool':'edit_file','result':'SUCCEEDED'}]}
-   with patch.object(micro,'ask_local',side_effect=[plan,{'path':'src/a.js'},selection,proposal,proposal]),patch.object(micro,'apply_proposal',side_effect=apply) as compiler:
+   with patch.object(micro,'ask_local',side_effect=[plan,{'path':'src/a.js'},selection,proposal,proposal]) as ask,patch.object(micro,'apply_proposal',side_effect=apply) as compiler:
     try:result=micro.micro_implementation(e,intent,directory,job,intent['files'],'Falha observada','targeted_repair' if repair else 'implementation')
     except ValueError as error:result={'refused':str(error)}
+    if len(ask.call_args_list)>=3:
+     located=ask.call_args_list[2].args[3]
+     self.assertEqual(located['literalQueries'],['sum']);self.assertEqual([row['path'] for row in located['literalMatches']],['src/a.js'])
+     self.assertNotIn('src/b.js',[row['path'] for row in located['literalMatches']]);self.assertEqual(located['approvedRequirements'],micro.approved_requirements(intent))
    return result,calls,len(calls)
- def test_duplicate_file_plan_has_one_structural_repair_with_full_approved_scope(self):
-  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':'src/a.js','content':'export const sum=(a,b)=>a-b;'}],'prompt':'Corrigir soma e preservar multiply.','allowDependencies':False}
-  row={'path':'src/a.js','goal':'Corrigir soma','queries':['sum']};duplicate={'changes':[row,{**row,'goal':'Preservar multiply'}]};merged={'changes':[row]}
+ def test_two_goals_on_same_file_keep_both_edits_and_rebase_second_on_updated_source(self):
+  path='src/a.js';original='export const sum=(a,b)=>a-b;\nexport const multiply=(a,b)=>a+b;';intermediate=original.replace('=>a-b','=>a+b');final=intermediate.replace('multiply=(a,b)=>a+b','multiply=(a,b)=>a*b')
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':original}],'prompt':'Corrigir soma e multiplicação.','allowDependencies':False}
+  plan={'changes':[{'path':path,'goal':'Corrigir soma','queries':['sum']},{'path':path,'goal':'Corrigir multiplicação','queries':['multiply']}]};observed=[]
+  def compile(*args):
+   content=next(f['content'] for f in args[3] if f['path']==path);self.assertEqual(args[6],micro.digest(content));self.assertEqual(args[2]['expectedSha'],intent['expectedSha'])
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':[{'slot':'s1','kind':'BinaryExpression','binding':'sum' if not observed else 'multiply','line':1,'code':'a-b' if not observed else 'a+b','contains':[]}]}
+   observed.append(content);self.assertEqual(args[5][0]['content'],'a+b' if len(observed)==1 else 'a*b')
+   return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[{'path':path,'content':intermediate if len(observed)==1 else final}]},'tools':[]}
   with tempfile.TemporaryDirectory() as temporary:
-   e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
-   with patch.object(micro,'ask_local',side_effect=[duplicate,merged,RuntimeError('stop at locator')]) as ask,patch.object(micro,'apply_proposal') as compiler:
+   e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   answers=[plan,{'path':path},{'slots':['s1']},{'content':'a+b'},{'path':path},{'slots':['s1']},{'content':'a*b'}]
+   with patch.object(micro,'ask_local',side_effect=answers),patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+  self.assertEqual(observed,[original,intermediate]);self.assertEqual(result['patch']['files'],[{'path':path,'content':final}])
+ def test_preservation_role_keeps_rebased_source_and_never_calls_an_editor(self):
+  path='src/a.js';original='export const sum=(a,b)=>a-b;';updated=original.replace('a-b','a+b')
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':original}],'prompt':'Corrigir soma preservando controles existentes.','allowDependencies':False}
+  plan={'changes':[{'path':path,'goal':'Corrigir soma','queries':['sum']},{'path':path,'goal':'Preservar controles existentes','queries':['sum']}]};edits=[]
+  def compile(*args):
+   content=next(file['content'] for file in args[3] if file['path']==path);self.assertEqual(args[6],micro.digest(content))
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':[{'slot':'s1','kind':'BinaryExpression','code':'a-b','contains':[]}]}
+   edits.append(args[5]);return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[{'path':path,'content':updated}]},'tools':[]}
+  with tempfile.TemporaryDirectory() as temporary:
+   directory=Path(temporary);e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   with patch.object(micro,'ask_local',side_effect=[plan,{'path':path},{'slots':['s1']},{'content':'a+b'},{'path':path}]) as inference,patch.object(micro,'choose_role',side_effect=['expression','no_change']),patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,directory,{},intent['files'],'','implementation')
+   self.assertEqual(json.loads((directory/'micro-implementation-plan.json').read_text())['plan'],plan);self.assertEqual(json.loads((directory/'micro-implementation-2-role.json').read_text()),{'role':'no_change'})
+  self.assertEqual(len(edits),1);self.assertEqual(inference.call_count,5);self.assertEqual(result['patch']['files'],[{'path':path,'content':updated}])
+ def test_typed_preservation_never_reaches_locator_router_or_editor(self):
+  path='src/a.js';preserved='src/b.js';original='export const value=1;';updated='export const value=2;'
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':original},{'path':preserved,'content':'export const retained=true;'}],'prompt':'Alterar valor preservando controles.','allowDependencies':False}
+  plan={'changes':[{'path':path,'goal':'Alterar valor','queries':['value'],'intent':'change'},{'path':preserved,'goal':'Preservar controles','queries':['retained'],'intent':'preserve'}],'readOnlyPaths':[preserved]}
+  self.assertEqual(micro.validate_plan(plan,{path,preserved},2),plan['changes'])
+  for value in ['skip','',None,True]:
+   with self.subTest(value=value),self.assertRaises(ValueError):micro.validate_plan({'changes':[{**plan['changes'][0],'intent':value}]},{path},1)
+  with self.assertRaises(ValueError):micro.validate_plan({'changes':[plan['changes'][1]]},{preserved},1)
+  def compile(*args):
+   self.assertEqual(args[4],path)
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(original),'complete':True,'slots':[{'slot':'s1','kind':'NumericLiteral','code':'1','contains':[]}]}
+   return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[{'path':path,'content':updated}]},'tools':[]}
+  with tempfile.TemporaryDirectory() as temporary:
+   directory=Path(temporary);e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   with patch.object(micro,'ask_local',side_effect=[plan,{'path':path},{'slots':['s1']},{'content':'2'}]) as inference,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,directory,{},intent['files'],'','implementation')
+   self.assertEqual(json.loads((directory/'micro-implementation-2-preservation.json').read_text())['edited'],False);self.assertEqual(json.loads((directory/'micro-implementation-plan.json').read_text())['plan'],plan)
+   self.assertEqual(inference.call_args_list[1].args[3]['allowedLocationPaths'],[path]);self.assertEqual(inference.call_count,4)
+  self.assertEqual(result['patch']['files'],[{'path':path,'content':updated}])
+ def test_preservation_repair_cannot_merge_drop_or_replace_original_goals(self):
+  path='src/a.js';intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':'export const value=1;'}],'prompt':'Dois ajustes independentes.','allowDependencies':False}
+  goals=[{'path':path,'goal':'Corrigir soma','queries':['value']},{'path':path,'goal':'Corrigir produto','queries':['value']}];plan={'changes':goals,'readOnlyPaths':[path]}
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120)
+   with patch.object(micro,'ask_local',side_effect=[plan,{'readOnlyPaths':[]},RuntimeError('stop at locator')]) as ask,patch.object(micro,'apply_proposal') as compiler:
     with self.assertRaisesRegex(RuntimeError,'stop at locator'):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
-    repair=ask.call_args_list[1];self.assertEqual(repair.args[3]['approvedInstructions'],intent['prompt']);self.assertEqual(repair.args[3]['rejectedPlan'],duplicate);self.assertEqual(repair.args[4]['properties']['changes']['maxItems'],1);compiler.assert_not_called()
-   with patch.object(micro,'ask_local',side_effect=[duplicate,duplicate]) as ask,patch.object(micro,'apply_proposal') as compiler:
-    with self.assertRaises(ValueError):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
-    self.assertEqual(ask.call_count,2);compiler.assert_not_called()
+   self.assertEqual(set(ask.call_args_list[1].args[4]['properties']),{'readOnlyPaths'});self.assertEqual(ask.call_args_list[1].args[3]['rejectedPlan']['changes'],goals);compiler.assert_not_called()
+   with patch.object(micro,'ask_local',side_effect=[plan,{'readOnlyPaths':[],'changes':goals[:1]}]),patch.object(micro,'apply_proposal') as compiler,self.assertRaisesRegex(ValueError,'só pode alterar'):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+   compiler.assert_not_called()
+ def test_replacement_pattern_does_not_consume_predicate_examples_or_change_source_scope(self):
+  path='src/normalize.js';content=r"export const normalize=value=>value.replace(/\s+/g,'');";slot={'slot':'s1','kind':'RegExpLiteral','pattern':r'\s+','flags':'g','binding':'normalize','line':1,'code':r'/\s+/g','before':'value.replace(','after':",'');",'contains':[]}
+  self.assertFalse(micro.predicate_examples_applicable(slot));self.assertFalse(micro.predicate_examples_applicable({**slot,'before':'value.replaceAll(\n'}));self.assertTrue(micro.predicate_examples_applicable({**slot,'before':'const rule='}))
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':path,'content':content}],'prompt':'Remover somente espaços das pontas. '+' '.join('"texto'+str(n)+'"' for n in range(12)),'allowDependencies':False}
+  pattern=r'^\s+|\s+$';final=content.replace(r'/\s+/g','/'+pattern+'/g')
+  def compile(*args):
+   if args[5] is None:return {'state':'inspected','expectedDigest':micro.digest(content),'complete':True,'slots':[slot]}
+   self.assertEqual(args[5],[{'slot':'s1','pattern':pattern,'flags':'g'}]);return {'state':'succeeded','validation':{'valid':True},'patch':{'files':[{'path':path,'content':final}]},'tools':[]}
+  answers=[{'changes':[{'path':path,'goal':'Remover só espaços das pontas','queries':['normalize']}]},{'path':path},{'slots':['s1']},{'pattern':pattern}]
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(dump=lambda p,v:p.write_text(json.dumps(v)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
+   with patch.object(micro,'ask_local',side_effect=answers),patch.object(micro,'pattern_examples',side_effect=AssertionError('Predicate contract applied to substitution')),patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+  self.assertEqual(result['patch']['files'],[{'path':path,'content':final}])
  def test_one_scoped_proposal_has_no_model_selected_hash_or_path(self):
   result,calls,count=self.run_editor();self.assertEqual(result['state'],'succeeded');self.assertEqual(count,1);self.assertEqual(calls[0]['path'],'src/a.js');self.assertEqual(calls[0]['expectedDigest'],micro.digest('export const sum=(a,b)=>a-b;\n'));self.assertEqual([f['path'] for f in result['patch']['files']],['src/a.js'])
+ def test_invalid_slot_selection_has_one_bounded_repair_without_accepting_unknown_or_duplicate_ids(self):
+  intent={'id':'a'*64,'expectedSha':'b'*40,'files':[{'path':'src/Calc.js','content':'export const sum=(a,b)=>a-b;'}],'prompt':'Corrigir somente sum e preservar demais fontes.','allowDependencies':False}
+  plan={'changes':[{'path':'src/Calc.js','goal':'Corrigir soma','queries':['sum']}],'readOnlyPaths':[]}
+  inspected={'state':'inspected','expectedDigest':micro.digest(intent['files'][0]['content']),'complete':True,'slots':[{'slot':'s1','kind':'BinaryExpression','binding':'sum','line':1,'code':'a-b','before':'','after':''}]}
+  for rejected in [{'slots':['s1','s1']},{'slots':['unobserved']},{'slots':['s1'],'extra':True}]:
+   with self.subTest(rejected=rejected),tempfile.TemporaryDirectory() as temporary:
+    e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120)
+    with patch.object(micro,'ask_local',side_effect=[plan,{'path':'src/Calc.js'},rejected,{'slots':['s1']},RuntimeError('stop before replacement')]) as ask,patch.object(micro,'apply_proposal',return_value=inspected) as compiler:
+     with self.assertRaisesRegex(RuntimeError,'stop before replacement'):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+     repair=ask.call_args_list[3];self.assertEqual(repair.args[3]['rejectedSelection'],rejected);self.assertEqual(repair.args[3]['approvedRequirements'],micro.approved_requirements(intent));self.assertTrue(repair.args[4]['properties']['slots']['uniqueItems']);compiler.assert_called_once();self.assertIsNone(compiler.call_args.args[5])
+    with patch.object(micro,'ask_local',side_effect=[plan,{'path':'src/Calc.js'},rejected,rejected]) as ask,patch.object(micro,'apply_proposal',return_value=inspected) as compiler:
+     with self.assertRaises(ValueError):micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
+     self.assertEqual(ask.call_count,4);compiler.assert_called_once();self.assertIsNone(compiler.call_args.args[5])
  def test_rejected_syntax_retries_the_same_frozen_source_once_and_never_returns_a_failed_patch(self):
   result,calls,count=self.run_editor(compiler_fails=1);self.assertEqual(result['state'],'succeeded');self.assertEqual(count,2);self.assertEqual(calls[0]['expectedDigest'],calls[1]['expectedDigest']);self.assertEqual(calls[0]['files'],calls[1]['files'])
   result,_,count=self.run_editor(compiler_fails=2);self.assertEqual(result['state'],'failed');self.assertNotIn('patch',result);self.assertEqual(count,2)
@@ -183,6 +359,7 @@ class MicroContracts(unittest.TestCase):
   with patch.object(micro,'ask_local',return_value={'role':'dialog_text'}) as ask:
    self.assertEqual(micro.choose_role(None,None,'Alterar aviso',slots,requirements),'dialog_text')
    self.assertEqual(ask.call_args.args[3]['approvedRequirements'],requirements)
+   observed=ask.call_args.args[3]['observedRoleSources'];self.assertEqual(set(observed),{'pattern','dialog_text','expression','no_change'});self.assertEqual(observed['dialog_text'][0]['kind'],'CallExpression');self.assertEqual(observed['no_change'],[])
   with patch.object(micro,'ask_local',return_value={'role':'shell'}),self.assertRaises(ValueError):micro.choose_role(None,None,'Alterar aviso',slots)
   with patch.object(micro,'ask_local') as ask:self.assertEqual(micro.choose_role(None,None,'Somar',[{'kind':'BinaryExpression'}]),'expression')
   ask.assert_not_called()
@@ -235,4 +412,8 @@ class MicroContracts(unittest.TestCase):
    e=SimpleNamespace(dump=lambda path,value:path.write_text(json.dumps(value)),remaining_seconds=lambda _:120,candidate_files=service.candidate_files)
    with patch.object(micro,'ask_local',side_effect=answers) as ask,patch.object(micro,'apply_proposal',side_effect=compile):result=micro.micro_implementation(e,intent,Path(temporary),{},intent['files'],'','implementation')
   self.assertEqual(result['state'],'succeeded');self.assertEqual(ask.call_count,6);self.assertEqual([[edit['slot'] for edit in batch] for batch in compiled],[['s1'],['s1']]);self.assertEqual(result['patch']['files'][0]['content'],updated)
+  # Source selection uses bounded reasoning; code proposals retain their
+  # original short output policy and still require compilation and replay.
+  self.assertTrue(ask.call_args_list[2].kwargs.get('reasoning'))
+  for index in [0,1,3,4,5]:self.assertNotIn('reasoning',ask.call_args_list[index].kwargs)
 if __name__=='__main__':unittest.main()

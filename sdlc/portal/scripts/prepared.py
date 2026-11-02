@@ -1,6 +1,7 @@
 """Verify the local prepared portal without build, download or service changes."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,14 +14,25 @@ SCANNER = 'semgrep/semgrep@sha256:81474464c1f07483ba0682a44787fd93c91397419762a0
 def fingerprint():
     excluded = {'.prepared', 'node_modules', '.next', 'generated', 'test-results', 'playwright-report', 'docs', '__pycache__'}
     records = []
-    for path in sorted(ROOT.rglob('*')):
-        if excluded.intersection(path.relative_to(ROOT).parts):
-            continue
-        if path.is_symlink():
-            raise RuntimeError('Prepared source cannot contain symlinks')
-        if not path.is_file() or path.name in {'.env', 'README.md'} or path.name.endswith('.tsbuildinfo'):
-            continue
-        records.append([path.relative_to(ROOT).as_posix(), hashlib.sha256(path.read_bytes()).hexdigest()])
+    # Prune excluded trees before enumerating their contents. Generated reports
+    # and node_modules are not source and can contain hundreds of thousands of
+    # paths; materializing them before filtering can exhaust the build host.
+    def scan_error(error):
+        raise error
+    for directory, dirs, files in os.walk(ROOT, followlinks=False, onerror=scan_error):
+        dirs[:]=[name for name in dirs if name not in excluded]
+        files=[name for name in files if name not in excluded]
+        base=Path(directory)
+        for name in dirs+files:
+            path=base/name
+            if path.is_symlink():
+                raise RuntimeError('Prepared source cannot contain symlinks')
+        for name in files:
+            path=base/name
+            if name in excluded or not path.is_file() or name in {'.env', 'README.md'} or name.endswith('.tsbuildinfo'):
+                continue
+            records.append([path.relative_to(ROOT).as_posix(), hashlib.sha256(path.read_bytes()).hexdigest()])
+    records.sort(key=lambda record:Path(record[0]).parts)
     return hashlib.sha256(json.dumps(records, separators=(',', ':')).encode()).hexdigest()
 
 

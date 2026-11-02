@@ -1,0 +1,56 @@
+{
+  "model": "qwen3:14b",
+  "promptDigest": "2ea0816b2832549afdeb319579ce4f781096b641108b20aa38ddc59b54a02d3a",
+  "sourcePresentation": "actual-reviewReferenceMessages",
+  "productionChanged": false,
+  "stages": 2,
+  "settings": {
+    "num_ctx": 32768,
+    "num_predict": 8192,
+    "temperature": 0.2,
+    "think": true
+  },
+  "results": [
+    {
+      "fixture": "outer-space-before-normalization",
+      "passed": false,
+      "defectCount": 0,
+      "expectedDefectCount": 1,
+      "elapsedMs": 279563,
+      "promptTokens": 1689,
+      "outputTokens": 8192,
+      "finishReason": "length"
+    },
+    {
+      "fixture": "valid-normalization",
+      "passed": true,
+      "defectCount": 0,
+      "expectedDefectCount": 0,
+      "elapsedMs": 130778,
+      "promptTokens": 2701,
+      "outputTokens": 909,
+      "finishReason": "stop"
+    },
+    {
+      "fixture": "silent-inner-space-filter",
+      "passed": true,
+      "defectCount": 1,
+      "expectedDefectCount": 1,
+      "elapsedMs": 95290,
+      "promptTokens": 2596,
+      "outputTokens": 1302,
+      "finishReason": "stop"
+    }
+  ],
+  "sourceDigests": {
+    "apps/api/src/code-review-prompt.txt": "8917d13f4b12afa33dd77201ecfe9fa5946b0e4cc3bd7fd20b814e02b0b53b9b",
+    "apps/api/src/review-confirmation.txt": "1e4cec5e2748ce2b93e1608bed8c33be085c57f78f1c41d809c828e69f3d7f1f",
+    "apps/api/src/agent-context.ts": "c514c50956dcf31f8af0243570122cc97ed5ec77da5dc0f684c62240cf8c2c61",
+    "apps/api/src/quality.ts": "bd1c45274f9c4bd010fc493f41fbda59b28992e8a73c2c877d04358e1a45221c",
+    "apps/api/src/llm.ts": "09c98ef93268bad681dfe8c01f097ba21062da0c50f6626b4ea43eb1b27e9c01",
+    "apps/api/src/structured-output.ts": "bd415137a59b82d13a4a25ac850d5f548235e727aa72b5a586a10e81d5d8a2a7",
+    "scripts/llm-relay.py": "7bce50f85e89b4dc5d4beb221dbf55b3a2cdb0c1f3de2d970e999722424cc5bb"
+  },
+  "sourceStable": true,
+  "passed": false
+}

@@ -1,0 +1,57 @@
+{
+  "sourceSha256": "b75b32ac114cf644f7919ea63d624a344ce05b89cb81762910b5b5b1e94f1a3b",
+  "model": "qwen3:14b",
+  "scope": "Synthetic cross-domain assertion classification only; no application data or complete functional acceptance",
+  "cases": [
+    {
+      "case": "appointment",
+      "expected": "text",
+      "actual": "text",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "expense",
+      "expected": "text",
+      "actual": "text",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "inventory",
+      "expected": "text",
+      "actual": "text",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "mixed-text",
+      "expected": "text",
+      "actual": "text",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "image",
+      "expected": "image",
+      "actual": "image",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "background",
+      "expected": "page_background",
+      "actual": "page_background",
+      "passed": true,
+      "inferenceCalls": 1
+    },
+    {
+      "case": "font",
+      "expected": "heading_font",
+      "actual": "heading_font",
+      "passed": true,
+      "inferenceCalls": 1
+    }
+  ],
+  "passed": true
+}

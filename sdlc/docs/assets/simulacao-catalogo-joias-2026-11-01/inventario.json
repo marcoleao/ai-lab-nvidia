@@ -1,0 +1,161 @@
+{
+  "at": "2026-11-01T23:47:01.496Z",
+  "stories": [
+    {
+      "key": "AURORA-CATJOI-1",
+      "id": "cmvyh5z8e001p01ml2qgnhqry",
+      "title": "Cadastro básico de joia",
+      "tasks": [
+        {
+          "title": "AURORA-CATJOI-1-T6Merge de Código",
+          "url": "/tasks/cmvyh5za0002101mlzmwshq91"
+        },
+        {
+          "title": "AURORA-CATJOI-1-T5Teste em QA",
+          "url": "/tasks/cmvyh5z9s001z01ml2ku6jf6u"
+        },
+        {
+          "title": "AURORA-CATJOI-1-T4Revisão de Segurança",
+          "url": "/tasks/cmvyh5z9k001x01mlyi0m9fmr"
+        },
+        {
+          "title": "AURORA-CATJOI-1-T3Revisão de Código",
+          "url": "/tasks/cmvyh5z9b001v01mlb0iogkl1"
+        },
+        {
+          "title": "AURORA-CATJOI-1-T2Teste em DEV",
+          "url": "/tasks/cmvyh5z93001t01mlvk6vznvz"
+        },
+        {
+          "title": "AURORA-CATJOI-1-T1Codificação",
+          "url": "/tasks/cmvyh5z8v001r01mlaiiypxjb"
+        }
+      ]
+    },
+    {
+      "key": "AURORA-CATJOI-2",
+      "id": "cmvyh5za9002301mlieadbjnl",
+      "title": "Edição de joia",
+      "tasks": [
+        {
+          "title": "AURORA-CATJOI-2-T6Merge de Código",
+          "url": "/tasks/cmvyh5zbo002f01ml9i4cji3k"
+        },
+        {
+          "title": "AURORA-CATJOI-2-T5Teste em QA",
+          "url": "/tasks/cmvyh5zbg002d01mljpkiok9s"
+        },
+        {
+          "title": "AURORA-CATJOI-2-T4Revisão de Segurança",
+          "url": "/tasks/cmvyh5zb9002b01ml2m0g60df"
+        },
+        {
+          "title": "AURORA-CATJOI-2-T3Revisão de Código",
+          "url": "/tasks/cmvyh5zaz002901mleiaj6ym5"
+        },
+        {
+          "title": "AURORA-CATJOI-2-T2Teste em DEV",
+          "url": "/tasks/cmvyh5zas002701ml37cc3xcq"
+        },
+        {
+          "title": "AURORA-CATJOI-2-T1Codificação",
+          "url": "/tasks/cmvyh5zaj002501mlfmt6rxuw"
+        }
+      ]
+    },
+    {
+      "key": "AURORA-CATJOI-3",
+      "id": "cmvyh5zbv002h01ml22mo99a6",
+      "title": "Listagem de joias",
+      "tasks": [
+        {
+          "title": "AURORA-CATJOI-3-T6Merge de Código",
+          "url": "/tasks/cmvyh5zd8002t01mln5868zql"
+        },
+        {
+          "title": "AURORA-CATJOI-3-T5Teste em QA",
+          "url": "/tasks/cmvyh5zcy002r01ml83npdr1u"
+        },
+        {
+          "title": "AURORA-CATJOI-3-T4Revisão de Segurança",
+          "url": "/tasks/cmvyh5zcr002p01mlkztwblu2"
+        },
+        {
+          "title": "AURORA-CATJOI-3-T3Revisão de Código",
+          "url": "/tasks/cmvyh5zck002n01mlhwp820yz"
+        },
+        {
+          "title": "AURORA-CATJOI-3-T2Teste em DEV",
+          "url": "/tasks/cmvyh5zcd002l01mlt0l64u8q"
+        },
+        {
+          "title": "AURORA-CATJOI-3-T1Codificação",
+          "url": "/tasks/cmvyh5zc6002j01mlbebe70zy"
+        }
+      ]
+    },
+    {
+      "key": "AURORA-CATJOI-4",
+      "id": "cmvyh7lft003h01mlcz3dmhcq",
+      "title": "Pesquisar joias e filtrar por categoria",
+      "tasks": [
+        {
+          "title": "AURORA-CATJOI-4-T6Merge de Código",
+          "url": "/tasks/cmvyh7lha003t01mldr8v6x5b"
+        },
+        {
+          "title": "AURORA-CATJOI-4-T5Teste em QA",
+          "url": "/tasks/cmvyh7lh3003r01mlboxbjyha"
+        },
+        {
+          "title": "AURORA-CATJOI-4-T4Revisão de Segurança",
+          "url": "/tasks/cmvyh7lgv003p01mlwa8zaape"
+        },
+        {
+          "title": "AURORA-CATJOI-4-T3Revisão de Código",
+          "url": "/tasks/cmvyh7lgn003n01mlc9xiwsph"
+        },
+        {
+          "title": "AURORA-CATJOI-4-T2Teste em DEV",
+          "url": "/tasks/cmvyh7lgg003l01ml7n7ut7y4"
+        },
+        {
+          "title": "AURORA-CATJOI-4-T1Codificação",
+          "url": "/tasks/cmvyh7lg6003j01mlwwdwd54x"
+        }
+      ]
+    },
+    {
+      "key": "AURORA-CATJOI-5",
+      "id": "cmvyh8hiu003z01mlp4yg6rzn",
+      "title": "Consultar detalhe de uma joia",
+      "tasks": [
+        {
+          "title": "AURORA-CATJOI-5-T6Merge de Código",
+          "url": "/tasks/cmvyh8hkf004b01mlfcivq0xa"
+        },
+        {
+          "title": "AURORA-CATJOI-5-T5Teste em QA",
+          "url": "/tasks/cmvyh8hk7004901mlljkzjfaq"
+        },
+        {
+          "title": "AURORA-CATJOI-5-T4Revisão de Segurança",
+          "url": "/tasks/cmvyh8hjy004701ml2bpxe9br"
+        },
+        {
+          "title": "AURORA-CATJOI-5-T3Revisão de Código",
+          "url": "/tasks/cmvyh8hjp004501ml6eb2hj44"
+        },
+        {
+          "title": "AURORA-CATJOI-5-T2Teste em DEV",
+          "url": "/tasks/cmvyh8hjh004301mlv5gd54wh"
+        },
+        {
+          "title": "AURORA-CATJOI-5-T1Codificação",
+          "url": "/tasks/cmvyh8hj6004101mlqmqtqjfw"
+        }
+      ]
+    }
+  ],
+  "tasks": 30
+}

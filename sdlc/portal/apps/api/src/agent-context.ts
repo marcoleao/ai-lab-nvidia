@@ -41,6 +41,11 @@ export function agentContextMessages(sections:{label:string;value:unknown}[]){
  if(messages.reduce((n,m)=>n+m.content.length,0)>agentInputBudget)throw new DomainError('AGENT_CONTEXT_LIMIT','O escopo completo e o código de referência excedem a capacidade desta execução. Nenhuma parte foi descartada. Revise uma entrega menor na Especificação e prepare outro Gateway; preserve os requisitos restantes em outras Histórias.',409);
  return messages;
 }
+/** Keep related source and its scope in one coherent reference, preserving every
+ * existing byte and explicit boundary. Large references remain lossless parts. */
+export function coherentAgentMessages(messages:{role:'user';content:string}[],addition=''){
+ return agentContextMessages([{label:'Referência integral da revisão',value:messages.map(message=>message.content).join('\n\n')+(addition?'\n\n'+addition:'')}]);
+}
 export const agentTestContract='Use os testes e scripts existentes. Em Node use node:test e node:assert/strict. node:test não exporta expect; não use funções globais de Jest/Vitest. Importe explicitamente test de "node:test" e import assert from "node:assert/strict"; assert é o export default. Em Python use unittest. Não acrescente dependências sem autorização. Testes escritos não são testes executados.';
 export const agentDevTestContract='Preserve tests/dev-http.json do perfil Node24 HTTP. Se houver aceitação HTTP real, use {schemaVersion:1,scope:"acceptance",cases:[{id,name,method:"GET",path:"/rota-relativa",status:200,criterionIndices:[0]}]}, até20 casos. Cubra apenas critérios realmente verificáveis por HTTP; não atribua cobertura de interação React/localStorage a health ou HTML. Nesse caso preserve scope:"technical" e indique a necessidade de teste de interface. Sem URLs absolutas, credenciais ou comandos. Preserve o contrato do runtime.';
 export function generationReferenceMessages(snapshot:unknown,specification:unknown,code:unknown,baseRevision:string,dependencies:boolean,patchPolicy:unknown){
@@ -75,7 +80,8 @@ export function reviewReferenceMessages(snapshot:unknown,specification:unknown,c
  const selected=new Set(files.map(f=>f.path));
  const unchangedInterfaces=context.files.filter(f=>!selected.has(f.path)).map(f=>({path:f.path,exportedNamesObserved:[...f.content.matchAll(/export\s+(?:async\s+)?(?:function|const|let|class)\s+([A-Za-z_$][\w$]*)/g)].map(match=>match[1])}));
  const reference={approved,sha:context.sha,baseSha:context.baseSha,files,unchangedInterfaces};
- const numbered=(file:{content:string})=>file.content.split('\n').map((line,index)=>`${index+1}|${line}`).join('\n');
- if(JSON.stringify(reference).length<16000)return agentContextMessages([{label:'Revisão conjunta dos arquivos e do escopo aprovado',value:{...reference,sourceLineFormat:'number|original line; numbers are not code',files:files.map(file=>({...file,content:numbered(file)}))}}]);
- return agentContextMessages([{label:'Escopo e manifesto da revisão',value:{...reference,files:files.map(({content,...f})=>({...f,sourceMessage:`Arquivo atual: ${f.path}`}))}},...files.map(f=>({label:`Arquivo atual: ${f.path}`,value:`Arquivo atual: ${f.path}\nLinhas atuais numeradas (dados de referência):\n${f.content.split('\n').map((line,index)=>`${index+1}|${line}`).join('\n')}`}))]);
+ // Use the same lossless representation at every size. Escaping source inside
+ // JSON obscures regex/string semantics and can split a JSON document between
+ // messages. The manifest still carries scope, removed lines and exact revisions.
+ return agentContextMessages([{label:'Escopo e manifesto da revisão',value:{...reference,sourceLineFormat:'number|original line; numbers are not code',files:files.map(({content,...f})=>({...f,sourceMessage:`Arquivo atual: ${f.path}`}))}},...files.map(f=>({label:`Arquivo atual: ${f.path}`,value:`Arquivo atual: ${f.path}\nLinhas atuais numeradas (dados de referência):\n${f.content.split('\n').map((line,index)=>`${index+1}|${line}`).join('\n')}`}))]);
 }

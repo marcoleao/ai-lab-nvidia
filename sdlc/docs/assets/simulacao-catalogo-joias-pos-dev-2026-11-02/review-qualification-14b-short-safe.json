@@ -1,0 +1,45 @@
+{
+  "model": "qwen3:14b",
+  "promptDigest": "767f9f0bb36b570a275932112286456c7efb40038eaed3a4ae24273bdc2b968c",
+  "sourcePresentation": "actual-reviewReferenceMessages",
+  "productionChanged": false,
+  "settings": {
+    "num_ctx": 32768,
+    "num_predict": 2048,
+    "temperature": 0.2,
+    "think": false
+  },
+  "results": [
+    {
+      "fixture": "outer-space-before-normalization",
+      "passed": false,
+      "defectCount": 3,
+      "expectedDefectCount": 1,
+      "elapsedMs": 34092,
+      "promptTokens": 1386,
+      "outputTokens": 648,
+      "finishReason": "stop"
+    },
+    {
+      "fixture": "valid-normalization",
+      "passed": false,
+      "defectCount": 3,
+      "expectedDefectCount": 0,
+      "elapsedMs": 16246,
+      "promptTokens": 1384,
+      "outputTokens": 533,
+      "finishReason": "stop"
+    },
+    {
+      "fixture": "silent-inner-space-filter",
+      "passed": false,
+      "defectCount": 3,
+      "expectedDefectCount": 1,
+      "elapsedMs": 15958,
+      "promptTokens": 1389,
+      "outputTokens": 509,
+      "finishReason": "stop"
+    }
+  ],
+  "passed": false
+}

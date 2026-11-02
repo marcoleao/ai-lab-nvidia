@@ -1,0 +1,22 @@
+﻿{
+    "scope":  "Selected screenshots and safe metadata; raw prompts/candidates/conversations remain controlled",
+    "checkpointCount":  49,
+    "files":  [
+                  "01-especificacao-esclarecida.png",
+                  "02-novo-gateway.png",
+                  "03-classificacao-recusada.png",
+                  "04-reparo-recusado.png",
+                  "05-sintaxe-recusada.png",
+                  "06-pre-requisito-de-selecao.png",
+                  "07-reenvio-pendente.png",
+                  "08-codificacao-concluida.png",
+                  "10-confirmacao-correcao.png",
+                  "11-gateway-revisado.png",
+                  "12-limite-final.png",
+                  "13-release-bloqueada.png",
+                  "14-estado-final.png",
+                  "coding-result-v1.json",
+                  "final-journey-state.json",
+                  "navegacao.json"
+              ]
+}

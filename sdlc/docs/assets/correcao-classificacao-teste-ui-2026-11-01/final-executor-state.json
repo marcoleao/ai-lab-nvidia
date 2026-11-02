@@ -1,0 +1,22 @@
+{
+  "source": "Read-only installed metadata, modules and health",
+  "components": [
+    {
+      "executor": "coding",
+      "sourceDigest": "ab40baaf42205abd6fdf18d2512c8ba18e84c56b4b0466511fcdd81493fb2606",
+      "installedDigestMatches": true,
+      "installedModulesMatch": true,
+      "ready": true,
+      "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4"
+    },
+    {
+      "executor": "runtime",
+      "sourceDigest": "e4fab52f04e99ff59daed9038b23155a9beed88c3f06ab2a4fd0178c0e9f8249",
+      "installedDigestMatches": true,
+      "installedModulesMatch": true,
+      "ready": true,
+      "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4"
+    }
+  ],
+  "businessDataChanged": false
+}

@@ -53,7 +53,7 @@ import {requestSystemRepository} from './system-repository.ts';
 import {environmentContext,registerEnvironmentReferences} from './environments.ts';
 import {environmentCodes} from '../../../packages/shared/src/environments.ts';
 
-type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;aiTests?:AiTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;coding?:CodingProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
+type Options={db:Database;demoMode:boolean;git?:GitProvider;merge?:MergeProvider;releaseBranches?:ReleaseBranchProvider;contracts?:ContractPublicationProvider;contractIntegrations?:ContractIntegrationProvider;developmentBuilds?:DevelopmentBuildProvider;runtime?:RuntimeProvider;deployments?:DeploymentProvider;developmentTests?:DevelopmentTestProvider;aiTests?:AiTestProvider;applicationPreparations?:ApplicationPreparationProvider;llm?:LLMProvider;reviewLlm?:LLMProvider;reviewOutputTokens?:number;coding?:CodingProvider;gitlabRoot?:string;origin?:string;logger?:boolean;registryUrl?:string;workerUrl?:string;scannerUrl?:string};
 const labels:Record<ItemKind,string>={system:'Sistema',project:'Projeto',epic:'Épico',story:'História',task:'Tarefa'};
 const dataOf=(item:Item):Record<string,Prisma.JsonValue>=>item.data as Record<string,Prisma.JsonValue>;
 const json=(value:unknown):Prisma.InputJsonValue=>JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
@@ -497,7 +497,7 @@ export function createApp(options:Options){
   const {processChatJobs}=registerAssistant(app,assistantHelpers,processContractTurn,!!options.applicationPreparations,{targets:!!options.runtime,deployments:!!options.runtime&&!!options.deployments});
   const {processExecutionJobs}=registerExecution(app,assistantHelpers,git);
   const {processMergeJobs,processMergeDiscussionJobs,processHistoryCloseJobs}=registerMerge(app,assistantHelpers,options.merge);
-  const {processQualityJobs}=registerQuality(app,assistantHelpers,git,options.scannerUrl);
+  const {processQualityJobs}=registerQuality(app,{...assistantHelpers,llm:options.reviewLlm??options.llm},git,options.scannerUrl,options.reviewOutputTokens);
   registerJourney(app,assistantHelpers,{git,merge:options.merge,scannerUrl:options.scannerUrl,developmentDeploymentsConfigured:!!options.deployments,developmentBuildsConfigured:!!options.developmentBuilds,deployments:options.deployments});
   async function reconcileStoryPhases(plan:{id:string;expectedVersion:number;executionId:string}[]){
     return db.$transaction(async tx=>{

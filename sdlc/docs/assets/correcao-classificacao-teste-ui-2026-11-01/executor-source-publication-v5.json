@@ -1,0 +1,26 @@
+{
+  "qualifiedSource": "bbfe7a611f79f658f0044616a6c36a6669e6050f468ecbf7a4f28d944cefb864",
+  "qualification": "test-results/regression/coding-live-20261102T005334Z-4e6877/qualification.json",
+  "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4",
+  "components": [
+    {
+      "executor": "coding",
+      "sourceDigest": "bbfe7a611f79f658f0044616a6c36a6669e6050f468ecbf7a4f28d944cefb864",
+      "backupId": "executor-source-coding-c63a29856cd841dda781197990cb4401",
+      "ready": true,
+      "configurationPreserved": true,
+      "configurationOnlyBrowserChanged": false
+    },
+    {
+      "executor": "runtime",
+      "sourceDigest": "e4fab52f04e99ff59daed9038b23155a9beed88c3f06ab2a4fd0178c0e9f8249",
+      "backupId": "executor-source-runtime-c3c542b355514e8bb9354395a4260616",
+      "ready": true,
+      "configurationPreserved": true,
+      "configurationOnlyBrowserChanged": false
+    }
+  ],
+  "portalApplicationCodeChanged": false,
+  "businessDataChanged": false,
+  "modelsImagesConfigurationPreserved": true
+}

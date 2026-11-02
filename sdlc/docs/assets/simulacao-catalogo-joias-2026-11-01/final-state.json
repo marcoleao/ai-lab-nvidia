@@ -1,0 +1,60 @@
+{
+  "at": "2026-11-01T23:52:30.356Z",
+  "method": "Portal UI only",
+  "system": {
+    "id": "cmvygxn2f000001mlv3v8fzwx",
+    "key": "AURORA"
+  },
+  "project": {
+    "id": "cmvygy9p4000d01mlly5c7fij",
+    "key": "AURORA-CATJOI"
+  },
+  "counts": {
+    "epics": 2,
+    "stories": 5,
+    "tasks": 30
+  },
+  "chosenStory": {
+    "id": "cmvyh5z8e001p01ml2qgnhqry",
+    "key": "AURORA-CATJOI-1",
+    "status": "CODING\nUNKNOWN\n1\nSPECIFICATION\n2\nAPPROVED\n3\nCODING\n4\nCODE REVIEW\n5\nSECURITY SCAN\n6\nMERGE REQUEST\n7\nDEV\nHistória\n8\nQA\nRelease\n9\nHML\nRelease\n10\nPROD\nRelease\n\nDEV: desenvolvimento da História, com release opcional. QA → HML → PROD: entrega da release com candidata imutável.",
+    "nextActions": "O que você pode fazer agora\n\nEscolha uma opção para abrir sua página de consulta ou revisão. A confirmação, quando disponível, acontece nessa página.\n\nConsultando as próximas ações…",
+    "executionId": "cmvyh70nk003201mlzaa9ckku"
+  },
+  "codingAttempts": [
+    {
+      "id": "cmvyh9vw0004k01ml5st68ify",
+      "state": "FAILED"
+    },
+    {
+      "id": "cmvyhd0rx005701mlhld0pbdw",
+      "state": "FAILED"
+    }
+  ],
+  "auxiliaryGuidanceAttempt": {
+    "id": "cmvyhfdrg005m01ml0k7w7nsy",
+    "state": "WAITING_INPUT",
+    "notAnotherCodeExecution": true
+  },
+  "release": {
+    "id": "cmvyh41xk001j01mlqmknc9jj",
+    "key": "REL-2",
+    "state": "OPEN",
+    "flowEnvironment": "DEV",
+    "compositionRevision": 2,
+    "stories": 1,
+    "developmentApproved": 0,
+    "blocked": 1,
+    "candidateConfirmed": false,
+    "qaDeployed": false
+  },
+  "technicalPreparation": {
+    "mergeRequest": 1,
+    "integratedCommit": "147902ee2aa7a99bb3661b55fba5a15637a625d7",
+    "devResourcesPrepared": true
+  },
+  "storyCodePublished": false,
+  "applicationFunctionalTestsExecuted": false,
+  "portalImplementationChanged": false,
+  "businessDbDirectlyModified": false
+}

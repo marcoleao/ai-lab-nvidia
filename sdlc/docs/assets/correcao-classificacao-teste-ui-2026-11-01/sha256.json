@@ -1,0 +1,90 @@
+﻿[
+    {
+        "file":  "classifier-qualification.json",
+        "sha256":  "f992e550944f5ac9d9b027dda347eb9c9ca37171e7551da3e5a8451b6d18a31b"
+    },
+    {
+        "file":  "executor-source-publication.json",
+        "sha256":  "99bba5737ca66eb3e85471744646b3a588e9f7d18dc7904e4a6eeaf6b1ca3792"
+    },
+    {
+        "file":  "executor-source-publication-v2.json",
+        "sha256":  "020356e873543b69726ef981a949a575b8af0a88f1bf48b2ce989a2b4dbcd98d"
+    },
+    {
+        "file":  "executor-source-publication-v3.json",
+        "sha256":  "4d1e4527b0b16062f1cd2e3a162ad20e7359b1f66e5334ef36c1b45d30533791"
+    },
+    {
+        "file":  "executor-source-publication-v4.json",
+        "sha256":  "aa2d1657d6bc5f10cd6582e4cb16ef90c80e3dd0a09017d5a4e3d569bca34bbf"
+    },
+    {
+        "file":  "executor-source-publication-v5.json",
+        "sha256":  "a8cf9dad2c8827d78bd0ccdc1ba2080fa0953091daaa39269a976f37d03a4e2d"
+    },
+    {
+        "file":  "executor-source-publication-v6.json",
+        "sha256":  "175e4d49d89eb7473ce185d16616fab10d7af260ad83f9ad9fdb26e39e5a7cdc"
+    },
+    {
+        "file":  "final-executor-state.json",
+        "sha256":  "2818764408dcea06e6b2c5380290152c98cdf3a46f69d9285c02ca1047583e6f"
+    },
+    {
+        "file":  "qualification.json",
+        "sha256":  "ecf25dfb68361090b0fe388004f9b70ebb6dd8bea76a027662c669d9ed9eed39"
+    },
+    {
+        "file":  "qualification-v2.json",
+        "sha256":  "2593e51a6d8efdcbc37e8960bd8ba1ad17e3011c426942e1f206caf6c34e5479"
+    },
+    {
+        "file":  "qualification-v3-base.json",
+        "sha256":  "7f99837119d82c2acc9917e7552c784269d8e04a24d43b2b800c1c00c44a911c"
+    },
+    {
+        "file":  "qualification-v3-select.json",
+        "sha256":  "1e8d21e91ffc82fbdb06fc0f918ada084bc1709ffcc930717337d01d9ff9c8d8"
+    },
+    {
+        "file":  "qualification-v4.json",
+        "sha256":  "bf695ef16053187685bca48d16539f411c64eae08535815843fa7f80353c6938"
+    },
+    {
+        "file":  "qualification-v5.json",
+        "sha256":  "3bd504af7f5775f8df067ed476b4d40dd6c4458afb5883e0e2ab8c9f9843314c"
+    },
+    {
+        "file":  "qualification-v6.json",
+        "sha256":  "625611a400665b92d2b8df6759533feafbfe47e0a20cf31dbe80ff3d524e98f2"
+    },
+    {
+        "file":  "single-plan-qualification.json",
+        "sha256":  "f029c863699380a72651ab5e354a12a21f0de7131dddd3d815e74e1520d4cc1c"
+    },
+    {
+        "file":  "validation.json",
+        "sha256":  "87767d1558e58395d390eb3874ab2e08314afe8b9b72a9bf8371f0567198b29f"
+    },
+    {
+        "file":  "validation-v2.json",
+        "sha256":  "93d3d0cf54117ddd45529ee946f5dfadfeb0754194a4de3c59a23bb6f546df91"
+    },
+    {
+        "file":  "validation-v3.json",
+        "sha256":  "47abf4ff163ac863fadb8de25be7c71ceace1e95251459e60f241401a8b55ef3"
+    },
+    {
+        "file":  "validation-v4.json",
+        "sha256":  "442881e931adc1451114477c8d43d624bad5e9f5ec3bcd4a5c8560f41fa1c0ad"
+    },
+    {
+        "file":  "validation-v5.json",
+        "sha256":  "cf479355444e85b4fd590a26b193479ee6e9e58e662191c1e3be66ab51c03cfb"
+    },
+    {
+        "file":  "validation-v6.json",
+        "sha256":  "7b9410218e6b3d7ae11687e09d6e1d5efb9a96035f7d12d761d8f6119dbe198f"
+    }
+]

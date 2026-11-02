@@ -42,7 +42,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self.respond(413, {'error': 'Invalid body size'})
                 body = json.loads(self.rfile.read(length))
                 allowed = {'model', 'messages', 'stream', 'temperature', 'max_tokens', 'response_format', 'reasoning_effort'}
-                if not isinstance(body, dict) or set(body) - allowed or body.get('model') != CONFIG['model'] or body.get('stream') is not False:
+                if not isinstance(body, dict) or set(body) - allowed or body.get('model') not in [CONFIG['model'],CONFIG.get('reviewModel',CONFIG['model'])] or body.get('stream') is not False:
                     return self.respond(422, {'error': 'Model or operation denied'})
                 if type(body.get('max_tokens')) is not int or not 1 <= body['max_tokens'] <= 8192:
                     return self.respond(422, {'error': 'Invalid output token limit'})

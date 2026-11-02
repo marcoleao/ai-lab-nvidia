@@ -1,5 +1,5 @@
 import {expect,test} from 'vitest';
-import {agentContextMessages,executionAgentReference,generationReferenceMessages,nativeGenerationReferenceMessages,nativeUiTestContext,reviewReferenceMessages,specificationSourceReference} from '../apps/api/src/agent-context.ts';
+import {agentContextMessages,coherentAgentMessages,executionAgentReference,generationReferenceMessages,nativeGenerationReferenceMessages,nativeUiTestContext,reviewReferenceMessages,specificationSourceReference} from '../apps/api/src/agent-context.ts';
 
 test('specification receives revision-bound observed entries without pretending a complete repository inventory',()=>{
  const value=specificationSourceReference({sha:'a'.repeat(40),targetBranch:'main',files:[{path:'src/App.jsx',content:'function App(){return null}'},{path:'package.json',content:'{"dependencies":{"react":"19.3.1"}}'},{path:'server.mjs',content:'x'.repeat(2100)},{path:'docs/notes.md',content:'unrelated'}]});
@@ -21,8 +21,18 @@ test('budget counts actual wire text, excludes unsent labels and includes real f
  const messages=agentContextMessages(Array.from({length:10},()=>({label:'r'.repeat(200),value:'x'.repeat(3000)})));expect(messages.reduce((n,m)=>n+m.content.length,0)).toBe(30000);
  expect(()=>agentContextMessages([{label:'L'.repeat(200),value:'x'.repeat(39900)}])).toThrow('Nenhuma parte foi descartada');
 });
+
+test('coherent reference keeps scope and raw sources together without JSON escaping or discarded files',()=>{
+ const parts=[{role:'user' as const,content:'Escopo obrigatório'},{role:'user' as const,content:'Arquivo atual: validate.js\n1|const pattern=/\\d+/;'},{role:'user' as const,content:'Arquivo atual: App.jsx\n1|<label htmlFor="x">Nome</label>'}];
+ const initial=coherentAgentMessages(parts);expect(initial).toHaveLength(1);expect(initial[0].content).toBe(parts.map(m=>m.content).join('\n\n'));
+ const final=coherentAgentMessages(parts,'Rascunho falível');expect(final[0].content).toBe(initial[0].content+'\n\nRascunho falível');expect(final.every(m=>m.role==='user')).toBe(true);
+});
+
+test('coherent confirmation refuses excessive complete context instead of dropping scope or draft',()=>{
+ expect(()=>coherentAgentMessages([{role:'user',content:'x'.repeat(39000)}],'d'.repeat(2000))).toThrow('Nenhuma parte foi descartada');
+});
 test('coherent review sees sibling implementations and removed source without duplicating additions',()=>{
- const content='export function archiveJewelry(){ return true; }';const input=reviewReferenceMessages({criteria:['Arquivar sem exclusão física']},{architecture:'Plano'}, {sha:'a',baseSha:'b',files:[{path:'catalog.js',content},{path:'App.jsx',content:'import {archiveJewelry} from "./catalog.js";'}],changes:[{path:'catalog.js',content,diff:'--- old\n-export const old = false;\n+'+content},{path:'App.jsx',content:'import {archiveJewelry} from "./catalog.js";',diff:'+import {archiveJewelry} from "./catalog.js";'}]});expect(input).toHaveLength(1);const value=JSON.parse(input[0].content);expect(value.files).toHaveLength(2);expect(value.files[0].removedSourceLines).toEqual(['export const old = false;']);expect(value.approved.criteria).toEqual(['Arquivar sem exclusão física']);expect(input[0].content.match(/export function archiveJewelry/g)).toHaveLength(1);
+ const content='export function archiveJewelry(){ return true; }';const input=reviewReferenceMessages({criteria:['Arquivar sem exclusão física']},{architecture:'Plano'}, {sha:'a',baseSha:'b',files:[{path:'catalog.js',content},{path:'App.jsx',content:'import {archiveJewelry} from "./catalog.js";'}],changes:[{path:'catalog.js',content,diff:'--- old\n-export const old = false;\n+'+content},{path:'App.jsx',content:'import {archiveJewelry} from "./catalog.js";',diff:'+import {archiveJewelry} from "./catalog.js";'}]});expect(input).toHaveLength(3);const value=JSON.parse(input[0].content);expect(value.files).toHaveLength(2);expect(value.files[0].removedSourceLines).toEqual(['export const old = false;']);expect(value.approved.criteria).toEqual(['Arquivar sem exclusão física']);expect(input.map(m=>m.content).join('\n').match(/export function archiveJewelry/g)).toHaveLength(1);
 });
 
 test('correction context carries findings once and preserves full large source without JSON escaping overhead',()=>{
@@ -45,13 +55,13 @@ test('large review uses numbered current source and excludes historical findings
 test('review includes unchanged runtime entry points and module bodies needed to assess integration',()=>{
  const entry='import App from "./App.jsx"; createRoot(root).render(<App/>);',app='export default function App(){return useContext(Context).value;}';
  const messages=reviewReferenceMessages({criteria:['Interface abre sem erro']},{architecture:'Módulos existentes'},{sha:'a',baseSha:'b',files:[{path:'src/main.jsx',content:entry},{path:'src/App.jsx',content:app},{path:'package.json',content:'{"name":"isolated-test"}'}],changes:[{path:'src/App.jsx',content:app,diff:'+'+app}]});
- const reference=JSON.parse(messages[0].content);expect(reference.files).toContainEqual({path:'src/main.jsx',content:'1|'+entry,changed:false,removedSourceLines:[]});expect(reference.files.find(f=>f.path==='src/App.jsx').changed).toBe(true);expect(reference.files.some(f=>f.path==='package.json')).toBe(true);
+ const reference=JSON.parse(messages[0].content);expect(reference.files).toContainEqual({path:'src/main.jsx',sourceMessage:'Arquivo atual: src/main.jsx',changed:false,removedSourceLines:[]});expect(messages.find(m=>m.content.startsWith('Arquivo atual: src/main.jsx\n'))?.content).toContain('1|'+entry);expect(reference.files.find(f=>f.path==='src/App.jsx').changed).toBe(true);expect(reference.files.some(f=>f.path==='package.json')).toBe(true);
 });
 
 test('small review carries exact source line numbers including empty lines',()=>{
- const content='export const amount = 0;\n\nexport const label = String(amount);';
+ const content='export const amount = /\\d+/.test("12");\n\nexport const label = String(amount);';
  const messages=reviewReferenceMessages({criteria:['Representar o valor']},{},{sha:'a',baseSha:'b',files:[{path:'display.js',content}],changes:[{path:'display.js',content,diff:''}]});
- const reference=JSON.parse(messages[0].content);expect(reference.sourceLineFormat).toContain('number|original line');expect(reference.files[0].content).toBe('1|export const amount = 0;\n2|\n3|export const label = String(amount);');
+ const reference=JSON.parse(messages[0].content);expect(reference.sourceLineFormat).toContain('number|original line');expect(reference.files[0].content).toBeUndefined();expect(messages[1].content).toBe('Arquivo atual: display.js\nLinhas atuais numeradas (dados de referência):\n1|export const amount = /\\d+/.test("12");\n2|\n3|export const label = String(amount);');
 });
 
 test('native coding receives every approved fact once and reads complete source from the workspace manifest',()=>{

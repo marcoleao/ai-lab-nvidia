@@ -1,0 +1,61 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:08ca9c4d5c6424c4781734181c3bff390fa85cbd65eeddf5941117324a52abc2",
+  "executorDigest": "c6f9636f596dbea3d4158d83d6b302bf8501026e1eb128b1373a3245c1a42f92",
+  "toolchainDigest": "9cdc1a2b322d231c91d37e73389fd0b8c259ab3a9424165ba585b10428f08b98",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-appearance",
+      "fixtureDigest": "5d6214c509fed8e3b455572df0ff874549bee681312a08bb941a29d1521a4911",
+      "state": "succeeded",
+      "elapsedMs": 26109,
+      "inferenceCalls": 15,
+      "toolCalls": 4,
+      "validationPassed": true,
+      "passed": true,
+      "visualAssertionUsed": true,
+      "layoutFragmentUsed": true,
+      "independentVisualCheckPassed": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "ui-booking",
+      "fixtureDigest": "b8cc9a55b781bb03e6c4e0d588c088d0c16ae2dd192cd2120df83e692ac65ecb",
+      "state": "succeeded",
+      "elapsedMs": 20099,
+      "inferenceCalls": 11,
+      "toolCalls": 2,
+      "validationPassed": true,
+      "passed": true,
+      "independentBookingCheckPassed": true,
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "diagnostics": []
+    },
+    {
+      "fixture": "unsupported-keyboard",
+      "passed": true,
+      "state": "not_tested",
+      "inferenceCalls": 1,
+      "completeAcceptance": false
+    }
+  ],
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "geometry": false,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

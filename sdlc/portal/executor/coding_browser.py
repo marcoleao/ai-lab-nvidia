@@ -20,7 +20,7 @@ def validate_ui_steps(steps):
    if set(step)!={'op'}:raise ValueError('UI probe reload')
   elif step['op']!='expect_text' or target is not None:
    if not isinstance(target,dict) or set(target)-{'by','name','role','index'} or target.get('by') not in ['role','label','text'] or not isinstance(target.get('name'),str) or len(target['name'])>160:raise ValueError('UI probe target')
-   if not target['name'] and not (step['op']=='fill' and target.get('by')=='role' and target.get('role')=='textbox' and type(target.get('index')) is int and 0<=target['index']<=5):raise ValueError('UI probe unnamed target')
+   if not target['name'] and not (target.get('by')=='role' and (step['op'],target.get('role')) in [('fill','textbox'),('select','combobox')] and type(target.get('index')) is int and 0<=target['index']<=5):raise ValueError('UI probe unnamed target')
    if target['by']=='role' and target.get('role') not in ['button','textbox','spinbutton','combobox','checkbox','heading','link','img','status','region','form','listitem']:raise ValueError('UI probe role')
    if 'role' in target and target['by']!='role':raise ValueError('UI probe unused role')
    if 'index' in target and (type(target['index']) is not int or not 0<=target['index']<=5):raise ValueError('UI probe index')

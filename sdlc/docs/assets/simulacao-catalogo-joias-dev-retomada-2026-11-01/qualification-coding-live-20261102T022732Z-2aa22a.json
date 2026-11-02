@@ -1,0 +1,81 @@
+{
+  "model": "qwen3:14b",
+  "thinking": false,
+  "workflow": "focused-local-v1",
+  "implementationMode": "micro-json-v1",
+  "imageId": "sha256:08ca9c4d5c6424c4781734181c3bff390fa85cbd65eeddf5941117324a52abc2",
+  "executorDigest": "ab5f0a58da0b4313b353a6bc77c367b268cb16d75a45d4c7fa6d5aac4bc89085",
+  "toolchainDigest": "9cdc1a2b322d231c91d37e73389fd0b8c259ab3a9424165ba585b10428f08b98",
+  "completeSuite": false,
+  "applicationDataUsed": false,
+  "productionConfigurationChanged": false,
+  "scope": "Synthetic iterative coding qualification, not business UI acceptance",
+  "fixtures": [
+    {
+      "fixture": "ui-scalar-validation",
+      "fixtureDigest": "459ae1a9600ddc6a8bfd202518d8662eea4691b2c82252b4a06f10ec86e09602",
+      "state": "unknown",
+      "elapsedMs": 201842,
+      "inferenceCalls": 6,
+      "toolCalls": 0,
+      "validationPassed": false,
+      "passed": false,
+      "emptyFormBlocked": true,
+      "controlsPreserved": true,
+      "independentInputs": [
+        {
+          "input": "12.50,5",
+          "passed": false
+        },
+        {
+          "input": "12kg",
+          "passed": false
+        },
+        {
+          "input": "Infinity",
+          "passed": false
+        },
+        {
+          "input": "0",
+          "passed": true
+        },
+        {
+          "input": "-1",
+          "passed": true
+        },
+        {
+          "input": "1.234",
+          "passed": false
+        },
+        {
+          "input": "12.50",
+          "passed": true
+        },
+        {
+          "input": "12,50",
+          "passed": true
+        },
+        {
+          "input": "12",
+          "passed": true
+        }
+      ],
+      "contextVersion": 2,
+      "completeAcceptance": false,
+      "error": "Execu\u00e7\u00e3o de especialista interrompida; candidata n\u00e3o confirmada e n\u00e3o repetida automaticamente.",
+      "diagnostics": []
+    }
+  ],
+  "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4",
+  "reasoningPolicy": {
+    "code": false,
+    "pattern": true,
+    "fragmentSelection": true,
+    "expression": true,
+    "geometry": false,
+    "webUrlPolicy": false,
+    "ui": false
+  },
+  "uiModel": "qwen3:14b",
+  "sourceStable": true
+}

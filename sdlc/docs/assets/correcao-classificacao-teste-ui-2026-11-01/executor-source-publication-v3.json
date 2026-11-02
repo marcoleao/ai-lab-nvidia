@@ -1,0 +1,38 @@
+{
+  "qualifiedSource": "5fa87d6da24d62453e3b41b471248aaaa93f4cbd007c9ad5435db25395fad78f",
+  "qualification": [
+    "test-results/regression/coding-live-20261102T004007Z-f971d1/qualification.json",
+    "test-results/regression/coding-live-20261102T004245Z-810721/qualification.json"
+  ],
+  "requiredPassedFixtures": [
+    "ui-appearance",
+    "ui-booking",
+    "ui-prerequisites",
+    "ui-unnamed-select",
+    "unsupported-keyboard"
+  ],
+  "components": [
+    {
+      "executor": "coding",
+      "sourceDigest": "5fa87d6da24d62453e3b41b471248aaaa93f4cbd007c9ad5435db25395fad78f",
+      "backupId": "executor-source-coding-4cfde4feb2044affa25d87f02fae6c01",
+      "ready": true,
+      "configurationPreserved": false,
+      "configurationOnlyBrowserChanged": true,
+      "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4"
+    },
+    {
+      "executor": "runtime",
+      "sourceDigest": "2df2d9a7c49618139bee0eef2168ed91d9a4d3fb717d242ae3137bb6bb669b4a",
+      "backupId": "executor-source-runtime-a8607f315afd4304a76067d8688dd475",
+      "ready": true,
+      "configurationPreserved": false,
+      "configurationOnlyBrowserChanged": true,
+      "browserImageId": "sha256:69cfe9bba5193c6fbec075d5ff42212d5ed011edbaaed91e1f907acfe14abbc4"
+    }
+  ],
+  "portalApplicationCodeChanged": false,
+  "businessDataChanged": false,
+  "modelBudgetCredentialsPreserved": true,
+  "browserImageUpdated": true
+}

@@ -7,6 +7,39 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'executor'))
 import coding_ui_agent as ui
 from coding_browser import validate_ui_steps
 class UiSpecialists(unittest.TestCase):
+ def test_frozen_input_binding_keeps_exact_values_and_refuses_filters_duplicates_and_new_data(self):
+  controls=[{'id':'reference','role':'textbox','name':'Identificador','section':'Reserva'},{'id':'quantity','role':'spinbutton','name':'Total de itens','section':'Reserva'},{'id':'mode','role':'combobox','name':'Modo','section':'Reserva','options':['Expresso']},{'id':'search','role':'textbox','name':'Referência','section':'Filtros'}]
+  scenario={'goal':'Registrar reserva','assertions':[{'kind':'text','value':'Reserva confirmada.'}],'data':[{'field':'Referência','value':'  RES 42 '},{'field':'Quantidade','value':'2'},{'field':'Modalidade','value':'Expresso'}]};original=json.dumps(scenario);context={'criteria':['Preservar cadastros anteriores.']};outcome={'section':'Reserva'}
+  with patch.object(ui,'ask_local',side_effect=[{'control':'reference'},{'control':'quantity'},{'control':'mode'}]) as ask:
+   result=ui.scenario_input_bindings(None,{},scenario,context,{'controls':controls},outcome)
+  self.assertEqual(result,[{'control':'reference','value':'  RES 42 ','field':'Referência'},{'control':'quantity','value':'2','field':'Quantidade'}]);self.assertEqual(json.dumps(scenario),original)
+  for call,datum in zip(ask.call_args_list,scenario['data']):
+   self.assertEqual(call.args[3]['plannedInput'],datum);self.assertEqual(call.args[3]['approvedContext'],context);self.assertNotIn('search',call.args[4]['properties']['control']['enum'])
+  for bad in [{'control':'search'},{'control':'reference','value':'invented'},{'control':'unknown'}]:
+   with patch.object(ui,'ask_local',return_value=bad),self.assertRaisesRegex(ValueError,'observados'):ui.scenario_input_bindings(None,{},scenario,context,{'controls':controls},outcome)
+  with patch.object(ui,'ask_local',side_effect=[{'control':'reference'},{'control':'reference'}]),self.assertRaises(ValueError):ui.scenario_input_bindings(None,{},scenario,context,{'controls':controls},outcome)
+ def test_planned_initial_fields_are_filled_once_before_real_submit_and_frozen_assertion(self):
+  controls=[{'id':'name','role':'textbox','name':'Responsável','section':'Reserva','value':''},{'id':'amount','role':'spinbutton','name':'Quantidade','section':'Reserva','value':''},{'id':'save','role':'button','name':'Confirmar','section':'Reserva'}];initial={'rendered':True,'errors':[],'observedUI':'Formulário de reserva','controls':controls};saved={**initial,'observedUI':'Reserva confirmada.'}
+  session=Mock();session.initial=initial
+  def perform(route,action):
+   step={'op':action['op'],**({'target':{'by':'role','role':'button' if action['op']=='click' else 'textbox' if action['control']=='name' else 'spinbutton','name':next(c['name'] for c in controls if c['id']==action['control'])}} if action['control'] else {}),**({'value':action['value']} if action['op'] in ['fill','expect_text'] else {})}
+   return {**(saved if action['op'] in ['click','expect_text'] else initial),'actionPassed':True,'lastStep':step}
+  session.call.side_effect=perform
+  answers=[{'supported':True,'limitation':''},{'goal':'Registrar reserva','data':[{'field':'Responsável','value':'Pessoa teste'},{'field':'Quantidade','value':'2'}]},{'kind':'text'},{'value':'Reserva confirmada.'},{'control':'save'},{'action':'click_save','value':''}]
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Registrar reserva e conferir Reserva confirmada.'},'totalCalls':0}
+   with patch.object(ui,'ask_local',side_effect=answers) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],Path(temporary),initial,lambda _:None)
+   self.assertTrue(result['passed']);self.assertEqual([call.args[1]['op'] for call in session.call.call_args_list],['fill','fill','click','expect_text']);self.assertEqual([call.args[1]['value'] for call in session.call.call_args_list[:2]],['Pessoa teste','2']);self.assertEqual(ask.call_count,len(answers))
+ def test_exact_observed_names_are_reserved_without_semantic_guess_or_model_call(self):
+  controls=[{'id':'description','role':'textbox','name':'Descrição','section':'Remessa'},{'id':'mass','role':'textbox','name':' MASSA  ','section':'Remessa'},{'id':'filter','role':'textbox','name':'Descrição','section':'Filtros'}]
+  scenario={'goal':'Registrar remessa','assertions':[{'kind':'text','value':'Registrada.'}],'data':[{'field':'Comentário','value':'Não atribuir'},{'field':'massa','value':'12.50'},{'field':'Descrição','value':' Caixa teste '}]}
+  with patch.object(ui,'ask_local') as ask:
+   result=ui.scenario_input_bindings(None,{},scenario,{}, {'controls':controls},{'section':'Remessa'})
+  ask.assert_not_called();self.assertEqual(result,[{'control':'mass','field':'massa','value':'12.50'},{'control':'description','field':'Descrição','value':' Caixa teste '}])
+  ambiguous=[*controls,{'id':'description2','role':'textbox','name':'Descrição','section':'Remessa'}]
+  with patch.object(ui,'ask_local',return_value={'control':'description2'}) as ask:
+   result=ui.scenario_input_bindings(None,{}, {**scenario,'data':[scenario['data'][2]]},{},{'controls':ambiguous},{'section':'Remessa'})
+  self.assertEqual(ask.call_count,1);self.assertEqual(result[0]['control'],'description2')
  def test_only_confirmed_token_repetition_has_the_safe_inference_diagnostic(self):
   for message,exception in [('prediction aborted, token repeat limit reached',ui.InferenceTokenRepeatError),('different private service cause',urllib.error.HTTPError)]:
    job={'calls':0,'totalCalls':0,'rootStarted':time.monotonic(),'role':'implementation'};e=SimpleNamespace(CONFIG={'model':'local:9b','upstream':'http://10.239.0.10:11434'})
@@ -157,6 +190,49 @@ class UiSpecialists(unittest.TestCase):
     browser.assert_not_called()
   for kind,value in [('page_background','#000000'),('heading_font','Invented Font')]:
    with self.assertRaises(ValueError):ui.require_assertion_source({'kind':kind,'value':value},{'criteria':['Fundo #DDEEFF, fonte Georgia.']},value)
+ def test_result_classifier_does_not_offer_an_unsourceable_background_for_other_domains(self):
+  for objective,outcome in [('Agendar atendimento','Reserva confirmada'),('Lançar despesa','Despesa registrada'),('Cadastrar material','Material cadastrado')]:
+   with self.subTest(objective=objective):
+    context={'objective':objective,'criteria':[outcome],'approved':{'requirements':{'businessRules':['Preservar dados anteriores.']}}}
+    with patch.object(ui,'ask_local',return_value={'kind':'text'}) as ask:
+     self.assertEqual(ui.classify_assertion(None,{}, {'goal':outcome},context),{'kind':'text'})
+    data,schema=ask.call_args.args[3:5]
+    self.assertEqual(data['currentGoal'],outcome);self.assertEqual(data['approvedContext'],context)
+    self.assertNotIn('page_background',schema['properties']['kind']['enum']);self.assertEqual(data['approvedBackgroundLiterals'],[])
+    self.assertIn('image',schema['properties']['kind']['enum']);self.assertIn('heading_font',schema['properties']['kind']['enum'])
+    with patch.object(ui,'ask_local',return_value={'kind':'page_background'}),self.assertRaisesRegex(ValueError,'fonte aprovada'):
+     ui.classify_assertion(None,{}, {'goal':outcome,'data':[{'field':'cor','value':'#DDEEFF'}]},context)
+ def test_background_classifier_preserves_explicit_approved_visual_values_and_fonts(self):
+  context={'criteria':['Selecionar #DDEEFF para cobrir a janela.','Conferir a fonte Georgia no título.']}
+  for kind,goal in [('page_background','Conferir a cor #DDEEFF nos cantos'),('heading_font','Conferir Georgia no h1')]:
+   with self.subTest(kind=kind),patch.object(ui,'ask_local',return_value={'kind':kind}) as ask:
+    self.assertEqual(ui.classify_assertion(None,{}, {'goal':goal},context),{'kind':kind})
+    self.assertIn('page_background',ask.call_args.args[4]['properties']['kind']['enum'])
+    self.assertEqual(ask.call_args.args[3]['approvedBackgroundLiterals'],['#DDEEFF'])
+  with patch.object(ui,'ask_local',return_value={'kind':'page_background'}),self.assertRaisesRegex(ValueError,'fonte aprovada'):
+   ui.classify_assertion(None,{}, {'goal':'Conferir fundo #DDEEFF'}, {'criteria':['Apenas confirmar reserva.']})
+ def test_classifier_refuses_extra_fields_and_unsourceable_visual_kind_before_browser(self):
+  for response in [{'kind':'page_background'},{'kind':'text','approved':True},{'kind':False},{'kind':['text']}]:
+   with self.subTest(response=response),patch.object(ui,'ask_local',return_value=response),self.assertRaisesRegex(ValueError,'asserção'):
+    ui.classify_assertion(None,{}, {'goal':'Confirmar cadastro'}, {'criteria':['Confirmação textual.']})
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)))
+   job={'intent':{'prompt':'Criar uma reserva e mostrar "Reserva confirmada".'},'totalCalls':0}
+   responses=[{'supported':True,'limitation':''},{'goal':'Criar uma reserva','data':[]},{'kind':'page_background'}]
+   with patch.object(ui,'ask_local',side_effect=responses) as ask,patch.object(ui,'LiveBrowser') as browser,self.assertRaisesRegex(ValueError,'fonte aprovada'):
+    ui.run_ui_verifier(e,job,[],Path(temporary),{'observedUI':'- button "Reservar"'},lambda _:None)
+   browser.assert_not_called();self.assertEqual(ask.call_count,3)
+ def test_selection_uses_unique_observed_spelling_without_creating_aliases_or_resolving_ambiguity(self):
+  for requested,observed in [('expresso','Expresso'),('  mensal  consolidado ','Mensal consolidado')]:
+   control={'id':'s1','role':'combobox','name':'','section':'Entrega','options':['Escolha',observed],'selected':'Escolha'}
+   with self.subTest(requested=requested),patch.object(ui,'ask_local',return_value={'selections':[{'control':'s1','value':requested}]}):
+    milestones=ui.selection_milestones(None,None,{}, {},{'controls':[control]})
+   self.assertEqual(milestones[0]['value'],observed);self.assertEqual(milestones[0]['requestedValue'],requested)
+   self.assertEqual(ui.pending_milestone(milestones,{'controls':[control]})['kind'],'selected')
+   self.assertIsNone(ui.pending_milestone(milestones,{'controls':[{**control,'selected':observed}]}))
+  self.assertEqual(ui.observed_selection_value({'options':['Expresso']},'Rápido'),'Rápido')
+  self.assertEqual(ui.observed_selection_value({'options':['Avulsa','AVULSA']},'Avulsa'),'Avulsa')
+  with self.assertRaisesRegex(ValueError,'ambígua'):ui.observed_selection_value({'options':['Avulsa','AVULSA']},'avulsa')
  def test_readonly_heading_assertion_uses_observed_literal_instead_of_the_criterion_sentence(self):
   with tempfile.TemporaryDirectory() as temporary:
    directory=Path(temporary);e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps)
@@ -192,6 +268,21 @@ class UiSpecialists(unittest.TestCase):
    with patch.object(ui,'ask_local',side_effect=[{'supported':True,'limitation':''},{'goal':'Conferir disponibilidade','data':[]},{'kind':'text'},{'value':'Disponível'},{'action':'assert_result','value':''}]) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],directory,state,lambda _:None)
    self.assertTrue(result['passed']);self.assertEqual(result['coverage']['status'],'scenario_passed');self.assertFalse(result['coverage']['completeAcceptance']);self.assertEqual(result['coverage']['verifiedCriterionIndices'],[])
    for call in ask.call_args_list:self.assertIn(context,call.args[3].values())
+ def test_edit_after_validation_feedback_requires_resubmission_and_saved_reset_does_not_repeat_prerequisites(self):
+  controls=[{'id':'f','role':'textbox','name':'Valor','section':'Despesas','value':''},{'id':'s','role':'combobox','name':'Tipo','section':'Despesas','options':['Escolha','Mensal'],'selected':'Mensal'},{'id':'b','role':'button','name':'Registrar','section':'Despesas'}]
+  initial={'rendered':True,'errors':[],'observedUI':'Formulário de despesas','controls':controls}
+  rejected={**initial,'observedUI':'Preencha o valor'};prepared={**rejected,'observedUI':'Valor preenchido'}
+  saved={**initial,'observedUI':'Despesa registrada.','controls':[{**c,'selected':'Escolha'} if c['id']=='s' else c for c in controls]}
+  session=Mock();session.initial=initial
+  session.call.side_effect=[{**rejected,'actionPassed':True,'lastStep':{'op':'click','target':{'by':'role','role':'button','name':'Registrar'}}},{**prepared,'actionPassed':True,'lastStep':{'op':'fill','target':{'by':'role','role':'textbox','name':'Valor'},'value':'10'}},{**saved,'actionPassed':True,'lastStep':{'op':'click','target':{'by':'role','role':'button','name':'Registrar'}}},{**saved,'actionPassed':True,'lastStep':{'op':'expect_text','value':'Despesa registrada.'}}]
+  answers=[{'supported':True,'limitation':''},{'goal':'Registrar despesa','data':[{'field':'Valor da despesa','value':'10'}]},{'kind':'text'},{'value':'Despesa registrada.'},{'control':'b'},{'selections':[{'control':'s','value':'Mensal'}]},{'control':''},{'action':'click_b','value':''},{'action':'fill_f','value':'10'},{'action':'click_b','value':''}]
+  with tempfile.TemporaryDirectory() as temporary:
+   e=SimpleNamespace(CONFIG={'model':'local:9b'},dump=lambda path,value:path.write_text(json.dumps(value)),validate_ui_steps=validate_ui_steps);job={'intent':{'id':'a'*64,'expectedSha':'b'*40,'prompt':'Registrar e conferir Despesa registrada.'},'totalCalls':0}
+   with patch.object(ui,'ask_local',side_effect=answers) as ask,patch.object(ui,'LiveBrowser',return_value=session):result=ui.run_ui_verifier(e,job,[],Path(temporary),initial,lambda _:None)
+   self.assertTrue(result['passed']);self.assertEqual([call.args[1]['op'] for call in session.call.call_args_list],['click','fill','click','expect_text'])
+   pending=ask.call_args_list[-1].args[3]
+   self.assertNotIn('reload',pending['availableActions']);self.assertNotIn('assert_result',pending['availableActions']);self.assertIn('Registrar',pending['currentGoal'])
+   self.assertEqual(ask.call_count,len(answers));session.close.assert_called_once()
  def test_context_over_budget_is_refused_before_inference_without_discarding_any_rule(self):
   job={'calls':0,'totalCalls':0,'rootStarted':time.monotonic()};scope={'approved':{'requirements':{'businessRules':['x'*27000]}}};original=json.dumps(scope)
   with patch.object(ui.urllib.request,'build_opener') as opener,self.assertRaisesRegex(ValueError,'context exceeds'):ui.ask_local(SimpleNamespace(CONFIG={}),job,'bounded',scope,{},80)
