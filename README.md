@@ -4,6 +4,7 @@
 | --- | --- |
 | [lab/](lab/README.md) | Setup existente: WSL, Docker, GPU, Ollama e serviços do laboratório |
 | [sdlc/](sdlc/README.md) | Setup do SDLC agêntico integrado ao laboratório |
+| [sdlc_demo/](sdlc_demo/README.md) | Demonstração estática e offline do Portal SDLC, com dados fictícios e promoções locais de exemplo |
 | [vscode/](vscode/README.md) | Extensão de chat e instalação independente no VS Code |
 
 Os setups têm configuração, estado e ciclos de vida próprios dentro deste repositório.
@@ -40,7 +41,7 @@ Configuração, secrets, cache e estado do laboratório ficam em `lab/`. A reorg
 
 ## SDLC e projetos
 
-O pacote de instalação do SDLC está em `sdlc/`, com [roteiro de instalação e aceitação](sdlc/docs/aceitacao-do-ambiente.md). As demos e seu histórico ficam exclusivamente no GitLab local do ambiente SDLC. Checkouts, builds e artefatos ficam nos diretórios e volumes desse ambiente, fora deste repositório. Aqui ficam apenas as ferramentas, configurações e modelos de referência necessários para operar o laboratório, o SDLC e a extensão.
+O pacote de instalação do SDLC está em `sdlc/`, com [roteiro de instalação e aceitação](sdlc/docs/aceitacao-do-ambiente.md). As aplicações produzidas pelo SDLC e seu histórico ficam exclusivamente no GitLab local do ambiente SDLC. Checkouts, builds e artefatos ficam nos diretórios e volumes desse ambiente, fora deste repositório. A pasta [sdlc_demo/](sdlc_demo/README.md) contém uma demonstração independente da interface do portal: abra seu [index.html](sdlc_demo/index.html) diretamente no navegador, sem iniciar serviços. Os demais diretórios mantêm as ferramentas, configurações e modelos de referência para operar o laboratório, o SDLC e a extensão.
 
 ## Validação
 

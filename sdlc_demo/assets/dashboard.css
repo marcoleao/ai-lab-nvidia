@@ -1,0 +1,18 @@
+.dashboard .dashboard-subjects{position:sticky;top:0;z-index:20;background:var(--surface);padding:10px 0;margin:0 0 16px;gap:6px;border-bottom:1px solid var(--line)}
+.dashboard-subjects a{border-radius:5px;padding:10px 13px;color:var(--navy);line-height:1.35;white-space:nowrap}
+.dashboard-subjects a[aria-current="page"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.dashboard-subjects a[aria-current="page"]:hover{background:#005a95}
+.dashboard-subjects a:focus-visible,.dashboard-notes>summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.dashboard section[id^="dashboard-"]{scroll-margin-top:120px}
+.dashboard-filters>details>summary{cursor:pointer;font-weight:600;color:#005fa8;font-size:14px}
+.dashboard-filters>details[open]>summary{margin-bottom:14px}
+.dashboard .dashboard-filters{padding:16px 20px}
+.dashboard .dashboard-filter-scope{margin-top:12px;padding-top:10px}
+.dashboard .dashboard-updated{margin-bottom:16px}
+.dashboard-notes{padding:14px 18px}
+.dashboard-notes>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--navy)}
+.dashboard-notes[open]>summary{margin-bottom:14px}
+.dashboard-notes ul{margin-bottom:0}
+@media(max-width:540px){.dashboard .dashboard-subjects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.dashboard-subjects a{font-size:12px;padding:9px;text-align:center;white-space:normal}.dashboard section[id^="dashboard-"]{scroll-margin-top:165px}.dashboard .dashboard-filters{padding:16px}.dashboard-filters .hint{font-size:12px;margin-bottom:12px}.dashboard-filters form{gap:10px}.dashboard-filters .dashboard-filter-scope{margin-top:12px;padding-top:10px}}
+.merge-metrics-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.merge-metrics-summary .panel{display:flex;flex-direction:column;gap:6px;min-width:0}.merge-metrics-summary strong{font-size:24px;color:var(--navy)}.merge-metrics-summary span{font-size:13px;color:var(--muted)}#dashboard-merges>.actions{margin-bottom:16px}#dashboard-merges [aria-pressed=true]{background:var(--blue);color:white}@media(max-width:540px){.merge-metrics-summary{grid-template-columns:1fr}.dashboard section[id^="dashboard-"]{scroll-margin-top:210px}}
+.merge-metrics-summary{margin-bottom:16px}.merge-metrics-summary .panel{margin-bottom:0;padding:16px}@media(max-width:540px){.merge-metrics-summary{gap:8px}.merge-metrics-summary .panel{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;padding:12px;gap:4px 12px}.merge-metrics-summary strong{font-size:21px}.merge-metrics-summary small{grid-column:1/-1}}

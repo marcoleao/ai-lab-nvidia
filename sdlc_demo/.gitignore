@@ -1,0 +1,4 @@
+tests/.browser-profile-*/
+tests/.edge-*/
+tests/artifacts/
+tests/debug.log

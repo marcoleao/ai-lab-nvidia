@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Demonstração independente do Portal SDLC com cenários fictícios e navegação local.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Portal SDLC · Demonstração</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/portal.css">
+  <link rel="stylesheet" href="assets/navigation.css">
+  <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/demo.css">
+  <link rel="stylesheet" href="assets/conversations.css">
+  <script defer src="assets/data.js"></script>
+  <script defer src="assets/conversations.js"></script>
+  <script defer src="assets/views.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <dialog id="demo-dialog" class="panel modal" aria-labelledby="dialog-title"></dialog>
+  <noscript><main><h1>Portal SDLC · Demonstração</h1><p>Ative o JavaScript para navegar entre os exemplos locais. Não é necessário acessar a internet ou iniciar o portal real.</p></main></noscript>
+</body>
+</html>
