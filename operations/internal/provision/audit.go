@@ -12,6 +12,12 @@ import (
 )
 
 var actionCatalog = map[string]string{
+	"PLATFORM_CI_RUNNER_IDENTITY_PREPARED":         "ci_runner_identity_receipt_digest",
+	"PLATFORM_CI_RUNNER_REGISTRATION_PREPARED":     "ci_runner_registration_digest",
+	"PLATFORM_CI_RUNNER_IMAGE_PREPARED":            "ci_runner_image_digest",
+	"PLATFORM_CI_RUNNER_SERVICE_PREPARED":          "ci_runner_service_state_digest",
+	"PLATFORM_CI_RUNNER_STARTUP_COMPENSATED":       "ci_runner_service_state_digest",
+	"PLATFORM_CI_RUNNER_ISOLATED_TEST_REMOVED":     "ci_runner_isolated_resource_digest",
 	"PLATFORM_GITLAB_CREDENTIALS_PREPARED":         "gitlab_credential_receipt_digest",
 	"PLATFORM_GITLAB_IMAGES_PREPARED":              "gitlab_image_set_digest",
 	"PLATFORM_GITLAB_SERVICES_PREPARED":            "gitlab_service_state_digest",

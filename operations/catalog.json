@@ -186,8 +186,8 @@
       "layer": "middleware",
       "kind": "tool",
       "product": "gitlab-runner",
-      "adoption": "legacy_implementation",
-      "source": "sdlc/gitlab/compose.yaml",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/ci_runner_spec.go",
       "depends_on": [
         "gitlab"
       ],

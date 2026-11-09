@@ -64,12 +64,13 @@ class ValidationContracts(unittest.TestCase):
     def test_snapshot_excludes_runtime_private_data_and_binary_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "source"
-            for name in ("operations/internal/gitlab-seed.json", "operations/internal/access-seed.json", "operations/.secrets/private.json", "operations/control/state.json", "operations/output.test", "environments/.env"):
+            for name in ("operations/internal/ci-runner-identity.json", "operations/internal/gitlab-seed.json", "operations/internal/access-seed.json", "operations/.secrets/private.json", "operations/control/state.json", "operations/output.test", "environments/.env"):
                 path = root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"private-fixture\xff")
             source = root / "operations/public.go"; source.write_text("package fixture\n")
+            (root / "operations/adapter.rb").write_text("puts :fixture\n")
             target = Path(tmp) / "snapshot"
             validation.snapshot(target, root)
-            self.assertEqual({p.relative_to(target).as_posix() for p in target.rglob("*") if p.is_file()}, {"operations/public.go"})
+            self.assertEqual({p.relative_to(target).as_posix() for p in target.rglob("*") if p.is_file()}, {"operations/public.go", "operations/adapter.rb"})
 
     def test_workflow_publication_needs_all_required_validation_jobs(self):
         workflow = (ROOT / ".github/workflows/validate.yaml").read_text(encoding="utf-8")

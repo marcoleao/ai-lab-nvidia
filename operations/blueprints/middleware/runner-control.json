@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "product": "gitlab-runner",
+  "profile": "precision-windows",
+  "scope": "REGISTERED_PAUSED_CONTROL_ONLY",
+  "executor": "DEDICATED_EXECUTOR_REQUIRED",
+  "jobs_enabled": false,
+  "memory": "256m",
+  "cpus": 0.5
+}

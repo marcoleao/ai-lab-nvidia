@@ -30,7 +30,7 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 	flags.IntVar(&p.Tail, "tail", 200, "")
 	flags.BoolVar(&p.Unseal, "unseal", false, "")
 	if err := flags.Parse(args); err == flag.ErrHelp {
-		fmt.Fprintln(stdout, "platform status|doctor|start|stop|restart|logs [--component all|container-runtime|identity-db|identity|secret-store|edge|origin-tls|metrics|logs|telemetry|grafana|gitlab|gitlab-web|homepage] [--format text|json] [--request-id <id>] [--unseal: service start/restart only] [--tail 200: service logs]\nAll maintains prepared foundation, observability and Homepage services. Runtime lifecycle requires explicit container-runtime scope. Logs are exported privately, never printed.")
+		fmt.Fprintln(stdout, "platform status|doctor|start|stop|restart|logs [--component all|container-runtime|identity-db|identity|secret-store|edge|origin-tls|metrics|logs|telemetry|grafana|gitlab|gitlab-web|gitlab-runner|homepage] [--format text|json] [--request-id <id>] [--unseal: service start/restart only] [--tail 200: service logs]\nAll maintains prepared foundation, observability and Homepage services. Runtime lifecycle requires explicit container-runtime scope. Logs are exported privately, never printed.")
 		return 0
 	} else if err != nil || flags.NArg() != 0 || format != "text" && format != "json" {
 		return emitOperationError(stdout, command, "PLATFORM_OPERATION_ARGUMENTS_INVALID")

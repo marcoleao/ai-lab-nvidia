@@ -54,7 +54,7 @@ try {
             $script:driverMissing=$false;$script:driverReboot=$false;$script:driverCalls=0
             $script:nativeOriginCalls=0;$script:nativeLegacyOrigin=$false;$script:nativeOriginString=$false;$script:nativeOriginPublic=$false;$script:nativeOriginFailed=$false;$script:nativeOriginBadCertificate=$false
             $script:nativeIngressMode='ok';$script:nativeIngressCalls=0
-            $script:nativeGitlabMode='ok';$script:nativeGitlabCalls=0;$script:nativeHubMode='ok';$script:nativeHubCalls=0;$script:nativeObservabilityMode='ok';$script:nativeObservabilityCalls=0
+            $script:nativeRunnerMode='ok';$script:nativeRunnerCalls=0;$script:nativeGitlabMode='ok';$script:nativeGitlabCalls=0;$script:nativeHubMode='ok';$script:nativeHubCalls=0;$script:nativeObservabilityMode='ok';$script:nativeObservabilityCalls=0
             $script:dailyCalls=0;$script:dailyRunning=$true;$script:dailyBadReceipt=$false;$script:dailyFailAudit=$false;$script:dailyPrivateFailure=$false
             $script:dailyDualPending=$false
             $script:dailySignalEvidence=$false
@@ -111,6 +111,7 @@ try {
                         if($script:dailyPrivateFailure){return [pscustomobject]@{ExitCode=1;Output='private-provider-diagnostic'}}
                         $component=Get-PlatformOperationComponent $Arguments
                         $value=@{schema_version=1;command=$Arguments[7];scope_component=$component;installation_id='test-platform';profile='precision-windows';operation_id=$operation;exit_code=0;installation_ready=$false;outcome='SUCCEEDED';phase='COMPLETED';reason_code='PLATFORM_PROCESSES_OBSERVED';maintenance_id=('a'*32);unexpected_provider_detail='private-unknown-field';runtime=@{mode='owned';controller='systemd';state='RUNNING';owned=$true;api_ready=$true;unexpected_detail='private-runtime-field'}}
+                        if($component -ceq 'gitlab-runner'){$value.runner_control=@{state='REGISTERED_PAUSED_EXECUTOR_PENDING';prepared=$true;control_ready=$true;execution_ready=$false;executor_state='NOT_PROVISIONED';paused=$true;endpoint='http://git.localhost:3180/admin/runners/17';coverage='CONTROL_ONLY';private_detail='private-runner-detail';services=@(@{component='gitlab-runner';state='RUNNING';owned=$true;running=$true;private_detail='private-runner-detail'})}}
                         if($component -ceq 'gitlab'){$value.gitlab=@{state='READY';prepared=$true;api_ready=$true;endpoint='http://git.localhost:3180';coverage='LOCAL_SCM_ONLY';private_detail='private-gitlab-detail';services=@(@{component='gitlab';state='RUNNING';owned=$true;running=$true;private_detail='private-gitlab-detail'})}}
                         if($component -ceq 'homepage'){$value.hub=@{state='READY';prepared=$true;api_ready=$true;endpoint='http://home.localhost:3300';coverage='LOCAL_LINKS_ONLY';private_detail='private-hub-detail';service=@{component='homepage';state='RUNNING';owned=$true;running=$true;private_detail='private-hub-detail'}}}
                         if($script:dailyDualPending){
@@ -140,6 +141,7 @@ try {
                             if($phase -eq 'ingress'){$script:nativeIngressCalls++;if($script:nativeIngressMode -eq 'missing'){$outcome='DEFERRED';$stage='WAITING';$exit=42;$reason='PLATFORM_INGRESS_PUBLIC_SETTINGS_REQUIRED'};if($script:nativeIngressMode -eq 'failed'){$outcome='FAILED';$exit=1;$reason='PLATFORM_INGRESS_ORIGIN_REVISION_UPGRADE_REQUIRED'}}
                             if($phase -eq 'hub'){$script:nativeHubCalls++;if($script:nativeHubMode -eq 'failed'){$outcome='FAILED';$exit=1;$reason='PLATFORM_HUB_STARTUP_FAILED'}}
                             if($phase -eq 'gitlab'){$script:nativeGitlabCalls++;if($script:nativeGitlabMode -eq 'failed'){$outcome='FAILED';$exit=1;$reason='PLATFORM_GITLAB_STARTUP_FAILED'}}
+                            if($phase -eq 'runner-control'){$script:nativeRunnerCalls++;if($script:nativeRunnerMode -eq 'failed'){$outcome='FAILED';$exit=1;$reason='PLATFORM_CI_RUNNER_STARTUP_FAILED'}}
                             if($phase -eq 'observability'){$script:nativeObservabilityCalls++;if($script:nativeObservabilityMode -eq 'failed'){$outcome='FAILED';$exit=1;$reason='PLATFORM_OBSERVABILITY_STARTUP_FAILED'}}
                         }
                         $body=@{schema_version=1;planned=($action -eq 'plan');gpu_container_qualified=$false;installation_ready=$false;installation_id='test-platform';profile='precision-windows';operation_id=$operation;outcome=$outcome;phase=$stage;exit_code=$exit;reason_code=$reason;
@@ -185,6 +187,14 @@ try {
                             if($script:nativeGitlabMode -eq 'public'){$body.external_publication_ready=$true}
                             if($action -eq 'install' -and $script:nativeGitlabMode -eq 'string'){$body.gitlab_ready='true'}
                             if($action -eq 'install' -and $script:nativeGitlabMode -eq 'metadata'){$body.gitlab_endpoint='http://private-user:private-password@other.invalid:3000'}
+                        }
+                        if($phase -eq 'runner-control'){
+                            $body.runner_control_ready=($action -eq 'install' -and $exit -eq 0);$body.runner_execution_ready=$false;$body.runner_admin_endpoint='http://git.localhost:3180/admin/runners/17'
+                            if($script:nativeRunnerMode -eq 'legacy'){$body.Remove('runner_control_ready')}
+                            if($script:nativeRunnerMode -eq 'public'){$body.external_publication_ready=$true}
+                            if($script:nativeRunnerMode -eq 'execution'){$body.runner_execution_ready=$true}
+                            if($action -eq 'install' -and $script:nativeRunnerMode -eq 'string'){$body.runner_control_ready='true'}
+                            if($action -eq 'install' -and $script:nativeRunnerMode -eq 'metadata'){$body.runner_admin_endpoint='http://private-user:private-password@other.invalid/admin/runners/17'}
                         }
                         return [pscustomobject]@{ExitCode=$exit;Output=($body|ConvertTo-Json -Depth 6 -Compress)}
                     }
@@ -709,6 +719,16 @@ try {
         New-Fixture;$null=Run-Full Origin
         $reply=Run-Daily doctor @('--component','gitlab');$value=$reply.Output|ConvertFrom-Json
         Check ($reply.ExitCode -eq 0 -and $value.gitlab.api_ready -and $value.gitlab.services[0].component -ceq 'gitlab' -and $reply.Output -notmatch 'private-gitlab-detail') 'GitLab daily projection lost readiness or leaked provider content'
+        foreach($mode in @('ok','legacy','public','string','metadata','failed','execution')){
+            New-Fixture;$script:nativeRunnerMode=$mode
+            $result=Run-Full RunnerControl
+            if($mode -eq 'ok'){Check ($result.runner_control_ready -and -not $result.runner_execution_ready -and $result.gitlab_ready -and $result.hub_ready -and $result.observability_core_ready -and -not $result.installation_ready -and -not $result.external_publication_ready -and $result.runner_admin_endpoint -ceq 'http://git.localhost:3180/admin/runners/17' -and $script:nativeRunnerCalls -eq 1) 'Runner control claimed job readiness or lost dependencies'}
+            elseif($mode -eq 'failed'){Check ($result.outcome -ceq 'FAILED' -and $result.gitlab_ready -and -not $result.runner_control_ready) 'Runner failure lost prepared GitLab'}
+            else{Check ($result.outcome -ceq 'UNKNOWN' -and -not $result.runner_control_ready -and ($result|ConvertTo-Json -Depth 12 -Compress) -notmatch 'private-password') 'Invalid runner receipt accepted';if($mode -in @('legacy','public','execution')){Check ($script:driverCalls -eq 0) 'Invalid runner preflight allowed host effects'}}
+        }
+        New-Fixture;$null=Run-Full Origin
+        $reply=Run-Daily doctor @('--component','gitlab-runner');$value=$reply.Output|ConvertFrom-Json
+        Check ($reply.ExitCode -eq 0 -and $value.runner_control.control_ready -and -not $value.runner_control.execution_ready -and $value.runner_control.paused -and $reply.Output -notmatch 'private-runner-detail') 'Runner daily projection lost pending execution or leaked provider content'
         Write-Output "Installer/operations: $script:cases disposable scenarios, retry/reboot, ownership, audit, activation, maintenance, observability and rollback: OK."
     } $repository $fixture
 } finally {

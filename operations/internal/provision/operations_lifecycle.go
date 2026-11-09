@@ -66,7 +66,9 @@ func saveOperationIntent(o Options, v operationIntent) error {
 func (e *Engine) operationService(ctx context.Context, o Options, id, wantedID string) (*accessContainer, error) {
 	var c *accessContainer
 	var err error
-	if isGitlabService(id) {
+	if id == ciRunnerComponent {
+		c, err = e.ciRunnerOperationService(ctx, o, id)
+	} else if isGitlabService(id) {
 		c, err = e.gitlabOperationService(ctx, o, id)
 	} else if id == "homepage" {
 		c, err = e.hubOperationService(ctx, o)
@@ -157,6 +159,9 @@ func operationProcessDigest(s operationSnapshot, targets []operationTarget) stri
 }
 
 func newOperationTargets(p OperationOptions, s operationSnapshot) ([]operationTarget, error) {
+	if p.Component == ciRunnerComponent && (p.Command == "start" || p.Command == "restart") && s.services["gitlab"].observation.State != "RUNNING" {
+		return nil, codedError("PLATFORM_OPERATION_DEPENDENCY_STOPPED")
+	}
 	if p.Command == "start" && p.Component == "gitlab-web" && s.services["gitlab"].observation.State != "RUNNING" {
 		return nil, codedError("PLATFORM_OPERATION_DEPENDENCY_STOPPED")
 	}

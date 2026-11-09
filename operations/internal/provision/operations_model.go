@@ -51,6 +51,7 @@ type LogExport struct {
 	Completeness  string `json:"completeness"`
 }
 type OperationResult struct {
+	CIRunner          *CIRunnerObservation      `json:"runner_control,omitempty"`
 	SchemaVersion     int                       `json:"schema_version"`
 	Command           string                    `json:"command"`
 	Component         string                    `json:"scope_component"`
@@ -90,7 +91,7 @@ type OperationResult struct {
 var operationServices = []string{"identity-db", "identity", "secret-store", "edge", "origin-tls"}
 
 func managedOperationServices() []string {
-	return append(append(append(append([]string{}, operationServices...), observabilityServices...), gitlabServices...), "homepage")
+	return append(append(append(append([]string{}, operationServices...), observabilityServices...), gitlabServices...), append(ciRunnerServices, "homepage")...)
 }
 
 type liveService struct {
@@ -105,4 +106,5 @@ type operationSnapshot struct {
 	observability    *ObservabilityObservation
 	hub              *HubObservation
 	gitlab           *GitlabObservation
+	ciRunner         *CIRunnerObservation
 }

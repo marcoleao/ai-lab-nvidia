@@ -11,7 +11,7 @@ from validation import ROOT, source_digest
 EXPECTED = {
     "native-linux-amd64.json": ("unit", "linux-amd64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts", "distribution-contracts"}),
     "windows-bootstrap.json": ("windows", "windows-amd64", "WINDOWS_BOOTSTRAP_PASSED", {"platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1", "validation-contracts", "distribution-contracts"}),
-    "docker-linux-amd64.json": ("integration", "linux-amd64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker", "TestGitlabWithRealDocker"}),
+    "docker-linux-amd64.json": ("integration", "linux-amd64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker", "TestGitlabWithRealDocker", "TestGitlabWithRealDocker/RunnerControl"}),
 }
 
 
@@ -40,7 +40,7 @@ def require_reports(directory, digest, commit, run_id):
         if any(not isinstance(name,str) for name in names) or len(names) != len(set(names)) or not required.issubset(names) or any(c.get("outcome") != "SUCCEEDED" or type(c.get("exit_code")) is not int or c["exit_code"] != 0 for c in checks):
             raise ValueError("PLATFORM_RELEASE_CHECKS_INCOMPLETE")
         for check in checks:
-            if check["check"] in {"native-go-tests", "TestNetworkWithRealDocker", "TestAccessWithRealDocker", "TestGitlabWithRealDocker"} and (type(check.get("tests_passed")) is not int or check["tests_passed"] < 1):
+            if check["check"] in {"native-go-tests", "TestNetworkWithRealDocker", "TestAccessWithRealDocker", "TestGitlabWithRealDocker", "TestGitlabWithRealDocker/RunnerControl"} and (type(check.get("tests_passed")) is not int or check["tests_passed"] < 1):
                 raise ValueError("PLATFORM_RELEASE_TEST_EXECUTION_UNCONFIRMED")
         evidence[filename] = hashlib.sha256(data).hexdigest()
     return evidence

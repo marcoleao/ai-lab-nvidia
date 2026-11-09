@@ -1,0 +1,12 @@
+{
+  "gitlab-runner": {
+    "version": "alpine-v19.5.0",
+    "index": "sha256:b7dead3b57cd9e5e5d6aedc6c0736c43972af9a24aa19875c2802bc8afcd3978",
+    "platforms": {
+      "amd64": {
+        "reference": "gitlab/gitlab-runner@sha256:54c6a0932c605fc32ec0b0caa4ff14e38b1b8079792d16d18f2c32cc6f01b484",
+        "config": "sha256:4ab19324b75ab6e44526f64b49e90e2bdacd3ad2958a8eafef86c07a2a87eb19"
+      }
+    }
+  }
+}

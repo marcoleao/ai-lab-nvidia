@@ -128,6 +128,17 @@ func (e *Engine) RunOperation(ctx context.Context, p OperationOptions) (Operatio
 				r.ExitCode = 0
 			}
 		}
+		if p.Component == ciRunnerComponent {
+			ready := s.ciRunner != nil && s.ciRunner.ControlReady != nil && *s.ciRunner.ControlReady && r.Pending == nil && r.PendingRuntime == nil
+			r.ScopeReady = &ready
+			r.ExitCode = 2
+			if ready {
+				r.ExitCode = 0
+			}
+		}
+		if p.Component == "all" && s.ciRunner != nil && s.ciRunner.Prepared && (s.ciRunner.ControlReady == nil || !*s.ciRunner.ControlReady) {
+			r.ExitCode = 2
+		}
 		if p.Component == "homepage" {
 			ready := s.hub != nil && s.hub.APIReady != nil && *s.hub.APIReady && r.Pending == nil && r.PendingRuntime == nil
 			r.ScopeReady = &ready

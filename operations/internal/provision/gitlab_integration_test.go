@@ -48,6 +48,10 @@ func TestGitlabWithRealDocker(t *testing.T) {
 		}
 		cleanupCtx, stop := context.WithTimeout(context.Background(), 2*time.Minute)
 		defer stop()
+		if err := cleanupIsolatedCIRunner(cleanupCtx, &e, o, audit); err != nil {
+			t.Error(err)
+			return
+		}
 		if err := cleanupIsolatedGitlab(cleanupCtx, &e, o, audit); err != nil {
 			t.Error(err)
 			return
@@ -130,6 +134,58 @@ func TestGitlabWithRealDocker(t *testing.T) {
 			t.Fatal("retry replaced credentials or container identity")
 		}
 	}
+
+	t.Run("RunnerControl", func(t *testing.T) {
+		var first ciRunnerIdentity
+		var firstID string
+		for pass := 0; pass < 2; pass++ {
+			for _, action := range []string{"PLATFORM_CI_RUNNER_IDENTITY_PREPARED", "PLATFORM_CI_RUNNER_REGISTRATION_PREPARED", "PLATFORM_CI_RUNNER_IMAGE_PREPARED", "PLATFORM_CI_RUNNER_SERVICE_PREPARED"} {
+				t.Logf("runner control pass=%d action=%s", pass+1, action)
+				before, err := e.fingerprint(ctx, action, o)
+				if err != nil {
+					t.Fatal(action, err)
+				}
+				step := Step{action, "ACCEPTED", "REQUESTED", before, "NOT_OBSERVED", "REQUEST_ACCEPTED"}
+				if err = audit.append(step); err != nil {
+					t.Fatal(err)
+				}
+				after, reason, err := e.apply(ctx, action, o)
+				if err != nil {
+					t.Fatal(action, err)
+				}
+				step.Outcome, step.Phase, step.After, step.Reason = "SUCCEEDED", "COMPLETED", after, reason
+				if before == after {
+					step.Outcome = "NO_CHANGE"
+				}
+				if err = audit.append(step); err != nil {
+					t.Fatal(err)
+				}
+			}
+			v, err := readCIRunnerIdentity(o)
+			if err != nil {
+				t.Fatal(err)
+			}
+			spec, err := e.ciRunnerSpec(o, v)
+			if err != nil {
+				t.Fatal(err)
+			}
+			state, err := e.ciRunnerState(ctx, o, spec)
+			if err != nil {
+				t.Fatal(err)
+			}
+			remote, err := e.ciRunnerRegistration(ctx, o, v, false)
+			if err != nil || remote == nil || !remote.Paused {
+				t.Fatal("paused registration unconfirmed", err)
+			}
+			id := state[ciRunnerComponent]["id"].(string)
+			if pass == 0 {
+				first, firstID = v, id
+			} else if v != first || id != firstID {
+				t.Fatal("runner retry replaced registration, token or container")
+			}
+		}
+	})
+
 }
 
 func cleanupIsolatedGitlab(ctx context.Context, e *Engine, o Options, audit recorder) (finalErr error) {

@@ -176,7 +176,7 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 	if !e.ownsAccessContainer(o, s, key, c) || c.HostConfig.Privileged || key != "gitlab" && len(c.HostConfig.CapAdd) != 0 || c.Config.User != service["user"] || c.HostConfig.ReadonlyRootfs != service["read_only"] {
 		return codedError("PLATFORM_ACCESS_CONTAINER_OWNERSHIP_CONFLICT")
 	}
-	if isGitlabService(key) {
+	if isGitlabService(key) || key == ciRunnerComponent {
 		if c.HostConfig.PidMode != "" || c.HostConfig.UsernsMode != "" || c.HostConfig.IpcMode == "host" || strings.HasPrefix(c.HostConfig.IpcMode, "container:") || len(c.HostConfig.Devices) != 0 || len(c.HostConfig.SecurityOpt) != 1 {
 			return codedError("PLATFORM_GITLAB_ISOLATION_CHANGED")
 		}
@@ -207,7 +207,7 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 			env[name] = value
 		}
 		expected := service["environment"].(map[string]string)
-		if key == "gitlab" && len(env) != len(expected) {
+		if (key == "gitlab" || key == ciRunnerComponent) && len(env) != len(expected) {
 			return codedError("PLATFORM_GITLAB_ENVIRONMENT_CHANGED")
 		}
 		for name, value := range expected {
@@ -437,6 +437,9 @@ func volumeLabels(o Options, s accessSpec, key string, v accessVolume) map[strin
 	}
 	if strings.HasSuffix(s.Project, "-gitlab") {
 		kind = "gitlab-volume"
+	}
+	if strings.HasSuffix(s.Project, "-ci-runner") {
+		kind = "runner-control-volume"
 	}
 	return map[string]string{"ai.platform.installation": o.InstallationID, "ai.platform.profile": o.Profile, "ai.platform.owner": s.Owner, "ai.platform.component": kind, "ai.platform.volume": key, "ai.platform.spec": digest(jsonBytes(v))}
 }

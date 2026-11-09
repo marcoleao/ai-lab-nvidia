@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-//go:embed assets.json security-update.py network-images.json access-images.json observability-images.json middleware-images.json gitlab-images.json
+//go:embed assets.json security-update.py network-images.json access-images.json observability-images.json middleware-images.json gitlab-images.json ci-runner-images.json ci-runner-registration.rb
 var sources embed.FS
 
 type Asset struct {

@@ -61,6 +61,9 @@ type Step struct {
 	Reason  string `json:"reason_code"`
 }
 type Result struct {
+	RunnerControlReady        bool              `json:"runner_control_ready"`
+	RunnerExecutionReady      bool              `json:"runner_execution_ready"`
+	RunnerAdminEndpoint       string            `json:"runner_admin_endpoint,omitempty"`
 	SchemaVersion             int               `json:"schema_version"`
 	OperationID               string            `json:"operation_id"`
 	InstallationID            string            `json:"installation_id"`

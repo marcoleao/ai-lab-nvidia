@@ -4,7 +4,7 @@
 set -eu
 root=$(CDPATH= cd -P "$(dirname "$0")" && pwd)
 action=${1:-plan}
-case "$action" in plan|install) ;; *) printf '%s\n' 'Use: sh install.sh plan|install [--phase host|runtime|network|access|origin|ingress|observability|hub|gitlab|infrastructure|all] [--profile ...]' >&2; exit 2 ;; esac
+case "$action" in plan|install) ;; *) printf '%s\n' 'Use: sh install.sh plan|install [--phase host|runtime|network|access|origin|ingress|observability|hub|gitlab|runner-control|infrastructure|all] [--profile ...]' >&2; exit 2 ;; esac
 if [ "$#" -gt 0 ]; then shift; fi
 case "$(uname -s):$(uname -m)" in
     Linux:x86_64|Linux:amd64) profile=precision-windows ;;

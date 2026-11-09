@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 TARGETS = ("linux-amd64", "linux-arm64", "darwin-arm64")
 ROOT_FILES = ("platform.sh", "install.sh", "platform.ps1", "install.ps1", "validate-platform.ps1", ".gitattributes", ".github/workflows/validate.yaml")
 PRIVATE_PARTS = {".git", ".cache", ".env", ".state", ".secrets", "__pycache__", "backups", "node_modules", "projects", "control", "data"}
-PRIVATE_NAMES = {"access-seed.json", "access-recovery.json", "observability-seed.json", "gitlab-seed.json", "hub-owner.json", "origin-material.json", "origin-pending-material.json"}
-SOURCE_EXTENSIONS = {".go", ".json", ".py", ".sh", ".ps1", ".psm1", ".psd1", ".md", ".awk", ".mod", ".sum"}
+PRIVATE_NAMES = {"access-seed.json", "access-recovery.json", "observability-seed.json", "gitlab-seed.json", "ci-runner-identity.json", "hub-owner.json", "origin-material.json", "origin-pending-material.json"}
+SOURCE_EXTENSIONS = {".go", ".json", ".py", ".sh", ".ps1", ".psm1", ".psd1", ".md", ".awk", ".mod", ".sum", ".rb"}
 
 
 class ValidationError(Exception):
@@ -136,6 +136,7 @@ def run_go_tests(command, root, env, checks, name, required):
     if code:
         raise ValidationError("PLATFORM_VALIDATION_CHECK_FAILED")
     check["tests_passed"] = executed_tests(events, required)
+    return events
     check["outcome"] = "SUCCEEDED"
 
 
@@ -165,8 +166,12 @@ def execute(mode, root, output, env, checks, disposable=False):
     base = [go, "-C", root / "operations"]
     if mode == "integration":
         env.update(PROVISION_GITLAB_INTEGRATION="1", PROVISION_ACCESS_INTEGRATION="1", PROVISION_NETWORK_INTEGRATION="1")
-        for test, timeout in (("TestNetworkWithRealDocker", "5m"), ("TestAccessWithRealDocker", "25m"), ("TestGitlabWithRealDocker", "20m")):
-            run_go_tests(base + ["test", "-json", "./internal/provision", "-run", f"^{test}$", "-count=1", "-timeout", timeout], root, env, checks, test, [test])
+        for test, timeout in (("TestNetworkWithRealDocker", "5m"), ("TestAccessWithRealDocker", "25m"), ("TestGitlabWithRealDocker", "25m")):
+            child = "TestGitlabWithRealDocker/RunnerControl"
+            required = [test, child] if test == "TestGitlabWithRealDocker" else [test]
+            events = run_go_tests(base + ["test", "-json", "./internal/provision", "-run", f"^{test}$", "-count=1", "-timeout", timeout], root, env, checks, test, required)
+            if test == "TestGitlabWithRealDocker":
+                checks.append({"check": child, "outcome": "SUCCEEDED", "exit_code": 0, "tests_passed": executed_tests(events, [child])})
         return
     gofmt = Path(go).with_name("gofmt.exe" if platform.system() == "Windows" else "gofmt")
     formatted = subprocess.check_output([str(gofmt), "-l", "cmd", "internal", "blueprints"], cwd=root / "operations", env=env, text=True)

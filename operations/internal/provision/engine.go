@@ -31,7 +31,7 @@ func (e *Engine) defaults(o *Options) error {
 	if o.Action != "plan" && o.Action != "install" {
 		return codedError("PLATFORM_SETUP_ACTION_INVALID")
 	}
-	if o.Phase != "all" && o.Phase != "infrastructure" && o.Phase != "access" && o.Phase != "origin" && o.Phase != "ingress" && o.Phase != "observability" && o.Phase != "hub" && o.Phase != "gitlab" && o.Phase != "host" && o.Phase != "runtime" && o.Phase != "network" {
+	if o.Phase != "all" && o.Phase != "infrastructure" && o.Phase != "access" && o.Phase != "origin" && o.Phase != "ingress" && o.Phase != "observability" && o.Phase != "hub" && o.Phase != "gitlab" && o.Phase != "runner-control" && o.Phase != "host" && o.Phase != "runtime" && o.Phase != "network" {
 		return codedError("PLATFORM_SETUP_PHASE_INVALID")
 	}
 	if !validID(o.InstallationID) {
@@ -247,6 +247,10 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		r.HubEndpoint = hubURL(options)
 		r.Limitations = append(r.Limitations, "HUB_LOCAL_LINKS_NO_SSO_PUBLICATION", "HUB_NO_RUNTIME_HEALTH_WIDGETS")
 	}
+	if options.Phase == "runner-control" {
+		selected = append(selected, "PLATFORM_CI_RUNNER_IDENTITY_PREPARED", "PLATFORM_CI_RUNNER_REGISTRATION_PREPARED", "PLATFORM_CI_RUNNER_IMAGE_PREPARED", "PLATFORM_CI_RUNNER_SERVICE_PREPARED")
+		r.Limitations = append(r.Limitations, "RUNNER_CONTROL_ONLY_REGISTERED_PAUSED", "DEDICATED_EXECUTOR_NOT_PROVISIONED_JOBS_DISABLED", "RUNNER_NO_HOST_DOCKER_SOCKET_OR_SHELL_EXECUTOR")
+	}
 	if options.Phase == "gitlab" {
 		selected = append(selected, "PLATFORM_GITLAB_CREDENTIALS_PREPARED", "PLATFORM_GITLAB_IMAGES_PREPARED", "PLATFORM_GITLAB_SERVICES_PREPARED")
 		r.GitlabEndpoint = gitlabURL(options)
@@ -262,7 +266,7 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		r.Outcome, r.Phase, r.Reason, r.ExitCode = "DEFERRED", "WAITING", "PLATFORM_INGRESS_PUBLIC_SETTINGS_REQUIRED", 42
 		return r, nil
 	}
-	if options.Phase == "gitlab" && (options.Profile != "precision-windows" || options.PublicationMode != "" && options.PublicationMode != "local") {
+	if (options.Phase == "gitlab" || options.Phase == "runner-control") && (options.Profile != "precision-windows" || options.PublicationMode != "" && options.PublicationMode != "local") {
 		r.Outcome, r.Phase, r.Reason, r.ExitCode = "DEFERRED", "WAITING", "PLATFORM_GITLAB_PROFILE_OR_PUBLICATION_NOT_QUALIFIED", 42
 		return r, nil
 	}
@@ -290,7 +294,7 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		}
 		r.HostReady = true
 	}
-	if options.Phase == "network" || options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
+	if options.Phase == "network" || options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" || options.Phase == "runner-control" {
 		if _, err = os.ReadFile(filepath.Join(options.ControlRoot, "platform_container_runtime_prepared.state")); err != nil {
 			return r, codedError("PLATFORM_RUNTIME_PREPARATION_REQUIRED")
 		}
@@ -300,13 +304,13 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		r.RuntimeReady = true
 		r.Endpoint = e.endpoint(options)
 	}
-	if options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
+	if options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" || options.Phase == "runner-control" {
 		if err = e.requireAccessNetworks(ctx, options); err != nil {
 			return r, err
 		}
 		r.NetworkReady = true
 	}
-	if options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
+	if options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" || options.Phase == "runner-control" {
 		if _, err = os.Stat(filepath.Join(options.ControlRoot, "platform_secret_store_bootstrapped.state")); err != nil {
 			return r, codedError("PLATFORM_ACCESS_PREPARATION_REQUIRED")
 		}
@@ -318,6 +322,22 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 			if v.Schema != 0 {
 				return r, codedError("PLATFORM_OPERATION_PENDING")
 			}
+		}
+	}
+	if options.Phase == "runner-control" {
+		seed, readErr := readGitlabSeed(options)
+		if readErr != nil {
+			return r, codedError("PLATFORM_CI_RUNNER_GITLAB_REQUIRED")
+		}
+		spec, readErr := e.gitlabSpec(options, seed)
+		if readErr != nil {
+			return r, readErr
+		}
+		if _, readErr = e.gitlabOperationService(ctx, options, "gitlab-web"); readErr != nil {
+			return r, readErr
+		}
+		if readErr = e.verifyGitlab(ctx, options, spec); readErr != nil {
+			return r, readErr
 		}
 	}
 	if options.Phase == "hub" {
@@ -411,6 +431,13 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 			r.IngressBundleID = bundle.ID
 			r.IngressBundleRevision = bundle.Revision
 			r.IngressAdapters = bundle.Adapters
+		case "PLATFORM_CI_RUNNER_SERVICE_PREPARED":
+			v, readErr := readCIRunnerIdentity(options)
+			if readErr != nil {
+				return r, readErr
+			}
+			r.RunnerControlReady = true
+			r.RunnerAdminEndpoint = ciRunnerAdminURL(options, v.ID)
 		case "PLATFORM_HUB_SERVICE_PREPARED":
 			r.HubReady = true
 		case "PLATFORM_OBSERVABILITY_SERVICES_PREPARED":
@@ -426,6 +453,9 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 	return r, nil
 }
 func (e *Engine) fingerprint(ctx context.Context, action string, o Options) (string, error) {
+	if strings.HasPrefix(action, "PLATFORM_CI_RUNNER_") {
+		return e.ciRunnerFingerprint(ctx, action, o)
+	}
 	if strings.HasPrefix(action, "PLATFORM_GITLAB_") {
 		return e.gitlabFingerprint(ctx, action, o)
 	}
@@ -501,6 +531,23 @@ func (e *Engine) fingerprint(ctx context.Context, action string, o Options) (str
 	return digest(data), nil
 }
 func (e *Engine) apply(ctx context.Context, action string, o Options) (string, string, error) {
+	if strings.HasPrefix(action, "PLATFORM_CI_RUNNER_") {
+		var proof []byte
+		var err error
+		switch action {
+		case "PLATFORM_CI_RUNNER_IDENTITY_PREPARED":
+			proof, err = prepareCIRunnerIdentity(o)
+		case "PLATFORM_CI_RUNNER_REGISTRATION_PREPARED":
+			proof, err = e.prepareCIRunnerRegistration(ctx, o)
+		case "PLATFORM_CI_RUNNER_IMAGE_PREPARED":
+			proof, err = e.ciRunnerImage(ctx, o, true)
+		case "PLATFORM_CI_RUNNER_SERVICE_PREPARED":
+			proof, err = e.prepareCIRunnerControl(ctx, o)
+		default:
+			return "", "", codedError("PLATFORM_AUDIT_ACTION_UNKNOWN")
+		}
+		return digest(proof), "RUNNER_PAUSED_CONTROL_ONLY_EXECUTOR_PENDING", err
+	}
 	var proof []byte
 	var err error
 	reason := "VERIFIED"
