@@ -6,6 +6,8 @@
 
 [GitLab independente](operations/GITLAB.md): fase `-Through Gitlab`, interface nativa, volumes próprios e operação pela CLI. [Release validada](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-98abb9a84f3c714bac7b411b34335e45c955966a): 292 testes Go, 102 cenários Windows e três integrações Docker aprovados. Runner, SSO e publicação continuam em etapas próprias. Um Homepage já preparado exige migração explícita para receber o novo link.
 
+[Controle do Runner](operations/RUNNER-CONTROL.md): `-Through RunnerControl` prepara o registro pausado e sua operação independente. [Nova release validada](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-1ba19af1b030f9abb9fd253a2214426d122be4dc): 306 testes Go, 110 cenários Windows e quatro checks Docker, incluindo autenticação e dois ciclos reais do Runner. ZIP público e plano conferidos. O executor dedicado ainda não está provisionado; pipelines permanecem desativados. A administração usa a interface nativa do GitLab.
+
 O instalador é distribuído em `precision-setup.zip`, com bootstrap Windows, CLI Linux AMD64 e provas de CI. O padrão `-Through Hub` prepara WSL2/base, CLI, S.O./GPU, runtime, redes, identidade/cofre/borda, origem mTLS, observabilidade e Homepage. Não exige instalar Git, Go ou Python no host de operação. Na pasta extraída:
 
 ```powershell
