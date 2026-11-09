@@ -23,6 +23,7 @@ type fakeAccess struct {
 	o                                                         Options
 	base                                                      Runner
 	volumes                                                   map[string]map[string]any
+	missingVolumeResponse                                     *Response
 	files                                                     map[string]map[string][]byte
 	containers                                                map[string]*accessContainer
 	images                                                    map[string]bool
@@ -93,7 +94,10 @@ func (f *fakeAccess) Run(ctx context.Context, c Command) (Response, error) {
 			if v, exists := f.volumes[args[2]]; exists {
 				return result([]any{v})
 			}
-			return Response{ExitCode: 1, Output: "No such volume: fixture"}, nil
+			if f.missingVolumeResponse != nil {
+				return *f.missingVolumeResponse, nil
+			}
+			return Response{ExitCode: 1, Output: "[]\nError response from daemon: get " + args[2] + ": no such volume"}, nil
 		}
 		if args[1] == "create" {
 			name := args[len(args)-1]
@@ -570,5 +574,38 @@ func TestAccessPlanRequiresNoCredentialsOrProviders(t *testing.T) {
 	}
 	if _, err = os.Stat(filepath.Join(o.ControlRoot, "access-seed.json")); !os.IsNotExist(err) {
 		t.Fatal("plan generated credentials")
+	}
+}
+
+func TestAccessVolumeAbsenceAndProviderFailures(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		response Response
+		missing  bool
+	}{
+		{"legacy-client", Response{ExitCode: 1, Output: "No such volume: fixture"}, true},
+		{"daemon", Response{ExitCode: 1, Output: "[]\nError response from daemon: get fixture: no such volume"}, true},
+		{"permission-denied", Response{ExitCode: 1, Output: "permission denied while connecting to Docker"}, false},
+		{"daemon-unavailable", Response{ExitCode: 1, Output: "Cannot connect to the Docker daemon"}, false},
+		{"empty-response", Response{ExitCode: 1}, false},
+		{"truncated", Response{ExitCode: 1, Output: "no such volume", Truncated: true}, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			e, f, o := accessFixture(t, "dell-gb10")
+			f.missingVolumeResponse = &test.response
+			r, err := e.Run(context.Background(), o)
+			if test.missing {
+				if err != nil || !r.AccessReady {
+					t.Fatal(r, err)
+				}
+				// Normal retry must reuse the owned volumes and preserve secrets.
+				writes := f.secretWrites
+				if r, err = e.Run(context.Background(), o); err != nil || !r.AccessReady || f.secretWrites != writes {
+					t.Fatal("retry did not preserve owned state", r, err)
+				}
+			} else if r.AccessReady || len(f.volumes) != 0 || f.starts != 0 || err == nil && r.Outcome == "SUCCEEDED" {
+				t.Fatal("provider failure was treated as volume absence", r, err)
+			}
+		})
 	}
 }

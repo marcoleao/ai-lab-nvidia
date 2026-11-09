@@ -355,7 +355,9 @@ func (e *Engine) ensureAccessVolume(ctx context.Context, o Options, s accessSpec
 		return err
 	}
 	if r.ExitCode != 0 {
-		if !strings.Contains(strings.ToLower(r.Output), "no such volume:") {
+		// The daemon reports "get NAME: no such volume"; older clients used
+		// "No such volume: NAME". Other provider failures are not absence.
+		if r.Truncated || !strings.Contains(strings.ToLower(r.Output), "no such volume") {
 			return codedError("PLATFORM_ACCESS_VOLUME_INSPECTION_FAILED")
 		}
 		args := []string{"volume", "create", "--driver", "local"}
