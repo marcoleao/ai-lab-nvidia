@@ -136,8 +136,8 @@ def run_go_tests(command, root, env, checks, name, required):
     if code:
         raise ValidationError("PLATFORM_VALIDATION_CHECK_FAILED")
     check["tests_passed"] = executed_tests(events, required)
-    return events
     check["outcome"] = "SUCCEEDED"
+    return events
 
 
 def execute(mode, root, output, env, checks, disposable=False):

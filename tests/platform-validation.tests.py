@@ -44,6 +44,24 @@ class ValidationContracts(unittest.TestCase):
                 validation.executed_tests(events, ["required"])
         self.assertEqual(validation.executed_tests([{"Action": "pass", "Test": "required"}], ["required"]), 1)
 
+    def test_native_result_collector_returns_only_after_successful_required_subtests(self):
+        # Isolated parser fixtures, never native execution/qualification evidence.
+        for child_action in ("pass", "skip"):
+            with self.subTest(child_action=child_action):
+                events = [{"Action": "pass", "Test": "Fixture"}, {"Action": child_action, "Test": "Fixture/Child"}]
+                program = "import json; events=" + repr(events) + "; [print(json.dumps(e)) for e in events]"
+                checks = []
+                command = [sys.executable, "-c", program]
+                if child_action == "pass":
+                    actual = validation.run_go_tests(command, ROOT, dict(validation.os.environ), checks, "parser-fixture", ["Fixture", "Fixture/Child"])
+                    self.assertEqual(actual, events)
+                    self.assertEqual(checks[0]["outcome"], "SUCCEEDED")
+                    self.assertEqual(checks[0]["tests_passed"], 2)
+                else:
+                    with self.assertRaisesRegex(validation.ValidationError, "NOT_EXECUTED"):
+                        validation.run_go_tests(command, ROOT, dict(validation.os.environ), checks, "parser-fixture", ["Fixture", "Fixture/Child"])
+                    self.assertEqual(checks[0]["outcome"], "FAILED")
+
     def test_snapshot_digest_is_independent_of_windows_line_endings(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
