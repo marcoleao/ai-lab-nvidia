@@ -270,9 +270,7 @@ func (e *Engine) configureBao(ctx context.Context, o Options, seed accessSeed, s
 	}
 	device, _ := dataMap(audits)["platform/"].(map[string]any)
 	if device == nil {
-		if _, err = e.baoCall(ctx, o, "PUT", "sys/audit/platform", root, map[string]any{"type": "file", "options": map[string]string{"file_path": "/openbao/audit/events.jsonl", "log_raw": "false"}}, 200, 204); err != nil {
-			return err
-		}
+		return codedError("PLATFORM_SECRET_STORE_DECLARATIVE_AUDIT_REQUIRED")
 	}
 	if err = e.verifyBaoAudit(ctx, o, root); err != nil {
 		return err

@@ -173,6 +173,9 @@ func (f *fakeAccess) Run(ctx context.Context, c Command) (Response, error) {
 			c.Config.Labels["com.docker.compose.project"] = s.Project
 			c.Config.Labels["com.docker.compose.service"] = key
 			product := map[string]string{"identity-db": "postgres", "identity": "keycloak", "secret-store": "openbao", "edge": "caddy"}[key]
+			if key == "secret-store" {
+				f.objects["sys/audit"]["platform/"] = map[string]any{"type": "file", "options": map[string]string{"file_path": "/openbao/audit/events.jsonl", "log_raw": "false"}}
+			}
 			c.Image = f.imageID(accessReleases()[product].Platforms[f.e.Host.Arch])
 			c.State.Running = true
 			c.HostConfig.ReadonlyRootfs = service["read_only"].(bool)
@@ -357,6 +360,9 @@ func (f *fakeAccess) Do(req *http.Request) (*http.Response, error) {
 	}
 	for _, base := range []string{"sys/mounts", "sys/auth", "sys/audit"} {
 		if strings.HasPrefix(path, base+"/") {
+			if base == "sys/audit" {
+				return respond(400, map[string]any{}) // API audit creation is disabled.
+			}
 			key := strings.TrimPrefix(path, base+"/") + "/"
 			entry := map[string]any{}
 			for k, v := range payload {
@@ -519,7 +525,7 @@ func TestAccessUnknownCompensationAndLostInitialization(t *testing.T) {
 	}
 }
 func TestAccessDriftAndExternalPublicationFailClosed(t *testing.T) {
-	for _, mode := range []string{"public", "owner", "binding", "image", "secret", "policy"} {
+	for _, mode := range []string{"public", "owner", "binding", "image", "secret", "policy", "audit"} {
 		t.Run(mode, func(t *testing.T) {
 			e, f, o := accessFixture(t, "precision-windows")
 			if mode == "public" {
@@ -548,6 +554,8 @@ func TestAccessDriftAndExternalPublicationFailClosed(t *testing.T) {
 				f.kv["platform/data/services/identity/database"] = map[string]string{"password": "rotated-elsewhere"}
 			case "policy":
 				f.objects["sys/policies/acl/platform-viewer"]["policy"] = "changed"
+			case "audit":
+				delete(f.objects["sys/audit"], "platform/")
 			}
 			r, err = e.Run(context.Background(), o)
 			if r.AccessReady || err == nil && r.Outcome == "SUCCEEDED" {
