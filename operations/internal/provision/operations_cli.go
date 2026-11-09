@@ -115,6 +115,13 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 		if r.Hub != nil {
 			fmt.Fprintf(stdout, "Homepage: %s | %s\n", r.Hub.State, r.Hub.Endpoint)
 		}
+		if r.CIRunner != nil && r.CIRunner.Prepared {
+			fmt.Fprintf(stdout, "Runner (controle): %s | executor=%s | jobs_ready=%t\n", r.CIRunner.State, r.CIRunner.ExecutorState, r.CIRunner.ExecutionReady)
+			for _, service := range r.CIRunner.Services {
+				fmt.Fprintf(stdout, "  %s: %s [%s]\n", service.Component, service.State, service.Reason)
+			}
+			fmt.Fprintln(stdout, "  GitLab:", r.CIRunner.Endpoint)
+		}
 		for _, c := range r.Checks {
 			fmt.Fprintf(stdout, "%s: %s [%s]\n", c.Component, c.State, c.Reason)
 			if c.NextAction != "" {
