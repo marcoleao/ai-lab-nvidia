@@ -390,6 +390,11 @@ func volumeLabels(o Options, s accessSpec, key string, v accessVolume) map[strin
 	}
 	return map[string]string{"ai.platform.installation": o.InstallationID, "ai.platform.profile": o.Profile, "ai.platform.owner": s.Owner, "ai.platform.component": kind, "ai.platform.volume": key, "ai.platform.spec": digest(jsonBytes(v))}
 }
+
+func dockerVolumeAbsent(response Response) bool {
+	return response.ExitCode != 0 && !response.Truncated && strings.Contains(strings.ToLower(response.Output), "no such volume")
+}
+
 func (e *Engine) ensureAccessVolume(ctx context.Context, o Options, s accessSpec, key string, v accessVolume) error {
 	r, err := e.dockerResponse(ctx, o, "volume", "inspect", v.Name)
 	if err != nil {
@@ -398,7 +403,7 @@ func (e *Engine) ensureAccessVolume(ctx context.Context, o Options, s accessSpec
 	if r.ExitCode != 0 {
 		// The daemon reports "get NAME: no such volume"; older clients used
 		// "No such volume: NAME". Other provider failures are not absence.
-		if r.Truncated || !strings.Contains(strings.ToLower(r.Output), "no such volume") {
+		if !dockerVolumeAbsent(r) {
 			return codedError("PLATFORM_ACCESS_VOLUME_INSPECTION_FAILED")
 		}
 		args := []string{"volume", "create", "--driver", "local"}

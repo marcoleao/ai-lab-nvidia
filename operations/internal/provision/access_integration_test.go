@@ -400,7 +400,7 @@ func cleanupIsolatedHub(ctx context.Context, e *Engine, o Options, audit recorde
 		return err
 	}
 	if r.ExitCode != 0 {
-		if strings.Contains(strings.ToLower(r.Output), "no such volume:") {
+		if dockerVolumeAbsent(r) {
 			return nil
 		}
 		return codedError("PLATFORM_HUB_TEST_VOLUME_UNCONFIRMED")
@@ -421,7 +421,7 @@ func cleanupIsolatedHub(ctx context.Context, e *Engine, o Options, audit recorde
 		return err
 	}
 	r, err = e.dockerResponse(ctx, o, "volume", "inspect", v.Name)
-	if err != nil || r.ExitCode == 0 || !strings.Contains(strings.ToLower(r.Output), "no such volume:") {
+	if err != nil || r.ExitCode == 0 || !dockerVolumeAbsent(r) {
 		return codedError("PLATFORM_HUB_TEST_CLEANUP_UNCONFIRMED")
 	}
 	return nil
@@ -476,7 +476,7 @@ func cleanupIsolatedObservability(ctx context.Context, e *Engine, o Options, aud
 			return err
 		}
 		if r.ExitCode != 0 {
-			if strings.Contains(strings.ToLower(r.Output), "no such volume:") {
+			if dockerVolumeAbsent(r) {
 				continue
 			}
 			return codedError("PLATFORM_OBSERVABILITY_TEST_VOLUME_UNCONFIRMED")
@@ -494,7 +494,7 @@ func cleanupIsolatedObservability(ctx context.Context, e *Engine, o Options, aud
 			return err
 		}
 		r, err = e.dockerResponse(ctx, o, "volume", "inspect", v.Name)
-		if err != nil || r.ExitCode == 0 || !strings.Contains(strings.ToLower(r.Output), "no such volume:") {
+		if err != nil || r.ExitCode == 0 || !dockerVolumeAbsent(r) {
 			return codedError("PLATFORM_OBSERVABILITY_TEST_CLEANUP_UNCONFIRMED")
 		}
 	}
@@ -647,7 +647,7 @@ func validateIsolatedIngress(ctx context.Context, e *Engine, o Options, audit re
 		return err
 	}
 	response, err = e.dockerResponse(ctx, o, "volume", "inspect", v.Name)
-	if err != nil || response.ExitCode == 0 || !strings.Contains(strings.ToLower(response.Output), "no such volume:") {
+	if err != nil || response.ExitCode == 0 || !dockerVolumeAbsent(response) {
 		return codedError("PLATFORM_INGRESS_TEST_VOLUME_CLEANUP_UNCONFIRMED")
 	}
 	step.Outcome, step.Phase, step.After, step.Reason = "SUCCEEDED", "COMPLETED", b.ID, "PARSER_VALIDATION_AND_OWNED_CLEANUP_CONFIRMED"
@@ -705,7 +705,7 @@ func cleanupIsolatedOrigin(ctx context.Context, e *Engine, o Options, audit reco
 			return err
 		}
 		if response.ExitCode != 0 {
-			if strings.Contains(strings.ToLower(response.Output), "no such volume:") {
+			if dockerVolumeAbsent(response) {
 				continue
 			}
 			return codedError("PLATFORM_ORIGIN_TEST_VOLUME_INSPECTION_FAILED")
@@ -723,7 +723,7 @@ func cleanupIsolatedOrigin(ctx context.Context, e *Engine, o Options, audit reco
 			return err
 		}
 		response, err = e.dockerResponse(ctx, o, "volume", "inspect", resource.Volume)
-		if err != nil || response.ExitCode == 0 || !strings.Contains(strings.ToLower(response.Output), "no such volume:") {
+		if err != nil || response.ExitCode == 0 || !dockerVolumeAbsent(response) {
 			return codedError("PLATFORM_ORIGIN_TEST_CLEANUP_UNCONFIRMED")
 		}
 	}
