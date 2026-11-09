@@ -30,6 +30,10 @@ func ciRunnerRegistrationProof(v *ciRunnerRegistration) []byte {
 	return jsonBytes(copy)
 }
 
+func ciRunnerRegistrationReceipt(v ciRunnerIdentity, remote *ciRunnerRegistration) []byte {
+	return jsonBytes(map[string]any{"remote": json.RawMessage(ciRunnerRegistrationProof(remote)), "private_receipt": digest(jsonBytes(map[string]any{"id": v.ID, "token_sha256": digest([]byte(v.Token))}))})
+}
+
 // This adapter is tied to the pinned GitLab image. A read invokes only SELECTs;
 // creation uses GitLab's own creation service inside its CI database transaction.
 // Input is stdin, output is bounded/private, and no administrator PAT is created.
@@ -92,7 +96,7 @@ func (e *Engine) prepareCIRunnerRegistration(ctx context.Context, o Options) ([]
 	if err = atomicFile(filepath.Join(o.ControlRoot, "ci-runner-identity.json"), jsonBytes(v), 0600); err != nil {
 		return nil, err
 	}
-	return ciRunnerRegistrationProof(reply), nil
+	return ciRunnerRegistrationReceipt(v, reply), nil
 }
 func (e *Engine) ciRunnerImage(ctx context.Context, o Options, pull bool) ([]byte, error) {
 	image := ciRunnerRelease().Platforms[e.Host.Arch]
@@ -128,7 +132,7 @@ func (e *Engine) ciRunnerFingerprint(ctx context.Context, action string, o Optio
 	}
 	if action == "PLATFORM_CI_RUNNER_REGISTRATION_PREPARED" {
 		r, err := e.ciRunnerRegistration(ctx, o, v, false)
-		return digest(ciRunnerRegistrationProof(r)), err
+		return digest(ciRunnerRegistrationReceipt(v, r)), err
 	}
 	s, err := e.ciRunnerSpec(o, v)
 	if err != nil {

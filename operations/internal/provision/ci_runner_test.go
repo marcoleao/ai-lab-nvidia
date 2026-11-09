@@ -253,6 +253,9 @@ func TestCIRunnerLostResponseAndStartupCompensation(t *testing.T) {
 			if err != nil || !r.RunnerControlReady || r.RunnerExecutionReady || f.registered != 1 || f.created != 1 {
 				t.Fatal("retry duplicated runner or enabled execution", r, err)
 			}
+			if mode == "lost-registration" && r.Steps[1].Outcome != "SUCCEEDED" {
+				t.Fatal("private receipt recovery was reported as no change", r.Steps)
+			}
 		})
 	}
 }
@@ -296,5 +299,23 @@ func TestCIRunnerRefusesContainerDriftAndBacklog(t *testing.T) {
 		if err != nil || r.ExitCode != 42 || !equalTree(before, treeContents(t, o.ControlRoot, o.DataRoot)) {
 			t.Fatal(r, err)
 		}
+	}
+}
+
+func TestCIRunnerLostIdentityDoesNotCreateAnotherRegistration(t *testing.T) {
+	e, f, o := ciRunnerFixture(t)
+	if r, err := e.Run(context.Background(), o); err != nil || !r.RunnerControlReady {
+		t.Fatal(r, err)
+	}
+	path := filepath.Join(o.ControlRoot, "ci-runner-identity.json")
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
+	}
+	r, err := e.Run(context.Background(), o)
+	if err != nil || r.Outcome != "FAILED" || r.Reason != "PLATFORM_CI_RUNNER_IDENTITY_MISSING_EXISTING_RESOURCES" || f.registered != 1 {
+		t.Fatal(r, err)
+	}
+	if _, err = os.Stat(path); !os.IsNotExist(err) {
+		t.Fatal("lost identity was silently replaced")
 	}
 }

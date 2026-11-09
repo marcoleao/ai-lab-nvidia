@@ -43,6 +43,17 @@ func ciRunnerIdentityProof(v ciRunnerIdentity) []byte {
 func prepareCIRunnerIdentity(o Options) ([]byte, error) {
 	v, err := readCIRunnerIdentity(o)
 	if os.IsNotExist(err) {
+		for _, name := range []string{"ci-runner.resources.json", "ci-runner.intent.json"} {
+			path := filepath.Join(o.DataRoot, name)
+			if err := plain(path); err != nil {
+				return nil, err
+			}
+			if _, err := os.Stat(path); err == nil {
+				return nil, &restoredError{cause: codedError("PLATFORM_CI_RUNNER_IDENTITY_MISSING_EXISTING_RESOURCES"), after: "ABSENT"}
+			} else if !os.IsNotExist(err) {
+				return nil, err
+			}
+		}
 		v = ciRunnerIdentity{Schema: 1, Installation: o.InstallationID, Profile: o.Profile}
 		v.Owner, err = randomIdentity()
 		if err != nil {
