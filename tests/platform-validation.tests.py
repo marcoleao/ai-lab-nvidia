@@ -33,7 +33,7 @@ class ValidationContracts(unittest.TestCase):
         env = {"PSModulePath": "fixture-powershell-7-modules", "PATH": "fixture-path"}
         with patch.object(validation, "host_target", return_value="windows-amd64"), patch.object(validation, "run") as run:
             validation.execute("windows", ROOT, ROOT, env, [])
-        self.assertEqual(run.call_count, 2)
+        self.assertEqual(run.call_count, 3)
         for call in run.call_args_list:
             self.assertEqual(call.args[2], {"PATH": "fixture-path"})
         self.assertIn("PSModulePath", env)
@@ -52,6 +52,14 @@ class ValidationContracts(unittest.TestCase):
             sample = directory / "operations/go.mod"
             sample.write_bytes(sample.read_bytes().replace(b"\n", b"\r\n"))
             self.assertEqual(validation.source_digest(directory), validation.source_digest())
+
+    def test_manifest_order_is_portable_for_mixed_case_names(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in ("operations/Z.md", "operations/a.md", "operations/Aardvark.md", "environments/z.json", "platform.sh"):
+                path = root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("fixture\n")
+            names = [name for name, _ in validation.source_files(root)]
+            self.assertEqual(names, ["environments/z.json", "operations/Aardvark.md", "operations/Z.md", "operations/a.md", "platform.sh"])
 
     def test_snapshot_excludes_runtime_private_data_and_binary_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:

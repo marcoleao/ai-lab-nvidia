@@ -41,7 +41,9 @@ def source_files(root=ROOT):
             if path.is_file():
                 paths.append(path)
     paths.extend((root / "tests").glob("platform-*.tests.*"))
-    for path in sorted(set(paths)):
+    # Path ordering differs between Windows (case-insensitive) and POSIX.
+    # Hash the same relative names in exactly the same order on every host.
+    for path in sorted(set(paths), key=lambda item: item.relative_to(root).as_posix()):
         if path.is_symlink() or not path.is_file() or "__pycache__" in path.parts or path.suffix == ".pyc":
             if path.is_symlink():
                 raise ValidationError("PLATFORM_VALIDATION_SOURCE_LINK_REJECTED")
@@ -152,6 +154,7 @@ def execute(mode, root, output, env, checks, disposable=False):
         windows_env = {key: value for key, value in env.items() if key.upper() != "PSMODULEPATH"}
         for name in ("platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1"):
             run(["powershell.exe", "-NoProfile", "-File", root / "tests" / name], root, windows_env, checks, name)
+        run([sys.executable, root / "tests/platform-validation.tests.py"], root, windows_env, checks, "validation-contracts")
         return
     go = find_go()
     expected_version = next(line.split()[1] for line in (root / "operations/go.mod").read_text().splitlines() if line.startswith("go "))

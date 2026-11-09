@@ -12,7 +12,7 @@ EXPECTED = {
     "native-linux-amd64.json": ("unit", "linux-amd64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
     "native-linux-arm64.json": ("unit", "linux-arm64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
     "native-darwin-arm64.json": ("unit", "darwin-arm64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
-    "windows-bootstrap.json": ("windows", "windows-amd64", "WINDOWS_BOOTSTRAP_PASSED", {"platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1"}),
+    "windows-bootstrap.json": ("windows", "windows-amd64", "WINDOWS_BOOTSTRAP_PASSED", {"platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1", "validation-contracts"}),
     "docker-linux-amd64.json": ("integration", "linux-amd64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker"}),
     "docker-linux-arm64.json": ("integration", "linux-arm64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker"}),
 }
