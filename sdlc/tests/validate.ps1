@@ -61,3 +61,6 @@ $powerShellSources | ForEach-Object {
     if ($parseErrors.Count) { throw "PowerShell syntax invalid: $($_.FullName)" }
 }
 Write-Host '[OK] Configuration, separation, transitions and approval rejection contracts'
+# The rejected native-call fixture above intentionally returns 7. Successful
+# script validation must not leak that fixture status into the CI shell.
+$global:LASTEXITCODE = 0

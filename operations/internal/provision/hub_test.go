@@ -300,7 +300,7 @@ func TestHubCompensationOwnershipAndMaintenance(t *testing.T) {
 }
 func TestHubConfigurationIsolationAndLegacyObservabilityIdentity(t *testing.T) {
 	legacy, err := blueprints.DigestOf("middleware/observability.json", "observability")
-	if err != nil || legacy != "812fa274793ba320258eb0da909b7b7104034416c0c8b10f3a43a8018769cfc3" {
+	if err != nil || legacy != "50205a5b9625f63e64b748333929f44d3521a81d8d98e8fb553f5ae5c6d2b362" {
 		t.Fatal("pre-hub observability policy identity changed; explicit migration required", legacy, err)
 	}
 	if legacy == blueprints.Digest() {

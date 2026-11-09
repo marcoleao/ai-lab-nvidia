@@ -29,6 +29,15 @@ class ValidationContracts(unittest.TestCase):
                 validation.execute("integration", ROOT, ROOT, {}, [], disposable=True)
             go.assert_not_called()
 
+    def test_windows_bootstrap_does_not_inherit_powershell_7_module_path(self):
+        env = {"PSModulePath": "fixture-powershell-7-modules", "PATH": "fixture-path"}
+        with patch.object(validation, "host_target", return_value="windows-amd64"), patch.object(validation, "run") as run:
+            validation.execute("windows", ROOT, ROOT, env, [])
+        self.assertEqual(run.call_count, 2)
+        for call in run.call_args_list:
+            self.assertEqual(call.args[2], {"PATH": "fixture-path"})
+        self.assertIn("PSModulePath", env)
+
     def test_skipped_or_absent_named_test_is_not_execution(self):
         for events in ([], [{"Action": "skip", "Test": "required"}], [{"Action": "pass", "Test": "other"}]):
             with self.assertRaisesRegex(validation.ValidationError, "NOT_EXECUTED"):

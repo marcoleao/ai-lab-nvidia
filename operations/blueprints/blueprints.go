@@ -3,6 +3,7 @@
 package blueprints
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"embed"
 	"encoding/hex"
@@ -32,7 +33,7 @@ func DigestOf(roots ...string) (string, error) {
 			}
 			data, err := Files.ReadFile(path)
 			if err == nil {
-				files[path] = data
+				files[path] = canonicalText(data)
 			}
 			return err
 		}); err != nil {
@@ -51,4 +52,9 @@ func DigestOf(roots ...string) (string, error) {
 		h.Write([]byte("\n"))
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// Blueprint identity must not depend on the host's Git line-ending settings.
+func canonicalText(data []byte) []byte {
+	return bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 }

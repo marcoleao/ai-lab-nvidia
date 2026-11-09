@@ -44,7 +44,7 @@ Catálogo nativo: `PLATFORM_HUB_IDENTITY_PREPARED`, `PLATFORM_HUB_IMAGE_PREPARED
 
 Retentativa não recria um container confirmado. Startup com falha tenta parar apenas uma nova partida, preservando processos anteriores e configuração; compensação confirmada registra `FAILED/COMPLETED`, incerteza ou perda de processo anteriormente ativo conserva `UNKNOWN/OBSERVED`. Não remove o volume para forçar reparo. Journals de manutenção pendente impedem preparação concorrente. Recursos com nome coincidente não são adotados sem identidade e intenção/recibo próprios.
 
-Mudança de porta/configuração/versão exige migração própria; esta fase não sobrescreve um recurso já publicado. O hash da observabilidade foi limitado às suas fontes originais, preservando a identidade anterior ao adicionar arquivos do hub. O hash global do recorder continua incluindo todos os blueprints. Teste de compatibilidade conserva o digest anterior da política de observabilidade. Não há limpeza pública, backup ou migração de dados nesta entrega.
+Mudança de porta/configuração/versão exige migração própria; esta fase não sobrescreve um recurso já publicado. O hash da observabilidade limita-se às suas fontes originais, com quebras LF, preservando essa identidade ao adicionar arquivos do hub. O hash global do recorder continua incluindo todos os blueprints. Teste de compatibilidade conserva o digest LF anterior da política. Hashes antigos de checkouts CRLF/mistos exigem migração explícita e não são adotados silenciosamente. Não há limpeza pública, backup ou migração de dados nesta entrega.
 
 ## Versão e evidência
 

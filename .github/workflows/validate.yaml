@@ -170,7 +170,7 @@ jobs:
         run: pnpm db:generate && pnpm db:setup
       - name: Administrative audit contracts
         run: |
-          python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
+          sudo python3 -m unittest discover -s ../tests -p 'test_audit_admin.py' -v
           python3 ../scripts/reconcile_docker_network_tests.py
           python3 ../tests/test_wsl_clock.py
           python3 tests/regression-runner.test.py

@@ -54,4 +54,6 @@ O catálogo [validation-catalog.json](../operations/validation-catalog.json) dif
 
 Foram validados localmente os contratos Python do executor/gate, a recusa de execução Go nativa no Windows, a análise/compilação dos três destinos e os testes Windows isolados. A máquina não possui distribuição WSL instalada. Nenhuma instalação, importação ou inicialização foi feita para executar os testes.
 
-A publicação de um branch de CI no repositório público foi rejeitada pela revisão automática por falta de autorização explícita. O conjunto de fontes e o fluxo estão preparados para revisão; executar a matriz real e liberar pacotes permanecem pendentes dessa autorização e da aprovação dos testes. Não declarar o problema integralmente resolvido ou os pacotes qualificados antes dessa execução.
+A publicação foi autorizada pelo usuário e realizada no branch `codex/platform-validation-2026-11-09`. A primeira [execução real](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42635748352) identificou diferenças de quebras de linha, caminho temporário no macOS e descoberta de módulos Windows. Os pacotes continuam bloqueados até a aprovação dos seis relatórios; publicar as fontes não equivale a qualificar a instalação.
+
+Os blueprints usam LF para calcular sua identidade, independentemente do checkout. A política de observabilidade conserva o digest das fontes originais com LF ao acrescentar o hub. Instalações antigas cujo hash tenha sido calculado com arquivos CRLF ou mistos exigem migração explícita; esta correção não adota nem sobrescreve recursos existentes.

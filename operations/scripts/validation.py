@@ -147,8 +147,11 @@ def execute(mode, root, output, env, checks, disposable=False):
     if mode == "windows":
         if target != "windows-amd64":
             raise ValidationError("PLATFORM_WINDOWS_BOOTSTRAP_HOST_REQUIRED", 42)
+        # PowerShell 7's inherited module path can hide Windows PowerShell's
+        # built-in modules. Let the system Windows PowerShell set its defaults.
+        windows_env = {key: value for key, value in env.items() if key.upper() != "PSMODULEPATH"}
         for name in ("platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1"):
-            run(["powershell.exe", "-NoProfile", "-File", root / "tests" / name], root, env, checks, name)
+            run(["powershell.exe", "-NoProfile", "-File", root / "tests" / name], root, windows_env, checks, name)
         return
     go = find_go()
     expected_version = next(line.split()[1] for line in (root / "operations/go.mod").read_text().splitlines() if line.startswith("go "))

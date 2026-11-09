@@ -295,8 +295,13 @@ func TestOperationsMissingAndOfflineDoNotProvision(t *testing.T) {
 			t.Fatal(s)
 		}
 	}
-	p.ControlRoot = filepath.Join(t.TempDir(), "missing-control")
-	p.DataRoot = filepath.Join(t.TempDir(), "missing-data")
+	// macOS exposes /tmp through a symlink; production roots must be canonical.
+	missingRoot, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.ControlRoot = filepath.Join(missingRoot, "missing-control")
+	p.DataRoot = filepath.Join(missingRoot, "missing-data")
 	r = runDaily(t, e, p, "status")
 	for _, s := range r.Services {
 		if s.State != "NOT_PREPARED" {
