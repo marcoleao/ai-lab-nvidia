@@ -177,7 +177,7 @@ func TestInventoryScopeAndFirstApplication(t *testing.T) {
 			applications = append(applications, view.ID)
 		}
 	}
-	if len(preparations) != 13 || !preparations["network"] || !preparations["host"] || !preparations["container-runtime"] || !preparations["identity"] || !preparations["secret-store"] || !preparations["edge"] || !preparations["origin-tls"] || !preparations["ingress-adapters"] || !preparations["metrics"] || !preparations["logs"] || !preparations["telemetry"] || !preparations["grafana"] || !preparations["homepage"] {
+	if len(preparations) != 14 || !preparations["network"] || !preparations["host"] || !preparations["container-runtime"] || !preparations["identity"] || !preparations["secret-store"] || !preparations["edge"] || !preparations["origin-tls"] || !preparations["ingress-adapters"] || !preparations["metrics"] || !preparations["logs"] || !preparations["telemetry"] || !preparations["grafana"] || !preparations["homepage"] || !preparations["gitlab"] {
 		t.Fatal("foundation code absent from inventory", preparations)
 	}
 	if !slices.Equal(applications, []string{"sdlc"}) {

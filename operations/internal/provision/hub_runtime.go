@@ -114,6 +114,13 @@ func (e *Engine) verifyHub(ctx context.Context, o Options) error {
 			return codedError("PLATFORM_HUB_LINKS_UNCONFIRMED")
 		}
 	}
+	var record accessRecord
+	if err := networkControl(o, "gitlab.resources.json", &record); err != nil {
+		return err
+	}
+	if record.Spec != "" && !strings.Contains(page, gitlabURL(o)) {
+		return codedError("PLATFORM_HUB_LINKS_UNCONFIRMED")
+	}
 	return nil
 }
 func (e *Engine) prepareHub(ctx context.Context, o Options) ([]byte, error) {

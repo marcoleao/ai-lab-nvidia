@@ -20,6 +20,7 @@ type ObservabilityObservation struct {
 func (e *Engine) observeOperations(ctx context.Context, o Options) operationSnapshot {
 	s := e.observeFoundationOperations(ctx, o)
 	e.observeObservability(ctx, o, &s)
+	e.observeGitlab(ctx, o, &s)
 	e.observeHub(ctx, o, &s)
 	return s
 }

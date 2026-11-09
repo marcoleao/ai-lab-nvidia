@@ -30,6 +30,8 @@ type accessContainer struct {
 		ExitCode                               int
 	}
 	HostConfig struct {
+		PidMode, IpcMode, UsernsMode string
+		Devices                      []any
 		NetworkMode                  string
 		Privileged, ReadonlyRootfs   bool
 		CapDrop, CapAdd, SecurityOpt []string
@@ -171,8 +173,48 @@ func (e *Engine) ownsAccessContainer(o Options, s accessSpec, key string, c *acc
 }
 func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c *accessContainer) error {
 	service := s.Services[key]
-	if !e.ownsAccessContainer(o, s, key, c) || c.HostConfig.Privileged || len(c.HostConfig.CapAdd) != 0 || c.Config.User != service["user"] || c.HostConfig.ReadonlyRootfs != service["read_only"] {
+	if !e.ownsAccessContainer(o, s, key, c) || c.HostConfig.Privileged || key != "gitlab" && len(c.HostConfig.CapAdd) != 0 || c.Config.User != service["user"] || c.HostConfig.ReadonlyRootfs != service["read_only"] {
 		return codedError("PLATFORM_ACCESS_CONTAINER_OWNERSHIP_CONFLICT")
+	}
+	if isGitlabService(key) {
+		if c.HostConfig.PidMode != "" || c.HostConfig.UsernsMode != "" || c.HostConfig.IpcMode == "host" || strings.HasPrefix(c.HostConfig.IpcMode, "container:") || len(c.HostConfig.Devices) != 0 || len(c.HostConfig.SecurityOpt) != 1 {
+			return codedError("PLATFORM_GITLAB_ISOLATION_CHANGED")
+		}
+		if key == "gitlab" {
+			caps := append([]string{}, c.HostConfig.CapAdd...)
+			for i := range caps {
+				caps[i] = strings.TrimPrefix(strings.ToUpper(caps[i]), "CAP_")
+			}
+			sort.Strings(caps)
+			wanted := append([]string{}, gitlabCapabilities...)
+			sort.Strings(wanted)
+			if !slices.Equal(caps, wanted) {
+				return codedError("PLATFORM_GITLAB_CAPABILITIES_CHANGED")
+			}
+		}
+		if !slices.Equal(c.Config.Entrypoint, service["entrypoint"].([]string)) || !slices.Equal(c.Config.Cmd, service["command"].([]string)) {
+			return codedError("PLATFORM_GITLAB_COMMAND_CHANGED")
+		}
+		env := map[string]string{}
+		for _, v := range c.Config.Env {
+			name, value, ok := strings.Cut(v, "=")
+			if !ok {
+				return codedError("PLATFORM_GITLAB_ENVIRONMENT_CHANGED")
+			}
+			if _, exists := env[name]; exists {
+				return codedError("PLATFORM_GITLAB_ENVIRONMENT_CHANGED")
+			}
+			env[name] = value
+		}
+		expected := service["environment"].(map[string]string)
+		if key == "gitlab" && len(env) != len(expected) {
+			return codedError("PLATFORM_GITLAB_ENVIRONMENT_CHANGED")
+		}
+		for name, value := range expected {
+			if env[name] != value {
+				return codedError("PLATFORM_GITLAB_ENVIRONMENT_CHANGED")
+			}
+		}
 	}
 	ref := service["image"].(string)
 	if !serviceRelease(key).Platforms[e.Host.Arch].matchesID(c.Image) || familiarProbeImage(c.Config.Image) != familiarProbeImage(ref) {
@@ -217,6 +259,11 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 					return codedError("PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED")
 				}
 			}
+		}
+	} else if key == "gitlab-web" {
+		bindings := c.HostConfig.PortBindings[fmt.Sprint(o.GitlabPort)+"/tcp"]
+		if len(c.HostConfig.PortBindings) != 1 || len(bindings) != 1 || bindings[0].HostIp != "127.0.0.1" || bindings[0].HostPort != fmt.Sprint(o.GitlabPort) {
+			return codedError("PLATFORM_GITLAB_PUBLIC_BINDING_REJECTED")
 		}
 	} else if key == "grafana" || key == "homepage" {
 		port, reason := o.GrafanaPort, "PLATFORM_OBSERVABILITY_PUBLIC_BINDING_REJECTED"
@@ -387,6 +434,9 @@ func volumeLabels(o Options, s accessSpec, key string, v accessVolume) map[strin
 	}
 	if strings.HasSuffix(s.Project, "-hub") {
 		kind = "hub-volume"
+	}
+	if strings.HasSuffix(s.Project, "-gitlab") {
+		kind = "gitlab-volume"
 	}
 	return map[string]string{"ai.platform.installation": o.InstallationID, "ai.platform.profile": o.Profile, "ai.platform.owner": s.Owner, "ai.platform.component": kind, "ai.platform.volume": key, "ai.platform.spec": digest(jsonBytes(v))}
 }

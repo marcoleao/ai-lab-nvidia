@@ -8,11 +8,13 @@
         Operate = @{ Effect = 'owned_foundation_maintenance'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_WINDOWS_SERVICES_STARTED','PLATFORM_WINDOWS_SERVICES_STOPPED','PLATFORM_WINDOWS_SERVICES_RESTARTED','PLATFORM_WINDOWS_PRIVATE_LOGS_EXPORTED') }
         Runtime = @{ Effect = 'owned_runtime_lifecycle'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_WINDOWS_RUNTIME_STARTED','PLATFORM_WINDOWS_RUNTIME_STOPPED','PLATFORM_WINDOWS_RUNTIME_RESTARTED') }
         Hub = @{ Effect = 'owned_local_service_hub'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_HUB_LAYER_PREPARED') }
+        Gitlab = @{ Effect = 'owned_scm_tool'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_GITLAB_LAYER_PREPARED') }
         Observability = @{ Effect = 'owned_observability_core_preparation'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_OBSERVABILITY_LAYER_PREPARED') }
         Install = @{ Effect = 'administrative_workflow'; AuditPersistence = 'per_step_external_ledger'; Actions = @('PLATFORM_WSL_PREPARED','PLATFORM_ROOTFS_PREPARED','PLATFORM_DISTRO_IMPORTED','PLATFORM_LINUX_CONFIGURED','PLATFORM_CLI_PREPARED','PLATFORM_CLI_ACTIVATED','PLATFORM_CLI_ACTIVATION_RESTORED','PLATFORM_WINDOWS_GPU_DRIVER_PREPARED','PLATFORM_HOST_PREREQUISITES_PREPARED','PLATFORM_CONTAINER_LAYER_PREPARED','PLATFORM_NETWORK_LAYER_PREPARED','PLATFORM_ACCESS_LAYER_PREPARED','PLATFORM_ORIGIN_LAYER_PREPARED','PLATFORM_INGRESS_ARTIFACTS_PREPARED') }
     }
     Actions = @{
 		PLATFORM_HUB_LAYER_PREPARED = @{ Effect = 'owned_local_service_hub'; Comparison = 'native_receipt_digest'; Rollback = 'STOP_NEW_START_PRESERVE_SEALED_CONFIGURATION' }
+        PLATFORM_GITLAB_LAYER_PREPARED = @{ Effect = 'owned_scm_tool'; Comparison = 'native_receipt_digest'; Rollback = 'STOP_NEW_START_PRESERVE_DURABLE_STATE' }
         PLATFORM_OBSERVABILITY_LAYER_PREPARED = @{ Effect = 'owned_local_observability_core'; Comparison = 'native_receipt_digest'; Rollback = 'STOP_NEW_STARTS_PRESERVE_TELEMETRY_AND_PRIVATE_CREDENTIALS' }
         PLATFORM_WINDOWS_RUNTIME_STARTED = @{ Effect = 'owned_runtime_start'; Comparison = 'native_operation_receipt_digest'; Rollback = 'NATIVE_RUNTIME_RUNNING_FLAG_COMPENSATION_NO_DATA_ROLLBACK' }
         PLATFORM_WINDOWS_RUNTIME_STOPPED = @{ Effect = 'owned_runtime_stop'; Comparison = 'native_operation_receipt_digest'; Rollback = 'NATIVE_RUNTIME_RUNNING_FLAG_COMPENSATION_NO_DATA_ROLLBACK' }

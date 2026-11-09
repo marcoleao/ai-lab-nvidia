@@ -31,7 +31,7 @@ func (e *Engine) defaults(o *Options) error {
 	if o.Action != "plan" && o.Action != "install" {
 		return codedError("PLATFORM_SETUP_ACTION_INVALID")
 	}
-	if o.Phase != "all" && o.Phase != "infrastructure" && o.Phase != "access" && o.Phase != "origin" && o.Phase != "ingress" && o.Phase != "observability" && o.Phase != "hub" && o.Phase != "host" && o.Phase != "runtime" && o.Phase != "network" {
+	if o.Phase != "all" && o.Phase != "infrastructure" && o.Phase != "access" && o.Phase != "origin" && o.Phase != "ingress" && o.Phase != "observability" && o.Phase != "hub" && o.Phase != "gitlab" && o.Phase != "host" && o.Phase != "runtime" && o.Phase != "network" {
 		return codedError("PLATFORM_SETUP_PHASE_INVALID")
 	}
 	if !validID(o.InstallationID) {
@@ -61,6 +61,12 @@ func (e *Engine) defaults(o *Options) error {
 	}
 	if o.HubPort == 0 {
 		o.HubPort = 3300
+	}
+	if o.GitlabPort == 0 {
+		o.GitlabPort = 3180
+	}
+	if o.GitlabPort < 1024 || o.GitlabPort > 65535 || o.Phase == "gitlab" && (o.GitlabPort == o.HubPort || o.GitlabPort == o.GrafanaPort || o.GitlabPort == o.IdentityPort || o.GitlabPort == o.SecretStorePort || o.GitlabPort == o.OriginPort) {
+		return codedError("PLATFORM_GITLAB_PORT_INVALID")
 	}
 	if o.HubPort < 1024 || o.HubPort > 65535 || o.Phase == "hub" && (o.HubPort == o.GrafanaPort || o.HubPort == o.IdentityPort || o.HubPort == o.SecretStorePort || o.HubPort == o.OriginPort) {
 		return codedError("PLATFORM_HUB_PORT_INVALID")
@@ -241,6 +247,11 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		r.HubEndpoint = hubURL(options)
 		r.Limitations = append(r.Limitations, "HUB_LOCAL_LINKS_NO_SSO_PUBLICATION", "HUB_NO_RUNTIME_HEALTH_WIDGETS")
 	}
+	if options.Phase == "gitlab" {
+		selected = append(selected, "PLATFORM_GITLAB_CREDENTIALS_PREPARED", "PLATFORM_GITLAB_IMAGES_PREPARED", "PLATFORM_GITLAB_SERVICES_PREPARED")
+		r.GitlabEndpoint = gitlabURL(options)
+		r.Limitations = append(r.Limitations, "GITLAB_LOCAL_SCM_ONLY_NO_RUNNER_SSO_PUBLICATION", "GITLAB_NATIVE_OMNIBUS_ROOT_WITH_BOUNDED_CAPABILITIES", "GITLAB_BUDGET_8GIB_4CPU_NOT_FULL_PLATFORM_CAPACITY")
+	}
 	if r.Planned {
 		for _, a := range selected {
 			r.Steps = append(r.Steps, Step{a, "PLANNED", "NOT_STARTED", "NOT_OBSERVED", "NOT_OBSERVED", "EXPLICIT_INSTALL_REQUIRED"})
@@ -249,6 +260,10 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 	}
 	if options.Phase == "ingress" && (options.Ingress == nil || !platform.PublicDNSHostname(options.IngressHostname)) {
 		r.Outcome, r.Phase, r.Reason, r.ExitCode = "DEFERRED", "WAITING", "PLATFORM_INGRESS_PUBLIC_SETTINGS_REQUIRED", 42
+		return r, nil
+	}
+	if options.Phase == "gitlab" && (options.Profile != "precision-windows" || options.PublicationMode != "" && options.PublicationMode != "local") {
+		r.Outcome, r.Phase, r.Reason, r.ExitCode = "DEFERRED", "WAITING", "PLATFORM_GITLAB_PROFILE_OR_PUBLICATION_NOT_QUALIFIED", 42
 		return r, nil
 	}
 	identity := options.InstallationID + ":" + options.Profile + ":" + e.Host.Actor
@@ -275,7 +290,7 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		}
 		r.HostReady = true
 	}
-	if options.Phase == "network" || options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" {
+	if options.Phase == "network" || options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
 		if _, err = os.ReadFile(filepath.Join(options.ControlRoot, "platform_container_runtime_prepared.state")); err != nil {
 			return r, codedError("PLATFORM_RUNTIME_PREPARATION_REQUIRED")
 		}
@@ -285,13 +300,13 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 		r.RuntimeReady = true
 		r.Endpoint = e.endpoint(options)
 	}
-	if options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" {
+	if options.Phase == "access" || options.Phase == "origin" || options.Phase == "ingress" || options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
 		if err = e.requireAccessNetworks(ctx, options); err != nil {
 			return r, err
 		}
 		r.NetworkReady = true
 	}
-	if options.Phase == "observability" || options.Phase == "hub" {
+	if options.Phase == "observability" || options.Phase == "hub" || options.Phase == "gitlab" {
 		if _, err = os.Stat(filepath.Join(options.ControlRoot, "platform_secret_store_bootstrapped.state")); err != nil {
 			return r, codedError("PLATFORM_ACCESS_PREPARATION_REQUIRED")
 		}
@@ -360,6 +375,8 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 			return r, nil
 		}
 		switch action {
+		case "PLATFORM_GITLAB_SERVICES_PREPARED":
+			r.GitlabReady = true
 		case "PLATFORM_GPU_ACCESS_VERIFIED":
 			r.HostReady = true
 		case "PLATFORM_CONTAINER_RUNTIME_PREPARED":
@@ -409,6 +426,9 @@ func (e *Engine) Run(ctx context.Context, options Options) (Result, error) {
 	return r, nil
 }
 func (e *Engine) fingerprint(ctx context.Context, action string, o Options) (string, error) {
+	if strings.HasPrefix(action, "PLATFORM_GITLAB_") {
+		return e.gitlabFingerprint(ctx, action, o)
+	}
 	if strings.HasPrefix(action, "PLATFORM_HUB_") {
 		return e.hubFingerprint(ctx, action, o)
 	}
@@ -485,6 +505,12 @@ func (e *Engine) apply(ctx context.Context, action string, o Options) (string, s
 	var err error
 	reason := "VERIFIED"
 	switch action {
+	case "PLATFORM_GITLAB_CREDENTIALS_PREPARED":
+		proof, err = prepareGitlabSeed(o)
+	case "PLATFORM_GITLAB_IMAGES_PREPARED":
+		proof, err = e.gitlabImages(ctx, o, true)
+	case "PLATFORM_GITLAB_SERVICES_PREPARED":
+		proof, err = e.prepareGitlab(ctx, o)
 	case "PLATFORM_HUB_IDENTITY_PREPARED":
 		proof, err = prepareHubIdentity(o)
 	case "PLATFORM_HUB_IMAGE_PREPARED":

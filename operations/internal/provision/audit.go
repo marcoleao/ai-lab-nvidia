@@ -12,6 +12,11 @@ import (
 )
 
 var actionCatalog = map[string]string{
+	"PLATFORM_GITLAB_CREDENTIALS_PREPARED":         "gitlab_credential_receipt_digest",
+	"PLATFORM_GITLAB_IMAGES_PREPARED":              "gitlab_image_set_digest",
+	"PLATFORM_GITLAB_SERVICES_PREPARED":            "gitlab_service_state_digest",
+	"PLATFORM_GITLAB_STARTUP_COMPENSATED":          "gitlab_service_state_digest",
+	"PLATFORM_GITLAB_ISOLATED_TEST_REMOVED":        "isolated_gitlab_resource_digest",
 	"PLATFORM_HUB_IDENTITY_PREPARED":               "hub_owner_digest",
 	"PLATFORM_HUB_IMAGE_PREPARED":                  "hub_image_digest",
 	"PLATFORM_HUB_SERVICE_PREPARED":                "hub_service_state_digest",

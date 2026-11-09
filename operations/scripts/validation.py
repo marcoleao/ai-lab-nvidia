@@ -164,8 +164,8 @@ def execute(mode, root, output, env, checks, disposable=False):
         raise ValidationError("PLATFORM_VALIDATION_GO_VERSION_MISMATCH")
     base = [go, "-C", root / "operations"]
     if mode == "integration":
-        env.update(PROVISION_ACCESS_INTEGRATION="1", PROVISION_NETWORK_INTEGRATION="1")
-        for test, timeout in (("TestNetworkWithRealDocker", "5m"), ("TestAccessWithRealDocker", "25m")):
+        env.update(PROVISION_GITLAB_INTEGRATION="1", PROVISION_ACCESS_INTEGRATION="1", PROVISION_NETWORK_INTEGRATION="1")
+        for test, timeout in (("TestNetworkWithRealDocker", "5m"), ("TestAccessWithRealDocker", "25m"), ("TestGitlabWithRealDocker", "20m")):
             run_go_tests(base + ["test", "-json", "./internal/provision", "-run", f"^{test}$", "-count=1", "-timeout", timeout], root, env, checks, test, [test])
         return
     gofmt = Path(go).with_name("gofmt.exe" if platform.system() == "Windows" else "gofmt")
@@ -215,7 +215,7 @@ def main(argv=None):
               "ci_run_id": os.environ.get("GITHUB_RUN_ID", "NOT_OBSERVED"), "actor": actor_identity(),
               "started_at": dt.datetime.now(dt.timezone.utc).isoformat(), "outcome": "UNKNOWN", "phase": "OBSERVED", "decision": "NOT_APPLICABLE",
               "qualification": "NOT_EXECUTED", "installation_ready": False, "checks": []}
-    env = dict(os.environ, GOTOOLCHAIN="local", GOTELEMETRY="off", CGO_ENABLED="0", PROVISION_ACCESS_INTEGRATION="0", PROVISION_NETWORK_INTEGRATION="0", PYTHONUTF8="1")
+    env = dict(os.environ, GOTOOLCHAIN="local", GOTELEMETRY="off", CGO_ENABLED="0", PROVISION_GITLAB_INTEGRATION="0", PROVISION_ACCESS_INTEGRATION="0", PROVISION_NETWORK_INTEGRATION="0", PYTHONUTF8="1")
     env.pop("GOOS", None); env.pop("GOARCH", None)
     if host_target() in TARGETS:
         env["GOOS"], env["GOARCH"] = host_target().split("-")

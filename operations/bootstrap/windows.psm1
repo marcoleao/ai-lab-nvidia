@@ -347,13 +347,13 @@ function Ensure-PlatformLinux($Context) {
 function Invoke-PlatformWindowsInstallation {
     param([ValidateSet('Plan','Install')][string]$Action='Plan', [string]$Configuration, [string]$WindowsProfile,
         [string]$CliPackage, [string]$CliPackageSha256, [switch]$HostOnly,
-        [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub')][string]$Through='Hub',
+        [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub','Gitlab')][string]$Through='Hub',
         [string]$OriginRevision='',
         [string]$RuntimePool='10.248.0.0/16',[int]$RuntimeMemoryGiB=16,[int]$RuntimeCPUs=4,[int]$RuntimeDiskGiB=80,[ValidateSet('auto','owned','external')][string]$RuntimeMode='auto')
     $context = Read-PlatformWindowsContext $Configuration $WindowsProfile
     $context.RuntimePool=$RuntimePool;$context.RuntimeMemoryGiB=$RuntimeMemoryGiB;$context.RuntimeCPUs=$RuntimeCPUs;$context.RuntimeDiskGiB=$RuntimeDiskGiB
     $context.RuntimeMode=$RuntimeMode
-    if($OriginRevision -and ($Through -notin @('Origin','Ingress','Observability','Hub') -or $OriginRevision.Length -gt 63 -or $OriginRevision -cnotmatch '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$')){throw 'PLATFORM_ORIGIN_REVISION_INVALID'}
+    if($OriginRevision -and ($Through -notin @('Origin','Ingress','Observability','Hub','Gitlab') -or $OriginRevision.Length -gt 63 -or $OriginRevision -cnotmatch '^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$')){throw 'PLATFORM_ORIGIN_REVISION_INVALID'}
     $context.OriginRevision=$OriginRevision
     if (-not $HostOnly) {
         try { $context.CliPackage = Read-PlatformCliPackage $CliPackage $CliPackageSha256 }
@@ -377,7 +377,7 @@ function Invoke-PlatformWindowsInstallation {
         origin_tls_ready=$false;windows_origin_tls_qualified=$false
         ingress_artifacts_prepared=$false
         observability_core_ready=$false;windows_observability_qualified=$false
-        hub_ready=$false;windows_hub_qualified=$false
+        hub_ready=$false;windows_hub_qualified=$false;gitlab_ready=$false
         host_os_updates='WINDOWS_MANAGED';security_scope='UBUNTU_USERLAND_ONLY'
         wsl_observed_ready=$observation.WslReady; distro_registered=($null -ne $registration)
         pending_layers=@('host_gpu_driver','host_security_updates','platform_cli','container_runtime','private_networks','access','origin_tls','network_publication','middleware','observability','ai','agentic','applications')}
@@ -405,12 +405,13 @@ function Invoke-PlatformWindowsInstallation {
             $result.pending_layers=@($result.pending_layers | Where-Object { $_ -ne 'platform_cli' })
             if($Through -ne 'Base'){
                 $null=Invoke-PlatformPreparation $context host plan
-                if($Through -in @('Network','Access','Origin','Ingress','Observability','Hub')){$null=Invoke-PlatformPreparation $context network plan}
-                if($Through -in @('Access','Origin','Ingress','Observability','Hub')){$null=Invoke-PlatformPreparation $context access plan}
-                if($Through -in @('Origin','Ingress','Observability','Hub')){$null=Invoke-PlatformPreparation $context origin plan}
+                if($Through -in @('Network','Access','Origin','Ingress','Observability','Hub','Gitlab')){$null=Invoke-PlatformPreparation $context network plan}
+                if($Through -in @('Access','Origin','Ingress','Observability','Hub','Gitlab')){$null=Invoke-PlatformPreparation $context access plan}
+                if($Through -in @('Origin','Ingress','Observability','Hub','Gitlab')){$null=Invoke-PlatformPreparation $context origin plan}
                 if($Through -eq 'Ingress'){$null=Invoke-PlatformPreparation $context ingress plan}
-                if($Through -in @('Observability','Hub')){$null=Invoke-PlatformPreparation $context observability plan}
-                if($Through -eq 'Hub'){$null=Invoke-PlatformPreparation $context hub plan}
+                if($Through -in @('Observability','Hub','Gitlab')){$null=Invoke-PlatformPreparation $context observability plan}
+                if($Through -eq 'Gitlab'){$null=Invoke-PlatformPreparation $context gitlab plan}
+                if($Through -in @('Hub','Gitlab')){$null=Invoke-PlatformPreparation $context hub plan}
                 $driver=Ensure-PlatformWindowsGpu $context $observation
                 if($driver.Phase -eq 'WAITING'){$result.outcome='DEFERRED';$result.phase='WAITING';$result.exit_code=3010;$result['reason_code']='REBOOT_REQUIRED_REPEAT_SAME_COMMAND_SAME_ACCOUNT';return [pscustomobject]$result}
                 $hostResult=Ensure-PlatformPreparation $context host
@@ -419,7 +420,7 @@ function Invoke-PlatformWindowsInstallation {
                 $result.host_prerequisites_ready=$true
                 $result.pending_layers=@($result.pending_layers|Where-Object {$_ -notin @('host_gpu_driver','host_security_updates')})
             }
-            if($Through -in @('Runtime','Network','Access','Origin','Ingress','Observability','Hub')){
+            if($Through -in @('Runtime','Network','Access','Origin','Ingress','Observability','Hub','Gitlab')){
                 $runtimeResult=Ensure-PlatformPreparation $context runtime
                 if($runtimeResult.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$runtimeResult.Reason;return [pscustomobject]$result}
                 if($runtimeResult.Phase -eq 'WAITING'){$result.outcome='DEFERRED';$result.phase='WAITING';$result.exit_code=42;$result['reason_code']=$runtimeResult.Reason;return [pscustomobject]$result}
@@ -427,7 +428,7 @@ function Invoke-PlatformWindowsInstallation {
                 $result['runtime_endpoint']=$runtimeResult.Endpoint;$result['runtime_mode']=$runtimeResult.RuntimeMode
                 $result.pending_layers=@($result.pending_layers|Where-Object {$_ -ne 'container_runtime'})
             }
-            if($Through -in @('Network','Access','Origin','Ingress','Observability','Hub')){
+            if($Through -in @('Network','Access','Origin','Ingress','Observability','Hub','Gitlab')){
                 $networkResult=Ensure-PlatformPreparation $context network
                 if($networkResult.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$networkResult.Reason;return [pscustomobject]$result}
                 if($networkResult.Phase -eq 'WAITING'){$result.outcome='DEFERRED';$result.phase='WAITING';$result.exit_code=42;$result['reason_code']=$networkResult.Reason;return [pscustomobject]$result}
@@ -435,14 +436,14 @@ function Invoke-PlatformWindowsInstallation {
                 $result['networks']=$networkResult.Networks
                 $result.pending_layers=@($result.pending_layers|Where-Object {$_ -ne 'private_networks'})
             }
-            if($Through -in @('Access','Origin','Ingress','Observability','Hub')){
+            if($Through -in @('Access','Origin','Ingress','Observability','Hub','Gitlab')){
                 $accessResult=Ensure-PlatformPreparation $context access
                 if($accessResult.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$accessResult.Reason;return [pscustomobject]$result}
                 $result.access_layer_ready=$true;$result.identity_ready=$true;$result.secret_store_ready=$true;$result.edge_ready=$true
                 $result['access_endpoints']=$accessResult.Endpoints
                 $result.pending_layers=@($result.pending_layers|Where-Object {$_ -ne 'access'})
             }
-            if($Through -in @('Origin','Ingress','Observability','Hub')){
+            if($Through -in @('Origin','Ingress','Observability','Hub','Gitlab')){
                 $originResult=Ensure-PlatformPreparation $context origin
                 if($originResult.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$originResult.Reason;return [pscustomobject]$result}
                 $result.origin_tls_ready=$true;$result['origin_endpoint']=$originResult.Endpoint
@@ -455,12 +456,18 @@ function Invoke-PlatformWindowsInstallation {
                 if($ingress.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.exit_code=1;$result['reason_code']=$ingress.Reason;return [pscustomobject]$result}
                 $result.ingress_artifacts_prepared=$true;$result['ingress_bundle_id']=$ingress.BundleID;$result['ingress_bundle_revision']=$ingress.Revision;$result['ingress_adapters']=$ingress.Adapters
             }
-            if($Through -in @('Observability','Hub')){
+            if($Through -in @('Observability','Hub','Gitlab')){
                 $obs=Ensure-PlatformPreparation $context observability
                 if($obs.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$obs.Reason;return [pscustomobject]$result}
                 $result.observability_core_ready=$true;$result['grafana_endpoint']=$obs.Endpoint;$result['dashboard_uid']=$obs.DashboardUID
             }
-            if($Through -eq 'Hub'){
+            if($Through -eq 'Gitlab'){
+                $gitlab=Ensure-PlatformPreparation $context gitlab
+                if($gitlab.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$gitlab.Reason;return [pscustomobject]$result}
+                if($gitlab.Phase -eq 'WAITING'){$result.outcome='DEFERRED';$result.phase='WAITING';$result.exit_code=42;$result['reason_code']=$gitlab.Reason;return [pscustomobject]$result}
+                $result['gitlab_ready']=$true;$result['gitlab_endpoint']=$gitlab.Endpoint
+            }
+            if($Through -in @('Hub','Gitlab')){
                 $hub=Ensure-PlatformPreparation $context hub
                 if($hub.Outcome -eq 'FAILED'){$result.outcome='FAILED';$result.phase='COMPLETED';$result.exit_code=1;$result['reason_code']=$hub.Reason;return [pscustomobject]$result}
                 $result.hub_ready=$true;$result['hub_endpoint']=$hub.Endpoint
@@ -509,7 +516,7 @@ function Invoke-PlatformInstalledOperation {
     [string[]]$forwarded=@()
     if ($null -ne $Arguments) { $forwarded=$Arguments }
     $component=Get-PlatformOperationComponent $forwarded
-    if($component -cnotin @('all','container-runtime','identity-db','identity','secret-store','edge','origin-tls','metrics','logs','telemetry','grafana','homepage')){throw 'PLATFORM_OPERATION_ARGUMENTS_INVALID'}
+    if($component -cnotin @('all','container-runtime','identity-db','identity','secret-store','edge','origin-tls','metrics','logs','telemetry','grafana','gitlab','gitlab-web','homepage')){throw 'PLATFORM_OPERATION_ARGUMENTS_INVALID'}
     if($component -ceq 'container-runtime' -and $commandName -eq 'logs'){throw 'PLATFORM_OPERATION_ARGUMENTS_INVALID'}
     $context=Read-PlatformWindowsContext $Configuration $WindowsProfile
     $context.Actor=Get-PlatformActorSid
@@ -544,7 +551,7 @@ function Invoke-PlatformInstalledOperation {
             Stop-PlatformProvider 'PLATFORM_OPERATION_RECEIPT_INVALID' $reply
         }
         if($component -ceq 'container-runtime' -and $native.scope_component -cne $component){Stop-PlatformProvider 'PLATFORM_OPERATION_RECEIPT_INVALID' $reply}
-        $safe=$native|Select-Object schema_version,command,scope_component,action,installation_id,profile,operation_id,maintenance_id,outcome,phase,decision,reason_code,exit_code,effect,audit_persistence,coverage,consistency,observed_at,runtime_observed,runtime,scope_ready,foundation_processes_ready,foundation_apis_ready,installation_ready,services,checks,limitations,pending_maintenance,pending_runtime_maintenance,private_log_export,observability,hub
+        $safe=$native|Select-Object schema_version,command,scope_component,action,installation_id,profile,operation_id,maintenance_id,outcome,phase,decision,reason_code,exit_code,effect,audit_persistence,coverage,consistency,observed_at,runtime_observed,runtime,scope_ready,foundation_processes_ready,foundation_apis_ready,installation_ready,services,checks,limitations,pending_maintenance,pending_runtime_maintenance,private_log_export,observability,hub,gitlab
         if($null -ne $safe.runtime){$safe.runtime=$safe.runtime|Select-Object mode,controller,state,owned,api_ready,configuration_sha256,incarnation_sha256,reason_code,next_action}
         $safe.services=@($safe.services|Where-Object {$null -ne $_}|Select-Object component,state,owned,container_id,running,started_at,exit_code,oom_killed,reason_code,next_action)
         $safe.checks=@($safe.checks|Where-Object {$null -ne $_}|Select-Object component,state,reason_code,next_action)
@@ -553,6 +560,7 @@ function Invoke-PlatformInstalledOperation {
             $safe.observability.services=@($safe.observability.services|Select-Object component,state,owned,container_id,running,started_at,exit_code,oom_killed,reason_code,next_action)
             $safe.observability.signals=@($safe.observability.signals|Where-Object {$null -ne $_}|Select-Object signal,component,state,reason_code,sampled_at,age_seconds,healthy)
         }
+        if($null -ne $safe.gitlab){$safe.gitlab=$safe.gitlab|Select-Object state,prepared,api_ready,endpoint,coverage,services;$safe.gitlab.services=@($safe.gitlab.services|Select-Object component,state,owned,container_id,running,started_at,exit_code,oom_killed,reason_code,next_action)}
         if($null -ne $safe.hub){$safe.hub=$safe.hub|Select-Object state,prepared,api_ready,endpoint,coverage,service;$safe.hub.service=$safe.hub.service|Select-Object component,state,owned,container_id,running,started_at,exit_code,oom_killed,reason_code,next_action}
         foreach($pendingProperty in @('pending_runtime_maintenance','pending_maintenance')){
             if($null -ne $safe.$pendingProperty){

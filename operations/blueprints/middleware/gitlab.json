@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "product": "gitlab-ce",
+  "profile": "precision-windows",
+  "memory": "8g",
+  "cpus": 4,
+  "scope": "LOCAL_SCM_NO_RUNNER_NO_SSO_NO_PUBLICATION",
+  "data_ownership": "INDEPENDENT_OF_SDLC_AND_LEGACY"
+}

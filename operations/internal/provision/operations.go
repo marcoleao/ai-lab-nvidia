@@ -91,6 +91,17 @@ func (e *Engine) RunOperation(ctx context.Context, p OperationOptions) (Operatio
 	}
 	if p.Command == "doctor" {
 		e.diagnoseOperations(ctx, p.Options, &s)
+		if s.gitlab != nil && s.gitlab.Prepared && p.Component == "all" && (s.gitlab.APIReady == nil || !*s.gitlab.APIReady) {
+			r.ExitCode = 2
+		}
+		if isGitlabService(p.Component) {
+			ready := s.gitlab != nil && s.gitlab.APIReady != nil && *s.gitlab.APIReady && r.Pending == nil && r.PendingRuntime == nil
+			r.ScopeReady = &ready
+			r.ExitCode = 2
+			if ready {
+				r.ExitCode = 0
+			}
+		}
 		value := operationAPIsReady(s)
 		r.APIsReady = &value
 		if !value || r.Pending != nil || r.PendingRuntime != nil {

@@ -69,6 +69,21 @@ func (e *Engine) hubSpec(o Options, identity hubIdentity) (accessSpec, error) {
 		map[string]any{"Acessos": []any{card("Keycloak", urls["identity"]+"/admin/", "Identidades e permissões"), card("OpenBao", urls["secret_store"]+"/ui/", "Segredos técnicos")}},
 		map[string]any{"Observabilidade": []any{card("Grafana", observabilityURL(o)+"/d/platform-foundation", "Métricas, fontes e diagnóstico da fundação")}},
 	}
+	gitlabRecord := filepath.Join(o.DataRoot, "gitlab.resources.json")
+	if err := plain(gitlabRecord); err != nil {
+		return accessSpec{}, err
+	}
+	if _, err := os.Stat(gitlabRecord); err == nil {
+		var record accessRecord
+		if err = networkControl(o, "gitlab.resources.json", &record); err != nil {
+			return accessSpec{}, err
+		}
+		if record.Spec != "" {
+			services = append(services, map[string]any{"Engenharia": []any{card("GitLab", gitlabURL(o), "Código e integração contínua; runners qualificados separadamente")}})
+		}
+	} else if !os.IsNotExist(err) {
+		return accessSpec{}, err
+	}
 	file := func(b []byte) accessFile { return accessFile{b, 0400} }
 	files := map[string]accessFile{
 		".platform-owner": file([]byte(identity.Owner)), "settings.yaml": file(settings), "services.yaml": file(jsonBytes(services)),

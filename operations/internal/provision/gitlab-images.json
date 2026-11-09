@@ -1,0 +1,12 @@
+{
+  "gitlab": {
+    "version": "19.5.3-ce.0",
+    "index": "sha256:6863d156a1a477bd6f69fc674b671d0163cd8b06bf63bb17cc4a4a803b78b27c",
+    "platforms": {
+      "amd64": {
+        "reference": "gitlab/gitlab-ce@sha256:60fc37e470aca439ead4b6e3ed8f578d9e85c954b84b611b5f323a32a9e47615",
+        "config": "sha256:f88c118808549ed0d65d94342db6eb5b11b53ba8692e6a4b8c87ef1a48687e41"
+      }
+    }
+  }
+}

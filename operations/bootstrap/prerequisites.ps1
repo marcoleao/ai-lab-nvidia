@@ -37,6 +37,10 @@ function Invoke-PlatformPreparation($Context,[string]$Phase,[string]$Action='ins
     if($Phase -eq 'observability'){
         if($value.PSObject.Properties.Name -notcontains 'observability_core_ready' -or $value.observability_core_ready -isnot [bool] -or $value.sso_flow_qualified -or $value.external_publication_ready){Stop-PlatformProvider 'PLATFORM_OBSERVABILITY_SETUP_INCOMPATIBLE' $response}
     }
+    if($Phase -eq 'gitlab'){
+        foreach($name in @('gitlab_ready','sso_flow_qualified','external_publication_ready')){if($value.PSObject.Properties.Name -notcontains $name -or $value.$name -isnot [bool]){Stop-PlatformProvider 'PLATFORM_GITLAB_SETUP_INCOMPATIBLE' $response}}
+        if($value.sso_flow_qualified -or $value.external_publication_ready){Stop-PlatformProvider 'PLATFORM_GITLAB_RESULT_INVALID' $response}
+    }
     if($Phase -eq 'hub'){
         foreach($name in @('hub_ready','sso_flow_qualified','external_publication_ready')){if($value.PSObject.Properties.Name -notcontains $name -or $value.$name -isnot [bool]){Stop-PlatformProvider 'PLATFORM_HUB_SETUP_INCOMPATIBLE' $response}}
         if($value.sso_flow_qualified -or $value.external_publication_ready){Stop-PlatformProvider 'PLATFORM_HUB_RESULT_INVALID' $response}
@@ -44,7 +48,7 @@ function Invoke-PlatformPreparation($Context,[string]$Phase,[string]$Action='ins
     return $value
 }
 function Ensure-PlatformPreparation($Context,[string]$Phase) {
-    $action=switch($Phase){host{'PLATFORM_HOST_PREREQUISITES_PREPARED'};runtime{'PLATFORM_CONTAINER_LAYER_PREPARED'};network{'PLATFORM_NETWORK_LAYER_PREPARED'};access{'PLATFORM_ACCESS_LAYER_PREPARED'};origin{'PLATFORM_ORIGIN_LAYER_PREPARED'};ingress{'PLATFORM_INGRESS_ARTIFACTS_PREPARED'};observability{'PLATFORM_OBSERVABILITY_LAYER_PREPARED'};hub{'PLATFORM_HUB_LAYER_PREPARED'};default{throw 'PLATFORM_SETUP_PHASE_INVALID'}}
+    $action=switch($Phase){host{'PLATFORM_HOST_PREREQUISITES_PREPARED'};runtime{'PLATFORM_CONTAINER_LAYER_PREPARED'};network{'PLATFORM_NETWORK_LAYER_PREPARED'};access{'PLATFORM_ACCESS_LAYER_PREPARED'};origin{'PLATFORM_ORIGIN_LAYER_PREPARED'};ingress{'PLATFORM_INGRESS_ARTIFACTS_PREPARED'};observability{'PLATFORM_OBSERVABILITY_LAYER_PREPARED'};hub{'PLATFORM_HUB_LAYER_PREPARED'};gitlab{'PLATFORM_GITLAB_LAYER_PREPARED'};default{throw 'PLATFORM_SETUP_PHASE_INVALID'}}
     return Invoke-PlatformAuditedStep $Context $action NOT_OBSERVED {
         $value=Invoke-PlatformPreparation $Context $Phase
         if($Phase -eq 'host' -and $value.phase -eq 'WAITING' -and $value.reason_code -eq 'REBOOT_REQUIRED'){
@@ -75,6 +79,11 @@ function Ensure-PlatformPreparation($Context,[string]$Phase) {
             $u=[uri]$value.grafana_endpoint
             if($u.Scheme -cne 'http' -or $u.Host -cne 'grafana.localhost' -or $u.Port -lt 1024 -or $u.Port -gt 65535 -or $u.UserInfo -or $u.Query -or $u.Fragment -or $u.AbsolutePath -ne '/'){throw 'PLATFORM_OBSERVABILITY_ENDPOINT_REJECTED'}
         }
+        if($Phase -eq 'gitlab'){
+            if(-not $value.gitlab_ready){throw 'PLATFORM_GITLAB_READINESS_UNCONFIRMED'}
+            $u=[uri]$value.gitlab_endpoint
+            if($u.Scheme -cne 'http' -or $u.Host -cne 'git.localhost' -or $u.Port -lt 1024 -or $u.Port -gt 65535 -or $u.UserInfo -or $u.Query -or $u.Fragment -or $u.AbsolutePath -ne '/'){throw 'PLATFORM_GITLAB_ENDPOINT_REJECTED'}
+        }
         if($Phase -eq 'hub'){
             if(-not $value.hub_ready){throw 'PLATFORM_HUB_READINESS_UNCONFIRMED'}
             $u=[uri]$value.hub_endpoint
@@ -89,6 +98,7 @@ function Ensure-PlatformPreparation($Context,[string]$Phase) {
         if($Phase -eq 'ingress'){$step|Add-Member NoteProperty BundleID $value.ingress_bundle_id;$step|Add-Member NoteProperty Revision $value.ingress_bundle_revision;$step|Add-Member NoteProperty Adapters $value.ingress_adapters}
         if($Phase -eq 'observability'){$step|Add-Member NoteProperty Endpoint $value.grafana_endpoint;$step|Add-Member NoteProperty DashboardUID $value.dashboard_uid}
         if($Phase -eq 'hub'){$step|Add-Member NoteProperty Endpoint $value.hub_endpoint}
+        if($Phase -eq 'gitlab'){$step|Add-Member NoteProperty Endpoint $value.gitlab_endpoint}
         if($Phase -eq 'origin' -and $value.PSObject.Properties.Name -contains 'origin_certificate_not_after'){$step|Add-Member NoteProperty CertificateNotAfter $value.origin_certificate_not_after;$step|Add-Member NoteProperty CertificateSHA256 $value.origin_certificate_sha256}
         $step
     }

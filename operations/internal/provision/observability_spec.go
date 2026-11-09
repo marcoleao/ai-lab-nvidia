@@ -29,6 +29,12 @@ func containerRelease(key string) string {
 	return map[string]string{"identity-db": "postgres", "identity": "keycloak", "secret-store": "openbao", "edge": "caddy", "metrics": "prometheus", "logs": "loki", "telemetry": "collector", "grafana": "grafana"}[key]
 }
 func serviceRelease(key string) accessRelease {
+	if key == "gitlab" {
+		return gitlabRelease()
+	}
+	if key == "gitlab-web" {
+		return accessReleases()["caddy"]
+	}
 	if key == "homepage" {
 		return hubRelease()
 	}

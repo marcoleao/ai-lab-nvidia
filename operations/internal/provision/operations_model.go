@@ -83,13 +83,14 @@ type OperationResult struct {
 	Export            *LogExport                `json:"private_log_export,omitempty"`
 	Observability     *ObservabilityObservation `json:"observability,omitempty"`
 	Hub               *HubObservation           `json:"hub,omitempty"`
+	Gitlab            *GitlabObservation        `json:"gitlab,omitempty"`
 	effectsStarted    bool
 }
 
 var operationServices = []string{"identity-db", "identity", "secret-store", "edge", "origin-tls"}
 
 func managedOperationServices() []string {
-	return append(append(append([]string{}, operationServices...), observabilityServices...), "homepage")
+	return append(append(append(append([]string{}, operationServices...), observabilityServices...), gitlabServices...), "homepage")
 }
 
 type liveService struct {
@@ -103,4 +104,5 @@ type operationSnapshot struct {
 	engine           *RuntimeObservation
 	observability    *ObservabilityObservation
 	hub              *HubObservation
+	gitlab           *GitlabObservation
 }

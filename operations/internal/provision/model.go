@@ -26,6 +26,7 @@ type Options struct {
 	OriginPort                                                                                      int
 	GrafanaPort                                                                                     int
 	HubPort                                                                                         int
+	GitlabPort                                                                                      int
 	Ingress                                                                                         *platform.IngressSettings
 	IngressHostname                                                                                 string
 	IdentityPort, SecretStorePort                                                                   int
@@ -87,6 +88,8 @@ type Result struct {
 	DashboardUID              string            `json:"dashboard_uid,omitempty"`
 	HubReady                  bool              `json:"hub_ready"`
 	HubEndpoint               string            `json:"hub_endpoint,omitempty"`
+	GitlabReady               bool              `json:"gitlab_ready"`
+	GitlabEndpoint            string            `json:"gitlab_endpoint,omitempty"`
 	IngressBundleID           string            `json:"ingress_bundle_id,omitempty"`
 	IngressBundleRevision     string            `json:"ingress_bundle_revision,omitempty"`
 	IngressAdapters           map[string]string `json:"ingress_adapters,omitempty"`

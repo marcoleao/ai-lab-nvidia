@@ -38,7 +38,8 @@ func readOperationIntent(o Options, name string) (operationIntent, error) {
 	if v.Schema != 1 || v.Installation != o.InstallationID || v.Profile != o.Profile || !operationPattern.MatchString(v.MaintenanceID) || !slices.Contains([]string{"start", "stop", "restart"}, v.Command) || !slices.Contains(operationComponents(), v.Component) || !slices.Contains([]string{"APPLYING", "COMPENSATING", "COMPLETED"}, v.Mode) || len(v.Targets) == 0 || len(v.Targets) > len(managedOperationServices()) {
 		return v, codedError("PLATFORM_OPERATION_INTENT_INVALID")
 	}
-	if v.Component != "all" && (len(v.Targets) != 1 || v.Targets[0].Component != v.Component) || v.Unseal && (v.Command == "stop" || v.Component != "all" && v.Component != "secret-store") {
+	group := v.Component == "gitlab"
+	if v.Component != "all" && !group && (len(v.Targets) != 1 || v.Targets[0].Component != v.Component) || group && (len(v.Targets) != 2 || !isGitlabService(v.Targets[0].Component) || !isGitlabService(v.Targets[1].Component)) || v.Unseal && (v.Command == "stop" || v.Component != "all" && v.Component != "secret-store") {
 		return v, codedError("PLATFORM_OPERATION_INTENT_INVALID")
 	}
 	seen := map[string]bool{}
@@ -65,7 +66,9 @@ func saveOperationIntent(o Options, v operationIntent) error {
 func (e *Engine) operationService(ctx context.Context, o Options, id, wantedID string) (*accessContainer, error) {
 	var c *accessContainer
 	var err error
-	if id == "homepage" {
+	if isGitlabService(id) {
+		c, err = e.gitlabOperationService(ctx, o, id)
+	} else if id == "homepage" {
 		c, err = e.hubOperationService(ctx, o)
 	} else if isObservabilityService(id) {
 		c, err = e.observabilityService(ctx, o, id)
@@ -154,6 +157,9 @@ func operationProcessDigest(s operationSnapshot, targets []operationTarget) stri
 }
 
 func newOperationTargets(p OperationOptions, s operationSnapshot) ([]operationTarget, error) {
+	if p.Command == "start" && p.Component == "gitlab-web" && s.services["gitlab"].observation.State != "RUNNING" {
+		return nil, codedError("PLATFORM_OPERATION_DEPENDENCY_STOPPED")
+	}
 	if !s.runtime {
 		return nil, codedError("PLATFORM_RUNTIME_NOT_RUNNING")
 	}
@@ -162,7 +168,7 @@ func newOperationTargets(p OperationOptions, s operationSnapshot) ([]operationTa
 	}
 	targets := []operationTarget{}
 	for _, id := range managedOperationServices() {
-		if p.Component != "all" && p.Component != id {
+		if p.Component != "all" && p.Component != id && !(p.Component == "gitlab" && isGitlabService(id)) {
 			continue
 		}
 		live, exists := s.services[id]
@@ -199,7 +205,7 @@ func newOperationTargets(p OperationOptions, s operationSnapshot) ([]operationTa
 func (e *Engine) applyOperationTargets(ctx context.Context, p OperationOptions, v *operationIntent) error {
 	// Stop the whole scope in reverse dependency order before starting it again.
 	// START_REQUESTED/DONE prove that the stop phase already passed on a retry.
-	if p.Command == "restart" && p.Component == "all" {
+	if p.Command == "restart" && (p.Component == "all" || p.Component == "gitlab") {
 		for i := len(v.Targets) - 1; i >= 0; i-- {
 			t := &v.Targets[i]
 			if !t.BeforeRunning || (t.Stage != "PENDING" && t.Stage != "STOP_REQUESTED") {

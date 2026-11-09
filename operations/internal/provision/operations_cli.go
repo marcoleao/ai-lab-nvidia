@@ -30,7 +30,7 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 	flags.IntVar(&p.Tail, "tail", 200, "")
 	flags.BoolVar(&p.Unseal, "unseal", false, "")
 	if err := flags.Parse(args); err == flag.ErrHelp {
-		fmt.Fprintln(stdout, "platform status|doctor|start|stop|restart|logs [--component all|container-runtime|identity-db|identity|secret-store|edge|origin-tls|metrics|logs|telemetry|grafana|homepage] [--format text|json] [--request-id <id>] [--unseal: service start/restart only] [--tail 200: service logs]\nAll maintains prepared foundation, observability and Homepage services. Runtime lifecycle requires explicit container-runtime scope. Logs are exported privately, never printed.")
+		fmt.Fprintln(stdout, "platform status|doctor|start|stop|restart|logs [--component all|container-runtime|identity-db|identity|secret-store|edge|origin-tls|metrics|logs|telemetry|grafana|gitlab|gitlab-web|homepage] [--format text|json] [--request-id <id>] [--unseal: service start/restart only] [--tail 200: service logs]\nAll maintains prepared foundation, observability and Homepage services. Runtime lifecycle requires explicit container-runtime scope. Logs are exported privately, never printed.")
 		return 0
 	} else if err != nil || flags.NArg() != 0 || format != "text" && format != "json" {
 		return emitOperationError(stdout, command, "PLATFORM_OPERATION_ARGUMENTS_INVALID")
@@ -76,14 +76,14 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 			return 1
 		}
 	} else {
-		fmt.Fprintf(stdout, "Fundação: %s | perfil: %s | comando: %s\nResultado: %s / %s | cobertura: somente fundação\n", r.InstallationID, r.Profile, r.Command, r.Outcome, r.Phase)
+		fmt.Fprintf(stdout, "FundaÃ§Ã£o: %s | perfil: %s | comando: %s\nResultado: %s / %s | cobertura: somente fundaÃ§Ã£o\n", r.InstallationID, r.Profile, r.Command, r.Outcome, r.Phase)
 		if r.Runtime != nil {
 			fmt.Fprintf(stdout, "Runtime (%s / %s): %s | API pronta=%t\n", r.Runtime.Mode, r.Runtime.Controller, r.Runtime.State, r.Runtime.APIReady)
 			if r.Runtime.Reason != "" {
 				fmt.Fprintln(stdout, "  Motivo:", r.Runtime.Reason)
 			}
 			if r.Runtime.NextAction != "" {
-				fmt.Fprintln(stdout, "  Próximo passo:", r.Runtime.NextAction)
+				fmt.Fprintln(stdout, "  PrÃ³ximo passo:", r.Runtime.NextAction)
 			}
 		}
 		for _, s := range r.Services {
@@ -93,7 +93,7 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 			}
 			fmt.Fprintln(stdout)
 			if s.NextAction != "" {
-				fmt.Fprintln(stdout, "  Próximo passo:", s.NextAction)
+				fmt.Fprintln(stdout, "  PrÃ³ximo passo:", s.NextAction)
 			}
 		}
 		if r.Observability != nil {
@@ -118,7 +118,7 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 		for _, c := range r.Checks {
 			fmt.Fprintf(stdout, "%s: %s [%s]\n", c.Component, c.State, c.Reason)
 			if c.NextAction != "" {
-				fmt.Fprintln(stdout, "  Próximo passo:", c.NextAction)
+				fmt.Fprintln(stdout, "  PrÃ³ximo passo:", c.NextAction)
 			}
 		}
 		if r.Reason != "" {
@@ -130,13 +130,13 @@ func RunOperationCLI(command string, args []string, stdout, stderr io.Writer) in
 				if pending.Unseal {
 					unseal = " --unseal"
 				}
-				fmt.Fprintf(stdout, "Manutenção pendente: %s | %s --component %s --request-id %s%s | repetir a mesma ação para retomar.\n", pending.MaintenanceID, pending.Command, pending.Component, pending.MaintenanceID, unseal)
+				fmt.Fprintf(stdout, "ManutenÃ§Ã£o pendente: %s | %s --component %s --request-id %s%s | repetir a mesma aÃ§Ã£o para retomar.\n", pending.MaintenanceID, pending.Command, pending.Component, pending.MaintenanceID, unseal)
 			}
 		}
 		if r.Export != nil {
-			fmt.Fprintf(stdout, "Log privado: %s | %d bytes | truncado=%t | janela limitada; histórico completo não declarado.\n", r.Export.RelativePath, r.Export.CapturedBytes, r.Export.Truncated)
+			fmt.Fprintf(stdout, "Log privado: %s | %d bytes | truncado=%t | janela limitada; histÃ³rico completo nÃ£o declarado.\n", r.Export.RelativePath, r.Export.CapturedBytes, r.Export.Truncated)
 		}
-		fmt.Fprintln(stdout, "Correlação:", r.OperationID)
+		fmt.Fprintln(stdout, "CorrelaÃ§Ã£o:", r.OperationID)
 	}
 	return r.ExitCode
 }

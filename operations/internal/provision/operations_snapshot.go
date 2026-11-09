@@ -166,6 +166,7 @@ func (e *Engine) observeFoundationOperations(ctx context.Context, o Options) ope
 }
 
 func (e *Engine) diagnoseOperations(ctx context.Context, o Options, s *operationSnapshot) {
+	defer e.diagnoseGitlab(ctx, o, s)
 	defer e.diagnoseHub(ctx, o, s)
 	defer e.diagnoseObservability(ctx, o, s)
 	if err := readAuditIntegrity(o.ControlRoot); err != nil {
@@ -226,6 +227,7 @@ func (e *Engine) diagnoseOperations(ctx context.Context, o Options, s *operation
 func fillOperationSnapshot(r *OperationResult, s operationSnapshot) {
 	r.Observability = s.observability
 	r.Hub = s.hub
+	r.Gitlab = s.gitlab
 	r.Runtime = s.engine
 	r.RuntimeObserved = s.runtime
 	r.ProcessesReady = s.runtime && s.network

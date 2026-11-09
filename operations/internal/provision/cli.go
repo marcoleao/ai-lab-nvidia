@@ -31,7 +31,7 @@ func RunCLI(arguments []string, stdout, stderr io.Writer) int {
 	flags.IntVar(&o.CPUs, "cpus", 4, "")
 	flags.IntVar(&o.DiskGiB, "disk-gib", 80, "")
 	if err := flags.Parse(arguments); err == flag.ErrHelp {
-		_, _ = io.WriteString(stdout, "platform setup --action plan|install --phase host|runtime|network|access|origin|ingress|observability|hub|infrastructure|all --profile <id> [--root <bundle>] [--config <json>] [--runtime-mode auto|owned|external] [--runtime-pool <private CIDR>] [--memory-gib 16 --cpus 4 --disk-gib 80] [--origin-revision <id>: origin phase only]\nExplicit preparation only. Observability is an explicit local phase. Installation readiness, public access and GPU container qualification remain false.\n")
+		_, _ = io.WriteString(stdout, "platform setup --action plan|install --phase host|runtime|network|access|origin|ingress|observability|hub|gitlab|infrastructure|all --profile <id> [--root <bundle>] [--config <json>] [--runtime-mode auto|owned|external] [--runtime-pool <private CIDR>] [--memory-gib 16 --cpus 4 --disk-gib 80] [--origin-revision <id>: origin phase only]\nExplicit preparation only. Observability is an explicit local phase. Installation readiness, public access and GPU container qualification remain false.\n")
 		return 0
 	} else if err != nil || flags.NArg() != 0 {
 		return emitError(stdout, "PLATFORM_SETUP_ARGUMENTS_INVALID")
@@ -61,6 +61,13 @@ func RunCLI(arguments []string, stdout, stderr io.Writer) int {
 }
 
 func bindSetupDefinition(o *Options, definition *platform.Definition) {
+	o.GitlabPort = 3180
+	if port := definition.ByID["gitlab"].LocalPort; port != nil {
+		o.GitlabPort = *port
+	}
+	if port, ok := definition.Configuration.Ports["gitlab"]; ok {
+		o.GitlabPort = port
+	}
 	o.HubPort = 3300
 	if port := definition.ByID["homepage"].LocalPort; port != nil {
 		o.HubPort = *port

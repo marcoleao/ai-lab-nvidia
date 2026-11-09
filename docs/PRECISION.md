@@ -4,6 +4,8 @@ Decisão de 09/11/2026: concluir a plataforma na Precision. macOS M3 Max e Dell 
 
 ## Instalação da fundação
 
+A fase explícita `-Through Gitlab` está em validação para acrescentar o SCM independente antes do Homepage. [Contrato, comandos e limites](../operations/GITLAB.md). Runner, SSO e exposição pública não fazem parte dessa preparação. A release citada abaixo antecede esta fase.
+
 A distribuição `precision-setup.zip` reúne o bootstrap Windows, a CLI Linux AMD64, configuração de referência, checksums e três relatórios aprovados do mesmo commit/run/fontes. Não exige checkout Git, Go ou Python no equipamento de operação. Internet é necessária para os pré-requisitos e imagens; o ZIP não é uma instalação offline dos produtos.
 
 O canal permanente é [Releases](https://github.com/marcoleao/ai-lab-nvidia/releases). Use a [release corrigida da Precision](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-6a65810b36b65c63b03d5cdcbdc538b807658f2a), publicada em 09/11/2026. Ela corrige a resolução dos caminhos padrão dos entrypoints Windows. Compare o hash do ZIP com `precision-release.json`, obtido nessa mesma release de cinco arquivos. O hash detecta alteração em relação à origem escolhida; não é assinatura independente.

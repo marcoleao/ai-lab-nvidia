@@ -37,7 +37,7 @@ function Read-PlatformBundledPackage([string]$Root) {
     $requirements = @{
         'native-linux-amd64.json'=@{Mode='unit';Target='linux-amd64';Qualification='NATIVE_UNIT_PASSED';Checks=@('native-go-tests','native-installed-release','validation-contracts','distribution-contracts')}
         'windows-bootstrap.json'=@{Mode='windows';Target='windows-amd64';Qualification='WINDOWS_BOOTSTRAP_PASSED';Checks=@('platform-installer.tests.ps1','platform-windows-gpu.tests.ps1','validation-contracts','distribution-contracts')}
-        'docker-linux-amd64.json'=@{Mode='integration';Target='linux-amd64';Qualification='DISPOSABLE_DOCKER_PASSED';Checks=@('TestNetworkWithRealDocker','TestAccessWithRealDocker')}
+        'docker-linux-amd64.json'=@{Mode='integration';Target='linux-amd64';Qualification='DISPOSABLE_DOCKER_PASSED';Checks=@('TestNetworkWithRealDocker','TestAccessWithRealDocker','TestGitlabWithRealDocker')}
     }
     if (@($manifest.required_reports).Count -ne 3 -or @($manifest.required_reports | Where-Object {$_ -cnotin $requirements.Keys}).Count -gt 0 -or @($manifest.required_reports|Sort-Object -Unique).Count -ne 3) { throw 'PLATFORM_DISTRIBUTION_REPORT_SET_INVALID' }
     foreach ($asset in @(@{Key='cli';Name='platform-linux-amd64.tar.gz';Limit=128MB},@{Key='validation';Name='validation.json';Limit=1MB})) {
@@ -66,7 +66,7 @@ function Read-PlatformBundledPackage([string]$Root) {
         foreach ($required in $requirements[$name].Checks) { if($required -cnotin $checks.check){throw 'PLATFORM_DISTRIBUTION_REPORT_CHECKS_INVALID'} }
         foreach ($check in $checks) {
             if ($check.outcome -cne 'SUCCEEDED' -or -not (Test-PlatformDistributionExitCode $check.exit_code)) { throw 'PLATFORM_DISTRIBUTION_REPORT_CHECKS_INVALID' }
-            if ($check.check -cin @('native-go-tests','TestNetworkWithRealDocker','TestAccessWithRealDocker') -and
+            if ($check.check -cin @('native-go-tests','TestNetworkWithRealDocker','TestAccessWithRealDocker','TestGitlabWithRealDocker') -and
                 (($check.tests_passed -isnot [int] -and $check.tests_passed -isnot [long]) -or $check.tests_passed -lt 1)) { throw 'PLATFORM_DISTRIBUTION_TEST_EXECUTION_UNCONFIRMED' }
         }
     }
