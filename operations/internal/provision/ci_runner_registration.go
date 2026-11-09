@@ -54,10 +54,15 @@ func (e *Engine) ciRunnerRegistration(ctx context.Context, o Options, v ciRunner
 	if err != nil {
 		for _, reason := range []string{"PLATFORM_CI_RUNNER_REGISTRATION_CONFLICT", "PLATFORM_CI_RUNNER_REGISTRATION_CHANGED", "PLATFORM_CI_RUNNER_POLICY_CHANGED"} {
 			if strings.Contains(r.Output, reason) {
-				return nil, codedError(reason)
+				return nil, &privateProviderError{reason: codedError(reason), detail: err.Error()}
 			}
 		}
-		return nil, codedError("PLATFORM_CI_RUNNER_REGISTRATION_UNCONFIRMED")
+		for _, category := range []string{"NoMethodError", "NameError", "SyntaxError", "ActiveRecord::NotNullViolation", "ActiveRecord::RecordInvalid"} {
+			if strings.Contains(r.Output, category) {
+				return nil, &privateProviderError{reason: codedError("PLATFORM_CI_RUNNER_ADAPTER_" + strings.ToUpper(strings.ReplaceAll(category, "::", "_"))), detail: err.Error()}
+			}
+		}
+		return nil, &privateProviderError{reason: codedError("PLATFORM_CI_RUNNER_REGISTRATION_UNCONFIRMED"), detail: err.Error()}
 	}
 	lines := []string{}
 	for _, line := range strings.Split(r.Output, "\n") {

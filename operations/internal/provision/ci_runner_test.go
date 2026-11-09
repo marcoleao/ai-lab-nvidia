@@ -86,7 +86,7 @@ func (f *fakeCIRunner) Run(ctx context.Context, c Command) (Response, error) {
 			f.registered++
 			if f.lostRegistration {
 				f.lostRegistration = false
-				return Response{ExitCode: 1, Output: "private-lost-registration-response"}, nil
+				return Response{ExitCode: 1, Output: "private-lost-registration-response " + token}, nil
 			}
 		}
 		if f.remote == nil {
@@ -247,6 +247,17 @@ func TestCIRunnerLostResponseAndStartupCompensation(t *testing.T) {
 			}
 			if mode == "uncertain" {
 				return
+			}
+			if mode == "lost-registration" {
+				path := filepath.Join(o.ControlRoot, "diagnostic-"+o.OperationID+"-PLATFORM_CI_RUNNER_REGISTRATION_PREPARED.json")
+				detail, readErr := os.ReadFile(path)
+				if readErr != nil || !bytes.Contains(detail, []byte(f.remote.Token)) || bytes.Contains(jsonBytes(r), []byte(f.remote.Token)) {
+					t.Fatal("private diagnostic was lost or projected", readErr)
+				}
+				publicErr := &privateProviderError{reason: codedError("PLATFORM_CI_RUNNER_REGISTRATION_UNCONFIRMED"), detail: f.remote.Token}
+				if publicErr.Error() != code(publicErr) || strings.Contains(fmt.Sprint(publicErr), f.remote.Token) {
+					t.Fatal("provider error exposed its private detail")
+				}
 			}
 			f.failStart = false
 			r, err = e.Run(context.Background(), o)

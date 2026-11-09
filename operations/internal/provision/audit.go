@@ -4,6 +4,7 @@ import (
 	"ai-platform/operations/blueprints"
 	"bufio"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -214,5 +215,10 @@ func readAuditIntegrity(root string) error {
 	return err
 }
 func (r recorder) diagnostic(action string, err error) {
-	_ = atomicFile(filepath.Join(r.root, "diagnostic-"+r.options.OperationID+"-"+action+".json"), jsonBytes(map[string]string{"action": action, "detail": err.Error()}), 0600)
+	detail := err.Error()
+	var private interface{ PrivateDiagnostic() string }
+	if errors.As(err, &private) {
+		detail = private.PrivateDiagnostic()
+	}
+	_ = atomicFile(filepath.Join(r.root, "diagnostic-"+r.options.OperationID+"-"+action+".json"), jsonBytes(map[string]string{"action": action, "detail": detail}), 0600)
 }

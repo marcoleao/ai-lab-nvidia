@@ -122,6 +122,18 @@ type Engine struct {
 type codedError string
 
 func (e codedError) Error() string { return string(e) }
+
+// Public errors retain a fixed code. Only the shared private diagnostic writer
+// may access provider output, which can include credentials or product content.
+type privateProviderError struct {
+	reason codedError
+	detail string
+}
+
+func (e *privateProviderError) Error() string             { return string(e.reason) }
+func (e *privateProviderError) Unwrap() error             { return e.reason }
+func (e *privateProviderError) PrivateDiagnostic() string { return e.detail }
+
 func code(err error) string {
 	var e codedError
 	if errors.As(err, &e) {
