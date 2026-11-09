@@ -40,7 +40,13 @@ func TestAccessWithRealDocker(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	e := Engine{Host: Host{OS: "linux", Arch: runtime.GOARCH, Actor: "uid:" + itoa(os.Geteuid())}, Now: time.Now, Runner: realNetworkRunner{program}}
+	diagnosed := false
+	e := Engine{Host: Host{OS: "linux", Arch: runtime.GOARCH, Actor: "uid:" + itoa(os.Geteuid())}, Now: time.Now, Runner: realNetworkRunner{docker: program, beforeStop: func(ctx context.Context) {
+		if !diagnosed {
+			diagnosed = true
+			logIsolatedAccessState(t, ctx, program, o)
+		}
+	}}}
 	o.OriginPort = 29443
 	o.GrafanaPort = 29444
 	o.HubPort = 29445
@@ -159,6 +165,7 @@ func TestAccessWithRealDocker(t *testing.T) {
 	actions := []string{"PLATFORM_NETWORK_PROBE_IMAGE_PREPARED", "PLATFORM_NETWORKS_PREPARED", "PLATFORM_ACCESS_CREDENTIALS_PREPARED", "PLATFORM_ACCESS_IMAGES_PREPARED", "PLATFORM_ACCESS_SERVICES_PREPARED", "PLATFORM_SECRET_STORE_BOOTSTRAPPED", "PLATFORM_ORIGIN_IMAGE_PREPARED", "PLATFORM_ORIGIN_TLS_MATERIAL_PREPARED", "PLATFORM_ORIGIN_TLS_SERVICE_PREPARED"}
 	for pass := 0; pass < 2; pass++ {
 		for _, action := range actions {
+			t.Logf("access pass=%d action=%s", pass+1, action)
 			before, err := e.fingerprint(ctx, action, o)
 			if err != nil {
 				t.Fatalf("%s before: %v", action, err)
@@ -296,6 +303,46 @@ func TestAccessWithRealDocker(t *testing.T) {
 	}
 	if err = e.verifyHub(ctx, hub); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// Keep provider payloads private. Only state and fixed diagnostic categories
+// from these disposable containers are projected into public CI logs.
+func logIsolatedAccessState(t *testing.T, ctx context.Context, program string, o Options) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 20*time.Second)
+	defer cancel()
+	seed, err := readAccessSeed(o)
+	if err != nil {
+		return
+	}
+	s := (&Engine{}).accessSpec(o, seed)
+	for _, key := range []string{"identity-db", "identity", "secret-store", "edge"} {
+		name := s.Project + "-" + key
+		response, err := (systemRunner{}).Run(ctx, Command{Program: program, Args: []string{"--host", "unix:///var/run/docker.sock", "container", "inspect", name}})
+		var containers []accessContainer
+		if err != nil || response.ExitCode != 0 || json.Unmarshal([]byte(response.Output), &containers) != nil || len(containers) != 1 || containers[0].Config.Labels["ai.platform.owner"] != seed.Owner {
+			t.Logf("service=%s state=NOT_OBSERVED", key)
+			continue
+		}
+		c := containers[0]
+		t.Logf("service=%s status=%s running=%t exit=%d oom=%t", key, c.State.Status, c.State.Running, c.State.ExitCode, c.State.OOMKilled)
+		response, err = (systemRunner{}).Run(ctx, Command{Program: program, Args: []string{"--host", "unix:///var/run/docker.sock", "container", "logs", "--tail", "100", name}})
+		if err != nil || response.ExitCode != 0 {
+			continue
+		}
+		for _, category := range []string{"permission denied", "connection refused", "no such file", "read-only file system", "failed", "error", "fatal", "mlock", "key material", "trust", "started", "listening"} {
+			if strings.Contains(strings.ToLower(response.Output), category) {
+				t.Logf("service=%s diagnostic=%q", key, category)
+			}
+		}
+	}
+	for _, probe := range []struct{ endpoint, path string }{
+		{"identity", "/realms/platform/.well-known/openid-configuration"},
+		{"secret_store", "/v1/sys/health"},
+	} {
+		_, status, err := (&Engine{}).accessRequest(ctx, o, probe.endpoint, "GET", probe.path, "", nil)
+		t.Logf("endpoint=%s status=%d reason=%s", probe.endpoint, status, code(err))
 	}
 }
 

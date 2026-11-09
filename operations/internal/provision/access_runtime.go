@@ -41,9 +41,15 @@ type accessContainer struct {
 		RW                      bool
 	}
 	NetworkSettings struct {
-		Networks map[string]struct{ IPAddress string }
+		Networks map[string]accessNetwork
 	}
 }
+
+type accessNetwork struct {
+	IPAddress  string
+	IPAMConfig *accessIPAM
+}
+type accessIPAM struct{ IPv4Address string }
 type accessRecord struct {
 	Spec       string
 	Containers map[string]string
@@ -201,8 +207,14 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 			}
 		}
 		for _, view := range e.networkViews(o) {
-			if view.Role == "services" && c.NetworkSettings.Networks[view.Name].IPAddress != s.ProxyIP {
-				return codedError("PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED")
+			if view.Role == "services" {
+				network := c.NetworkSettings.Networks[view.Name]
+				if network.IPAMConfig != nil && network.IPAMConfig.IPv4Address != s.ProxyIP {
+					return codedError("PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED")
+				}
+				if network.IPAddress != s.ProxyIP && (c.State.Running || network.IPAddress != "" || network.IPAMConfig == nil || network.IPAMConfig.IPv4Address != s.ProxyIP) {
+					return codedError("PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED")
+				}
 			}
 		}
 	} else if key == "grafana" || key == "homepage" {

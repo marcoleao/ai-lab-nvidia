@@ -178,7 +178,7 @@ func (f *fakeAccess) Run(ctx context.Context, c Command) (Response, error) {
 			c.HostConfig.ReadonlyRootfs = service["read_only"].(bool)
 			c.HostConfig.CapDrop = []string{"ALL"}
 			c.HostConfig.SecurityOpt = []string{"no-new-privileges:true"}
-			c.NetworkSettings.Networks = map[string]struct{ IPAddress string }{}
+			c.NetworkSettings.Networks = map[string]accessNetwork{}
 			for role := range service["networks"].(map[string]any) {
 				for _, v := range f.e.networkViews(f.o) {
 					if v.Role == role {
@@ -186,7 +186,11 @@ func (f *fakeAccess) Run(ctx context.Context, c Command) (Response, error) {
 						if key == "edge" && role == "services" {
 							ip = s.ProxyIP
 						}
-						c.NetworkSettings.Networks[v.Name] = struct{ IPAddress string }{ip}
+						attachment := accessNetwork{IPAddress: ip}
+						if key == "edge" && role == "services" {
+							attachment.IPAMConfig = &accessIPAM{IPv4Address: ip}
+						}
+						c.NetworkSettings.Networks[v.Name] = attachment
 					}
 				}
 			}
@@ -607,5 +611,36 @@ func TestAccessVolumeAbsenceAndProviderFailures(t *testing.T) {
 				t.Fatal("provider failure was treated as volume absence", r, err)
 			}
 		})
+	}
+}
+
+func TestStoppedAccessProxyRetainsConfiguredAddress(t *testing.T) {
+	e, f, o := accessFixture(t, "dell-gb10")
+	if r, err := e.Run(context.Background(), o); err != nil || !r.AccessReady {
+		t.Fatal(r, err)
+	}
+	s := f.spec()
+	c := f.containers[s.Project+"-edge"]
+	for _, view := range e.networkViews(o) {
+		if view.Role != "services" {
+			continue
+		}
+		c.State.Running = false
+		attachment := c.NetworkSettings.Networks[view.Name]
+		attachment.IPAddress = ""
+		c.NetworkSettings.Networks[view.Name] = attachment
+		if err := e.validateAccessContainer(o, s, "edge", c); err != nil {
+			t.Fatal("stopped proxy with unchanged static address was rejected", err)
+		}
+		c.State.Running = true
+		if err := e.validateAccessContainer(o, s, "edge", c); code(err) != "PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED" {
+			t.Fatal("running proxy without its address was accepted", err)
+		}
+		c.State.Running = false
+		attachment.IPAMConfig = &accessIPAM{IPv4Address: "10.0.0.2"}
+		c.NetworkSettings.Networks[view.Name] = attachment
+		if err := e.validateAccessContainer(o, s, "edge", c); code(err) != "PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED" {
+			t.Fatal("stopped proxy with a changed static address was accepted", err)
+		}
 	}
 }

@@ -107,10 +107,10 @@ func (h *fakeHub) Run(ctx context.Context, c Command) (Response, error) {
 			v.HostConfig.CapDrop = []string{"ALL"}
 			v.HostConfig.SecurityOpt = []string{"no-new-privileges:true"}
 			v.HostConfig.PortBindings = map[string][]struct{ HostIp, HostPort string }{"3000/tcp": {{"127.0.0.1", fmt.Sprint(h.o.HubPort)}}}
-			v.NetworkSettings.Networks = map[string]struct{ IPAddress string }{}
+			v.NetworkSettings.Networks = map[string]accessNetwork{}
 			for _, network := range h.e.networkViews(h.o) {
 				if network.Role == "services" {
-					v.NetworkSettings.Networks[network.Name] = struct{ IPAddress string }{}
+					v.NetworkSettings.Networks[network.Name] = accessNetwork{}
 				}
 			}
 			v.Mounts = append(v.Mounts, struct {

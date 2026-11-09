@@ -87,7 +87,7 @@ func (f *fakeOrigin) Run(ctx context.Context, c Command) (Response, error) {
 		v.HostConfig.ReadonlyRootfs = true
 		v.HostConfig.CapDrop = []string{"ALL"}
 		v.HostConfig.SecurityOpt = []string{"no-new-privileges:true"}
-		v.NetworkSettings.Networks = map[string]struct{ IPAddress string }{option(a, "--network"): {}}
+		v.NetworkSettings.Networks = map[string]accessNetwork{option(a, "--network"): {}}
 		port := strings.Split(option(a, "--publish"), ":")
 		v.HostConfig.PortBindings = map[string][]struct{ HostIp, HostPort string }{port[2]: {{port[0], port[1]}}}
 		mount := strings.Split(option(a, "--mount"), ",")

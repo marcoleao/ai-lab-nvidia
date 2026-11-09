@@ -129,10 +129,10 @@ func (f *fakeObservability) Run(ctx context.Context, c Command) (Response, error
 			v.HostConfig.ReadonlyRootfs = true
 			v.HostConfig.CapDrop = []string{"ALL"}
 			v.HostConfig.SecurityOpt = []string{"no-new-privileges:true"}
-			v.NetworkSettings.Networks = map[string]struct{ IPAddress string }{}
+			v.NetworkSettings.Networks = map[string]accessNetwork{}
 			for _, network := range f.e.networkViews(f.options) {
 				if network.Role == "services" {
-					v.NetworkSettings.Networks[network.Name] = struct{ IPAddress string }{}
+					v.NetworkSettings.Networks[network.Name] = accessNetwork{}
 				}
 			}
 			for _, raw := range service["volumes"].([]any) {

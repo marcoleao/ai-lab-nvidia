@@ -37,7 +37,7 @@ func TestNetworkWithRealDocker(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	e := Engine{Host: Host{OS: "linux", Arch: runtime.GOARCH, Actor: "uid:" + itoa(os.Geteuid())}, Now: time.Now, Runner: realNetworkRunner{program}}
+	e := Engine{Host: Host{OS: "linux", Arch: runtime.GOARCH, Actor: "uid:" + itoa(os.Geteuid())}, Now: time.Now, Runner: realNetworkRunner{docker: program}}
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 	views := e.networkViews(o)
@@ -116,10 +116,16 @@ func TestNetworkWithRealDocker(t *testing.T) {
 	}
 }
 
-type realNetworkRunner struct{ docker string }
+type realNetworkRunner struct {
+	docker     string
+	beforeStop func(context.Context)
+}
 
 func (r realNetworkRunner) Run(ctx context.Context, c Command) (Response, error) {
 	if filepath.Base(c.Program) == "docker" {
+		if r.beforeStop != nil && len(c.Args) > 3 && c.Args[2] == "container" && c.Args[3] == "stop" {
+			r.beforeStop(ctx)
+		}
 		// The test uses only the runner's local socket, never a user-selected remote.
 		c.Program = r.docker
 		c.Args = append([]string{"--host", "unix:///var/run/docker.sock"}, c.Args[2:]...)
