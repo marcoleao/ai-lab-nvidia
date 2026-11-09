@@ -130,6 +130,7 @@ def run_go_tests(command, root, env, checks, name, required):
                 events.append({"Action": item["Action"], "Test": item["Test"]})
         except (ValueError, AttributeError):
             pass
+    process.stdout.close()
     code = process.wait()
     check = {"check": name, "exit_code": code, "outcome": "FAILED", "tests_passed": 0}
     checks.append(check)
