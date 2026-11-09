@@ -293,3 +293,34 @@ func TestGitlabBacklogAndPreflight(t *testing.T) {
 		t.Fatal("port conflict wrote startup intent")
 	}
 }
+
+func TestGitlabLinkPreservesExistingHub(t *testing.T) {
+	e, _, o := hubFixture(t, "precision-windows")
+	if r, err := e.Run(context.Background(), o); err != nil || !r.HubReady {
+		t.Fatal(r, err)
+	}
+	identity, err := readHubIdentity(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldSpec, err := e.hubSpec(o, identity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Simulate a separate preparation receipt only in this disposable fixture.
+	if err = atomicFile(filepath.Join(o.DataRoot, "gitlab.resources.json"), jsonBytes(accessRecord{Spec: digest([]byte("isolated-gitlab"))}), 0600); err != nil {
+		t.Fatal(err)
+	}
+	newSpec, err := e.hubSpec(o, identity)
+	if err != nil || newSpec.Digest == oldSpec.Digest || !bytes.Contains(newSpec.Volumes["hub-config"].Files["services.yaml"].Data, []byte(gitlabURL(o))) {
+		t.Fatal("native hub configuration did not include the prepared GitLab", err)
+	}
+	r, err := e.Run(context.Background(), o)
+	if r.HubReady || err == nil && r.ExitCode == 0 {
+		t.Fatal("existing hub was silently migrated", r, err)
+	}
+	var record accessRecord
+	if err = networkControl(o, "hub.resources.json", &record); err != nil || record.Spec != oldSpec.Digest {
+		t.Fatal("existing hub receipt changed", err)
+	}
+}

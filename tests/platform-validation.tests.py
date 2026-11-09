@@ -64,7 +64,7 @@ class ValidationContracts(unittest.TestCase):
     def test_snapshot_excludes_runtime_private_data_and_binary_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp) / "source"
-            for name in ("operations/internal/access-seed.json", "operations/.secrets/private.json", "operations/control/state.json", "operations/output.test", "environments/.env"):
+            for name in ("operations/internal/gitlab-seed.json", "operations/internal/access-seed.json", "operations/.secrets/private.json", "operations/control/state.json", "operations/output.test", "environments/.env"):
                 path = root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b"private-fixture\xff")
             source = root / "operations/public.go"; source.write_text("package fixture\n")
             target = Path(tmp) / "snapshot"

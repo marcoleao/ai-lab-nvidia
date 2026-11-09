@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 TARGETS = ("linux-amd64", "linux-arm64", "darwin-arm64")
 ROOT_FILES = ("platform.sh", "install.sh", "platform.ps1", "install.ps1", "validate-platform.ps1", ".gitattributes", ".github/workflows/validate.yaml")
 PRIVATE_PARTS = {".git", ".cache", ".env", ".state", ".secrets", "__pycache__", "backups", "node_modules", "projects", "control", "data"}
-PRIVATE_NAMES = {"access-seed.json", "access-recovery.json", "observability-seed.json", "hub-owner.json", "origin-material.json", "origin-pending-material.json"}
+PRIVATE_NAMES = {"access-seed.json", "access-recovery.json", "observability-seed.json", "gitlab-seed.json", "hub-owner.json", "origin-material.json", "origin-pending-material.json"}
 SOURCE_EXTENSIONS = {".go", ".json", ".py", ".sh", ".ps1", ".psm1", ".psd1", ".md", ".awk", ".mod", ".sum"}
 
 
