@@ -78,7 +78,7 @@ func (e *Engine) hubSpec(o Options, identity hubIdentity) (accessSpec, error) {
 	service := map[string]any{
 		"image": hubRelease().Platforms[e.Host.Arch].Reference, "user": preset.User, "read_only": true, "restart": "unless-stopped", "cap_drop": []string{"ALL"}, "security_opt": []string{"no-new-privileges:true"}, "pids_limit": 128, "mem_limit": preset.Memory, "cpus": preset.CPUs,
 		"tmpfs":          []string{"/tmp:rw,nosuid,noexec,uid=1000,gid=1000,mode=0700,size=33554432", "/app/.next/cache:rw,nosuid,noexec,uid=1000,gid=1000,mode=0700,size=33554432"},
-		"container_name": project + "-homepage", "networks": map[string]any{"services": map[string]any{}},
+		"container_name": project + "-homepage", "networks": map[string]any{"services": map[string]any{}, "edge": map[string]any{}},
 		"environment": map[string]string{"HOMEPAGE_ALLOWED_HOSTS": fmt.Sprintf("home.localhost:%d", o.HubPort), "HOSTNAME": "0.0.0.0", "PORT": "3000", "PUID": "1000", "PGID": "1000", "LOG_TARGETS": "stdout", "LOG_LEVEL": "warn", "NEXT_TELEMETRY_DISABLED": "1"},
 		"ports":       []any{map[string]any{"target": 3000, "published": fmt.Sprint(o.HubPort), "host_ip": "127.0.0.1", "protocol": "tcp"}},
 		"volumes":     []any{map[string]any{"type": "volume", "source": "hub-config", "target": "/app/config", "read_only": true}},
@@ -86,7 +86,7 @@ func (e *Engine) hubSpec(o Options, identity hubIdentity) (accessSpec, error) {
 	}
 	networks := map[string]any{}
 	for _, v := range e.networkViews(o) {
-		if v.Role == "services" {
+		if v.Role == "services" || v.Role == "edge" {
 			networks[v.Role] = map[string]any{"name": v.Name, "external": true}
 		}
 	}

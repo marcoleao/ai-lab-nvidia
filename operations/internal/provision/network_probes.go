@@ -215,8 +215,8 @@ func (e *Engine) verifyNetworkIsolation(ctx context.Context, o Options, owner st
 			}
 		}
 	}
-	// Check both the lack of a default IPv4 route and the continued liveness of
-	// every destination, so a dead server cannot masquerade as isolation.
+	// Backends have no default route. The perimeter needs its gateway for
+	// Docker host publication; this does not prove a perimeter egress policy.
 	for _, v := range views {
 		p, err := register(v.Name)
 		if err != nil {
@@ -227,8 +227,15 @@ func (e *Engine) verifyNetworkIsolation(ctx context.Context, o Options, owner st
 		if err != nil {
 			return err
 		}
-		if strings.TrimSpace(r.Output) != "" {
+		if v.Internal && strings.TrimSpace(r.Output) != "" {
 			return codedError("PLATFORM_NETWORK_EGRESS_ROUTE_PRESENT")
+		}
+		if !v.Internal {
+			prefix, _ := netip.ParsePrefix(v.Subnet)
+			fields := strings.Fields(r.Output)
+			if len(fields) < 3 || fields[0] != "default" || fields[1] != "via" || fields[2] != prefix.Addr().Next().String() {
+				return codedError("PLATFORM_NETWORK_PERIMETER_GATEWAY_UNCONFIRMED")
+			}
 		}
 	}
 	return checkAllowed()

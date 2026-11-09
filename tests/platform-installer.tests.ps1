@@ -144,7 +144,7 @@ try {
                             host_prerequisites_ready=($action -eq 'install' -and $phase -eq 'host' -and $exit -eq 0);container_runtime_ready=($action -eq 'install' -and $phase -eq 'runtime' -and $exit -eq 0);runtime_mode='owned';runtime_endpoint='unix:///run/fixture/docker.sock';steps=@(@{action='FIXTURE_NATIVE_STEP';outcome=$outcome;phase=$stage})}
                         if($action -eq 'install' -and $script:nativeStringReadiness){$body.host_prerequisites_ready='false'}
                         $body.network_layer_ready=($action -eq 'install' -and $phase -eq 'network' -and $exit -eq 0)
-                        $body.networks=@('edge','services','data','executors'|ForEach-Object {@{role=$_;name=('fixture-'+$_);internal=$true;default_host_binding='127.0.0.1'}})
+                        $body.networks=@('edge','services','data','executors'|ForEach-Object {@{role=$_;name=('fixture-'+$_);internal=($_ -ne 'edge');default_host_binding='127.0.0.1'}})
                         if($script:nativeLegacyNetwork){$body.Remove('network_layer_ready')}
                         if($phase -eq 'network' -and $action -eq 'install' -and $script:nativeNetworkString){$body.network_layer_ready='false'}
                         foreach($name in @('access_layer_ready','identity_ready','secret_store_ready','edge_ready')){$body[$name]=($phase -eq 'access' -and $action -eq 'install' -and $exit -eq 0)}

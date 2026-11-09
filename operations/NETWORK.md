@@ -35,14 +35,16 @@ O pool é configurável: `-RuntimePool` no Windows ou `--runtime-pool` no shell.
 
 | Papel | Subnet no pool padrão | Contrato inicial |
 | --- | --- | --- |
-| `edge` | `10.248.0.0/24` | Base privada para a futura borda; nenhum proxy, porta ou túnel criado nesta etapa. |
+| `edge` | `10.248.0.0/24` | Bridge de perímetro não interna para as publicações locais explícitas; esta etapa não cria listener, proxy ou túnel. |
 | `services` | `10.248.1.0/24` | Comunicação explícita entre serviços compartilhados. |
 | `data` | `10.248.2.0/24` | Backend privado de dados; autenticação do banco/cofre continua obrigatória. |
 | `executors` | `10.248.3.0/24` | Base dos futuros executores; acesso a modelos/ferramentas dependerá dos gateways e políticas próprios. |
 
 Os nomes são `ai-platform-<hash da instalação>-<papel>`. O resultado do plano/instalador traz os nomes e CIDRs em `networks`. O inventário declarativo ordena host → runtime → redes → serviços. Inferência Metal nativa depende do host, sem exigir a VM Docker.
 
-Cada rede usa bridge IPv4 interna, sem masquerade e sem IPv6. DNS funciona entre containers ligados à mesma rede. Publicações futuras sem endereço explícito recebem o padrão `127.0.0.1`; isso não impede um administrador de declarar outro endereço. F2a não publica portas, modifica hosts/DNS do equipamento, abre firewall, altera daemon, reinicia serviços, conecta aplicações ou migra redes existentes. O Docker conserva a responsabilidade pelas operações normais do driver. A CLI não edita nem limpa regras globais do host.
+As redes `services`, `data` e `executors` usam bridges IPv4 internas, sem rota padrão. A `edge` é uma bridge de perímetro não interna: Docker não ativa portas publicadas de containers ligados somente a redes internas ([registro no Moby](https://github.com/moby/moby/discussions/53256)). As quatro conservam masquerade desabilitado, IPv6 desabilitado e binding padrão `127.0.0.1`. A borda tem gateway; ausência de masquerade não é uma política de bloqueio de saída. Não se declara isolamento de egress para processos ligados à borda.
+
+Somente Caddy/origem, Grafana e Homepage usam a borda nas composições atuais. Backend de identidade, banco, cofre, métricas, logs e Collector mantêm redes internas; o proxy comunica-se com os serviços pela interface interna. F2a não cria listener ou publica ferramenta na internet, modifica hosts/DNS do equipamento, abre firewall global, altera daemon ou migra redes existentes. O Docker conserva a responsabilidade pelas operações normais do driver. Uma rede `edge` antiga com `internal=true` é drift e exige migração explícita; o instalador não a recria ou relaxa silenciosamente.
 
 Pools menores são divididos em quatro subnets; por exemplo, `/24` gera quatro `/26`. A sub-rede não pode sobrepor outras redes do engine, rotas do host Docker ou, no Mac, rotas do host macOS. Rotas das próprias bridges são reconhecidas pelo CIDR e interface. No Mac, a CLI consulta as rotas dentro da VM Colima e no host, incluindo VPNs. Não tenta corrigir uma colisão escolhendo endereços silenciosamente.
 
@@ -57,7 +59,7 @@ Depois da criação/reconciliação, o instalador executa containers temporário
 1. Inicia um canário HTTP por rede, sem publicar porta, montar diretórios do host ou receber credenciais.
 2. Verifica quatro caminhos permitidos por DNS, com resposta contendo identificador aleatório da tentativa.
 3. Verifica os doze caminhos entre redes diferentes por IP observado; todos devem falhar. Erros do Docker/execução não contam como bloqueio comprovado.
-4. Confere ausência de rota padrão IPv4 em cada rede.
+4. Confere ausência de rota padrão nas três redes internas e o gateway esperado na rede de perímetro.
 5. Repete os quatro caminhos permitidos para evitar qualificar um destino que morreu durante a prova.
 6. Confirma a remoção dos canários/clientes próprios antes de concluir.
 

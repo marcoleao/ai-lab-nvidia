@@ -171,6 +171,9 @@ func (f *fakeNetworkEngine) run(args []string) (Response, error) {
 			return Response{Output: c.ID}, nil
 		}
 		if command[0] == "ip" {
+			if !f.networks[network].Internal {
+				return Response{Output: "default via " + f.networks[network].IPAM.Config[0].Gateway + " dev eth0\n"}, nil
+			}
 			if f.egress {
 				return Response{Output: "default via 10.248.0.1\n"}, nil
 			}
@@ -236,7 +239,7 @@ func TestPrivateNetworksAllProfilesAndRetry(t *testing.T) {
 				t.Fatalf("proof/cleanup incomplete: %+v", n)
 			}
 			for _, v := range r.Networks {
-				if !v.Internal || v.DefaultHostBinding != "127.0.0.1" {
+				if v.Internal != (v.Role != "edge") || v.DefaultHostBinding != "127.0.0.1" {
 					t.Fatal("network exposed", v)
 				}
 			}
@@ -308,7 +311,7 @@ func TestIsolationFailureIsNeverReadiness(t *testing.T) {
 	}
 }
 func TestNetworkOwnershipDriftAndSubnetConflict(t *testing.T) {
-	for _, mode := range []string{"owner", "options", "id", "subnet", "route", "mac-vpn"} {
+	for _, mode := range []string{"owner", "options", "internal", "id", "subnet", "route", "mac-vpn"} {
 		t.Run(mode, func(t *testing.T) {
 			profile := "precision-windows"
 			if mode == "mac-vpn" {
@@ -327,6 +330,9 @@ func TestNetworkOwnershipDriftAndSubnetConflict(t *testing.T) {
 				n.networks[v.Name] = net
 			case "options":
 				net.Options["com.docker.network.bridge.host_binding_ipv4"] = "0.0.0.0"
+				n.networks[v.Name] = net
+			case "internal":
+				net.Internal = true
 				n.networks[v.Name] = net
 			case "id":
 				net.ID = digest([]byte("replacement"))

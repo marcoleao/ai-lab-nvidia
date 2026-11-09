@@ -55,7 +55,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
   platform-integration:
-    needs: platform-cli
     strategy:
       fail-fast: false
       matrix:

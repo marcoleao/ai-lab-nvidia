@@ -179,6 +179,7 @@ func (e *Engine) observabilitySpec(o Options, seed observabilitySeed) (accessSpe
 			mounts = append(mounts, mount(key+"-data", p.DataPath, false))
 		}
 		if key == "grafana" {
+			service["networks"].(map[string]any)["edge"] = map[string]any{}
 			mounts = append(mounts, mount("grafana-datasources", "/etc/grafana/provisioning/datasources", true), mount("grafana-providers", "/etc/grafana/provisioning/dashboards", true), mount("grafana-dashboards", "/etc/platform-dashboards", true))
 			service["environment"] = map[string]string{"GF_PATHS_CONFIG": "/etc/platform/grafana.ini", "GF_PATHS_DATA": "/var/lib/grafana", "GF_PATHS_LOGS": "/var/lib/grafana/log", "GF_PATHS_PLUGINS": "/var/lib/grafana/plugins", "GF_SECURITY_ADMIN_PASSWORD__FILE": "/etc/platform/admin.password", "GF_SECURITY_SECRET_KEY__FILE": "/etc/platform/secret.key"}
 			service["ports"] = []any{map[string]any{"target": 3000, "published": fmt.Sprint(o.GrafanaPort), "host_ip": "127.0.0.1", "protocol": "tcp"}}
@@ -188,7 +189,7 @@ func (e *Engine) observabilitySpec(o Options, seed observabilitySeed) (accessSpe
 	}
 	networks := map[string]any{}
 	for _, v := range e.networkViews(o) {
-		if v.Role == "services" {
+		if v.Role == "services" || v.Role == "edge" {
 			networks[v.Role] = map[string]any{"name": v.Name, "external": true}
 		}
 	}

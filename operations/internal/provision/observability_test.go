@@ -131,7 +131,7 @@ func (f *fakeObservability) Run(ctx context.Context, c Command) (Response, error
 			v.HostConfig.SecurityOpt = []string{"no-new-privileges:true"}
 			v.NetworkSettings.Networks = map[string]accessNetwork{}
 			for _, network := range f.e.networkViews(f.options) {
-				if network.Role == "services" {
+				if _, attached := service["networks"].(map[string]any)[network.Role]; attached {
 					v.NetworkSettings.Networks[network.Name] = accessNetwork{}
 				}
 			}
@@ -145,6 +145,7 @@ func (f *fakeObservability) Run(ctx context.Context, c Command) (Response, error
 			if key == "grafana" {
 				v.HostConfig.PortBindings = map[string][]struct{ HostIp, HostPort string }{"3000/tcp": {{"127.0.0.1", fmt.Sprint(f.options.GrafanaPort)}}}
 			}
+			v.NetworkSettings.Ports = v.HostConfig.PortBindings
 			f.containers[name] = v
 			f.creates++
 		}

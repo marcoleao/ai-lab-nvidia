@@ -109,7 +109,7 @@ func (h *fakeHub) Run(ctx context.Context, c Command) (Response, error) {
 			v.HostConfig.PortBindings = map[string][]struct{ HostIp, HostPort string }{"3000/tcp": {{"127.0.0.1", fmt.Sprint(h.o.HubPort)}}}
 			v.NetworkSettings.Networks = map[string]accessNetwork{}
 			for _, network := range h.e.networkViews(h.o) {
-				if network.Role == "services" {
+				if network.Role == "services" || network.Role == "edge" {
 					v.NetworkSettings.Networks[network.Name] = accessNetwork{}
 				}
 			}
@@ -118,6 +118,7 @@ func (h *fakeHub) Run(ctx context.Context, c Command) (Response, error) {
 				RW                      bool
 			}{"volume", s.Volumes["hub-config"].Name, "/app/config", false})
 			v.State.Running = true
+			v.NetworkSettings.Ports = v.HostConfig.PortBindings
 			h.containers[name] = v
 			h.created++
 		}

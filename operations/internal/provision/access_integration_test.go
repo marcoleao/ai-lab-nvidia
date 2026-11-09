@@ -342,7 +342,11 @@ func logIsolatedAccessState(t *testing.T, ctx context.Context, program string, o
 		{"secret_store", "/v1/sys/health"},
 	} {
 		_, status, err := (&Engine{}).accessRequest(ctx, o, probe.endpoint, "GET", probe.path, "", nil)
-		t.Logf("endpoint=%s status=%d reason=%s", probe.endpoint, status, code(err))
+		reason := "NOT_APPLICABLE"
+		if err != nil {
+			reason = code(err)
+		}
+		t.Logf("endpoint=%s status=%d reason=%s", probe.endpoint, status, reason)
 	}
 }
 

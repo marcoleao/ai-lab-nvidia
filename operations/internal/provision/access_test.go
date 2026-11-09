@@ -207,6 +207,7 @@ func (f *fakeAccess) Run(ctx context.Context, c Command) (Response, error) {
 					c.HostConfig.PortBindings[fmt.Sprint(port)+"/tcp"] = []struct{ HostIp, HostPort string }{{"127.0.0.1", fmt.Sprint(port)}}
 				}
 			}
+			c.NetworkSettings.Ports = c.HostConfig.PortBindings
 			f.containers[name] = c
 		}
 		if f.startFails {
@@ -642,5 +643,18 @@ func TestStoppedAccessProxyRetainsConfiguredAddress(t *testing.T) {
 		if err := e.validateAccessContainer(o, s, "edge", c); code(err) != "PLATFORM_ACCESS_PROXY_ADDRESS_CHANGED" {
 			t.Fatal("stopped proxy with a changed static address was accepted", err)
 		}
+	}
+}
+
+func TestRequestedPortWithoutActiveDockerMappingIsRejected(t *testing.T) {
+	e, f, o := accessFixture(t, "dell-gb10")
+	if r, err := e.Run(context.Background(), o); err != nil || !r.AccessReady {
+		t.Fatal(r, err)
+	}
+	s := f.spec()
+	c := f.containers[s.Project+"-edge"]
+	c.NetworkSettings.Ports = nil
+	if err := e.validateAccessContainer(o, s, "edge", c); code(err) != "PLATFORM_ACCESS_PORT_PUBLICATION_UNCONFIRMED" {
+		t.Fatal("inactive requested port was reported as published", err)
 	}
 }

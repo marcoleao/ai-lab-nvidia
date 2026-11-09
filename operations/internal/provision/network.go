@@ -52,7 +52,9 @@ func (e *Engine) networkViews(o Options) []NetworkView {
 	for i, role := range []string{"edge", "services", "data", "executors"} {
 		n := base + uint32(i)*(uint32(1)<<uint(32-bits))
 		ip := netip.AddrFrom4([4]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
-		views = append(views, NetworkView{role, "ai-platform-" + e.shortID(o) + "-" + role, netip.PrefixFrom(ip, bits).String(), true, "127.0.0.1"})
+		// Docker does not activate published ports on internal-only endpoints.
+		// Only the perimeter permits host publication; backends remain internal.
+		views = append(views, NetworkView{role, "ai-platform-" + e.shortID(o) + "-" + role, netip.PrefixFrom(ip, bits).String(), role != "edge", "127.0.0.1"})
 	}
 	return views
 }
@@ -159,7 +161,7 @@ func (e *Engine) ownsNetwork(o Options, v NetworkView, n networkState, owner str
 	return true
 }
 func (e *Engine) matchesNetwork(o Options, v NetworkView, n networkState, owner string) bool {
-	if !e.ownsNetwork(o, v, n, owner) || !n.Internal || n.EnableIPv6 || n.IPAM.Driver != "default" || len(n.IPAM.Config) != 1 || n.IPAM.Config[0].Subnet != v.Subnet {
+	if !e.ownsNetwork(o, v, n, owner) || n.Internal != v.Internal || n.EnableIPv6 || n.IPAM.Driver != "default" || len(n.IPAM.Config) != 1 || n.IPAM.Config[0].Subnet != v.Subnet {
 		return false
 	}
 	if string(jsonBytes(n.Options)) != string(jsonBytes(networkOptions())) {
@@ -294,7 +296,10 @@ func (e *Engine) prepareNetworks(ctx context.Context, o Options) ([]byte, error)
 				continue
 			}
 			prefix, _ := netip.ParsePrefix(v.Subnet)
-			args := []string{"network", "create", "--driver", "bridge", "--internal", "--ipv6=false", "--subnet", v.Subnet, "--gateway", prefix.Addr().Next().String(), "--ipam-driver", "default"}
+			args := []string{"network", "create", "--driver", "bridge", "--ipv6=false", "--subnet", v.Subnet, "--gateway", prefix.Addr().Next().String(), "--ipam-driver", "default"}
+			if v.Internal {
+				args = append(args, "--internal")
+			}
 			labels := e.networkLabels(o, v, owner)
 			keys := []string{}
 			for key := range labels {

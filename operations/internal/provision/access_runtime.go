@@ -42,6 +42,7 @@ type accessContainer struct {
 	}
 	NetworkSettings struct {
 		Networks map[string]accessNetwork
+		Ports    map[string][]struct{ HostIp, HostPort string }
 	}
 }
 
@@ -251,6 +252,19 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 		}
 	} else if len(c.HostConfig.PortBindings) != 0 {
 		return codedError("PLATFORM_ACCESS_PUBLIC_BINDING_REJECTED")
+	}
+	if c.State.Running {
+		// HostConfig records intent even when Docker omits the actual mapping.
+		for port, requested := range c.HostConfig.PortBindings {
+			if !slices.Equal(requested, c.NetworkSettings.Ports[port]) {
+				return codedError("PLATFORM_ACCESS_PORT_PUBLICATION_UNCONFIRMED")
+			}
+		}
+		for port, actual := range c.NetworkSettings.Ports {
+			if len(actual) > 0 && !slices.Equal(actual, c.HostConfig.PortBindings[port]) {
+				return codedError("PLATFORM_ACCESS_PUBLIC_BINDING_REJECTED")
+			}
+		}
 	}
 	expected := map[string]struct {
 		Name string
@@ -633,12 +647,12 @@ func (e *Engine) prepareAccessServices(ctx context.Context, o Options) ([]byte, 
 		return nil, err
 	}
 	_, startErr := e.composeAccess(ctx, o, s, "up", "--detach", "--no-build", "--no-recreate", "--pull", "never", "--wait", "--wait-timeout", "180")
-	if startErr == nil {
-		startErr = e.waitAccessHTTP(ctx, o)
-	}
 	after, inspectErr := e.accessState(ctx, o, s)
 	if startErr == nil && inspectErr != nil {
 		startErr = inspectErr
+	}
+	if startErr == nil {
+		startErr = e.waitAccessHTTP(ctx, o)
 	}
 	if startErr == nil {
 		for _, state := range after {
