@@ -6,7 +6,7 @@ Decisão de 09/11/2026: concluir a plataforma na Precision. macOS M3 Max e Dell 
 
 A distribuição `precision-setup.zip` reúne o bootstrap Windows, a CLI Linux AMD64, configuração de referência, checksums e três relatórios aprovados do mesmo commit/run/fontes. Não exige checkout Git, Go ou Python no equipamento de operação. Internet é necessária para os pré-requisitos e imagens; o ZIP não é uma instalação offline dos produtos.
 
-O canal permanente é [Releases](https://github.com/marcoleao/ai-lab-nvidia/releases). Use uma release `precision-<commit>` com os cinco arquivos publicados e compare o hash do ZIP com `precision-release.json`, obtido nessa mesma release. O hash detecta alteração em relação à origem escolhida; não é assinatura independente. Enquanto a primeira execução da nova pipeline não terminar, não há uma release Precision qualificada por esse fluxo.
+O canal permanente é [Releases](https://github.com/marcoleao/ai-lab-nvidia/releases). A primeira [release Precision da fundação](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-f7190400c5623d937b6a409a7c94c4550859f08a) foi publicada em 09/11/2026. Use uma release `precision-<commit>` com os cinco arquivos publicados e compare o hash do ZIP com `precision-release.json`, obtido nessa mesma release. O hash detecta alteração em relação à origem escolhida; não é assinatura independente.
 
 Extraia o ZIP numa pasta estável, local e sem links de diretório, por exemplo `C:\AIPlatform\setup`. Na pasta extraída:
 
@@ -35,14 +35,14 @@ Consulte [operação e diagnóstico](../operations/OPERATIONS.md) para privilég
 
 | Bloco | Implementação/evidência disponível | Aceite ainda necessário |
 | --- | --- | --- |
-| Distribuição | ZIP com instalador/CLI/provas, gate de três relatórios, verificação do ZIP real em Windows e publicação permanente condicionada a esses gates | Executar a pipeline nova e conferir os arquivos publicados; instalar pelo ZIP na Precision |
+| Distribuição | Seis jobs Precision aprovados na CI, três relatórios vinculados, ZIP real verificado em Windows, release permanente com cinco arquivos e download público reconferido localmente | Instalar pelo ZIP na Precision |
 | Host e operação | WSL2/distro dedicada, pré-requisitos, driver ausente via provedor Windows, runtime e auditoria; retomada após reinício em testes isolados | Instalação real pelo instalador, reinício e retomada; validar GPU em container, disco, memória e operação após boot |
 | Rede e acesso | Segmentação, Keycloak/OpenBao/Caddy, origem mTLS e configuração dos dois caminhos de ingresso; integração Docker AMD64 comprovada na entrega anterior | SSO integrado, permissões/contas de uso, rotação operacional e ativação pública direta/túnel com aceite externo |
 | Ferramentas | Cofre, identidade, Grafana e Homepage preparados separadamente do Portal | Extrair/provisionar GitLab e Runner do legado; Sonar e registro de imagens; configuração, diagnóstico e inclusão das interfaces nativas no hub |
 | Observabilidade | Prometheus/Loki/Collector/Grafana; seis sinais HTTP/JVM, dashboard e alertas versionados | Coleta de host/GPU, logs e traces dos serviços/aplicações, retenção e alertas de operação |
 | Modelos e governança | Catálogo/contratos arquiteturais; Ollama e consumidores ainda no legado | APIs de inferência com autenticação, quotas e catálogo; gateway de modelos e MCP; políticas por identidade/capacidade, negações e auditoria correlacionada |
 | Agentes e replay | Execução SDLC existente ainda ligada ao legado | Runtime separado, consumo das APIs governadas, rastreabilidade de execução, simulação/replay e ferramentas nativas de inspeção |
-| Aplicações | Portal SDLC existente como primeira aplicação | Instalação independente sobre os contratos comuns, migração explícita de configuração, acesso/SSO, telemetria e regressão/aceite próprios |
+| Aplicações | Portal SDLC existente como primeira aplicação; regressão anterior identificou 18 testes backend falhos em quatro arquivos, com browser aprovado | Corrigir/validar essa regressão; instalação independente sobre os contratos comuns, migração explícita de configuração, acesso/SSO, telemetria e aceite próprios |
 
 A sequência de implementação é distribuição/host → integração de acesso e middleware → observabilidade → APIs/governança de IA e MCP → agentes/replay → Portal independente. Cada bloco precisa de instalação, `status`/`doctor`, manutenção, retentativa, auditoria e interface nativa quando disponível. A disponibilidade de uma interface não substitui saúde ou aceite funcional.
 
@@ -51,3 +51,5 @@ A sequência de implementação é distribuição/host → integração de acess
 ## Evidência de entrega
 
 A [validação da fundação](VALIDACAO_DA_FUNDACAO.md) mantém a prova histórica de seis relatórios/ três arquiteturas. A política atual exige Linux AMD64, bootstrap Windows e Docker AMD64; a publicação exige também o ZIP real aprovado num job Windows. Candidatos e recibos da tentativa ficam nos artefatos da CI. Somente a release final com os cinco arquivos é o canal de instalação permanente.
+
+[Run 42660370192](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42660370192), commit `f7190400c5623d937b6a409a7c94c4550859f08a`: seis jobs Precision aprovados. Fonte SHA-256 `53b323fd993c897f389758256177035bef730db5d40d19e6f047f28a386c8361`; ZIP público SHA-256 `930785a169d6cf8acdf8e1e1149a63e3819f6bc86fe60f883cb52c10fa58a898`. O download da release foi reconferido localmente pelo verificador Windows, sem executar o instalador ou alterar o host. A regressão do Portal é independente; o [run anterior](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42647394054) falhou no backend em `development-builds`, `development-deployments`, `environment-targets` e `work-activities`. O run atual ainda executava sua regressão completa na última consulta; não se declara Portal aprovado.

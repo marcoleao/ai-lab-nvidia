@@ -51,7 +51,15 @@ Somente depois são preparados TAR/checksum Linux AMD64 e `validation.json`, com
 
 O catálogo [validation-catalog.json](../operations/validation-catalog.json) diferencia análise, execução nativa, bootstrap Windows, integração descartável e publicação de artefatos. Os relatórios são evidência de desenvolvimento/CI, com comparação de fonte e retentativa por nova tentativa; não criam eventos de domínio ou `HistoryEvent`. As mutações reais de provisionamento dentro das integrações reutilizam os recorders administrativos compartilhados e seu catálogo, fora dos dados alterados. Não se declara uma nova trilha de auditoria dos serviços humanos.
 
-## Situação desta entrega
+## Entrega Precision — 09/11/2026
+
+[Run 42660370192](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42660370192), commit `f7190400c5623d937b6a409a7c94c4550859f08a`: os seis jobs da fundação Precision passaram — nativo Linux AMD64, bootstrap Windows, Docker AMD64, build/empacotamento, verificação do ZIP real em Windows e publicação permanente. Digest das 141 fontes `53b323fd993c897f389758256177035bef730db5d40d19e6f047f28a386c8361`, idêntico nos relatórios e no pacote. A CLI registrou 279 testes/subtestes Go aprovados; os dois testes Docker foram executados no job próprio. `TestApprovedVendorArchives` continua opt-in, não executado nessa matriz. Os 95 cenários Windows, provedores GPU e dez contratos Python de validação passaram; dez contratos de distribuição passaram no Windows e executaram no Linux com três cenários específicos Windows ignorados, exigidos no job Windows.
+
+A [release permanente](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-f7190400c5623d937b6a409a7c94c4550859f08a) está publicada, com cinco arquivos e digests confirmados. ZIP SHA-256 `930785a169d6cf8acdf8e1e1149a63e3819f6bc86fe60f883cb52c10fa58a898`; TAR SHA-256 `04f91a641e75b629a50a876ac9d21ebdd5566d4bfdd322e170fc5147edf65b62`. O ZIP público foi baixado e verificado novamente em Windows local, somente em diretório descartável, preservando o hash antes/depois. Não houve instalação no equipamento, inicialização de WSL, driver/GPU, provisionamento de host ou mudança de Application Control. O [guia Precision](PRECISION.md) lista o aceite físico e as camadas restantes.
+
+Os jobs legados Linux/Windows, control, navegador do control e extensão passaram no run atual. A regressão completa do Portal permanece independente e ainda executava na última consulta. Seu run anterior terminou com 18 falhas backend em quatro arquivos, embora build/browser tenham passado; essa pendência está registrada no guia Precision e não foi corrigida nem convertida em aceite da aplicação nesta entrega.
+
+## Histórico da matriz anterior
 
 Foram validados localmente os contratos Python do executor/gate, a recusa de execução Go nativa no Windows, a análise/compilação dos três destinos e os testes Windows isolados. A máquina não possui distribuição WSL instalada. Nenhuma instalação, importação ou inicialização foi feita para executar os testes.
 
