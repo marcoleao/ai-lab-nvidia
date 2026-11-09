@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -356,6 +357,13 @@ func (f *fakeAccess) Do(req *http.Request) (*http.Response, error) {
 		return data(map[string]any{"version": 1})
 	}
 	if path == "sys/mounts" || path == "sys/auth" || path == "sys/audit" {
+		if path == "sys/audit" && policy != "root" {
+			rules, _ := f.objects["sys/policies/acl/"+policy]["policy"].(string)
+			block := regexp.MustCompile(`(?s)path\s+"sys/audit"\s*\{([^}]*)\}`).FindStringSubmatch(rules)
+			if len(block) != 2 || !strings.Contains(block[1], `"read"`) || !strings.Contains(block[1], `"sudo"`) {
+				return respond(403, map[string]any{})
+			}
+		}
 		return data(f.objects[path])
 	}
 	for _, base := range []string{"sys/mounts", "sys/auth", "sys/audit"} {
@@ -525,7 +533,7 @@ func TestAccessUnknownCompensationAndLostInitialization(t *testing.T) {
 	}
 }
 func TestAccessDriftAndExternalPublicationFailClosed(t *testing.T) {
-	for _, mode := range []string{"public", "owner", "binding", "image", "secret", "policy", "audit"} {
+	for _, mode := range []string{"public", "owner", "binding", "image", "secret", "policy", "audit", "audit-sudo"} {
 		t.Run(mode, func(t *testing.T) {
 			e, f, o := accessFixture(t, "precision-windows")
 			if mode == "public" {
@@ -556,6 +564,9 @@ func TestAccessDriftAndExternalPublicationFailClosed(t *testing.T) {
 				f.objects["sys/policies/acl/platform-viewer"]["policy"] = "changed"
 			case "audit":
 				delete(f.objects["sys/audit"], "platform/")
+			case "audit-sudo":
+				policy := f.objects["sys/policies/acl/platform-installer"]["policy"].(string)
+				f.objects["sys/policies/acl/platform-installer"]["policy"] = strings.ReplaceAll(policy, `"read", "sudo"`, `"read"`)
 			}
 			r, err = e.Run(context.Background(), o)
 			if r.AccessReady || err == nil && r.Outcome == "SUCCEEDED" {

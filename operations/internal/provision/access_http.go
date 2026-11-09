@@ -177,14 +177,14 @@ path "auth/oidc/*" { capabilities = ["create", "read", "update", "delete", "list
 path "auth/approle/role/platform-*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "identity/group*" { capabilities = ["create", "read", "update", "delete", "list"] }
 path "auth/token/create" { capabilities = ["update"] }
-path "sys/audit" { capabilities = ["read"] }
+path "sys/audit" { capabilities = ["read", "sudo"] }
 `
 	installer := operator + `path "sys/policies/acl/platform-*" { capabilities = ["read"] }
 path "auth/oidc/config" { capabilities = ["read"] }
 path "auth/oidc/role/platform" { capabilities = ["read"] }
 path "sys/mounts" { capabilities = ["read"] }
 path "sys/auth" { capabilities = ["read"] }
-path "sys/audit" { capabilities = ["read"] }
+path "sys/audit" { capabilities = ["read", "sudo"] }
 `
 	return map[string]string{"platform-operator": operator, "platform-viewer": viewer, "platform-security-admin": admin, "platform-installer": installer}
 }
