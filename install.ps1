@@ -2,8 +2,8 @@
 [CmdletBinding()]
 param(
     [ValidateSet('Plan', 'Install')][string]$Action = 'Plan',
-    [string]$Configuration = (Join-Path $PSScriptRoot 'environments/platform.json'),
-    [string]$WindowsProfile = (Join-Path $PSScriptRoot 'environments/windows.psd1'),
+    [string]$Configuration,
+    [string]$WindowsProfile,
     [string]$CliPackage,
     [string]$CliPackageSha256,
     [switch]$HostOnly,
@@ -21,6 +21,8 @@ $preflightOperationId = $null
 try {
     if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') { throw 'PLATFORM_POWERSHELL_POLICY_UNSUPPORTED' }
     if ($PSVersionTable.PSVersion -lt [Version]'5.1') { throw 'PLATFORM_POWERSHELL_VERSION_UNSUPPORTED' }
+    if (-not $PSBoundParameters.ContainsKey('Configuration')) { $Configuration = Join-Path $PSScriptRoot 'environments/platform.json' }
+    if (-not $PSBoundParameters.ContainsKey('WindowsProfile')) { $WindowsProfile = Join-Path $PSScriptRoot 'environments/windows.psd1' }
     $preflightOperationId = [Guid]::NewGuid().ToString()
     Import-Module (Join-Path $PSScriptRoot 'operations/bootstrap/windows.psm1') -Force -DisableNameChecking
     $result = Invoke-PlatformWindowsInstallation -Action $Action -Configuration $Configuration -WindowsProfile $WindowsProfile -CliPackage $CliPackage -CliPackageSha256 $CliPackageSha256 -HostOnly:$HostOnly -Through $Through -OriginRevision $OriginRevision -RuntimePool $RuntimePool -RuntimeMemoryGiB $RuntimeMemoryGiB -RuntimeCPUs $RuntimeCPUs -RuntimeDiskGiB $RuntimeDiskGiB -RuntimeMode $RuntimeMode

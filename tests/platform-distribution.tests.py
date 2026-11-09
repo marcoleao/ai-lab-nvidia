@@ -199,6 +199,41 @@ class DistributionContracts(unittest.TestCase):
         self.assertFalse((self.base / 'invalid-unpack').exists())
         self.assertFalse((self.base / 'outside-fixture').exists())
 
+    @unittest.skipUnless(os.name == "nt", "requires Windows PowerShell entry points")
+    def test_windows_entry_defaults_are_relative_to_script_and_preserve_explicit_paths(self):
+        root = self.base / 'entry points with spaces'; root.mkdir()
+        bootstrap = root / 'operations/bootstrap'; bootstrap.mkdir(parents=True)
+        for name in ['install.ps1', 'platform.ps1']:
+            (root / name).write_bytes(validation.source_bytes(ROOT / name))
+        # Replace only the provider module in this disposable fixture. No real host API.
+        (bootstrap / 'windows.psm1').write_text('''
+function Get-EntryFixture($Configuration,$WindowsProfile) {
+    [pscustomobject]@{configuration=$Configuration;profile=$WindowsProfile;marker='isolated-entry-fixture'}
+}
+function Invoke-PlatformWindowsInstallation {
+    param($Action,$Configuration,$WindowsProfile)
+    $result=Get-EntryFixture $Configuration $WindowsProfile
+    $result | Add-Member -NotePropertyName exit_code -NotePropertyValue 0
+    return $result
+}
+function Invoke-PlatformInstalledQuery {
+    param($Command,$Configuration,$WindowsProfile,$Arguments)
+    [pscustomobject]@{ExitCode=0;Output=((Get-EntryFixture $Configuration $WindowsProfile) | ConvertTo-Json -Compress)}
+}
+''', encoding='utf-8')
+        env = {k:v for k,v in os.environ.items() if k.upper() != 'PSMODULEPATH'}
+        shell = str(Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe')
+        for name in ['install.ps1', 'platform.ps1']:
+            for extra, expected in [([], [str(root / 'environments/platform.json'), str(root / 'environments/windows.psd1')]),
+                                    (['-Configuration', 'custom-config.json', '-WindowsProfile', 'custom-windows.psd1'],
+                                     ['custom-config.json', 'custom-windows.psd1'])]:
+                result = subprocess.run([shell, '-NoProfile', '-File', str(root / name), *extra], cwd=self.base,
+                                        env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                record = json.loads(result.stdout)
+                self.assertEqual(record['marker'], 'isolated-entry-fixture')
+                self.assertEqual([record['configuration'], record['profile']], expected)
+
     def verify_zip(self, archive, name):
         report = self.base / (name + '-verification.json')
         env = {k:v for k,v in os.environ.items() if k.upper() != 'PSMODULEPATH'}
