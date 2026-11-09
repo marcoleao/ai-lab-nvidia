@@ -26,7 +26,7 @@ func (e *Engine) cleanupObservabilityValidation(ctx context.Context, o Options, 
 		return err
 	}
 	if c != nil {
-		if c.Config.Labels["ai.platform.owner"] != s.Owner || c.Config.Labels["ai.platform.validation"] != v.Nonce || c.Config.Labels["ai.platform.component"] != "observability-validation" || c.Config.User != s.Services[v.Service]["user"] || !serviceRelease(v.Service).Platforms[e.Host.Arch].matchesID(c.Image) || c.HostConfig.NetworkMode != "none" || !c.HostConfig.ReadonlyRootfs || c.HostConfig.Privileged || len(c.HostConfig.CapAdd) != 0 || !containsString(c.HostConfig.CapDrop, "ALL") || !(containsString(c.HostConfig.SecurityOpt, "no-new-privileges") || containsString(c.HostConfig.SecurityOpt, "no-new-privileges:true")) || len(c.HostConfig.PortBindings) != 0 {
+		if c.Config.Labels["ai.platform.owner"] != s.Owner || c.Config.Labels["ai.platform.validation"] != v.Nonce || c.Config.Labels["ai.platform.component"] != "observability-validation" || c.Config.User != s.Services[v.Service]["user"] || !serviceRelease(v.Service).Platforms[e.Host.Arch].matchesID(c.Image) || c.HostConfig.NetworkMode != "none" || !c.HostConfig.ReadonlyRootfs || c.HostConfig.Privileged || len(c.HostConfig.CapAdd) != 0 || !containsString(c.HostConfig.CapDrop, "ALL") || !noNewPrivilegesEnabled(c.HostConfig.SecurityOpt) || len(c.HostConfig.PortBindings) != 0 {
 			return codedError("PLATFORM_OBSERVABILITY_VALIDATION_OWNERSHIP_CONFLICT")
 		}
 		seen := false

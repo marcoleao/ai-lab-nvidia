@@ -3,6 +3,7 @@ package provision
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -87,13 +88,16 @@ func (e *Engine) verifyObservability(ctx context.Context, o Options, seed observ
 func (e *Engine) waitObservability(ctx context.Context, o Options, seed observabilitySeed) error {
 	waitCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 	defer cancel()
+	lastReason := "NOT_OBSERVED"
 	for {
 		if err := e.verifyObservability(waitCtx, o, seed); err == nil {
 			return nil
+		} else if waitCtx.Err() == nil {
+			lastReason = code(err)
 		}
 		select {
 		case <-waitCtx.Done():
-			return codedError("PLATFORM_OBSERVABILITY_HEALTH_TIMEOUT")
+			return fmt.Errorf("%w: last_reason=%s", codedError("PLATFORM_OBSERVABILITY_HEALTH_TIMEOUT"), lastReason)
 		case <-time.After(500 * time.Millisecond):
 		}
 	}
