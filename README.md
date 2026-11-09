@@ -4,6 +4,8 @@
 
 [Regressão do Portal estabilizada](sdlc/docs/precision-regressao-portal-2026-11-09.md): run 42683170276 aprovado com 1.092 testes backend e 686 de navegador, sem falhas. Quatro integrações reais opt-in não executadas. Instalação independente do Portal na nova fundação, SSO e aceite no equipamento continuam pendentes.
 
+[GitLab independente](operations/GITLAB.md): fase `-Through Gitlab`, interface nativa, volumes próprios e operação pela CLI. [Release validada](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-98abb9a84f3c714bac7b411b34335e45c955966a): 292 testes Go, 102 cenários Windows e três integrações Docker aprovados. Runner, SSO e publicação continuam em etapas próprias. Um Homepage já preparado exige migração explícita para receber o novo link.
+
 O instalador é distribuído em `precision-setup.zip`, com bootstrap Windows, CLI Linux AMD64 e provas de CI. O padrão `-Through Hub` prepara WSL2/base, CLI, S.O./GPU, runtime, redes, identidade/cofre/borda, origem mTLS, observabilidade e Homepage. Não exige instalar Git, Go ou Python no host de operação. Na pasta extraída:
 
 ```powershell

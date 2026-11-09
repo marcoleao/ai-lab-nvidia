@@ -4,11 +4,11 @@ Decisão de 09/11/2026: concluir a plataforma na Precision. macOS M3 Max e Dell 
 
 ## Instalação da fundação
 
-A fase explícita `-Through Gitlab` está em validação para acrescentar o SCM independente antes do Homepage. [Contrato, comandos e limites](../operations/GITLAB.md). Runner, SSO e exposição pública não fazem parte dessa preparação. A release citada abaixo antecede esta fase.
+A fase explícita `-Through Gitlab` acrescenta o SCM independente antes do Homepage. [Contrato, comandos e limites](../operations/GITLAB.md). Runner, SSO e exposição pública não fazem parte dessa preparação. 292 testes Go, 102 cenários Windows e três integrações Docker foram aprovados no [run 42695824751](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42695824751). A instalação na Precision ainda está pendente.
 
 A distribuição `precision-setup.zip` reúne o bootstrap Windows, a CLI Linux AMD64, configuração de referência, checksums e três relatórios aprovados do mesmo commit/run/fontes. Não exige checkout Git, Go ou Python no equipamento de operação. Internet é necessária para os pré-requisitos e imagens; o ZIP não é uma instalação offline dos produtos.
 
-O canal permanente é [Releases](https://github.com/marcoleao/ai-lab-nvidia/releases). Use a [release corrigida da Precision](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-6a65810b36b65c63b03d5cdcbdc538b807658f2a), publicada em 09/11/2026. Ela corrige a resolução dos caminhos padrão dos entrypoints Windows. Compare o hash do ZIP com `precision-release.json`, obtido nessa mesma release de cinco arquivos. O hash detecta alteração em relação à origem escolhida; não é assinatura independente.
+O canal permanente é [Releases](https://github.com/marcoleao/ai-lab-nvidia/releases). Use a [release Precision com GitLab](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-98abb9a84f3c714bac7b411b34335e45c955966a), publicada em 09/11/2026. Compare o hash do ZIP com `precision-release.json`, obtido nessa mesma release de cinco arquivos. ZIP público reconferido: SHA-256 `1bea240e5ce70c34eb8b919176436c71026b4f28872353613b627825cc30fcb2`. O hash detecta alteração em relação à origem escolhida; não é assinatura independente.
 
 Extraia o ZIP numa pasta estável, local e sem links de diretório, por exemplo `C:\AIPlatform\setup`. Na pasta extraída:
 
@@ -20,6 +20,8 @@ Extraia o ZIP numa pasta estável, local e sem links de diretório, por exemplo 
 ```
 
 O padrão agora é `-Through Hub`: WSL2/base → CLI → S.O./GPU → runtime → redes → identidade/cofre/borda → origem mTLS → observabilidade → Homepage. O instalador prepara os componentes ausentes; não exige instalar WSL manualmente. Saída 3010 pede reinício do Windows e repetição do mesmo comando/conta. Retentativas verificam propriedade e estado, preservando recursos existentes. Sem elevação ou diante de restrições de política, o diagnóstico orienta a correção; não desativa Application Control.
+
+Para incluir GitLab numa instalação nova, execute `.\install.ps1 -Action Install -Through Gitlab`: o GitLab entra antes do Homepage. A URL padrão é http://git.localhost:3180, com porta configurável. O plano do ZIP público com `-Action Plan -Through Gitlab` passou localmente como leitura: pacote verificado, WSL disponível, distro da solução ausente e elevação necessária para instalar; nenhum serviço foi provisionado. Homepage já preparado com três links exige migração explícita, ainda pendente.
 
 O pacote é verificado antes das mudanças do host: scripts, TAR, recibo e relatórios precisam corresponder à identidade da release. Configuração não é código: `environments/platform.json` e `environments/windows.psd1` permanecem editáveis e passam pela validação normal do instalador/CLI. Defina identidade, armazenamento e nome da distro antes da primeira instalação; não altere essas referências para adotar recursos de outra instalação. Sem domínio público, mantenha `base_domain: null`. Entrada direta e túnel continuam configuráveis; o instalador ainda não ativa acesso público.
 
@@ -40,7 +42,7 @@ Consulte [operação e diagnóstico](../operations/OPERATIONS.md) para privilég
 | Distribuição | Seis jobs Precision aprovados na CI, três relatórios vinculados, ZIP real verificado em Windows, release permanente com cinco arquivos e download público reconferido localmente | Instalar pelo ZIP na Precision |
 | Host e operação | Pré-requisitos, distro dedicada, driver ausente, runtime e auditoria implementados; plano real da Precision aprovado, WSL disponível, distro da solução ausente e elevação necessária para instalar | Instalação real pelo instalador, reinício e retomada; validar GPU em container, disco, memória e operação após boot |
 | Rede e acesso | Segmentação, Keycloak/OpenBao/Caddy, origem mTLS e configuração dos dois caminhos de ingresso; integração Docker AMD64 comprovada na entrega anterior | SSO integrado, permissões/contas de uso, rotação operacional e ativação pública direta/túnel com aceite externo |
-| Ferramentas | Cofre, identidade, Grafana e Homepage preparados separadamente do Portal | Extrair/provisionar GitLab e Runner do legado; Sonar e registro de imagens; configuração, diagnóstico e inclusão das interfaces nativas no hub |
+| Ferramentas | Cofre, identidade, Grafana e Homepage preparados separadamente do Portal; GitLab SCM independente validado em Docker AMD64 | Runner com executor separado, Sonar e registro de imagens; migração do Homepage existente e integrações/SSO dos produtos |
 | Observabilidade | Prometheus/Loki/Collector/Grafana; seis sinais HTTP/JVM, dashboard e alertas versionados | Coleta de host/GPU, logs e traces dos serviços/aplicações, retenção e alertas de operação |
 | Modelos e governança | Catálogo/contratos arquiteturais; Ollama e consumidores ainda no legado | APIs de inferência com autenticação, quotas e catálogo; gateway de modelos e MCP; políticas por identidade/capacidade, negações e auditoria correlacionada |
 | Agentes e replay | Execução SDLC existente ainda ligada ao legado | Runtime separado, consumo das APIs governadas, rastreabilidade de execução, simulação/replay e ferramentas nativas de inspeção |
