@@ -1,6 +1,6 @@
 # Validação da fundação e liberação dos pacotes
 
-Implementação de 09/11/2026. Go permanece no núcleo operacional; os testes desse núcleo executam nativamente em Linux AMD64, Linux ARM64 e macOS ARM64. No Windows, validam-se os bootstraps PowerShell e os provedores isolados. Compilar testes para outra plataforma não equivale a executá-los.
+Implementação de 09/11/2026. Go permanece no núcleo operacional; a CI ativa da Precision executa os testes desse núcleo em Linux AMD64. Linux ARM64 e macOS ARM64 ficam no backlog, com evidência anterior preservada. No Windows, validam-se bootstraps PowerShell, provedores isolados e distribuição. Compilar testes para outra plataforma não equivale a executá-los.
 
 ## Comandos de desenvolvimento
 
@@ -32,11 +32,10 @@ Os relatórios ficam em `.cache/platform-validation/`, com tentativa/correlaçã
 | Verificação | Ambiente | Evidência exigida |
 | --- | --- | --- |
 | Unitários/CLI/release instalada | Linux AMD64 | `NATIVE_UNIT_PASSED` |
-| Unitários/CLI/release instalada | Linux ARM64 | `NATIVE_UNIT_PASSED` |
-| Unitários/CLI/release instalada | macOS ARM64 | `NATIVE_UNIT_PASSED` |
 | Bootstrap/provedores Windows | Windows AMD64 | `WINDOWS_BOOTSTRAP_PASSED` |
 | Redes, acesso, observabilidade, Homepage e limpeza reais | Linux AMD64 descartável | `DISPOSABLE_DOCKER_PASSED` |
-| Mesmo recorte Docker | Linux ARM64 descartável | `DISPOSABLE_DOCKER_PASSED` |
+
+Escopo ativo desde 09/11/2026: Precision Windows/WSL2. Linux ARM64 e macOS ARM64 ficam no backlog; sua evidência anterior é preservada abaixo. Os três relatórios incluem os contratos aplicáveis; testes de distribuição executam também em Windows, sem executar Go no Windows.
 
 O workflow [validate.yaml](../.github/workflows/validate.yaml) separa os jobs nativos dos bootstraps Windows. Integrações requerem a opção `--disposable` e execução declarada no GitHub Actions. Executam somente os testes reais opt-in, com nomes obrigatórios e os recorders/limpeza próprios já implementados. Não são testes de driver, GPU física, Colima real, boot do equipamento ou instalação de host completa.
 
@@ -44,9 +43,11 @@ O workflow [validate.yaml](../.github/workflows/validate.yaml) separa os jobs na
 
 ## Liberação
 
-O job `platform-cli-build` depende do sucesso dos três conjuntos: nativos, Windows e integrações. Antes do build/publicação, [release-gate.py](../operations/scripts/release-gate.py) exige exatamente seis relatórios aprovados, com checks completos e vínculo ao mesmo commit, run e digest das fontes atuais. Recibos antigos, ausentes, parciais, estáticos, bloqueados ou de outra arquitetura/fonte são recusados. Não há `continue-on-error` no caminho de liberação.
+O job `platform-cli-build` depende do sucesso dos três conjuntos: nativo Linux AMD64, Windows e integração Docker AMD64. Antes do build, [release-gate.py](../operations/scripts/release-gate.py) exige exatamente esses três relatórios aprovados, com checks completos e vínculo ao mesmo commit, run e digest das fontes atuais. A [política de release](../operations/release-policy.json) fixa perfil/destino/backlog. Recibos antigos, ausentes, parciais, estáticos, bloqueados ou de outra arquitetura/fonte são recusados. Não há `continue-on-error` no caminho de liberação.
 
-Somente depois são publicados os três TARs/checksums e `validation.json`, com os hashes dos relatórios de suporte. O layout operacional dos TARs continua fechado em 11 arquivos; o recibo é externo ao TAR. Artefatos de diagnóstico de tentativas falhas são publicados separadamente, sem serem pacotes liberados. O empacotador local ainda pode gerar candidatos para desenvolvimento; arquivo/hash local isolados não constituem aprovação da CI ou qualificação do hardware.
+Somente depois são preparados TAR/checksum Linux AMD64 e `validation.json`, com os hashes das provas, e o ZIP Precision com instalador, CLI e relatórios. O TAR mantém seus 11 arquivos. `precision-setup-validation` extrai e verifica o ZIP real em Windows, sem provisionar o host: layout fechado, ausência de links/traversal, hashes do código/pacote e vínculo das provas ao mesmo código/run. A publicação exige esse recibo adicional aprovado e ligado ao hash do ZIP.
+
+`precision-release` publica cinco arquivos imutáveis em GitHub Releases, após os gates, somente em push no repositório/branch de entrega fixados no workflow. O token pertence ao job, com permissão de escrita somente nesse job. A publicação começa em draft; perda de resposta retoma os mesmos arquivos já confirmados por digest. Conflito nunca sobrescreve arquivo existente, e release publicada incompleta é recusada. Repetir somente o job de publicação sobre o mesmo candidato pode resultar em `NO_CHANGE`; repetir toda a CI produz novas provas, que podem divergir da release imutável do mesmo commit e serão recusadas. Use outro commit para uma nova distribuição. Candidatos têm retenção de 30 dias; a release publicada é o canal permanente. Relatórios de tentativa ficam na CI. Candidato/hash isolados não constituem aprovação ou qualificação de hardware.
 
 O catálogo [validation-catalog.json](../operations/validation-catalog.json) diferencia análise, execução nativa, bootstrap Windows, integração descartável e publicação de artefatos. Os relatórios são evidência de desenvolvimento/CI, com comparação de fonte e retentativa por nova tentativa; não criam eventos de domínio ou `HistoryEvent`. As mutações reais de provisionamento dentro das integrações reutilizam os recorders administrativos compartilhados e seu catálogo, fora dos dados alterados. Não se declara uma nova trilha de auditoria dos serviços humanos.
 
@@ -60,7 +61,7 @@ A [execução de integração anterior](https://github.com/marcoleao/ai-lab-nvid
 
 A [execução intermediária](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42645393253) passou nos seis testes, mas o gate recusou os pacotes: `WindowsPath` e `PosixPath` ordenavam nomes com maiúsculas/minúsculas de forma diferente. A correção usa a mesma ordem de nomes relativos POSIX em todos os hosts; os contratos Python passaram a executar também no Windows. O gate conservou suas exigências e foi aprovado somente após a repetição completa.
 
-**Evidência final — 09/11/2026:** [run 42647394054](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42647394054), commit `124ac0c4c2def64df414e2718ccfc809b7e3697f`. Os nove jobs da fundação passaram: três testes nativos, bootstrap Windows, duas integrações Docker e três builds/empacotamentos. Os seis relatórios foram aceitos pelo gate, com o mesmo commit/run e digest das 135 fontes: `9d61a842055c22865c2160c756e6e2105139651beea2185ed6aa07e8ed6742b0`. Os relatórios Windows e Linux foram conferidos também a partir dos artefatos reais, com hashes idênticos das fontes.
+**Evidência final da matriz anterior — 09/11/2026:** [run 42647394054](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42647394054), commit `124ac0c4c2def64df414e2718ccfc809b7e3697f`. Os nove jobs da fundação passaram: três testes nativos, bootstrap Windows, duas integrações Docker e três builds/empacotamentos. Os seis relatórios foram aceitos pelo gate, com o mesmo commit/run e digest das 135 fontes: `9d61a842055c22865c2160c756e6e2105139651beea2185ed6aa07e8ed6742b0`. Os relatórios Windows e Linux foram conferidos também a partir dos artefatos reais, com hashes idênticos das fontes.
 
 | Artefato de CI | Conteúdo |
 | --- | --- |

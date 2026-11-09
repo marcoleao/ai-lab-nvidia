@@ -2,9 +2,11 @@
 
 Data: 07/11/2026.
 
+**Escopo ativo revisto em 09/11/2026:** concluir na Precision Windows/WSL2. macOS M3 Max e Dell GB10 ficam no backlog, com código/perfis preservados. O [guia Precision](PRECISION.md) define instalação, critérios de aceite e sequência restante. A política de release passa a exigir três relatórios Precision e a verificação do ZIP real em Windows; os seis relatórios e três destinos citados abaixo são a evidência histórica da entrega anterior. O instalador Windows padrão agora inclui observabilidade e hub (`-Through Hub`). A nova distribuição permanente ainda depende de sua execução de CI; instalação física e plataforma completa permanecem pendentes.
+
 Status em 09/11/2026: F0 parcial, F1a–F1d, F2a/F2b, F2c1/F2c2a/F2c2b, operação dos serviços/runtime e núcleo F3a/F4a implementados em código; F4b acrescenta prova dos sinais HTTP/JVM. F8a implementa o hub Homepage nativo, com três links locais e manutenção própria, separado do Portal SDLC. Testes nativos passaram na CI em Linux AMD64/ARM64 e macOS ARM64; 95 cenários Windows, testes dos provedores GPU e dez contratos Python passaram sem executar Go no Windows ou mudar Application Control. A [execução final](VALIDACAO_DA_FUNDACAO.md) passou nos nove jobs da fundação, incluindo integrações Docker AMD64/ARM64 e publicação dos três pacotes após os seis relatórios vinculados. Qualificação WSL/equipamentos, navegador, SSO e publicação externa permanecem pendentes. Autoarranque, demais ferramentas/coleta/IA/agentes/aplicações continuam no backlog. Não se declara implantação no ambiente humano ou instalação completa.
 
-Validação de desenvolvimento: [comandos e evidências](VALIDACAO_DA_FUNDACAO.md). Checks estáticos, bootstrap Windows e execução nativa ficam separados; os pacotes exigem seis relatórios aprovados do mesmo código. A publicação no branch de CI foi autorizada e executada. A evidência identifica commit, run, fontes, escopo e limitações; os registros históricos abaixo não substituem esse estado atual.
+Validação de desenvolvimento: [comandos e evidências](VALIDACAO_DA_FUNDACAO.md). Checks estáticos, bootstrap Windows e execução nativa ficam separados; a política ativa exige os três relatórios Precision aprovados do mesmo código. A publicação anterior no branch de CI foi autorizada e executada. A evidência identifica commit, run, fontes, escopo e limitações; os registros históricos abaixo não substituem esse estado atual.
 
 ## 1. Escopo confirmado
 

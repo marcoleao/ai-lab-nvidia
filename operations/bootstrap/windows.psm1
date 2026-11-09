@@ -2,6 +2,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../audit/WindowsRecorder.psm1') -DisableNameChecking
 . (Join-Path $PSScriptRoot 'core.ps1')
+. (Join-Path $PSScriptRoot 'distribution.ps1')
 . (Join-Path $PSScriptRoot 'windows-gpu.ps1')
 . (Join-Path $PSScriptRoot 'prerequisites.ps1')
 
@@ -46,7 +47,7 @@ function Read-PlatformWindowsContext([string]$Configuration, [string]$WindowsPro
         $storage.StartsWith($control + '\', [StringComparison]::OrdinalIgnoreCase) -or
         $control.StartsWith($storage + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'PLATFORM_CONTROL_MUST_BE_EXTERNAL' }
     $catalog = Import-PowerShellDataFile -LiteralPath (Join-Path $PSScriptRoot 'actions.psd1')
-    $sourceHashes = @('windows.psm1','core.ps1','windows-gpu.ps1','prerequisites.ps1','core-release.sh','installed-platform.sh','linux-host.sh','wsl-config.awk','actions.psd1','../audit/WindowsRecorder.psm1') | ForEach-Object {
+    $sourceHashes = @('windows.psm1','core.ps1','distribution.ps1','windows-gpu.ps1','prerequisites.ps1','core-release.sh','installed-platform.sh','linux-host.sh','wsl-config.awk','actions.psd1','../audit/WindowsRecorder.psm1') | ForEach-Object {
         (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $_) -Algorithm SHA256).Hash.ToLowerInvariant()
     }
     return [pscustomobject]@{
@@ -346,7 +347,7 @@ function Ensure-PlatformLinux($Context) {
 function Invoke-PlatformWindowsInstallation {
     param([ValidateSet('Plan','Install')][string]$Action='Plan', [string]$Configuration, [string]$WindowsProfile,
         [string]$CliPackage, [string]$CliPackageSha256, [switch]$HostOnly,
-        [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub')][string]$Through='Origin',
+        [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub')][string]$Through='Hub',
         [string]$OriginRevision='',
         [string]$RuntimePool='10.248.0.0/16',[int]$RuntimeMemoryGiB=16,[int]$RuntimeCPUs=4,[int]$RuntimeDiskGiB=80,[ValidateSet('auto','owned','external')][string]$RuntimeMode='auto')
     $context = Read-PlatformWindowsContext $Configuration $WindowsProfile

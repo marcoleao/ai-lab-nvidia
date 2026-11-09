@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "active_profile": "precision-windows",
+  "target": "linux-amd64",
+  "required_reports": ["native-linux-amd64.json", "windows-bootstrap.json", "docker-linux-amd64.json"],
+  "backlog_profiles": ["macos-m3-max", "dell-gb10"],
+  "repository": "marcoleao/ai-lab-nvidia",
+  "release_tag_prefix": "precision-",
+  "qualification": "FOUNDATION_CORE_NOT_COMPLETE_PLATFORM_OR_HARDWARE"
+}

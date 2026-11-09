@@ -10,10 +10,6 @@ jobs:
         include:
           - os: ubuntu-24.04
             target: linux-amd64
-          - os: ubuntu-24.04-arm
-            target: linux-arm64
-          - os: macos-15
-            target: darwin-arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -61,8 +57,6 @@ jobs:
         include:
           - os: ubuntu-24.04
             target: linux-amd64
-          - os: ubuntu-24.04-arm
-            target: linux-arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
@@ -94,10 +88,6 @@ jobs:
         include:
           - goos: linux
             goarch: amd64
-          - goos: linux
-            goarch: arm64
-          - goos: darwin
-            goarch: arm64
     env:
       GOTOOLCHAIN: local
       GOTELEMETRY: 'off'
@@ -116,7 +106,7 @@ jobs:
           pattern: platform-validation-*
           path: .cache/platform-validation/evidence
           merge-multiple: true
-      - name: Require six successful reports for this commit, run and exact sources
+      - name: Require Precision native, Windows and Docker reports for these sources
         run: python operations/scripts/release-gate.py --reports .cache/platform-validation/evidence --receipt .cache/platform-packages/validation.json
       - name: Build package only after native validation and real Docker integration
         env:
@@ -126,6 +116,8 @@ jobs:
           mkdir -p ".cache/platform/${GOOS}-${GOARCH}"
           go -C operations build -trimpath -o "$PWD/.cache/platform/${GOOS}-${GOARCH}/platform" ./cmd/platform
           sh operations/scripts/package-cli.sh "${GOOS}-${GOARCH}" ".cache/platform/${GOOS}-${GOARCH}/platform" .cache/platform-packages
+      - name: Prepare self-contained Precision installer from validated inputs
+        run: python operations/scripts/precision-release.py prepare --packages .cache/platform-packages --reports .cache/platform-validation/evidence --output .cache/precision-release
       - uses: actions/upload-artifact@v4
         with:
           name: platform-${{ matrix.goos }}-${{ matrix.goarch }}
@@ -136,6 +128,66 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: precision-setup-candidate
+          path: .cache/precision-release/*
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+  precision-setup-validation:
+    needs: platform-cli-build
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: precision-setup-candidate
+          path: .cache/precision-candidate
+      - name: Verify the real setup bundle in Windows without provisioning the host
+        shell: powershell
+        run: ./operations/scripts/verify-precision-bundle.ps1 -Archive .cache/precision-candidate/precision-setup.zip -Destination .cache/precision-bundle-verification -Report .cache/precision-setup-verification.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-setup-verification
+          path: .cache/precision-setup-verification.json
+          include-hidden-files: true
+          if-no-files-found: error
+  precision-release:
+    needs: [platform-cli-build, precision-setup-validation]
+    if: github.event_name == 'push' && github.repository == 'marcoleao/ai-lab-nvidia' && github.ref == 'refs/heads/codex/precision-foundation-2026-11-09'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: precision-setup-candidate
+          path: .cache/precision-release
+      - uses: actions/download-artifact@v4
+        with:
+          name: precision-setup-verification
+          path: .cache/precision-release
+      - name: Publish immutable Precision release after actual Windows bundle verification
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python operations/scripts/precision-release.py publish --output .cache/precision-release
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-publication-receipt
+          path: .cache/precision-release/publication.json
+          include-hidden-files: true
+          if-no-files-found: warn
   portal-foundation:
     runs-on: ubuntu-24.04
     timeout-minutes: 40

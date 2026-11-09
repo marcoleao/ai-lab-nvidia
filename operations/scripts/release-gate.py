@@ -1,4 +1,4 @@
-"""Require six successful, source-bound native/CI reports before publishing."""
+"""Require Precision's source-bound native, Windows and Docker reports."""
 import argparse
 import hashlib
 import json
@@ -9,12 +9,9 @@ import sys
 from validation import ROOT, source_digest
 
 EXPECTED = {
-    "native-linux-amd64.json": ("unit", "linux-amd64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
-    "native-linux-arm64.json": ("unit", "linux-arm64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
-    "native-darwin-arm64.json": ("unit", "darwin-arm64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts"}),
-    "windows-bootstrap.json": ("windows", "windows-amd64", "WINDOWS_BOOTSTRAP_PASSED", {"platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1", "validation-contracts"}),
+    "native-linux-amd64.json": ("unit", "linux-amd64", "NATIVE_UNIT_PASSED", {"native-go-tests", "native-installed-release", "validation-contracts", "distribution-contracts"}),
+    "windows-bootstrap.json": ("windows", "windows-amd64", "WINDOWS_BOOTSTRAP_PASSED", {"platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1", "validation-contracts", "distribution-contracts"}),
     "docker-linux-amd64.json": ("integration", "linux-amd64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker"}),
-    "docker-linux-arm64.json": ("integration", "linux-arm64", "DISPOSABLE_DOCKER_PASSED", {"TestNetworkWithRealDocker", "TestAccessWithRealDocker"}),
 }
 
 
@@ -55,6 +52,10 @@ def main():
     parser.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args()
     digest = source_digest()
+    policy = json.loads((ROOT / "operations/release-policy.json").read_text(encoding="utf-8"))
+    if policy["active_profile"] != "precision-windows" or set(policy["required_reports"]) != set(EXPECTED):
+        print("PLATFORM_RELEASE_POLICY_INVALID", file=sys.stderr)
+        return 1
     commit, run_id = os.environ.get("GITHUB_SHA"), os.environ.get("GITHUB_RUN_ID")
     try:
         evidence = require_reports(args.reports, digest, commit, run_id)
@@ -62,7 +63,7 @@ def main():
         print("PLATFORM_RELEASE_VALIDATION_REQUIRED", file=sys.stderr)
         return 1
     args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps({"schema_version": 1, "action": "PLATFORM_VALIDATED_PACKAGES_PUBLISHED", "outcome": "SUCCEEDED", "phase": "COMPLETED", "decision": "NOT_APPLICABLE", "commit": commit, "ci_run_id": run_id, "source_sha256": digest, "evidence_sha256": evidence, "scope": "NATIVE_UNIT_WINDOWS_BOOTSTRAP_DOCKER_INTEGRATION_NOT_HARDWARE", "installation_ready": False}, indent=2) + "\n", encoding="utf-8")
+    args.receipt.write_text(json.dumps({"schema_version": 1, "action": "PLATFORM_VALIDATED_PACKAGES_PUBLISHED", "outcome": "SUCCEEDED", "phase": "COMPLETED", "decision": "NOT_APPLICABLE", "commit": commit, "ci_run_id": run_id, "source_sha256": digest, "evidence_sha256": evidence, "scope": "PRECISION_NATIVE_WINDOWS_BOOTSTRAP_DOCKER_NOT_HARDWARE", "profile": "precision-windows", "backlog_profiles": policy["backlog_profiles"], "installation_ready": False}, indent=2) + "\n", encoding="utf-8")
     return 0
 
 

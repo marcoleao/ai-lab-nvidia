@@ -7,7 +7,7 @@ param(
     [string]$CliPackage,
     [string]$CliPackageSha256,
     [switch]$HostOnly,
-    [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub')][string]$Through='Origin',
+    [ValidateSet('Base','Host','Runtime','Network','Access','Origin','Ingress','Observability','Hub')][string]$Through='Hub',
     [string]$OriginRevision='',
     [string]$RuntimePool='10.248.0.0/16',
     [ValidateRange(4,64)][int]$RuntimeMemoryGiB=16,

@@ -1,6 +1,7 @@
 @{
     SchemaVersion = 1
     Commands = @{
+        Distribution = @{ Action = 'PLATFORM_DISTRIBUTION_BUNDLE_VALIDATED'; Effect = 'read_only'; AuditPersistence = 'none_read_only'; Comparison = 'NOT_APPLICABLE_READ_ONLY'; Rollback = 'NOT_APPLICABLE_NO_MUTATION' }
         Plan = @{ Action = 'PLATFORM_WINDOWS_INSTALLATION_PLANNED'; Effect = 'read_only'; AuditPersistence = 'none_read_only'; Comparison = 'NOT_APPLICABLE_READ_ONLY'; Rollback = 'NOT_APPLICABLE_NO_MUTATION' }
         Query = @{ Effect = 'read_only'; AuditPersistence = 'none_read_only'; Actions = @('PLATFORM_CONFIGURATION_VALIDATED','PLATFORM_INVENTORY_READ','PLATFORM_PLAN_COMPUTED','PLATFORM_PUBLICATION_PLAN_COMPUTED') }
         Observe = @{ Effect = 'read_only'; AuditPersistence = 'none_read_only'; Actions = @('PLATFORM_RUNTIME_STATUS_READ','PLATFORM_RUNTIME_DIAGNOSED') }

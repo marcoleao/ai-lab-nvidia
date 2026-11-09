@@ -155,6 +155,7 @@ def execute(mode, root, output, env, checks, disposable=False):
         for name in ("platform-installer.tests.ps1", "platform-windows-gpu.tests.ps1"):
             run(["powershell.exe", "-NoProfile", "-File", root / "tests" / name], root, windows_env, checks, name)
         run([sys.executable, root / "tests/platform-validation.tests.py"], root, windows_env, checks, "validation-contracts")
+        run([sys.executable, root / "tests/platform-distribution.tests.py"], root, windows_env, checks, "distribution-contracts")
         return
     go = find_go()
     expected_version = next(line.split()[1] for line in (root / "operations/go.mod").read_text().splitlines() if line.startswith("go "))
@@ -193,6 +194,7 @@ def execute(mode, root, output, env, checks, disposable=False):
     run(["sh", root / "tests/platform-core-release.tests.sh"], root, dict(env, PLATFORM_TEST_NATIVE_BINARY=str(binary)), checks, "native-installed-release")
     run([sys.executable, root / "tests/platform-security-updates.tests.py"], root, env, checks, "security-package-selection")
     run([sys.executable, root / "tests/platform-validation.tests.py"], root, env, checks, "validation-contracts")
+    run([sys.executable, root / "tests/platform-distribution.tests.py"], root, env, checks, "distribution-contracts")
 
 
 def main(argv=None):

@@ -33,7 +33,7 @@ class ValidationContracts(unittest.TestCase):
         env = {"PSModulePath": "fixture-powershell-7-modules", "PATH": "fixture-path"}
         with patch.object(validation, "host_target", return_value="windows-amd64"), patch.object(validation, "run") as run:
             validation.execute("windows", ROOT, ROOT, env, [])
-        self.assertEqual(run.call_count, 3)
+        self.assertEqual(run.call_count, 4)
         for call in run.call_args_list:
             self.assertEqual(call.args[2], {"PATH": "fixture-path"})
         self.assertIn("PSModulePath", env)
@@ -75,6 +75,8 @@ class ValidationContracts(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/validate.yaml").read_text(encoding="utf-8")
         native = workflow.split("  platform-cli:\n", 1)[1].split("  platform-windows-bootstrap:", 1)[0]
         self.assertNotIn("windows-latest", native)
+        self.assertNotIn("macos-15", native)
+        self.assertNotIn("ubuntu-24.04-arm", native)
         release = workflow.split("  platform-cli-build:\n", 1)[1].split("  portal-foundation:", 1)[0]
         self.assertIn("needs: [platform-cli, platform-windows-bootstrap, platform-integration]", release)
         self.assertLess(release.index("release-gate.py"), release.index("package-cli.sh"))
@@ -90,7 +92,7 @@ class ValidationContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
             self.reports(directory)
-            self.assertEqual(len(gate.require_reports(directory, "a" * 64, "b" * 40, "123")), 6)
+            self.assertEqual(len(gate.require_reports(directory, "a" * 64, "b" * 40, "123")), 3)
             for field, value in (("qualification", "STATIC_ONLY"), ("commit", "c" * 40), ("ci_run_id", "old"), ("source_sha256", "d" * 64), ("outcome", "DEFERRED"), ("exit_code", False)):
                 self.reports(directory)
                 sample = directory / "native-linux-amd64.json"
@@ -98,7 +100,7 @@ class ValidationContracts(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     gate.require_reports(directory, "a" * 64, "b" * 40, "123")
             self.reports(directory)
-            (directory / "docker-linux-arm64.json").unlink()
+            (directory / "docker-linux-amd64.json").unlink()
             with self.assertRaisesRegex(ValueError, "INCOMPLETE"):
                 gate.require_reports(directory, "a" * 64, "b" * 40, "123")
 

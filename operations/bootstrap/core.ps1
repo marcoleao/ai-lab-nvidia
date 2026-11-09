@@ -1,5 +1,9 @@
 # Windows coordinator for the portable release primitive. Dot-sourced by windows.psm1.
 function Read-PlatformCliPackage([string]$Path, [string]$ExpectedSha256) {
+    if (-not $Path -and -not $ExpectedSha256) {
+        $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+        if (Test-Path -LiteralPath (Join-Path $root 'precision-lock.json')) { return Read-PlatformBundledPackage $root }
+    }
     if (-not $Path) { $Path = Join-Path $PSScriptRoot '../../.cache/platform-packages/platform-linux-amd64.tar.gz' }
     $absolute = Assert-PlatformPlainPath $Path
     if (-not (Test-Path -LiteralPath $absolute -PathType Leaf)) { throw 'PLATFORM_CLI_PACKAGE_REQUIRED' }

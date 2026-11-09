@@ -1,10 +1,12 @@
 # Entrega e recuperação da CLI — F1b
 
-A entrega F1b encadeia WSL2/base Linux e CLI com `-Through Base`. O padrão continua por [S.O./runtime](HOST-RUNTIME.md), [redes](NETWORK.md) e [identidade/cofre/borda locais F2b](ACCESS.md). `-Through Host`, `Runtime` e `Network` limitam às respectivas fases; `-HostOnly` limita a F1a. `installation_ready=false`: publicação, ferramentas, modelos e aplicações continuam pendentes.
+A entrega F1b encadeia WSL2/base Linux e CLI com `-Through Base`. O padrão Precision agora é `-Through Hub`, incluindo S.O./runtime, redes, acesso, origem mTLS, observabilidade e Homepage. `-Through Host`, `Runtime` e `Network` limitam às respectivas fases; `-HostOnly` limita a F1a. `installation_ready=false`: publicação externa, demais ferramentas, modelos e aplicações continuam pendentes. macOS/GB10 estão no backlog.
 
 ## Pacote e execução
 
-O instalador procura `.cache/platform-packages/platform-linux-amd64.tar.gz` e `platform-linux-amd64.sha256`, ou recebe arquivo/hash explícitos:
+O canal de operação é o ZIP descrito no [guia Precision](../docs/PRECISION.md). Ele inclui instalador, CLI e provas; não exige Git/Go/Python no equipamento. Sem argumentos de pacote e com `precision-lock.json`, o instalador verifica o código, o TAR, o recibo e os três relatórios antes de alterar o host. Configuração permanece editável; alteração de script ou prova incoerente é recusada. O pacote real também passa por extração/verificação em Windows na CI antes da release permanente.
+
+Para desenvolvimento, sem lock de distribuição, o instalador continua procurando `.cache/platform-packages/platform-linux-amd64.tar.gz` e `platform-linux-amd64.sha256`, ou recebe arquivo/hash explícitos:
 
 ```powershell
 .\install.ps1 -Action Plan
@@ -50,6 +52,6 @@ cd ..
 sh operations/scripts/package-cli.sh linux-amd64 .cache/platform/linux-amd64/platform .cache/platform-packages
 ```
 
-O [empacotador](scripts/package-cli.sh) recebe um binário já compilado e produz TAR/USTAR e checksum; não provisiona host nem baixa dependências. A CI usa o mesmo fluxo para `linux-amd64`, `linux-arm64` e `darwin-arm64`. O pacote contém somente fontes declarativas públicas e binário, sem controles privados, ledger ou dados de aplicações. Download e aprovação da distribuição ainda dependem do canal de entrega do projeto.
+O [empacotador](scripts/package-cli.sh) recebe um binário já compilado e usa Python 3.12+ somente no build para produzir TAR/USTAR determinístico e checksum; não provisiona host nem baixa dependências. A CI ativa publica `linux-amd64`; os destinos ARM64 ficam preservados no código e no backlog. O pacote contém somente fontes declarativas públicas e binário, sem controles privados, ledger ou dados de aplicações. O TAR mantém seu contrato de 11 arquivos; o ZIP de distribuição acrescenta o instalador Windows e as provas externamente ao TAR.
 
-Os 28 cenários PowerShell F1a/F1b foram preservados e ampliados para 36 com F1c/F1d. Suíte Go e `go vet` passaram. O teste de releases exercita filesystem real descartável, com backend/CPU simulados em Git Bash: pacote, extração, configuração, idempotência, ativação, restauração, corrupção e recusa de arquivos. CI com Go nativo em Linux/macOS configurada, sem execução remota comprovada. Mac/GB10 agora têm entrada shell, adaptadores e recorder nativo de preparação; não têm ainda o coordenador de releases estáveis equivalente ao Windows. Qualificação física/WSL/GPU permanece pendente.
+Os testes de release exercitam filesystem descartável: pacote, extração, configuração, idempotência, ativação, restauração, corrupção e recusa de arquivos. A distribuição acrescenta testes isolados de ZIP fechado, reprodutibilidade, vínculo das provas, scripts alterados, traversal recusado antes de extrair e publicação com resposta perdida/retentativa/conflito sem sobrescrita. Consulte a [evidência de CI](../docs/VALIDACAO_DA_FUNDACAO.md) para resultados e escopo; fixtures não equivalem à instalação no equipamento. Mac/GB10 não têm o coordenador de releases estáveis equivalente ao Windows. Qualificação física/WSL/GPU permanece pendente.

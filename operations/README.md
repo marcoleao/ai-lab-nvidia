@@ -1,6 +1,8 @@
 # Operação da plataforma
 
-[Hub Homepage F8a](HUB.md): instalação e manutenção explícitas do ponto de entrada visual nativo, com links locais da fundação e ciclo separado do Portal SDLC. Fase `hub`/`-Through Hub`, sem ampliar `all`/`Origin`. 95 cenários Windows passaram; novos testes Go compilados, com execução bloqueada pelo Application Control. Qualificação real permanece pendente.
+**Escopo ativo: Precision Windows/WSL2.** macOS M3 Max e Dell GB10 ficam no backlog. O [guia Precision](../docs/PRECISION.md) é a entrada de instalação e aceite. A distribuição ZIP inclui bootstrap Windows, CLI Linux AMD64 e três provas vinculadas; o padrão Windows é agora `-Through Hub`, incluindo observabilidade e Homepage. O código compartilhado/perfis restantes são preservados. A evidência histórica e os gates atuais estão na [validação da fundação](../docs/VALIDACAO_DA_FUNDACAO.md); instalação física e plataforma completa ainda não estão qualificadas. As notas de evolução abaixo preservam o recorte de cada fase.
+
+[Hub Homepage F8a](HUB.md): instalação e manutenção explícitas do ponto de entrada visual nativo, com links locais da fundação e ciclo separado do Portal SDLC. Fase `hub`/`-Through Hub`, inclu?do no padr?o Windows `Hub`. 95 cenários Windows passaram; novos testes Go compilados, com execução bloqueada pelo Application Control. Qualificação real permanece pendente.
 
 [Diagnóstico dos sinais F4b](OBSERVABILITY-DIAGNOSTICS.md): seis fontes HTTP/JVM explícitas no `doctor`, idade por timestamp da amostra e distinção entre backends disponíveis e sinais degradados. `doctor --component telemetry` verifica essa cobertura. Suíte Go integral/vet e 88 cenários Windows passaram em 09/11/2026, resolvendo a pendência anterior sem alteração de política. CI remota e equipamentos permanecem pendentes.
 
@@ -48,9 +50,9 @@ Referências de suporte ao desenho: [instalação do WSL](https://learn.microsof
 
 ### Usar o bootstrap Windows F1a
 
-O padrão inclui F1/F2a/F2b/F2c2a, com pacote verificado. `-Through Base`, `Host`, `Runtime`, `Network` e `Access` limitam a execução; `-Through Origin` acrescenta mTLS local e é o padrão. `-HostOnly` limita à base Linux descrita nesta seção.
+O padrão Windows inclui F1/F2a/F2b/F2c2a, observabilidade e Homepage, com pacote verificado (`-Through Hub`). `-Through Base`, `Host`, `Runtime`, `Network` e `Access` limitam a execução; `-Through Origin` termina em mTLS local; `-Through Observability` termina antes do hub. `-HostOnly` limita à base Linux descrita nesta seção.
 
-Na raiz do checkout, o comando padrão apenas consulta o host e mostra o escopo, sem downloads, gravação de estado ou inicialização de distros:
+Na pasta extraída do ZIP (ou checkout de desenvolvimento), o comando padrão apenas consulta o host e mostra o escopo, sem downloads, gravação de estado ou inicialização de distros:
 
 ```powershell
 .\install.ps1
