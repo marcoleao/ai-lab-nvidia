@@ -203,6 +203,9 @@ class DistributionContracts(unittest.TestCase):
     def test_windows_entry_defaults_are_relative_to_script_and_preserve_explicit_paths(self):
         root = self.base / 'entry points with spaces'; root.mkdir()
         bootstrap = root / 'operations/bootstrap'; bootstrap.mkdir(parents=True)
+        (root / 'environments').mkdir()
+        (root / 'environments/platform.json').write_text('{}', encoding='utf-8')
+        (root / 'environments/windows.psd1').write_text('@{}', encoding='utf-8')
         for name in ['install.ps1', 'platform.ps1']:
             (root / name).write_bytes(validation.source_bytes(ROOT / name))
         # Replace only the provider module in this disposable fixture. No real host API.
@@ -232,7 +235,13 @@ function Invoke-PlatformInstalledQuery {
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 record = json.loads(result.stdout)
                 self.assertEqual(record['marker'], 'isolated-entry-fixture')
-                self.assertEqual([record['configuration'], record['profile']], expected)
+                actual = [record['configuration'], record['profile']]
+                if extra:
+                    self.assertEqual(actual, expected)  # Explicit paths are passed through unchanged.
+                else:
+                    # PowerShell expands Windows 8.3 names (RUNNER~1); compare file identity.
+                    for observed, target in zip(actual, expected):
+                        self.assertTrue(os.path.samefile(observed, target))
 
     def verify_zip(self, archive, name):
         report = self.base / (name + '-verification.json')
