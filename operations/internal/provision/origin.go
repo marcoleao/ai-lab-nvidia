@@ -43,8 +43,23 @@ func (e *Engine) originLabels(o Options, r originResource, m originMaterial) map
 	return map[string]string{"ai.platform.installation": o.InstallationID, "ai.platform.profile": o.Profile, "ai.platform.owner": m.Owner, "ai.platform.component": "origin-tls", "ai.platform.generation": r.Generation, "ai.platform.spec": r.Spec}
 }
 func (e *Engine) validateOriginContainer(o Options, r originResource, m originMaterial, c *accessContainer) error {
-	if c.Name != "/"+r.Name || r.ID != "" && c.ID != r.ID || c.Config.User != "1000:1000" || !c.HostConfig.ReadonlyRootfs || c.HostConfig.Privileged || len(c.HostConfig.CapAdd) != 0 || !containsString(c.HostConfig.CapDrop, "ALL") || !(containsString(c.HostConfig.SecurityOpt, "no-new-privileges:true") || containsString(c.HostConfig.SecurityOpt, "no-new-privileges")) {
-		return codedError("PLATFORM_ORIGIN_CONTAINER_CHANGED")
+	field := ""
+	switch {
+	case c.Name != "/"+r.Name || r.ID != "" && c.ID != r.ID:
+		field = "identity"
+	case c.Config.User != "1000:1000":
+		field = "user"
+	case !c.HostConfig.ReadonlyRootfs:
+		field = "readonly_rootfs"
+	case c.HostConfig.Privileged || len(c.HostConfig.CapAdd) != 0:
+		field = "added_privileges"
+	case !containsString(c.HostConfig.CapDrop, "ALL"):
+		field = "dropped_capabilities"
+	case !noNewPrivilegesEnabled(c.HostConfig.SecurityOpt):
+		field = "security_options"
+	}
+	if field != "" {
+		return fmt.Errorf("%w: field=%s", codedError("PLATFORM_ORIGIN_CONTAINER_CHANGED"), field)
 	}
 	image := accessReleases()["caddy"].Platforms[e.Host.Arch]
 	if !image.matchesID(c.Image) || familiarProbeImage(c.Config.Image) != familiarProbeImage(image.Reference) {

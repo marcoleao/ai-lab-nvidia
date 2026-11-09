@@ -178,7 +178,7 @@ func (e *Engine) validateAccessContainer(o Options, s accessSpec, key string, c 
 	if !serviceRelease(key).Platforms[e.Host.Arch].matchesID(c.Image) || familiarProbeImage(c.Config.Image) != familiarProbeImage(ref) {
 		return codedError("PLATFORM_ACCESS_CONTAINER_IMAGE_CHANGED")
 	}
-	if !containsString(c.HostConfig.CapDrop, "ALL") || !(containsString(c.HostConfig.SecurityOpt, "no-new-privileges") || containsString(c.HostConfig.SecurityOpt, "no-new-privileges:true")) {
+	if !containsString(c.HostConfig.CapDrop, "ALL") || !noNewPrivilegesEnabled(c.HostConfig.SecurityOpt) {
 		return codedError("PLATFORM_ACCESS_CONTAINER_PRIVILEGES_CHANGED")
 	}
 	allowed := map[string]bool{}
@@ -305,6 +305,21 @@ func containsString(values []string, wanted string) bool {
 		}
 	}
 	return false
+}
+
+func noNewPrivilegesEnabled(options []string) bool {
+	enabled := false
+	for _, option := range options {
+		switch option {
+		case "no-new-privileges", "no-new-privileges:true", "no-new-privileges=true":
+			enabled = true
+		default:
+			if strings.HasPrefix(option, "no-new-privileges") {
+				return false
+			}
+		}
+	}
+	return enabled
 }
 func (e *Engine) accessState(ctx context.Context, o Options, s accessSpec) (map[string]map[string]any, error) {
 	state := map[string]map[string]any{}
