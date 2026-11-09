@@ -94,7 +94,7 @@ test('The Assistant mobile menu offers HELP by keyboard while APIs are offline a
   const offline=await offlineApis(page);await trigger.focus();await page.keyboard.press('Enter');
   const dialog=page.getByRole('dialog',{name:'Menu principal',exact:true});await expect(dialog).toBeVisible();
   const link=dialog.getByRole('navigation',{name:'Ajuda',exact:true}).getByRole('link',{name:helpLabel,exact:true});
-  await link.focus();await page.keyboard.press('Enter');await expect(page).toHaveURL(/\/help$/);
+  await link.focus();await expect(link).toBeFocused();await page.keyboard.press('Enter');await expect(page).toHaveURL(/\/help$/);
   await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();await expect(dialog).toBeHidden();
   await expect(helpLink(page)).toHaveAttribute('aria-current','page');expect(state.writes).toEqual([]);expect(state.errors).toEqual([]);expect(offline.writes).toEqual([]);expect(offline.errors).toEqual([]);
 });

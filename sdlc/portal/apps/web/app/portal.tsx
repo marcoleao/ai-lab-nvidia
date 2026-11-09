@@ -60,7 +60,8 @@ function AssistantMobileNavigation() {
   }, []);
   return <><button ref={trigger} type="button" className="assistant-mobile-menu-trigger" aria-label="Abrir menu principal" aria-haspopup="dialog" aria-expanded={open} aria-controls="assistant-navigation-dialog" onClick={() => {
     if (!dialog.current?.open) dialog.current?.showModal(); setOpen(true);
-    requestAnimationFrame(() => dialog.current?.querySelector<HTMLAnchorElement>('[aria-current="page"]')?.focus());
+    // Links are already mounted; delayed focus can override the next keyboard choice.
+    dialog.current?.querySelector<HTMLAnchorElement>('[aria-current="page"]')?.focus();
   }}><Menu size={20} aria-hidden="true" /></button>
     <div className="assistant-mobile-brand">Dell Technologies<span>Portal SDLC</span></div>
     <dialog ref={dialog} id="assistant-navigation-dialog" className="assistant-mobile-menu" aria-labelledby="assistant-navigation-title" onCancel={event => { event.preventDefault(); close(); }} onClose={() => setOpen(false)}>

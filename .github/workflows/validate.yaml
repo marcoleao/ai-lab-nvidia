@@ -188,9 +188,9 @@ jobs:
           path: .cache/precision-release/publication.json
           include-hidden-files: true
           if-no-files-found: warn
-  portal-foundation:
+  portal-backend:
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: sdlc/portal
@@ -233,15 +233,59 @@ jobs:
           python3 tests/dev-ai-executor.test.py
           python3 tests/coding-micro.test.py
           node --test tests/browser-controls.test.mjs
-      - name: Browser dependencies
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Registered backend and browser regression
-        run: pnpm regression:ci
+      - name: Registered isolated backend regression
+        run: pnpm regression:backend
       - name: Regression reports and failure traces
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: portal-regression-${{ github.run_attempt }}
+          name: portal-backend-regression-${{ github.run_attempt }}
+          path: sdlc/portal/test-results/regression/
+          if-no-files-found: warn
+          retention-days: 7
+  portal-foundation:
+    needs: portal-backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: sdlc/portal
+    env:
+      DATABASE_URL: postgresql://sdlc:disposable-ci-only@localhost:5432/portal_test
+      TEST_DATABASE_URL: postgresql://sdlc:disposable-ci-only@localhost:5432/portal_test
+      DEMO_MODE: 'true'
+      PORTAL_ORIGIN: http://127.0.0.1:3000
+      API_BASE_URL: http://127.0.0.1:4100
+      NEXT_TELEMETRY_DISABLED: '1'
+    services:
+      postgres:
+        image: postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+        env:
+          POSTGRES_USER: sdlc
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: portal_test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U sdlc -d portal_test" --health-interval 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare workspace
+        run: npm install --global pnpm@12.14.0 && pnpm install --frozen-lockfile
+      - name: Generate database client and apply isolated migrations
+        run: pnpm db:generate && pnpm db:setup
+      - name: Browser dependencies
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Build the current application
+        run: pnpm build
+      - name: Registered browser regression after backend approval
+        run: pnpm regression:browser
+      - name: Regression reports and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-browser-regression-${{ github.run_attempt }}
           path: sdlc/portal/test-results/regression/
           if-no-files-found: warn
           retention-days: 7

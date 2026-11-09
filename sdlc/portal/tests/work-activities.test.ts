@@ -10,6 +10,7 @@ import type {Transaction} from '../packages/db/client.ts';
 import {bindActivityTasks,finishAttempt,workLinksVersion} from '../apps/api/src/work-activities.ts';
 import {approvedSnapshot} from './approved-scope.ts';
 import {pipelineTasks} from '../apps/api/src/pipeline-tasks.ts';
+const counterexample={input:'Isolated input',actual:'Observed faulty output',expected:'Required output'};
 
 test('work selection version is independent from ordering and changes only with selected scope',()=>{
  const a={taskId:'a',scope:'Consulta',completion:'publish_code'},b={taskId:'b',scope:'Evidência manual',completion:'manual_evidence'};
@@ -80,10 +81,11 @@ describe.skipIf(!url)('real tasks and observable work',()=>{
  test('review retries reuse process task, preserve attempts and cannot mark success with stale lease',async()=>{
   const f=await fixture(),run=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.repository.id,storyVersion:1,state:'succeeded',stage:'completed',snapshot:await f.snapshot({codeContext:{sha:base}}),actorId:'admin',actorName:'Admin',commitSha:sha}});
   await db.mergeOperation.create({data:{executionId:run.id,storyId:f.story.id,projectId:f.repository.gitlabProjectId!,iid:1,sourceBranch:'sdlc/test',targetBranch:'main',sha}});
-  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({summary:'Achado concreto.',findings:[{path:'app.js',line:1,severity:'LOW',message:'Validar a entrada.'}]})});
+  llm.complete.mockResolvedValue({model:llm.model,content:JSON.stringify({summary:'Achado concreto.',findings:[{counterexample,path:'app.js',line:1,severity:'LOW',message:'Validar a entrada.'}]})});
   const first=await f.post(`/api/executions/${run.id}/quality`,{kind:'code_review',expectedVersion:await f.version(),expectedSha:sha});expect(first.statusCode,first.body).toBe(200);await runtime.processQualityJobs();
+  expect((await db.qualityCheck.findUniqueOrThrow({where:{id:first.json().checkId}})).state).toBe('blocked');expect(llm.complete).toHaveBeenCalledTimes(2);
   const activity=await db.workActivity.findFirstOrThrow({where:{storyId:f.story.id,kind:'code_review'}});expect((await db.item.findUniqueOrThrow({where:{id:activity.taskId}})).status).toBe('doing');
-  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({summary:'Nenhum achado.',findings:[]})});const retry=await f.post(`/api/executions/${run.id}/quality`,{kind:'code_review',expectedVersion:await f.version(),expectedSha:sha});expect(retry.statusCode,retry.body).toBe(200);await runtime.processQualityJobs();
+  llm.complete.mockResolvedValue({model:llm.model,content:JSON.stringify({summary:'Nenhum achado.',findings:[]})});const retry=await f.post(`/api/executions/${run.id}/quality`,{kind:'code_review',expectedVersion:await f.version(),expectedSha:sha});expect(retry.statusCode,retry.body).toBe(200);await runtime.processQualityJobs();
   expect(await db.workActivity.count({where:{storyId:f.story.id,kind:'code_review'}})).toBe(1);expect(await db.workAttempt.count({where:{activityId:activity.id}})).toBe(2);expect((await db.item.findUniqueOrThrow({where:{id:activity.taskId}})).status).toBe('done');
   const before=await db.workAttempt.findUniqueOrThrow({where:{sourceKey:`quality:${first.json().checkId}`}});await db.$transaction(tx=>finishAttempt(tx,{} as AssistantHelpers,before.sourceKey,{state:'succeeded',completeTask:true,leaseId:'stale-lease'}));expect((await db.workAttempt.findUniqueOrThrow({where:{id:before.id}})).state).toBe('blocked');
  });
@@ -104,7 +106,7 @@ describe.skipIf(!url)('real tasks and observable work',()=>{
  test('a requested correction resolves the finding wait and reopens only linked coding work',async()=>{
   const f=await fixture(),run=await db.storyExecution.create({data:{storyId:f.story.id,repositoryId:f.repository.id,storyVersion:1,state:'succeeded',stage:'completed',snapshot:await f.snapshot({codeContext:{sha:base,targetBranch:'main',files:[{path:'app.js',content:'export const answer=0;'}]}}),patch:{files:[{path:'app.js',content:'export const answer=42;'}]},actorId:'admin',actorName:'Admin',commitSha:sha}});
   await db.mergeOperation.create({data:{executionId:run.id,storyId:f.story.id,projectId:f.repository.gitlabProjectId!,iid:1,sourceBranch:'sdlc/test',targetBranch:'main',sha}});
-  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({summary:'Correção necessária.',findings:[{path:'app.js',line:1,severity:'HIGH',message:'Validar o comportamento de entrada.'}]})});
+  llm.complete.mockResolvedValue({model:llm.model,content:JSON.stringify({summary:'Correção necessária.',findings:[{counterexample,path:'app.js',line:1,severity:'HIGH',message:'Validar o comportamento de entrada.'}]})});
   const review=await f.post(`/api/executions/${run.id}/quality`,{kind:'code_review',expectedVersion:await f.version(),expectedSha:sha});await runtime.processQualityJobs();
   // Configure the correction capability; the endpoint only enqueues, never writes a repository.
   git.publishCorrection=vi.fn(async()=>({sha:'e'.repeat(40),url:'http://gitlab/test/-/merge_requests/1'}));
@@ -138,7 +140,11 @@ describe.skipIf(!url)('real tasks and observable work',()=>{
   llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({blocker:{reason:'Uma dependência precisa de autorização.',question:'Autoriza a dependência?',options:['Autorizar'],requestedCapabilities:['dependencies']}})});await runtime.processExecutionJobs();
   let run=await db.storyExecution.findUniqueOrThrow({where:{id:runId}});expect(run.state).toBe('waiting_input');
   const message=await f.post(`/api/executions/${runId}/messages`,{expectedVersion:run.discussionVersion,message:'Autorizo adicionar a dependência necessária ao escopo.'});expect(message.statusCode,message.body).toBe(200);
-  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({reply:'Decisão pronta para sua confirmação.',ready:true,summary:'Autorizar a dependência necessária ao escopo informado.',requestedCapabilities:['dependencies']})});await runtime.processExecutionJobs();
+  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({reply:'Orientação registrada. Prepare a proposta para revisar a dependência.',ready:false,summary:'',requestedCapabilities:[]})});await runtime.processExecutionJobs();
+  run=await db.storyExecution.findUniqueOrThrow({where:{id:runId}});
+  const premature=await f.post(`/api/executions/${runId}/resolve`,{expectedVersion:run.discussionVersion,confirmed:true,allowDependencies:true});expect(premature.statusCode,premature.body).toBe(409);expect(premature.json().error.code).toBe('DECISION_NOT_READY');
+  const prepare=await f.post(`/api/executions/${runId}/messages`,{expectedVersion:run.discussionVersion,intent:'prepare_decision'});expect(prepare.statusCode,prepare.body).toBe(200);
+  llm.complete.mockResolvedValueOnce({model:llm.model,content:JSON.stringify({summary:'Autorizar a dependência necessária ao escopo informado.',requestedCapabilities:['dependencies'],openQuestions:[],dependencyChanges:[{package:'isolated-validator',reason:'Validar a entrada na fixture isolada.',impact:'Adicionar somente a validação prevista no escopo de teste.'}]})});await runtime.processExecutionJobs();
   run=await db.storyExecution.findUniqueOrThrow({where:{id:runId}});const coding=await db.workActivity.findFirstOrThrow({where:{storyId:f.story.id,kind:'coding'}}),before=await db.workAttempt.findUniqueOrThrow({where:{id:coding.currentAttemptId!}});expect(before.state).toBe('waiting_input');
   const resolved=await f.post(`/api/executions/${runId}/resolve`,{expectedVersion:run.discussionVersion,confirmed:true,allowDependencies:true});expect(resolved.statusCode,resolved.body).toBe(200);
   const old=await db.workAttempt.findUniqueOrThrow({where:{id:before.id},include:{events:true}});expect(old.state).toBe('superseded');expect(old.waitingSince).toBeNull();expect(old.events.some(e=>e.kind==='wait_resolved')).toBe(true);expect((await db.item.findUniqueOrThrow({where:{id:coding.taskId}})).status).toBe('doing');
