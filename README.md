@@ -2,6 +2,8 @@
 
 **Entrega ativa: Precision Windows/WSL2.** macOS M3 Max e Dell GB10 ficam no backlog. O [guia Precision](docs/PRECISION.md) reúne instalação, operação, critérios de conclusão e pendências por camada. Backup e roteiro de demonstração ficam para etapas posteriores.
 
+[Regressão do Portal estabilizada](sdlc/docs/precision-regressao-portal-2026-11-09.md): run 42683170276 aprovado com 1.092 testes backend e 686 de navegador, sem falhas. Quatro integrações reais opt-in não executadas. Instalação independente do Portal na nova fundação, SSO e aceite no equipamento continuam pendentes.
+
 O instalador é distribuído em `precision-setup.zip`, com bootstrap Windows, CLI Linux AMD64 e provas de CI. O padrão `-Through Hub` prepara WSL2/base, CLI, S.O./GPU, runtime, redes, identidade/cofre/borda, origem mTLS, observabilidade e Homepage. Não exige instalar Git, Go ou Python no host de operação. Na pasta extraída:
 
 ```powershell
@@ -10,7 +12,7 @@ O instalador é distribuído em `precision-setup.zip`, com bootstrap Windows, CL
 .\install.ps1 -Action Install
 ```
 
-O [guia de distribuição](operations/CLI-INSTALLATION.md) explica verificação e retomada após reinício. A [política Precision](operations/release-policy.json) exige três relatórios do mesmo commit/fontes: testes Linux AMD64, bootstrap Windows e integração Docker AMD64. **Os seis jobs da entrega Precision passaram na [CI real](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42660370192)**, incluindo a verificação do ZIP real em Windows e sua [release permanente](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-f7190400c5623d937b6a409a7c94c4550859f08a). A [evidência detalhada](docs/VALIDACAO_DA_FUNDACAO.md) conserva os limites de cada validação. A operação usa a CLI dentro do WSL2, sem executável Windows próprio ou alteração do Application Control.
+O [guia de distribuição](operations/CLI-INSTALLATION.md) explica verificação e retomada após reinício. A [política Precision](operations/release-policy.json) exige três relatórios do mesmo commit/fontes: testes Linux AMD64, bootstrap Windows e integração Docker AMD64. **Os seis jobs da entrega Precision passaram na [CI real](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42686896308)**, incluindo a verificação do ZIP real em Windows e sua [release permanente](https://github.com/marcoleao/ai-lab-nvidia/releases/tag/precision-6a65810b36b65c63b03d5cdcbdc538b807658f2a). A [evidência detalhada](docs/VALIDACAO_DA_FUNDACAO.md) conserva os limites de cada validação. A operação usa a CLI dentro do WSL2, sem executável Windows próprio ou alteração do Application Control.
 
 O hub local usa as interfaces nativas de Keycloak, OpenBao e Grafana. O [estado por camada](docs/PRECISION.md) distingue o que já tem executor comum das ferramentas/aplicações ainda ligadas ao legado. `installation_ready=false`: CI da fundação não comprova a Precision instalada nem a plataforma completa. O domínio público permanece configurável e opcional na instalação local; entrada direta e túnel são preservados como caminhos futuros.
 

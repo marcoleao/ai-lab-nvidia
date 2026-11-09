@@ -20,4 +20,8 @@ A correção visual não cria tela, muda destino, altera gates ou adiciona métr
 
 ## Evidência e limites
 
-Implementação preparada; testes Node/PostgreSQL/browser ainda precisam da execução da CI desta revisão. O equipamento não foi provisionado. A release da fundação permanece a publicada no commit anterior; a aprovação da fundação não concede aceite ao Portal. Instalação independente do Portal sobre a nova infraestrutura, SSO, telemetria, inferência real e publicação externa continuam pendentes.
+[Run 42683170276](https://github.com/marcoleao/ai-lab-nvidia/actions/runs/42683170276), commit `3883b1a8527f638179f8c916d1a7d64e87022392`: execução concluída com sucesso. Backend aprovado com 1.092 testes em 95 arquivos, zero falhas. Os quatro casos ignorados são integrações reais opt-in: dois de GitLab/modelo, um de merge e um de qualidade. As suítes antes falhas passaram: build 16/16, implantação 12/12, destino 10/10 e atividades 15/15; os dois novos contratos de ciclo de migrations também passaram. Os resultados foram conferidos no artefato real `portal-backend-regression-1` (13702749491).
+
+Navegador: 686 casos aprovados, zero ignorados, zero falhas e zero casos instáveis, cobrindo todo o catálogo. Artefato `portal-browser-regression-1` (13705527868), `scope=all-catalogued` e `sourceStable=true`. Fingerprint de runtime `a2ba59d106e7ff2a53290c34f89ccca381881f11d44057b00ca1042ecd3d9cd6`; testes `51624992e56ad315022bcdb20f273aa4a60b39e9ae9c34a3fe8f468801d2000a`. Inclui HELP por teclado com APIs offline e a preservação dos contratos existentes do menu móvel. Não houve alteração de nomes/casos do catálogo para obter aprovação.
+
+O equipamento não foi provisionado. A release da fundação permanece a publicada no commit anterior; a aprovação da fundação não concede aceite ao Portal. Instalação independente do Portal sobre a nova infraestrutura, SSO, telemetria, inferência real e publicação externa continuam pendentes.
