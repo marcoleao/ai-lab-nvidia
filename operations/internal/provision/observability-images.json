@@ -1,0 +1,58 @@
+{
+    "grafana":  {
+                    "version":  "13.3.0",
+                    "index":  "sha256:488984b716c0862639f91a698adbe2862677a5a07bad42da5f03f3030883b205",
+                    "platforms":  {
+                                      "amd64":  {
+                                                    "reference":  "docker.io/grafana/grafana@sha256:6e5d306338670f381a942f1c50d3c266bf71531e5ddd9ee4fc1a133dac5ce63d",
+                                                    "config":  "sha256:6afa1ab7f6e662c739a45a1d458598d7eb6ab70fc7c0ab45af64864e1503d4b6"
+                                                },
+                                      "arm64":  {
+                                                    "reference":  "docker.io/grafana/grafana@sha256:868b6ae6642ec09a71a1273d4c0eb952856c1f421137b33e26038e629ee3c208",
+                                                    "config":  "sha256:d2bd57647b75782cd681a6cdf42826a5e7a6f95d064aa6195bb9570e4b2bc2c5"
+                                                }
+                                  }
+                },
+    "prometheus":  {
+                       "version":  "v3.16.0",
+                       "index":  "sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06",
+                       "platforms":  {
+                                         "amd64":  {
+                                                       "reference":  "docker.io/prom/prometheus@sha256:89c1a644817e9ad70fa2af76c84898e327c1de7063735f962e8313b1e28672c3",
+                                                       "config":  "sha256:9bd9cbec4bd4f33bb6ccedf8c25a5132f8e7b2fb158c9a223a54485e4332e962"
+                                                   },
+                                         "arm64":  {
+                                                       "reference":  "docker.io/prom/prometheus@sha256:c523006440e714e0e53405b77e9f6ee668871d9855fc1c853fd43f5b990c34d2",
+                                                       "config":  "sha256:7f85376d84dfaa45cefabdd37f9fc76ed8498301252223ff393f030e8e48a873"
+                                                   }
+                                     }
+                   },
+    "loki":  {
+                 "version":  "3.7.9",
+                 "index":  "sha256:0db216b630ae1f348a1584c67f3cead8b4c1fc839169a39501db664744158e28",
+                 "platforms":  {
+                                   "amd64":  {
+                                                 "reference":  "docker.io/grafana/loki@sha256:569e5cab050b7705eb82080335ff9a8bd329650b358bb0d42131e3ced8d9492e",
+                                                 "config":  "sha256:5d47ead9b695cb22fb4851f09efd40ffd41db92278d847bdfafc25f9c5d654e7"
+                                             },
+                                   "arm64":  {
+                                                 "reference":  "docker.io/grafana/loki@sha256:1a779c5f714e795ac698b125fc265ae97292f792a91535fa29726073d03d5580",
+                                                 "config":  "sha256:3f691db8cd2f3312fccbe58bfd8e90094d65e3ae13e565034051fb7abd333618"
+                                             }
+                               }
+             },
+    "collector":  {
+                      "version":  "0.165.0",
+                      "index":  "sha256:e40d61f10c9a617cca1ffd1be4d7e2b3a4b0f0001798ff07e58cabe82e618cea",
+                      "platforms":  {
+                                        "amd64":  {
+                                                      "reference":  "docker.io/otel/opentelemetry-collector-contrib@sha256:bda8c1d727effc2f937d2a3470ea3f9ee189b8dd96d2385a2475b0b6f16ec3f8",
+                                                      "config":  "sha256:1080afcdde7624998314ebd6cc707c401436f00dfbd778eb9d0466f7a2501c40"
+                                                  },
+                                        "arm64":  {
+                                                      "reference":  "docker.io/otel/opentelemetry-collector-contrib@sha256:19b524dc61144cb50e9dccc9469605706db48e3302ddccda404a0aaf0a99a73f",
+                                                      "config":  "sha256:aa4d14f5e191ba226d50675d629c803eea1f3147a1c001ee68fc4ebfb735912f"
+                                                  }
+                                    }
+                  }
+}

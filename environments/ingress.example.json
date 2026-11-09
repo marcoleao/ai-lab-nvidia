@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "installation_id": "ai-platform-local",
+  "default_profile": "precision-windows",
+  "default_stack": "foundation",
+  "publication": {
+    "mode": "local",
+    "base_domain": null,
+    "public_urls": {},
+    "ingress": {
+      "revision": "edge-one",
+      "hostname": null,
+      "direct_port": 10443,
+      "tunnel_port": 10444,
+      "tunnel_id": null
+    }
+  },
+  "ports": {}
+}

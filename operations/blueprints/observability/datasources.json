@@ -1,0 +1,7 @@
+{
+  "apiVersion":1,
+  "datasources":[
+    {"name":"Platform Metrics","uid":"platform-metrics","type":"prometheus","access":"proxy","url":"http://metrics:9090","isDefault":true,"editable":false,"version":1,"jsonData":{"httpMethod":"POST","timeInterval":"15s"}},
+    {"name":"Platform Logs","uid":"platform-logs","type":"loki","access":"proxy","url":"http://logs:3100","editable":false,"version":1,"jsonData":{"maxLines":500}}
+  ]
+}

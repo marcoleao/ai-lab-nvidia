@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "macos-m3-max",
+  "host_os": "macos",
+  "architecture": "arm64",
+  "accelerator": "metal",
+  "container_runtime": "docker-linux-vm",
+  "inference_runtime": "ollama-native",
+  "component_dependencies": {"inference": ["host"]},
+  "capacity": {"host_memory_gib": 128, "inference_memory_gib": null, "max_parallel_jobs": 1},
+  "qualification": {"status": "not_qualified", "evidence": []}
+}

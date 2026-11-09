@@ -1,0 +1,234 @@
+{
+  "uid": "platform-foundation",
+  "title": "Fundação · Operação",
+  "tags": [
+    "platform",
+    "foundation"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": false,
+  "refresh": "15s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "@INSTALLATION@ · @PROFILE@",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Saúde técnica local · atualização a cada 15 s.\n\n**Fontes:** Prometheus, Collector e endpoints locais. **Ausência de série significa sem medição, nunca saudável.** Saúde HTTP/JVM não aprova publicação, release ou gate do SDLC."
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Coletores e armazenamento de métricas",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "platform-metrics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 8,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "up{job=~\"prometheus|telemetry\"}",
+          "legendFormat": "{{job}}",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Sem medição",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Indisponível",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "Disponível",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Endpoints · resposta HTTP 2xx",
+      "description": "Verificação sintética sem credenciais, não valida autorização ou conteúdo de negócio. Cofre selado retorna erro de saúde.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "platform-metrics"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 4,
+        "w": 16,
+        "h": 5
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "httpcheck_status{http_status_class=\"2xx\"} and on() (up{job=\"telemetry\"} == 1)",
+          "legendFormat": "{{http_url}}",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Sem medição",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Sem 2xx",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "HTTP 2xx",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Tempo das sondas HTTP",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "platform-metrics"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "httpcheck_duration",
+          "legendFormat": "{{http_url}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "noValue": "Sem medição"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Identidade · memória JVM heap",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "platform-metrics"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+          "legendFormat": "{{id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "noValue": "Sem medição"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "text",
+      "title": "Cobertura e próximos sinais",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 24,
+        "h": 6
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Ainda não coletados:** host/WSL/VM, disco, GPU NVIDIA/Metal, origem mTLS, middleware de entrega, modelos, agentes e aplicações/Portal SDLC.\n\n**Logs:** Loki preparado como backend, sem pipeline de logs de agentes ou aplicações. A fonte Platform Logs pode estar vazia. Não há captura de prompts, arquivos privados ou socket Docker.\n\n**Alertas:** regras locais consultáveis no Prometheus; notificações externas e Alertmanager ainda não configurados. Sondas HTTP do Collector são componente alpha e não substituem os gates de domínio."
+      }
+    }
+  ]
+}

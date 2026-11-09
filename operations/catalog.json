@@ -1,0 +1,437 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    "precision-windows",
+    "macos-m3-max",
+    "dell-gb10"
+  ],
+  "layers": [
+    "host",
+    "access",
+    "network",
+    "platform",
+    "middleware",
+    "observability",
+    "ai",
+    "agentic",
+    "applications"
+  ],
+  "stacks": {
+    "foundation": [
+      "homepage",
+      "edge",
+      "origin-tls",
+      "ingress-adapters",
+      "grafana",
+      "langfuse",
+      "registry",
+      "gitlab-runner",
+      "sonarqube",
+      "agent-runtime",
+      "sdlc"
+    ],
+    "sdlc": [
+      "gitlab-runner",
+      "sonarqube",
+      "agent-runtime",
+      "sdlc"
+    ],
+    "replay": [
+      "replay"
+    ]
+  },
+  "components": [
+    {
+      "id": "host",
+      "layer": "host",
+      "kind": "infrastructure",
+      "product": null,
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/host.go",
+      "depends_on": [],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "network",
+      "layer": "network",
+      "kind": "infrastructure",
+      "product": null,
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/network.go",
+      "depends_on": [
+        "container-runtime"
+      ],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "container-runtime",
+      "layer": "platform",
+      "kind": "infrastructure",
+      "product": "docker",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/runtime.go",
+      "depends_on": [
+        "host"
+      ],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "identity",
+      "layer": "access",
+      "kind": "tool",
+      "product": "keycloak",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/access_spec.go",
+      "depends_on": [
+        "network"
+      ],
+      "integrates_with": [],
+      "local_port": 8082,
+      "public_name": "auth",
+      "exposure": "application"
+    },
+    {
+      "id": "secret-store",
+      "layer": "access",
+      "kind": "tool",
+      "product": "openbao",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/access_http.go",
+      "depends_on": [
+        "network",
+        "identity",
+        "edge"
+      ],
+      "integrates_with": [],
+      "local_port": 8200,
+      "public_name": null,
+      "exposure": "administrative"
+    },
+    {
+      "id": "edge",
+      "layer": "network",
+      "kind": "infrastructure",
+      "product": "caddy",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/access_spec.go",
+      "depends_on": [
+        "network",
+        "identity"
+      ],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "origin-tls",
+      "layer": "network",
+      "kind": "infrastructure",
+      "product": "caddy",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/origin.go",
+      "depends_on": [
+        "network"
+      ],
+      "integrates_with": [],
+      "local_port": 9443,
+      "public_name": null,
+      "exposure": "administrative"
+    },
+    {
+      "id": "ingress-adapters",
+      "layer": "network",
+      "kind": "infrastructure",
+      "product": "caddy-cloudflared",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/ingress.go",
+      "depends_on": [
+        "origin-tls"
+      ],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "administrative"
+    },
+    {
+      "id": "gitlab",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "gitlab",
+      "adoption": "legacy_implementation",
+      "source": "sdlc/gitlab/compose.yaml",
+      "depends_on": [
+        "network",
+        "identity",
+        "secret-store"
+      ],
+      "integrates_with": [
+        "edge"
+      ],
+      "local_port": 3180,
+      "public_name": "git",
+      "exposure": "application"
+    },
+    {
+      "id": "gitlab-runner",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "gitlab-runner",
+      "adoption": "legacy_implementation",
+      "source": "sdlc/gitlab/compose.yaml",
+      "depends_on": [
+        "gitlab"
+      ],
+      "integrates_with": [],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "sonarqube",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "sonarqube",
+      "adoption": "candidate",
+      "source": null,
+      "depends_on": [
+        "network",
+        "identity",
+        "secret-store"
+      ],
+      "integrates_with": [
+        "gitlab"
+      ],
+      "local_port": 9000,
+      "public_name": "sonar",
+      "exposure": "application"
+    },
+    {
+      "id": "registry",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "gitlab-container-registry",
+      "adoption": "candidate",
+      "source": null,
+      "depends_on": [
+        "gitlab"
+      ],
+      "integrates_with": [],
+      "local_port": 5050,
+      "public_name": "registry",
+      "exposure": "api"
+    },
+    {
+      "id": "metrics",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "prometheus",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/observability_runtime.go",
+      "depends_on": [
+        "network"
+      ],
+      "integrates_with": [],
+      "local_port": 9090,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "logs",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "loki",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/observability_runtime.go",
+      "depends_on": [
+        "network"
+      ],
+      "integrates_with": [],
+      "local_port": 3102,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "telemetry",
+      "layer": "observability",
+      "kind": "infrastructure",
+      "product": "opentelemetry-collector",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/observability_runtime.go",
+      "depends_on": [
+        "network",
+        "metrics",
+        "logs"
+      ],
+      "integrates_with": [],
+      "local_port": 4318,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "grafana",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "grafana",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/observability_runtime.go",
+      "depends_on": [
+        "identity",
+        "telemetry"
+      ],
+      "integrates_with": [],
+      "local_port": 3001,
+      "public_name": "grafana",
+      "exposure": "application"
+    },
+    {
+      "id": "langfuse",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "langfuse",
+      "adoption": "candidate",
+      "source": null,
+      "depends_on": [
+        "network",
+        "identity",
+        "secret-store"
+      ],
+      "integrates_with": [
+        "telemetry"
+      ],
+      "local_port": 3002,
+      "public_name": "langfuse",
+      "exposure": "application"
+    },
+    {
+      "id": "inference",
+      "layer": "ai",
+      "kind": "infrastructure",
+      "product": "ollama",
+      "adoption": "legacy_implementation",
+      "source": "lab/compose.yaml",
+      "depends_on": [
+        "host",
+        "network"
+      ],
+      "integrates_with": [
+        "telemetry"
+      ],
+      "local_port": 11434,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "ai-gateway",
+      "layer": "ai",
+      "kind": "tool",
+      "product": "agentgateway",
+      "adoption": "candidate",
+      "source": null,
+      "depends_on": [
+        "network",
+        "identity",
+        "secret-store",
+        "inference"
+      ],
+      "integrates_with": [
+        "telemetry",
+        "langfuse"
+      ],
+      "local_port": 4000,
+      "public_name": "ai",
+      "exposure": "api"
+    },
+    {
+      "id": "agent-runtime",
+      "layer": "agentic",
+      "kind": "runtime",
+      "product": null,
+      "adoption": "legacy_implementation",
+      "source": "sdlc/portal/executor/coding_service.py",
+      "depends_on": [
+        "network",
+        "ai-gateway"
+      ],
+      "integrates_with": [
+        "telemetry",
+        "langfuse"
+      ],
+      "local_port": null,
+      "public_name": null,
+      "exposure": "private"
+    },
+    {
+      "id": "sdlc",
+      "layer": "applications",
+      "kind": "application",
+      "product": "portal-sdlc",
+      "adoption": "legacy_implementation",
+      "source": "sdlc/portal/compose.yaml",
+      "depends_on": [
+        "network",
+        "identity"
+      ],
+      "integrates_with": [
+        "edge",
+        "gitlab-runner",
+        "sonarqube",
+        "agent-runtime",
+        "telemetry",
+        "langfuse",
+        "registry"
+      ],
+      "local_port": 3310,
+      "public_name": "sdlc",
+      "exposure": "application"
+    },
+    {
+      "id": "homepage",
+      "layer": "middleware",
+      "kind": "tool",
+      "product": "homepage",
+      "adoption": "foundation_preparation",
+      "source": "operations/internal/provision/hub_spec.go",
+      "depends_on": [
+        "edge",
+        "secret-store",
+        "grafana"
+      ],
+      "integrates_with": [
+        "grafana",
+        "sdlc"
+      ],
+      "local_port": 3300,
+      "public_name": "home",
+      "exposure": "application"
+    },
+    {
+      "id": "replay",
+      "layer": "agentic",
+      "kind": "tool",
+      "product": "kitaru",
+      "adoption": "candidate",
+      "source": null,
+      "depends_on": [
+        "network",
+        "identity",
+        "agent-runtime"
+      ],
+      "integrates_with": [
+        "langfuse"
+      ],
+      "local_port": 3302,
+      "public_name": "replay",
+      "exposure": "application"
+    }
+  ]
+}

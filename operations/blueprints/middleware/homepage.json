@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "user": "1000:1000",
+  "memory": "384m",
+  "cpus": 0.5,
+  "exposure": "IPV4_LOOPBACK_ONLY",
+  "authority": "NATIVE_LINKS_NO_ADMIN_ACTIONS",
+  "integrations": "NO_DOCKER_SOCKET_NO_CREDENTIALS_NO_WIDGETS"
+}

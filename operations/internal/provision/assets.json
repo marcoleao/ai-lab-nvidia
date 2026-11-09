@@ -1,0 +1,56 @@
+{
+    "nvidia-key":  {
+                       "version":  "2026-11-06",
+                       "url":  "https://nvidia.github.io/libnvidia-container/gpgkey",
+                       "sha256":  "c880576d6cf75a48e5027a871bac70fd0421ab07d2b55f30877b21f1c87959c9",
+                       "kind":  "public_key"
+                   },
+    "docker-linux-amd64":  {
+                               "version":  "29.9.3",
+                               "url":  "https://download.docker.com/linux/static/stable/x86_64/docker-29.9.3.tgz",
+                               "sha256":  "3fb5d1f13014c18cc54945bc177c58a9056a482dada031e17d12cf2e6922c973",
+                               "kind":  "docker"
+                           },
+    "compose-linux-arm64":  {
+                                "version":  "v5.7.0",
+                                "url":  "https://github.com/docker/compose/releases/download/v5.7.0/docker-compose-linux-aarch64",
+                                "sha256":  "15861535d14e26555736b49376c95e14bfd94285366c8446bfac7156a972e76f",
+                                "kind":  "binary"
+                            },
+    "docker-darwin-arm64":  {
+                                "version":  "29.9.3",
+                                "url":  "https://download.docker.com/mac/static/stable/aarch64/docker-29.9.3.tgz",
+                                "sha256":  "79145e169bca0b9571d02de8e1cd311a36e0e8fdb4599b6661a87b1bb3afbe13",
+                                "kind":  "docker"
+                            },
+    "lima-darwin-arm64":  {
+                              "version":  "v2.3.0",
+                              "url":  "https://github.com/lima-vm/lima/releases/download/v2.3.0/lima-2.3.0-Darwin-arm64.tar.gz",
+                              "sha256":  "b7af444bd8f91d3c307477e562f2cf3bd7595d62b9429185e4fa841563578cfc",
+                              "kind":  "lima"
+                          },
+    "colima-darwin-arm64":  {
+                                "version":  "v0.10.3",
+                                "url":  "https://github.com/abiosoft/colima/releases/download/v0.10.3/colima-Darwin-arm64",
+                                "sha256":  "980ad8bf61a4ca370243f4cb41401a61276dcd2c2502bee7b9b86f9250169f34",
+                                "kind":  "binary"
+                            },
+    "compose-darwin-arm64":  {
+                                 "version":  "v5.7.0",
+                                 "url":  "https://github.com/docker/compose/releases/download/v5.7.0/docker-compose-darwin-aarch64",
+                                 "sha256":  "54495ff81dd8cae11861455f0308a293a530149beba8f1d90ff3f295b11cf035",
+                                 "kind":  "binary"
+                             },
+    "docker-linux-arm64":  {
+                               "version":  "29.9.3",
+                               "url":  "https://download.docker.com/linux/static/stable/aarch64/docker-29.9.3.tgz",
+                               "sha256":  "1b27fd739378ef938401e81ce5afb73b7ad7432d4f598814a9ff5f826bb464d2",
+                               "kind":  "docker"
+                           },
+    "compose-linux-amd64":  {
+                                "version":  "v5.7.0",
+                                "url":  "https://github.com/docker/compose/releases/download/v5.7.0/docker-compose-linux-x86_64",
+                                "sha256":  "7758048ad38e580f22559603312874fec8bb638d021a9e64182385fc17cc12a2",
+                                "kind":  "binary"
+                            }
+}

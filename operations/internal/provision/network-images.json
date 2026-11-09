@@ -1,0 +1,6 @@
+{
+  "source": "docker.io/library/busybox:1.37.0-musl",
+  "index": "sha256:f6a95d611e0a8780fabdb2aec43e31275b2720dfefa3e41b16835bfc42454478",
+  "linux-amd64": "docker.io/library/busybox@sha256:5624bb6777cf469b1fb50ae3f981b15d2715ee2fffaf20b9998cfb7843726835",
+  "linux-arm64": "docker.io/library/busybox@sha256:a4b7bbbb14a7e50bec3f6cbc4e2560c9b6792a7ae7062637bdfc25793817d4ff"
+}

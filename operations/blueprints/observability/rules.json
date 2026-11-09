@@ -1,0 +1,42 @@
+{
+  "groups": [
+    {
+      "name": "platform-foundation",
+      "rules": [
+        {
+          "alert": "PlatformTelemetryUnavailable",
+          "expr": "up{job=\"telemetry\"} == 0",
+          "for": "2m",
+          "labels": {
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Collector indisponível para coleta; consultar a operação da fundação."
+          }
+        },
+        {
+          "alert": "PlatformHTTPCheckUnhealthy",
+          "expr": "httpcheck_status{http_status_class=\"2xx\"} == 0",
+          "for": "2m",
+          "labels": {
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Endpoint local sem resposta 2xx; isto não é um gate de negócio."
+          }
+        },
+        {
+          "alert": "PlatformHTTPCheckMissing",
+          "expr": "(count(httpcheck_status{http_status_class=\"2xx\"}) or vector(0)) < 5",
+          "for": "2m",
+          "labels": {
+            "severity": "warning"
+          },
+          "annotations": {
+            "summary": "Uma ou mais das cinco sondas locais estão sem medição."
+          }
+        }
+      ]
+    }
+  ]
+}

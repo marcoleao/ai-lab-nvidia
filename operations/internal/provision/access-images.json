@@ -1,0 +1,58 @@
+{
+  "postgres": {
+    "version": "17.11-bookworm",
+    "index": "sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994",
+    "platforms": {
+      "amd64": {
+        "reference": "docker.io/library/postgres@sha256:73bedc9eaa0121b92b9b26bb52e5141b3f6f37479c7ef913c0160455763ca80a",
+        "config": "sha256:018dbecf6a31cfed1f83c218b5e428a52ac389ad46e495f72831641db49d85a9"
+      },
+      "arm64": {
+        "reference": "docker.io/library/postgres@sha256:9da3effe923ca751b92343f54bb9a90674895c52975e0bd10efd568d6be49b21",
+        "config": "sha256:5025eafe2dc42a558688b9abeed9beb8a66b373d7439f40cfa812bf14037149a"
+      }
+    }
+  },
+  "keycloak": {
+    "version": "26.8.1",
+    "index": "sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332",
+    "platforms": {
+      "amd64": {
+        "reference": "quay.io/keycloak/keycloak@sha256:de6ed510b59cfcd25f129ba4118696fa10d4165eee921a8d846178b6d35d30f7",
+        "config": "sha256:f527e1b3c3a0501256fc8732dd3626c1059f84931c1c73cbdef0c1042dde006e"
+      },
+      "arm64": {
+        "reference": "quay.io/keycloak/keycloak@sha256:e1c1331f4a3e826016bdee2193335ed21685f0fd075c70bcb4d8fa7eeba9e1b4",
+        "config": "sha256:24959b9b2ff0ec6bd9445588d3b488b84dffbe06e6a6ccb50e3d074f7ec581dd"
+      }
+    }
+  },
+  "openbao": {
+    "version": "2.7.2",
+    "index": "sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f",
+    "platforms": {
+      "amd64": {
+        "reference": "quay.io/openbao/openbao@sha256:a78eb12a9fc7a3ebb4bec1724e2bdd6a28e33394820641d061166919a3f1866b",
+        "config": "sha256:9089bc6d4aac6d69317f2faf7935135a6b48f949565b03c08677a7f15ff2454f"
+      },
+      "arm64": {
+        "reference": "quay.io/openbao/openbao@sha256:dcf8c71424760a76368966b07227fff45ff49944fbbd53994afb6b83d205b08b",
+        "config": "sha256:b66c2b796a7b05ae75dbf99b61c9adb804ea0b454f4abcb465a3da8b653f6357"
+      }
+    }
+  },
+  "caddy": {
+    "version": "2.11.9-alpine",
+    "index": "sha256:0bbb055bda6793c999bde78b1b5ce3e89f829fb031af2cf50056ea1246559fee",
+    "platforms": {
+      "amd64": {
+        "reference": "docker.io/library/caddy@sha256:fc9cbc100585871d18d4e451cca7021785c90a7006087427ae5ceb3e4efe6424",
+        "config": "sha256:5813f7eb9b94fac4970f9f576695fe1ed1d53d41586fd3eaa350caf7c4627d9c"
+      },
+      "arm64": {
+        "reference": "docker.io/library/caddy@sha256:9ee998103a2bc0d4392bbe9738b4069da1562d6920b3cd8088cfd098a8270120",
+        "config": "sha256:6e5bf6e6409f03049c41cf4b4c29fbd27b21c8551a900bdbceef3c3a5890b9df"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "homepage": {
+    "version": "2.7.0",
+    "license": "GPL-3.0",
+    "index": "sha256:19c5c09184458a41b7b5915e71463a39f36cd33540f41bdbed008791b8182d5f",
+    "platforms": {
+      "amd64": {
+        "reference": "ghcr.io/gethomepage/homepage@sha256:f1c9e802a0b9de6f64ef8d3e3d3aac4283f250e0a8ff5ebd170d791811431c99",
+        "config": "sha256:0193309878fc07a9016fc8bb36a54206bc1b1d17226049d7e0250bceef2d4078"
+      },
+      "arm64": {
+        "reference": "ghcr.io/gethomepage/homepage@sha256:37903ae6e0c2f41b39cdcbd859c01eb62f9459b66164e6cd7a0cafd008428563",
+        "config": "sha256:1964efc673a0108d43b37c33b55b186edd683d5ef0bf74e076942817ba4a8b8d"
+      }
+    }
+  }
+}

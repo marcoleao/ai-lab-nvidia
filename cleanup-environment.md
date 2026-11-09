@@ -1,6 +1,22 @@
 # Limpeza e teste do zero
 
+O [hub Homepage F8a](operations/HUB.md) também possui projeto, volume selado e identidade/recibos próprios, fora da limpeza legada. Parar o hub preserva esses recursos. A remoção implementada nos testes limita-se à CI descartável identificada; não é desinstalador do ambiente humano. Backup continua para capítulo posterior.
+
+A [observabilidade local F3a/F4a](operations/OBSERVABILITY.md) possui projeto, dez volumes, credenciais e recibos próprios, fora da limpeza legada. `stop` preserva Grafana, métricas e estado Loki. Não remova `observability-seed.json` (senha/chave) ou os controles para tentar reparar uma falha. Esta entrega não oferece limpeza/backup desses dados nem migra aplicações produzidas.
+
+O [ciclo de vida do runtime próprio](operations/RUNTIME-LIFECYCLE.md) também preserva dados, VM, configuração e habilitação de boot. Parar Docker/Colima exige ausência de workloads ativos e não é desinstalação. Não remova manifestos/journals para forçar recuperação; limpeza global e backup continuam fora dessa entrega.
+
+A [operação diária da fundação](operations/OPERATIONS.md) oferece parada/partida/reinício e diagnóstico dos serviços próprios, preservando volumes. `stop` não é limpeza; logs privados, journal de manutenção e recibos de idempotência também permanecem fora da limpeza legada. Não apague esses arquivos para forçar retomada. Não há backup automático nesta entrega.
+
+Os [conjuntos privados de ingresso F2c2b](operations/INGRESS.md), seus recibos/journals e identidades não são removidos pela limpeza legada. Revisões são imutáveis e retomadas com a mesma configuração; não adicione arquivos ou credenciais aos conjuntos para forçar ativação. Nenhum serviço público ou backup de dados é criado pela preparação desses arquivos.
+
+A [origem mTLS F2c2a](operations/ORIGIN-TLS.md), suas gerações/volumes e os arquivos privados de certificados também ficam fora da limpeza legada. Rotação usa revisão explícita, com compensação de processos e preservação dos recursos. Não apague controles para forçar reparo/adoção; a desinstalação dessa camada ainda não possui executor. Nenhum backup foi criado.
+
 Execute na mesma conta Windows utilizada na instalação. O script não usa internet. Não foi executada a limpeza real durante sua implementação; a execução destrutiva cabe ao operador neste roteiro.
+
+Este roteiro atende aos instaladores legados LAB/SDLC. O novo instalador prepara distro separada, CLI, pré-requisitos, runtime e [redes F2a](operations/NETWORK.md); distro, releases, serviços/perfis, redes próprias, armazenamento e ledgers externos não são removidos por este roteiro. A remoção da nova instalação ainda não foi implementada. Retentativas verificam recursos próprios existentes, sem exigir limpeza prévia. Engine externo conserva sua administração e seus dados; F2a altera apenas redes/sondas identificadas da nova instalação, sem prune ou desconexão de aplicações.
+
+[F2b](operations/ACCESS.md) acrescenta containers/volumes próprios de identidade, banco, cofre e borda, além de credenciais/material de recuperação privados. Este roteiro também não os remove. Não apague somente o material de recuperação mantendo Raft/volumes, nem use down com volumes/prune como reparo. Compensação do instalador preserva estado durável; desinstalação específica permanece pendente. Nenhum backup é criado por essa entrega.
 
 ## 1. Preparar a limpeza
 

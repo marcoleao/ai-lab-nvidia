@@ -1,0 +1,140 @@
+{
+  "receivers": {
+    "http_check/platform": {
+      "collection_interval": "15s",
+      "initial_delay": "1s",
+      "metrics": {
+        "httpcheck.error": {
+          "enabled": false
+        }
+      },
+      "targets": [
+        {
+          "endpoint": "http://identity:8080/realms/platform/.well-known/openid-configuration",
+          "method": "GET",
+          "timeout": "3s"
+        },
+        {
+          "endpoint": "http://secret-store:8200/v1/sys/health",
+          "method": "GET",
+          "timeout": "3s"
+        },
+        {
+          "endpoint": "http://grafana:3000/api/health",
+          "method": "GET",
+          "timeout": "3s"
+        },
+        {
+          "endpoint": "http://logs:3100/ready",
+          "method": "GET",
+          "timeout": "3s"
+        },
+        {
+          "endpoint": "http://metrics:9090/-/ready",
+          "method": "GET",
+          "timeout": "3s"
+        }
+      ]
+    },
+    "prometheus/identity": {
+      "config": {
+        "scrape_configs": [
+          {
+            "job_name": "identity",
+            "scrape_interval": "15s",
+            "scrape_timeout": "5s",
+            "static_configs": [
+              {
+                "targets": [
+                  "identity:9000"
+                ]
+              }
+            ],
+            "metric_relabel_configs": [
+              {
+                "source_labels": [
+                  "__name__"
+                ],
+                "regex": "jvm_.*|process_.*",
+                "action": "keep"
+              }
+            ]
+          }
+        ]
+      },
+      "trim_metric_suffixes": false
+    }
+  },
+  "processors": {
+    "memory_limiter": {
+      "check_interval": "1s",
+      "limit_mib": 160,
+      "spike_limit_mib": 32
+    },
+    "resource/platform": {
+      "attributes": [
+        {
+          "key": "installation",
+          "value": "@INSTALLATION@",
+          "action": "upsert"
+        },
+        {
+          "key": "profile",
+          "value": "@PROFILE@",
+          "action": "upsert"
+        }
+      ]
+    },
+    "batch": {
+      "timeout": "5s",
+      "send_batch_size": 1024
+    },
+    "transform/health": {
+      "error_mode": "propagate",
+      "metric_statements": [
+        "delete_key(datapoint.attributes, \"http.status_code\") where metric.name == \"httpcheck.status\""
+      ]
+    }
+  },
+  "exporters": {
+    "prometheus": {
+      "endpoint": "0.0.0.0:8889",
+      "translation_strategy": "UnderscoreEscapingWithoutSuffixes",
+      "resource_constant_labels": {
+        "included": [
+          "installation",
+          "profile"
+        ]
+      },
+      "without_scope_info": true,
+      "metric_expiration": "45s"
+    }
+  },
+  "service": {
+    "telemetry": {
+      "logs": {
+        "level": "warn"
+      },
+      "metrics": {
+        "level": "none"
+      }
+    },
+    "pipelines": {
+      "metrics": {
+        "receivers": [
+          "http_check/platform",
+          "prometheus/identity"
+        ],
+        "processors": [
+          "memory_limiter",
+          "transform/health",
+          "resource/platform",
+          "batch"
+        ],
+        "exporters": [
+          "prometheus"
+        ]
+      }
+    }
+  }
+}

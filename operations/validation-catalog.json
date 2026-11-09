@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "scope": "PROJECT_SOURCES_AND_DISPOSABLE_TEST_RESOURCES",
+  "commands": {
+    "unit": {"action":"PLATFORM_NATIVE_VALIDATION_EXECUTED","effect":"read_only_sources_disposable_test_outputs","comparison":"SOURCE_DIGEST_BEFORE_AFTER","rollback":"DISCARD_OWNED_TEMPORARY_TEST_OUTPUTS"},
+    "static": {"action":"PLATFORM_STATIC_VALIDATION_EXECUTED","effect":"read_only_sources_cross_compilation_only","comparison":"SOURCE_DIGEST_BEFORE_AFTER","rollback":"DISCARD_OWNED_BUILD_OUTPUTS"},
+    "windows": {"action":"PLATFORM_WINDOWS_BOOTSTRAP_VALIDATED","effect":"isolated_provider_test_fixtures","comparison":"SOURCE_DIGEST_BEFORE_AFTER","rollback":"DISCARD_OWNED_TEST_FIXTURES"},
+    "integration": {"action":"PLATFORM_DISPOSABLE_INTEGRATION_VALIDATED","effect":"owned_disposable_ci_resources","comparison":"SOURCE_DIGEST_BEFORE_AFTER","rollback":"SHARED_NATIVE_RECORDERS_AND_OWNED_RESOURCE_CLEANUP"}
+  },
+  "release": {"action":"PLATFORM_VALIDATED_PACKAGES_PUBLISHED","effect":"ci_artifact_publication","comparison":"COMMIT_SOURCE_DIGEST_AND_SIX_SUCCESSFUL_REPORTS","rollback":"NO_INSTALLATION_OR_DEPLOYMENT"},
+  "audit_persistence": "ATTEMPT_RECEIPT_AND_NATIVE_CI_RUN; REAL_PROVISIONING_USES_SHARED_RECORDERS",
+  "domain_data_comparison": "NOT_APPLICABLE_NO_BUSINESS_MUTATION"
+}

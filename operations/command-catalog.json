@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "commands": [
+    {"command":"validate","action":"PLATFORM_CONFIGURATION_VALIDATED","effect":"read_only","audit_persistence":"none_read_only","comparison":"NOT_APPLICABLE_READ_ONLY","rollback":"NOT_APPLICABLE_NO_MUTATION"},
+    {"command":"inventory","action":"PLATFORM_INVENTORY_READ","effect":"read_only","audit_persistence":"none_read_only","comparison":"NOT_APPLICABLE_READ_ONLY","rollback":"NOT_APPLICABLE_NO_MUTATION"},
+    {"command":"plan","action":"PLATFORM_PLAN_COMPUTED","effect":"read_only","audit_persistence":"none_read_only","comparison":"NOT_APPLICABLE_READ_ONLY","rollback":"NOT_APPLICABLE_NO_MUTATION"},
+    {"command":"publication","action":"PLATFORM_PUBLICATION_PLAN_COMPUTED","effect":"read_only","audit_persistence":"none_read_only","comparison":"NOT_APPLICABLE_READ_ONLY","rollback":"NOT_APPLICABLE_NO_MUTATION"}
+  ]
+}

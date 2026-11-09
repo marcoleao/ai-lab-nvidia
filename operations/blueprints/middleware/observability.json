@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "services": {
+    "metrics": {"product":"prometheus","user":"65534:65534","memory":"512m","cpus":1,"data_path":"/prometheus","command":["--config.file=/etc/platform/config.json","--storage.tsdb.path=/prometheus/data","--storage.tsdb.retention.time=48h","--storage.tsdb.retention.size=1GB","--web.listen-address=0.0.0.0:9090"]},
+    "logs": {"product":"loki","user":"10001:10001","memory":"768m","cpus":1,"data_path":"/loki","command":["-config.file=/etc/platform/config.json"]},
+    "telemetry": {"product":"collector","user":"10001:10001","memory":"256m","cpus":1,"command":["--config=/etc/platform/config.json"]},
+    "grafana": {"product":"grafana","user":"472:472","memory":"512m","cpus":1,"data_path":"/var/lib/grafana","command":[]}
+  },
+  "exposure":"GRAFANA_IPV4_LOOPBACK_ONLY",
+  "authentication":"LOCAL_PRIVATE_BOOTSTRAP_NO_SSO",
+  "permissions":"NON_ROOT_DROP_ALL_NO_HOST_MOUNTS_NO_DOCKER_SOCKET"
+}

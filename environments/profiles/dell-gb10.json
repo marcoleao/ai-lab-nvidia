@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "dell-gb10",
+  "host_os": "linux",
+  "architecture": "arm64",
+  "accelerator": "cuda",
+  "container_runtime": "docker-native",
+  "inference_runtime": "ollama-container",
+  "component_dependencies": {"inference": ["network"]},
+  "capacity": {"host_memory_gib": 128, "inference_memory_gib": null, "max_parallel_jobs": 1},
+  "qualification": {"status": "not_qualified", "evidence": []}
+}

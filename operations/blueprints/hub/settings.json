@@ -1,0 +1,18 @@
+{
+  "title": "Plataforma · Serviços",
+  "description": "Ferramentas da fundação local. Consulte a disponibilidade nas ferramentas. IA, demais ferramentas e Portal SDLC ainda em implantação.",
+  "theme": "dark",
+  "color": "slate",
+  "language": "pt",
+  "headerStyle": "clean",
+  "cardStyle": "hairline",
+  "fullWidth": true,
+  "useEqualHeights": true,
+  "hideVersion": true,
+  "disableUpdateCheck": true,
+  "target": "_blank",
+  "layout": {
+    "Acessos": {"style": "row", "columns": 2},
+    "Observabilidade": {"style": "row", "columns": 2}
+  }
+}

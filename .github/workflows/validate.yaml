@@ -3,6 +3,140 @@ on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
 jobs:
+  platform-cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux-amd64
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+          - os: macos-15
+            target: darwin-arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: operations/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Native tests, CLI and installed release in a disposable source snapshot
+        run: sh operations/validate.sh --mode unit --report .cache/platform-validation/native-${{ matrix.target }}.json
+      - name: Preserve safe validation receipt, including failed attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-validation-native-${{ matrix.target }}
+          path: .cache/platform-validation/native-${{ matrix.target }}.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+  platform-windows-bootstrap:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Windows bootstrap and GPU provider fixtures without Go executables
+        run: python operations/scripts/validation.py --mode windows --report .cache/platform-validation/windows-bootstrap.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-validation-windows-bootstrap
+          path: .cache/platform-validation/windows-bootstrap.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+  platform-integration:
+    needs: platform-cli
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux-amd64
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: operations/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Real private network, access, observability and Homepage with owned cleanup
+        run: sh operations/validate.sh --mode integration --disposable --report .cache/platform-validation/docker-${{ matrix.target }}.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-validation-docker-${{ matrix.target }}
+          path: .cache/platform-validation/docker-${{ matrix.target }}.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+  platform-cli-build:
+    needs: [platform-cli, platform-windows-bootstrap, platform-integration]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: arm64
+    env:
+      GOTOOLCHAIN: local
+      GOTELEMETRY: 'off'
+      CGO_ENABLED: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: operations/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: platform-validation-*
+          path: .cache/platform-validation/evidence
+          merge-multiple: true
+      - name: Require six successful reports for this commit, run and exact sources
+        run: python operations/scripts/release-gate.py --reports .cache/platform-validation/evidence --receipt .cache/platform-packages/validation.json
+      - name: Build package only after native validation and real Docker integration
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p ".cache/platform/${GOOS}-${GOARCH}"
+          go -C operations build -trimpath -o "$PWD/.cache/platform/${GOOS}-${GOARCH}/platform" ./cmd/platform
+          sh operations/scripts/package-cli.sh "${GOOS}-${GOARCH}" ".cache/platform/${GOOS}-${GOARCH}/platform" .cache/platform-packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: |
+            .cache/platform-packages/*.tar.gz
+            .cache/platform-packages/*.sha256
+            .cache/platform-packages/validation.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
   portal-foundation:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -114,6 +248,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Platform host installer without provisioning
+        shell: powershell
+        run: ./tests/platform-installer.tests.ps1
+      - name: Platform Windows driver adapter without hardware or Windows Update
+        shell: powershell
+        run: ./tests/platform-windows-gpu.tests.ps1
       - name: Cleanup destructive path guards
         shell: powershell
         run: ./tests/cleanup-environment.tests.ps1
